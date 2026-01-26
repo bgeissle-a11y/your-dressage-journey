@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your Dressage Journey Pilot - Rider Profile Application Form">
+    <title>Rider Profile | Your Dressage Journey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #FAF8F5 0%, #F5F1EB 100%);
+            padding: 20px;
+            line-height: 1.6;
+            color: #3A3A3A;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            background: white;
+            padding: 40px 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(139, 115, 85, 0.12);
+            border: 1px solid #E0D5C7;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            color: #8B7355;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: #7A7A7A;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .intro-text {
+            color: #999;
+            font-size: 0.95em;
+            font-style: italic;
+            margin-top: 15px;
+        }
+
+        .section {
+            background: white;
+            padding: 35px;
+            margin-bottom: 25px;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(139, 115, 85, 0.08);
+            border: 1px solid #E0D5C7;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            color: #8B7355;
+            font-size: 1.6em;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #D4A574;
+            font-weight: 600;
+        }
+
+        .field {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #3A3A3A;
+            font-size: 1.05em;
+        }
+
+        .required {
+            color: #D0021B;
+            font-weight: bold;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            border: 2px solid #E0D5C7;
+            border-radius: 10px;
+            font-family: 'Work Sans', sans-serif;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #8B7355;
+            box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238B7355' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 40px;
+        }
+
+        .help-text {
+            font-size: 0.9em;
+            color: #7A7A7A;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .checkbox-group {
+            margin-top: 12px;
+        }
+
+        .checkbox-option {
+            padding: 14px 16px;
+            border: 2px solid #E0D5C7;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            background: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .checkbox-option:hover {
+            border-color: #D4A574;
+            background: rgba(212, 165, 116, 0.05);
+        }
+
+        .checkbox-option.selected {
+            border-color: #8B7355;
+            background: rgba(139, 115, 85, 0.08);
+        }
+
+        .checkbox-option input {
+            width: auto;
+            margin-right: 12px;
+            cursor: pointer;
+            accent-color: #8B7355;
+        }
+
+        .checkbox-option label {
+            display: inline;
+            font-weight: 500;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        button {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.15em;
+            font-weight: 600;
+            background: #8B7355;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Work Sans', sans-serif;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(139, 115, 85, 0.25);
+        }
+
+        button:hover {
+            background: #6F5C44;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(139, 115, 85, 0.35);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result-screen {
+            display: none;
+        }
+
+        .success-header {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border: 3px solid #28a745;
+            padding: 40px 30px;
+            text-align: center;
+            border-radius: 16px;
+            margin-bottom: 25px;
+        }
+
+        .success-header h2 {
+            font-family: 'Playfair Display', serif;
+            color: #155724;
+            font-size: 2.2em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .success-header p {
+            color: #155724;
+            font-size: 1.1em;
+            line-height: 1.8;
+        }
+
+        .instructions-box {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-left: 5px solid #ffc107;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .instructions-box h3 {
+            font-family: 'Playfair Display', serif;
+            color: #856404;
+            font-size: 1.4em;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .instructions-box ol {
+            margin-left: 20px;
+            color: #856404;
+            font-size: 1.05em;
+            line-height: 2;
+        }
+
+        .instructions-box strong {
+            color: #533f03;
+        }
+
+        .result-box {
+            width: 100%;
+            min-height: 450px;
+            padding: 20px;
+            font-size: 13px;
+            font-family: 'Courier New', monospace;
+            border: 3px solid #28a745;
+            border-radius: 12px;
+            background: #f0fff4;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            color: #1e4620;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #8B7355;
+            border: 2px solid #8B7355;
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(139, 115, 85, 0.05);
+            border-color: #6F5C44;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .section {
+                padding: 25px 20px;
+            }
+
+            header {
+                padding: 30px 20px;
+            }
+
+            .success-header h2 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Your Dressage Journey</h1>
+            <p class="subtitle">Pilot Program Application</p>
+            <p class="intro-text">Rider Profile Form</p>
+        </header>
+
+        <div id="formScreen">
+            <div class="section">
+                <h2 class="section-title">1. Contact Information</h2>
+                
+                <div class="field">
+                    <label>Full Name <span class="required">*</span></label>
+                    <input type="text" id="fullName" placeholder="Your full name">
+                </div>
+
+                <div class="field">
+                    <label>Email Address <span class="required">*</span></label>
+                    <input type="email" id="email" placeholder="your.email@example.com">
+                </div>
+
+                <div class="field">
+                    <label>Phone Number</label>
+                    <input type="tel" id="phone" placeholder="Optional">
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">2. Experience & Training</h2>
+                
+                <div class="field">
+                    <label>My experience level <span class="required">*</span></label>
+                    <select id="level">
+                        <option value="">--Select--</option>
+                        <option value="beginning">Just beginning</option>
+                        <option value="while">I've been at this a while</option>
+                        <option value="block">I've been around the block a time or two</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Riding Frequency <span class="required">*</span></label>
+                    <select id="frequency">
+                        <option value="">--Select--</option>
+                        <option value="1-2">1-2 times per week</option>
+                        <option value="3-4">3-4 times per week</option>
+                        <option value="5-6">5-6 times per week</option>
+                        <option value="7+">Daily (7+ times per week)</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Lesson Frequency <span class="required">*</span></label>
+                    <select id="coach">
+                        <option value="">--Select--</option>
+                        <option value="weekly">Weekly or more</option>
+                        <option value="biweekly">Bi-weekly or monthly</option>
+                        <option value="occasional">Occasional lessons</option>
+                        <option value="independent">Independent (no regular lessons)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">3. Your Situation</h2>
+                
+                <div class="field">
+                    <label>Horse Ownership <span class="required">*</span></label>
+                    <p class="help-text">Check all that apply</p>
+                    <div class="checkbox-group">
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="own" value="own">
+                            <label for="own">I own my horse(s)</label>
+                        </div>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="lease" value="lease">
+                            <label for="lease">I lease a horse</label>
+                        </div>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="schoolHorse" value="schoolHorse">
+                            <label for="schoolHorse">I ride school/lesson horses</label>
+                        </div>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="training" value="training">
+                            <label for="training">I'm in training as a professional</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Number of Horses You Ride <span class="required">*</span></label>
+                    <input type="number" id="numHorses" min="1" max="20" placeholder="Enter a number">
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">4. Your Journey</h2>
+                
+                <div class="field">
+                    <label>Why do you ride? <span class="required">*</span></label>
+                    <textarea id="whyRide" placeholder="Share what draws you to dressage..."></textarea>
+                </div>
+
+                <div class="field">
+                    <label>What do you enjoy most about dressage?</label>
+                    <textarea id="enjoyMost" placeholder="What aspects of dressage bring you the most joy?"></textarea>
+                    <p class="help-text">Optional, but helps us understand your journey</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">5. Technology & Commitment</h2>
+                
+                <div class="field">
+                    <label>Devices you'll use for this pilot <span class="required">*</span></label>
+                    <p class="help-text">Check all that apply</p>
+                    <div class="checkbox-group">
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="devMobile" value="mobile">
+                            <label for="devMobile">Mobile phone</label>
+                        </div>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="devTablet" value="tablet">
+                            <label for="devTablet">Tablet</label>
+                        </div>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="devDesktop" value="desktop">
+                            <label for="devDesktop">Desktop or laptop computer</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Mobile Device Type <span class="required">*</span></label>
+                    <select id="mobileType">
+                        <option value="">--Select--</option>
+                        <option value="apple">Apple (iPhone/iPad)</option>
+                        <option value="android">Android</option>
+                        <option value="both">Both Apple and Android</option>
+                        <option value="neither">Neither (desktop/laptop only)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">6. Consent & Commitment</h2>
+                <p class="help-text" style="margin-bottom: 15px;">All items required to participate in the pilot</p>
+                
+                <div class="checkbox-group">
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="consent1" value="age">
+                        <label for="consent1">I am 18 years of age or older <span class="required">*</span></label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="consent2" value="commitment">
+                        <label for="consent2">I commit to completing at least 5 reflections and 5 post-ride debriefs during the pilot period <span class="required">*</span></label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="consent3" value="survey">
+                        <label for="consent3">I will complete the exit survey at the end of the pilot <span class="required">*</span></label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="consent4" value="understand">
+                        <label for="consent4">I understand this is a pilot program and may experience technical issues or changes <span class="required">*</span></label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" onclick="generateData()">Submit My Application</button>
+        </div>
+
+        <div id="resultScreen" class="result-screen">
+            <div class="success-header">
+                <h2>✓ Application Submitted!</h2>
+                <p>Your information has been prepared and is ready to send.</p>
+            </div>
+            
+            <div class="instructions-box">
+                <h3>📋 Next Steps:</h3>
+                <ol>
+                    <li><strong>Tap inside the text box below</strong></li>
+                    <li><strong>Select all the text</strong> (tap "Select All" or press and hold)</li>
+                    <li><strong>Tap "Copy"</strong></li>
+                    <li><strong>Open your email app</strong></li>
+                    <li><strong>Paste</strong> the data and send to Barb</li>
+                </ol>
+            </div>
+
+            <textarea id="resultBox" class="result-box" readonly></textarea>
+
+            <button type="button" onclick="location.reload()" class="btn-secondary">Start Over / Edit Information</button>
+        </div>
+    </div>
+
+    <script>
+        // Add visual feedback for checkboxes
+        document.querySelectorAll('.checkbox-option').forEach(option => {
+            const checkbox = option.querySelector('input[type="checkbox"]');
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+        });
+
+        function generateData() {
+            // Collect form data
+            var data = {
+                fullName: document.getElementById('fullName').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                level: document.getElementById('level').value,
+                frequency: document.getElementById('frequency').value,
+                coach: document.getElementById('coach').value,
+                ownership: [],
+                numHorses: document.getElementById('numHorses').value,
+                whyRide: document.getElementById('whyRide').value.trim(),
+                enjoyMost: document.getElementById('enjoyMost').value.trim(),
+                devices: [],
+                mobileType: document.getElementById('mobileType').value,
+                consent: [],
+                timestamp: new Date().toISOString()
+            };
+            
+            // Collect checkbox values
+            if (document.getElementById('own').checked) data.ownership.push('Own');
+            if (document.getElementById('lease').checked) data.ownership.push('Lease');
+            if (document.getElementById('schoolHorse').checked) data.ownership.push('School/Lesson Horses');
+            if (document.getElementById('training').checked) data.ownership.push('Professional Training');
+            
+            if (document.getElementById('devMobile').checked) data.devices.push('Mobile Phone');
+            if (document.getElementById('devTablet').checked) data.devices.push('Tablet');
+            if (document.getElementById('devDesktop').checked) data.devices.push('Desktop/Laptop');
+            
+            if (document.getElementById('consent1').checked) data.consent.push('Age 18+');
+            if (document.getElementById('consent2').checked) data.consent.push('Commitment to complete');
+            if (document.getElementById('consent3').checked) data.consent.push('Exit survey');
+            if (document.getElementById('consent4').checked) data.consent.push('Understands pilot');
+            
+            // Validate required fields
+            var errors = [];
+            if (!data.fullName) errors.push('• Full Name');
+            if (!data.email) errors.push('• Email Address');
+            if (!data.level) errors.push('• Experience Level');
+            if (!data.frequency) errors.push('• Riding Frequency');
+            if (!data.coach) errors.push('• Lesson Frequency');
+            if (data.ownership.length === 0) errors.push('• Horse Ownership (check at least one)');
+            if (!data.numHorses) errors.push('• Number of Horses');
+            if (!data.whyRide) errors.push('• Why do you ride?');
+            if (data.devices.length === 0) errors.push('• Devices (check at least one)');
+            if (!data.mobileType) errors.push('• Mobile Device Type');
+            if (data.consent.length !== 4) errors.push('• All Consent Items (check all 4)');
+            
+            if (errors.length > 0) {
+                alert('Please complete these required fields:\n\n' + errors.join('\n'));
+                return;
+            }
+            
+            // Format output
+            var output = '==========================================================\n';
+            output += '       YOUR DRESSAGE JOURNEY - RIDER PROFILE\n';
+            output += '              Pilot Program Application\n';
+            output += '==========================================================\n\n';
+            
+            output += 'CONTACT INFORMATION:\n';
+            output += '----------------------------------------\n';
+            output += 'Name: ' + data.fullName + '\n';
+            output += 'Email: ' + data.email + '\n';
+            output += 'Phone: ' + (data.phone || 'Not provided') + '\n\n';
+            
+            output += 'EXPERIENCE & TRAINING:\n';
+            output += '----------------------------------------\n';
+            output += 'Experience Level: ' + data.level + '\n';
+            output += 'Riding Frequency: ' + data.frequency + '\n';
+            output += 'Lesson Frequency: ' + data.coach + '\n\n';
+            
+            output += 'SITUATION:\n';
+            output += '----------------------------------------\n';
+            output += 'Horse Ownership: ' + data.ownership.join(', ') + '\n';
+            output += 'Number of Horses: ' + data.numHorses + '\n\n';
+            
+            output += 'YOUR JOURNEY:\n';
+            output += '----------------------------------------\n';
+            output += 'Why I ride:\n' + data.whyRide + '\n\n';
+            
+            if (data.enjoyMost) {
+                output += 'What I enjoy most:\n' + data.enjoyMost + '\n\n';
+            }
+            
+            output += 'TECHNOLOGY:\n';
+            output += '----------------------------------------\n';
+            output += 'Devices: ' + data.devices.join(', ') + '\n';
+            output += 'Mobile Type: ' + data.mobileType + '\n\n';
+            
+            output += 'CONSENT & COMMITMENT:\n';
+            output += '----------------------------------------\n';
+            output += data.consent.join('\n') + '\n\n';
+            
+            output += 'SUBMISSION:\n';
+            output += '----------------------------------------\n';
+            output += 'Timestamp: ' + new Date().toLocaleString() + '\n\n';
+            
+            output += '==========================================================\n';
+            output += '               JSON FORMAT (for database)\n';
+            output += '==========================================================\n\n';
+            output += JSON.stringify(data, null, 2);
+            
+            // Display result
+            document.getElementById('resultBox').value = output;
+            document.getElementById('formScreen').style.display = 'none';
+            document.getElementById('resultScreen').style.display = 'block';
+            window.scrollTo(0, 0);
+            
+            // Auto-select text
+            setTimeout(function() {
+                document.getElementById('resultBox').select();
+            }, 100);
+        }
+    </script>
+</body>
+</html>
