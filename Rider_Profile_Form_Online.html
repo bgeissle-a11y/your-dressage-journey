@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Dressage Journey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #2E5C8A;
+            --color-bg: #FAF8F5;
+            --color-bg-secondary: #F5F1EB;
+            --color-text: #3A3A3A;
+            --color-text-light: #7A7A7A;
+            --color-border: #E0D5C7;
+            --shadow-medium: 0 4px 24px rgba(46, 92, 138, 0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background: linear-gradient(to bottom, var(--color-bg) 0%, var(--color-bg-secondary) 100%);
+            color: var(--color-text);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container { max-width: 800px; margin: 0 auto; }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--color-border);
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8em;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 8px;
+        }
+
+        .subtitle { font-size: 1.05em; color: var(--color-text-light); margin-bottom: 20px; }
+        .intro { background: rgba(46, 92, 138, 0.05); padding: 20px; border-radius: 10px; margin-top: 20px; font-size: 0.95em; }
+
+        .form-container {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--color-border);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .section { padding: 40px; border-bottom: 2px solid var(--color-bg-secondary); }
+        .section:last-child { border-bottom: none; }
+        .section-header { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid var(--color-primary); }
+        .section-title { font-family: 'Playfair Display', serif; font-size: 1.8em; color: var(--color-primary); margin-bottom: 8px; font-weight: 600; }
+        .question { margin-bottom: 35px; }
+        .question:last-child { margin-bottom: 0; }
+
+        label { display: block; font-weight: 500; font-size: 1.05em; margin-bottom: 10px; color: var(--color-text); }
+        .required { color: #D0021B; margin-left: 4px; }
+
+        input[type="text"], input[type="email"], input[type="tel"], input[type="number"], select, textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--color-border);
+            border-radius: 10px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1em;
+            background: white;
+            transition: all 0.3s ease;
+            color: var(--color-text);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(46, 92, 138, 0.1);
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%232E5C8A' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 40px;
+        }
+
+        .checkbox-group { display: flex; flex-direction: column; gap: 12px; }
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            padding: 14px 18px;
+            border: 2px solid var(--color-border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .checkbox-option:hover { border-color: var(--color-primary); background: rgba(46, 92, 138, 0.03); }
+        .checkbox-option.selected { border-color: var(--color-primary); background: rgba(46, 92, 138, 0.08); }
+
+        input[type="checkbox"] { margin-right: 12px; width: 20px; height: 20px; cursor: pointer; accent-color: var(--color-primary); }
+        .help-text { font-size: 0.9em; color: var(--color-text-light); margin-top: 6px; font-style: italic; }
+
+        /* Range slider styling */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: linear-gradient(to right, #E0D5C7, var(--color-primary));
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid var(--color-primary);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid var(--color-primary);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            transform: scale(1.15);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        textarea { resize: vertical; line-height: 1.6; }
+
+        .button-group { display: flex; gap: 15px; justify-content: center; padding: 40px; background: var(--color-bg-secondary); }
+        button {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1.05em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary { background: var(--color-primary); color: white; box-shadow: 0 4px 12px rgba(46, 92, 138, 0.25); }
+        .btn-primary:hover { background: #244868; transform: translateY(-2px); }
+
+        .completion-screen { display: none; text-align: center; padding: 60px 40px; }
+        .completion-screen.active { display: block !important; }
+        .completion-screen h2 { font-family: 'Playfair Display', serif; font-size: 2.5em; color: var(--color-primary); margin-bottom: 20px; }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.2em; }
+            .section { padding: 30px 20px; }
+            .button-group { flex-direction: column; padding: 30px 20px; }
+            button { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Your Dressage Journey</h1>
+            <p class="subtitle">Pilot Application <span style="font-size: 0.7em; color: #999;">(v2.1 - Jan 26, 2026)</span></p>
+            <div class="intro">
+                <strong>Thank you for your interest!</strong> This form helps us understand your background. All information will be kept confidential.
+            </div>
+        </header>
+
+        <form id="riderForm">
+            <div class="form-container">
+                <div class="section">
+                    <div class="section-header"><h2 class="section-title">1. Contact Information</h2></div>
+                    <div class="question">
+                        <label>Full Name <span class="required">*</span></label>
+                        <input type="text" id="fullName" required>
+                    </div>
+                    <div class="question">
+                        <label>Email <span class="required">*</span></label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="question">
+                        <label>Phone</label>
+                        <input type="tel" id="phone">
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header"><h2 class="section-title">2. Riding Background</h2></div>
+                    <div class="question">
+                        <label>My experience level <span class="required">*</span></label>
+                        <select id="level" required>
+                            <option value="">--Select--</option>
+                            <option value="beginning">Just beginning</option>
+                            <option value="while">I've been at this a while</option>
+                            <option value="block">I've been around the block a time or two</option>
+                        </select>
+                    </div>
+                    <div class="question">
+                        <label>Riding Frequency <span class="required">*</span></label>
+                        <select id="frequency" required>
+                            <option value="">--Select--</option>
+                            <option value="1-2">1-2x/week</option>
+                            <option value="3-4">3-4x/week</option>
+                            <option value="5-6">5-6x/week</option>
+                            <option value="7+">Daily</option>
+                        </select>
+                    </div>
+                    <div class="question">
+                        <label>Rider Category <span class="required">*</span></label>
+                        <select id="status" required>
+                            <option value="">--Select--</option>
+                            <option value="jr-young">Junior/Young Rider</option>
+                            <option value="aa">Adult Amateur (AA)</option>
+                            <option value="professional">Professional</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header"><h2 class="section-title">3. Training Context</h2></div>
+                    <div class="question">
+                        <label>Lesson Frequency <span class="required">*</span></label>
+                        <select id="coach" required>
+                            <option value="">--Select--</option>
+                            <option value="weekly">Weekly+</option>
+                            <option value="biweekly">Bi-weekly/Monthly</option>
+                            <option value="occasional">Occasional</option>
+                            <option value="independent">Independent</option>
+                        </select>
+                    </div>
+                    <div class="question">
+                        <label>Facility Type <span class="required">*</span></label>
+                        <select id="facility" required>
+                            <option value="">--Select--</option>
+                            <option value="private">Private/Home</option>
+                            <option value="boarding">Boarding</option>
+                            <option value="lesson">Lesson Barn</option>
+                            <option value="training">Training Facility</option>
+                            <option value="mixed">Mixed/Multiple</option>
+                        </select>
+                    </div>
+                    <div class="question">
+                        <label>Horse Ownership (check all that apply) <span class="required">*</span></label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-option"><input type="checkbox" name="ownership" value="own" id="own"><label for="own" style="margin:0; cursor:pointer; flex:1">I own my horse</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="ownership" value="lease" id="lease"><label for="lease" style="margin:0; cursor:pointer; flex:1">I lease</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="ownership" value="lesson" id="lesson"><label for="lesson" style="margin:0; cursor:pointer; flex:1">Lesson horses</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="ownership" value="multiple" id="multiple"><label for="multiple" style="margin:0; cursor:pointer; flex:1">Multiple horses</label></div>
+                        </div>
+                    </div>
+                    <div class="question">
+                        <label># Horses You Ride <span class="required">*</span></label>
+                        <input type="number" id="numHorses" min="1" max="20" required>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header"><h2 class="section-title">4. Motivation & Attributes</h2></div>
+                    <div class="question">
+                        <label>Why do you ride? <span class="required">*</span></label>
+                        <textarea id="whyRide" rows="4" required></textarea>
+                    </div>
+                    <div class="question">
+                        <label>What do you enjoy most about riding? <span class="required">*</span></label>
+                        <textarea id="enjoyMost" rows="4" required></textarea>
+                    </div>
+                    <div class="question">
+                        <label>What attributes do you bring as a rider? (select your top 4) <span class="required">*</span></label>
+                        <div class="checkbox-group" id="attributesGroup">
+                            <div class="checkbox-option"><input type="checkbox" name="attributes" value="courage" id="a1"><label for="a1" style="margin:0; cursor:pointer; flex:1">Courage</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="attributes" value="gratitude" id="a2"><label for="a2" style="margin:0; cursor:pointer; flex:1">Gratitude</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="attributes" value="focus" id="a3"><label for="a3" style="margin:0; cursor:pointer; flex:1">Focus</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="attributes" value="feel" id="a4"><label for="a4" style="margin:0; cursor:pointer; flex:1">Feel</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="attributes" value="integrity" id="a5"><label for="a5" style="margin:0; cursor:pointer; flex:1">Integrity</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="attributes" value="confidence" id="a6"><label for="a6" style="margin:0; cursor:pointer; flex:1">Confidence</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="attributes" value="honesty" id="a7"><label for="a7" style="margin:0; cursor:pointer; flex:1">Honesty</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="attributes" value="leadership" id="a8"><label for="a8" style="margin:0; cursor:pointer; flex:1">Leadership</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="attributes" value="commitment" id="a9"><label for="a9" style="margin:0; cursor:pointer; flex:1">Commitment</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="attributes" value="resilience" id="a10"><label for="a10" style="margin:0; cursor:pointer; flex:1">Resilience</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="attributes" value="love-of-horse" id="a11"><label for="a11" style="margin:0; cursor:pointer; flex:1">Love of the horse</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="attributes" value="dedication" id="a12"><label for="a12" style="margin:0; cursor:pointer; flex:1">Dedication</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="attributes" value="enjoyment" id="a13"><label for="a13" style="margin:0; cursor:pointer; flex:1">Enjoyment</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="attributes" value="composure" id="a14"><label for="a14" style="margin:0; cursor:pointer; flex:1">Composure</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="attributes" value="desire-to-learn" id="a15"><label for="a15" style="margin:0; cursor:pointer; flex:1">Desire to learn</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="attributes" value="empathy" id="a16"><label for="a16" style="margin:0; cursor:pointer; flex:1">Empathy</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="attributes" value="consistency" id="a17"><label for="a17" style="margin:0; cursor:pointer; flex:1">Consistency</label></div>
+                        </div>
+                    </div>
+                    <div class="question">
+                        <label>Competition Experience <span class="required">*</span></label>
+                        <select id="compete" required>
+                            <option value="">--Select--</option>
+                            <option value="regular">Regular (4+ shows/year)</option>
+                            <option value="occasional">Occasional (1-3/year)</option>
+                            <option value="past">Past competitor</option>
+                            <option value="no">Don't compete</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header"><h2 class="section-title">5. Technology & Commitment</h2></div>
+                    <div class="question">
+                        <label>Devices to be used in the pilot (check all) <span class="required">*</span></label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-option"><input type="checkbox" name="devices" value="desktop" id="d1"><label for="d1" style="margin:0; cursor:pointer; flex:1">Desktop</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="devices" value="laptop" id="d2"><label for="d2" style="margin:0; cursor:pointer; flex:1">Laptop</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="devices" value="tablet" id="d3"><label for="d3" style="margin:0; cursor:pointer; flex:1">Tablet</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="devices" value="phone" id="d4"><label for="d4" style="margin:0; cursor:pointer; flex:1">Smartphone</label></div>
+                        </div>
+                    </div>
+                    <div class="question">
+                        <label>Mobile Device Type <span class="required">*</span></label>
+                        <select id="mobileType" required>
+                            <option value="">--Select--</option>
+                            <option value="apple">Apple (iPhone/iPad)</option>
+                            <option value="android">Android</option>
+                            <option value="both">Both</option>
+                            <option value="neither">Neither (desktop/laptop only)</option>
+                        </select>
+                    </div>
+                    <div class="question">
+                        <label>Tech Comfort <span class="required">*</span></label>
+                        <select id="techComfort" required>
+                            <option value="">--Select--</option>
+                            <option value="very">Very comfortable</option>
+                            <option value="comfortable">Comfortable</option>
+                            <option value="somewhat">Somewhat comfortable</option>
+                            <option value="not-very">Not very comfortable</option>
+                        </select>
+                    </div>
+                    <div class="question">
+                        <label>4-Week Commitment <span class="required">*</span></label>
+                        <select id="commitment" required>
+                            <option value="">--Select--</option>
+                            <option value="yes">Yes</option>
+                            <option value="yes-limited">Yes, with limited availability</option>
+                            <option value="no">No/Unsure</option>
+                        </select>
+                    </div>
+                    <div class="question">
+                        <label>Journal Experience <span class="required">*</span></label>
+                        <select id="journal" required>
+                            <option value="">--Select--</option>
+                            <option value="regularly">Yes, regularly</option>
+                            <option value="occasionally">Yes, occasionally</option>
+                            <option value="interested">No, but interested</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                    <div class="question">
+                        <label>What interests you most about this pilot?</label>
+                        <textarea id="interest" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header"><h2 class="section-title">6. Consent</h2></div>
+                    <div class="question">
+                        <label>I confirm (all required): <span class="required">*</span></label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-option"><input type="checkbox" name="consent" id="c1" required><label for="c1" style="margin:0; cursor:pointer; flex:1">18+ years old</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="consent" id="c2" required><label for="c2" style="margin:0; cursor:pointer; flex:1">Complete 5 reflections + 5 debriefs</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="consent" id="c3" required><label for="c3" style="margin:0; cursor:pointer; flex:1">Complete exit survey</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="consent" id="c4" required><label for="c4" style="margin:0; cursor:pointer; flex:1">Understand pilot may have issues</label></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn-primary">Save Profile</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="form-container completion-screen" id="complete">
+            <h2>✓ Profile Saved!</h2>
+            <p>Your profile has been saved. To participate in the pilot, please copy your data and send it to Barb.</p>
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 25px;">
+                <button class="btn-primary" id="copyBtn">📋 Copy to Clipboard</button>
+                <button class="btn-secondary" id="downloadBtn">Download JSON</button>
+            </div>
+            <p id="copyConfirm" style="margin-top: 15px; color: var(--color-primary); font-weight: 600; display: none;">✓ Copied! Now paste and send to Barb.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Rider Profile Form loaded');
+            
+            // Visual feedback for checkboxes
+            document.querySelectorAll('.checkbox-option').forEach(opt => {
+                opt.addEventListener('click', function() {
+                    const cb = this.querySelector('input[type="checkbox"]');
+                    if (cb) {
+                        cb.checked = !cb.checked;
+                        this.classList.toggle('selected', cb.checked);
+                        
+                        // Limit attributes to 4
+                        if (cb.name === 'attributes') {
+                            const checked = document.querySelectorAll('[name="attributes"]:checked');
+                            if (checked.length > 4) {
+                                cb.checked = false;
+                                this.classList.remove('selected');
+                                alert('Please select your top 4 attributes.');
+                            }
+                        }
+                    }
+                });
+            });
+
+            // Form submission
+            const form = document.getElementById('riderForm');
+            if (!form) {
+                console.error('Form not found!');
+                return;
+            }
+            
+            // Listen for validation failures
+            form.addEventListener('invalid', function(e) {
+                console.log('Validation failed on:', e.target);
+                alert('Please fill in all required fields (marked with *) before saving.');
+            }, true);
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                console.log('Form submitted');
+                alert('Form validation passed! Processing...');
+                
+                try {
+                    // Validate
+                    const ownership = document.querySelectorAll('[name="ownership"]:checked');
+                    const devices = document.querySelectorAll('[name="devices"]:checked');
+                    const attributes = document.querySelectorAll('[name="attributes"]:checked');
+                    const consent = document.querySelectorAll('[name="consent"]:checked');
+                    
+                    if (ownership.length === 0) { 
+                        alert('Select at least one ownership status'); 
+                        return; 
+                    }
+                    if (devices.length === 0) { 
+                        alert('Select at least one device'); 
+                        return; 
+                    }
+                    if (attributes.length === 0 || attributes.length > 4) { 
+                        alert('Select 1-4 attributes you bring as a rider'); 
+                        return; 
+                    }
+                    if (consent.length !== 4) { 
+                        alert('All consent items required'); 
+                        return; 
+                    }
+                    
+                    // Collect data
+                    const data = {
+                        fullName: document.getElementById('fullName').value,
+                        email: document.getElementById('email').value,
+                        phone: document.getElementById('phone').value,
+                        level: document.getElementById('level').value,
+                        frequency: document.getElementById('frequency').value,
+                        status: document.getElementById('status').value,
+                        coach: document.getElementById('coach').value,
+                        facility: document.getElementById('facility').value,
+                        ownership: Array.from(ownership).map(cb => cb.value),
+                        numHorses: document.getElementById('numHorses').value,
+                        whyRide: document.getElementById('whyRide').value,
+                        enjoyMost: document.getElementById('enjoyMost').value,
+                        attributes: Array.from(attributes).map(cb => cb.value),
+                        compete: document.getElementById('compete').value,
+                        devices: Array.from(devices).map(cb => cb.value),
+                        mobileType: document.getElementById('mobileType').value,
+                        techComfort: document.getElementById('techComfort').value,
+                        commitment: document.getElementById('commitment').value,
+                        journal: document.getElementById('journal').value,
+                        interest: document.getElementById('interest').value,
+                        consent: Array.from(consent).map(cb => cb.value),
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    console.log('Data collected:', data);
+                    
+                    // Save to localStorage
+                    try {
+                        localStorage.setItem('riderProfile', JSON.stringify(data));
+                        console.log('Data saved to localStorage');
+                    } catch (storageError) {
+                        console.error('localStorage error:', storageError);
+                        alert('Error saving data. Please check your browser settings allow local storage.');
+                        return;
+                    }
+                    
+                    // Hide form and show completion screen
+                    const formElement = document.getElementById('riderForm');
+                    const completeScreen = document.getElementById('complete');
+                    
+                    if (formElement && completeScreen) {
+                        formElement.style.display = 'none';
+                        completeScreen.classList.add('active');
+                        completeScreen.style.display = 'block'; // Force display
+                        window.scrollTo(0, 0);
+                        console.log('Completion screen should now be visible');
+                        
+                        // Set up button handlers after screen is shown
+                        setupButtonHandlers();
+                    } else {
+                        console.error('Could not find form or completion screen');
+                        alert('Form saved, but display error occurred. Data is in localStorage.');
+                    }
+                    
+                } catch (error) {
+                    console.error('Form submission error:', error);
+                    alert('An error occurred: ' + error.message);
+                }
+            });
+
+            function setupButtonHandlers() {
+                console.log('Setting up button handlers');
+                
+                // Download button
+                const downloadBtn = document.getElementById('downloadBtn');
+                if (downloadBtn) {
+                    downloadBtn.addEventListener('click', function() {
+                        try {
+                            const data = localStorage.getItem('riderProfile');
+                            if (!data) {
+                                alert('No data found to download');
+                                return;
+                            }
+                            const blob = new Blob([data], { type: 'application/json' });
+                            const url = URL.createObjectURL(blob);
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.download = 'rider-profile-' + new Date().toISOString().split('T')[0] + '.json';
+                            link.click();
+                            URL.revokeObjectURL(url);
+                            console.log('Download initiated');
+                        } catch (error) {
+                            console.error('Download error:', error);
+                            alert('Download failed: ' + error.message);
+                        }
+                    });
+                }
+
+                // Copy to clipboard button
+                const copyBtn = document.getElementById('copyBtn');
+                if (copyBtn) {
+                    copyBtn.addEventListener('click', function() {
+                        try {
+                            const data = localStorage.getItem('riderProfile');
+                            if (!data) {
+                                alert('No data found to copy');
+                                return;
+                            }
+                            const formatted = JSON.stringify(JSON.parse(data), null, 2);
+                            
+                            // Try modern clipboard API first
+                            if (navigator.clipboard && navigator.clipboard.writeText) {
+                                navigator.clipboard.writeText(formatted).then(function() {
+                                    console.log('Copied via clipboard API');
+                                    showCopyConfirmation();
+                                }).catch(function(err) {
+                                    console.log('Clipboard API failed, trying fallback:', err);
+                                    fallbackCopy(formatted);
+                                });
+                            } else {
+                                console.log('Clipboard API not available, using fallback');
+                                fallbackCopy(formatted);
+                            }
+                        } catch (error) {
+                            console.error('Copy error:', error);
+                            alert('Copy failed: ' + error.message);
+                        }
+                    });
+                }
+            }
+
+            function fallbackCopy(text) {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.top = '0';
+                textArea.style.left = '0';
+                textArea.style.width = '2em';
+                textArea.style.height = '2em';
+                textArea.style.padding = '0';
+                textArea.style.border = 'none';
+                textArea.style.outline = 'none';
+                textArea.style.boxShadow = 'none';
+                textArea.style.background = 'transparent';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        console.log('Copied via execCommand');
+                        showCopyConfirmation();
+                    } else {
+                        alert('Copy failed. Please manually select and copy the downloaded JSON file instead.');
+                    }
+                } catch (err) {
+                    console.error('execCommand copy failed:', err);
+                    alert('Copy failed. Please use the Download button instead and send the file to Barb.');
+                }
+                document.body.removeChild(textArea);
+            }
+
+            function showCopyConfirmation() {
+                const confirm = document.getElementById('copyConfirm');
+                if (confirm) {
+                    confirm.style.display = 'block';
+                    setTimeout(function() {
+                        confirm.style.display = 'none';
+                    }, 5000); // Show for 5 seconds
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horse Profile Form</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #8B7355;
+            --color-bg: #FAF8F5;
+            --color-bg-secondary: #F5F1EB;
+            --color-text: #3A3A3A;
+            --color-text-light: #7A7A7A;
+            --color-border: #E0D5C7;
+            --shadow-medium: 0 4px 24px rgba(139, 115, 85, 0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background: linear-gradient(to bottom, var(--color-bg) 0%, var(--color-bg-secondary) 100%);
+            color: var(--color-text);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container { max-width: 800px; margin: 0 auto; }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--color-border);
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8em;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 8px;
+        }
+
+        .subtitle { font-size: 1.05em; color: var(--color-text-light); margin-bottom: 20px; }
+        .intro { background: rgba(139, 115, 85, 0.05); padding: 20px; border-radius: 10px; margin-top: 20px; font-size: 0.95em; }
+
+        .form-container {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--color-border);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .section { padding: 40px; border-bottom: 2px solid var(--color-bg-secondary); }
+        .section:last-child { border-bottom: none; }
+        .section-header { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid var(--color-primary); }
+        .section-title { font-family: 'Playfair Display', serif; font-size: 1.8em; color: var(--color-primary); margin-bottom: 8px; font-weight: 600; }
+        .question { margin-bottom: 35px; }
+        .question:last-child { margin-bottom: 0; }
+
+        label { display: block; font-weight: 500; font-size: 1.05em; margin-bottom: 10px; color: var(--color-text); }
+        .required { color: #D0021B; margin-left: 4px; }
+
+        input[type="text"], input[type="number"], select, textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--color-border);
+            border-radius: 10px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1em;
+            background: white;
+            transition: all 0.3s ease;
+            color: var(--color-text);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238B7355' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 40px;
+        }
+
+        .checkbox-group { display: flex; flex-direction: column; gap: 12px; }
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            padding: 14px 18px;
+            border: 2px solid var(--color-border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .checkbox-option:hover { border-color: var(--color-primary); background: rgba(139, 115, 85, 0.03); }
+        .checkbox-option.selected { border-color: var(--color-primary); background: rgba(139, 115, 85, 0.08); }
+
+        input[type="checkbox"] { margin-right: 12px; width: 20px; height: 20px; cursor: pointer; accent-color: var(--color-primary); }
+        .help-text { font-size: 0.9em; color: var(--color-text-light); margin-top: 6px; font-style: italic; }
+
+        .button-group { display: flex; gap: 15px; justify-content: center; padding: 40px; background: var(--color-bg-secondary); }
+        button {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1.05em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary { background: var(--color-primary); color: white; box-shadow: 0 4px 12px rgba(139, 115, 85, 0.25); }
+        .btn-primary:hover { background: #6F5C44; transform: translateY(-2px); }
+
+        .completion-screen { display: none; text-align: center; padding: 60px 40px; }
+        .completion-screen.active { display: block !important; }
+        .completion-screen h2 { font-family: 'Playfair Display', serif; font-size: 2.5em; color: var(--color-primary); margin-bottom: 20px; }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.2em; }
+            .section { padding: 30px 20px; }
+            .button-group { flex-direction: column; padding: 30px 20px; }
+            button { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Horse Profile Form</h1>
+            <p class="subtitle">Optional - For your primary dressage horse <span style="font-size: 0.7em; color: #999;">(v2.1 - Jan 26, 2026)</span></p>
+            <div class="intro">
+                This form is <strong>optional</strong> but recommended if you ride primarily one horse. It provides helpful context for your reflections.
+            </div>
+        </header>
+
+        <form id="horseForm">
+            <div class="form-container">
+                <div class="section">
+                    <div class="section-header"><h2 class="section-title">1. Basic Information</h2></div>
+                    <div class="question">
+                        <label>Your Name (Rider) <span class="required">*</span></label>
+                        <input type="text" id="riderName" required>
+                    </div>
+                    <div class="question">
+                        <label>Horse's Name <span class="required">*</span></label>
+                        <input type="text" id="horseName" required>
+                    </div>
+                    <div class="question">
+                        <label>Age <span class="required">*</span></label>
+                        <input type="number" id="age" min="1" max="40" required>
+                    </div>
+                    <div class="question">
+                        <label>Breed</label>
+                        <input type="text" id="breed">
+                    </div>
+                    <div class="question">
+                        <label>Sex <span class="required">*</span></label>
+                        <select id="sex" required>
+                            <option value="">--Select--</option>
+                            <option value="mare">Mare</option>
+                            <option value="gelding">Gelding</option>
+                            <option value="stallion">Stallion</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header"><h2 class="section-title">2. Partnership & Training</h2></div>
+                    <div class="question">
+                        <label>How long have you been riding this horse? <span class="required">*</span></label>
+                        <input type="text" id="partnership" required placeholder="e.g., 2 years, 6 months">
+                    </div>
+                    <div class="question">
+                        <label>Horse's Current Level <span class="required">*</span></label>
+                        <select id="horseLevel" required>
+                            <option value="">--Select--</option>
+                            <option value="beginner">Beginner</option>
+                            <option value="training">Training Level</option>
+                            <option value="first">First Level</option>
+                            <option value="second">Second Level</option>
+                            <option value="third">Third Level</option>
+                            <option value="fourth">Fourth Level</option>
+                            <option value="psg">PSG</option>
+                            <option value="intermediate-i">Intermediate I</option>
+                            <option value="intermediate-ii">Intermediate II</option>
+                            <option value="grandprix">Grand Prix</option>
+                            <option value="in-training">In training/Not showing</option>
+                        </select>
+                    </div>
+                    <div class="question">
+                        <label>Ownership Arrangement <span class="required">*</span></label>
+                        <select id="arrangement" required>
+                            <option value="">--Select--</option>
+                            <option value="own">I own this horse</option>
+                            <option value="lease">Lease</option>
+                            <option value="lesson">Lesson/school horse</option>
+                            <option value="client">Client/training horse</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header"><h2 class="section-title">3. Strengths & Temperament</h2></div>
+                    <div class="question">
+                        <label>Horse's Greatest Strengths</label>
+                        <textarea id="strengths" rows="3" placeholder="Optional"></textarea>
+                    </div>
+                    <div class="question">
+                        <label>Temperament/Personality (check all that apply)</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-option"><input type="checkbox" name="temperament" value="willing" id="t1"><label for="t1" style="margin:0; cursor:pointer; flex:1">Willing & eager</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="temperament" value="calm" id="t2"><label for="t2" style="margin:0; cursor:pointer; flex:1">Calm & steady</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="temperament" value="sensitive" id="t3"><label for="t3" style="margin:0; cursor:pointer; flex:1">Sensitive/reactive</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="temperament" value="forward" id="t4"><label for="t4" style="margin:0; cursor:pointer; flex:1">Forward/energetic</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="temperament" value="laidback" id="t5"><label for="t5" style="margin:0; cursor:pointer; flex:1">Laid back</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="temperament" value="confident" id="t6"><label for="t6" style="margin:0; cursor:pointer; flex:1">Confident</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="temperament" value="spooky" id="t7"><label for="t7" style="margin:0; cursor:pointer; flex:1">Can be spooky/tense</label></div>
+                            <div class="checkbox-option"><input type="checkbox" name="temperament" value="opinionated" id="t8"><label for="t8" style="margin:0; cursor:pointer; flex:1">Opinionated/strong</label></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header"><h2 class="section-title">4. Health & Soundness</h2></div>
+                    <div class="question">
+                        <label>Current Soundness Status <span class="required">*</span></label>
+                        <select id="soundness" required>
+                            <option value="">--Select--</option>
+                            <option value="sound">Sound</option>
+                            <option value="not-sound">Not currently sound/in rehab</option>
+                        </select>
+                    </div>
+                    <div class="question">
+                        <label>Chronic Conditions or Considerations</label>
+                        <textarea id="conditions" rows="2" placeholder="Optional"></textarea>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header"><h2 class="section-title">5. About This Horse</h2></div>
+                    <div class="question">
+                        <label>What is important about this horse? <span class="required">*</span></label>
+                        <textarea id="important" rows="5" required placeholder="What makes this horse special? What matters most in your partnership? What should we know about this horse?"></textarea>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn-primary">Save Horse Profile</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="form-container completion-screen" id="complete">
+            <h2>✓ Horse Profile Saved!</h2>
+            <p>Your horse's profile has been saved. To participate in the pilot, please copy this data and send it to Barb.</p>
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 25px;">
+                <button class="btn-primary" id="copyBtn">📋 Copy to Clipboard</button>
+                <button class="btn-secondary" id="downloadBtn">Download JSON</button>
+            </div>
+            <p id="copyConfirm" style="margin-top: 15px; color: var(--color-primary); font-weight: 600; display: none;">✓ Copied! Now paste and send to Barb.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Horse Profile Form loaded');
+            
+            // Visual feedback for checkboxes
+            document.querySelectorAll('.checkbox-option').forEach(opt => {
+                opt.addEventListener('click', function() {
+                    const cb = this.querySelector('input[type="checkbox"]');
+                    if (cb) {
+                        cb.checked = !cb.checked;
+                        this.classList.toggle('selected', cb.checked);
+                    }
+                });
+            });
+
+            // Form submission
+            const form = document.getElementById('horseForm');
+            if (!form) {
+                console.error('Form not found!');
+                return;
+            }
+            
+            // Listen for validation failures
+            form.addEventListener('invalid', function(e) {
+                console.log('Validation failed on:', e.target);
+                alert('Please fill in all required fields (marked with *) before saving.');
+            }, true);
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                console.log('Form submitted');
+                alert('Form validation passed! Processing...');
+                
+                try {
+                    const temperament = document.querySelectorAll('[name="temperament"]:checked');
+                    
+                    // Collect data
+                    const data = {
+                        riderName: document.getElementById('riderName').value,
+                        horseName: document.getElementById('horseName').value,
+                        age: document.getElementById('age').value,
+                        breed: document.getElementById('breed').value,
+                        sex: document.getElementById('sex').value,
+                        partnership: document.getElementById('partnership').value,
+                        horseLevel: document.getElementById('horseLevel').value,
+                        arrangement: document.getElementById('arrangement').value,
+                        strengths: document.getElementById('strengths').value,
+                        temperament: Array.from(temperament).map(cb => cb.value),
+                        soundness: document.getElementById('soundness').value,
+                        conditions: document.getElementById('conditions').value,
+                        important: document.getElementById('important').value,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    console.log('Data collected:', data);
+                    
+                    // Save to localStorage
+                    try {
+                        localStorage.setItem('horseProfile', JSON.stringify(data));
+                        console.log('Data saved to localStorage');
+                    } catch (storageError) {
+                        console.error('localStorage error:', storageError);
+                        alert('Error saving data. Please check your browser settings allow local storage.');
+                        return;
+                    }
+                    
+                    // Hide form and show completion screen
+                    const formElement = document.getElementById('horseForm');
+                    const completeScreen = document.getElementById('complete');
+                    
+                    if (formElement && completeScreen) {
+                        formElement.style.display = 'none';
+                        completeScreen.classList.add('active');
+                        completeScreen.style.display = 'block'; // Force display
+                        window.scrollTo(0, 0);
+                        console.log('Completion screen should now be visible');
+                        
+                        // Set up button handlers after screen is shown
+                        setupButtonHandlers();
+                    } else {
+                        console.error('Could not find form or completion screen');
+                        alert('Form saved, but display error occurred. Data is in localStorage.');
+                    }
+                    
+                } catch (error) {
+                    console.error('Form submission error:', error);
+                    alert('An error occurred: ' + error.message);
+                }
+            });
+
+            function setupButtonHandlers() {
+                console.log('Setting up button handlers');
+                
+                // Download button
+                const downloadBtn = document.getElementById('downloadBtn');
+                if (downloadBtn) {
+                    downloadBtn.addEventListener('click', function() {
+                        try {
+                            const data = localStorage.getItem('horseProfile');
+                            if (!data) {
+                                alert('No data found to download');
+                                return;
+                            }
+                            const blob = new Blob([data], { type: 'application/json' });
+                            const url = URL.createObjectURL(blob);
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.download = 'horse-profile-' + new Date().toISOString().split('T')[0] + '.json';
+                            link.click();
+                            URL.revokeObjectURL(url);
+                            console.log('Download initiated');
+                        } catch (error) {
+                            console.error('Download error:', error);
+                            alert('Download failed: ' + error.message);
+                        }
+                    });
+                }
+
+                // Copy to clipboard button
+                const copyBtn = document.getElementById('copyBtn');
+                if (copyBtn) {
+                    copyBtn.addEventListener('click', function() {
+                        try {
+                            const data = localStorage.getItem('horseProfile');
+                            if (!data) {
+                                alert('No data found to copy');
+                                return;
+                            }
+                            const formatted = JSON.stringify(JSON.parse(data), null, 2);
+                            
+                            // Try modern clipboard API first
+                            if (navigator.clipboard && navigator.clipboard.writeText) {
+                                navigator.clipboard.writeText(formatted).then(function() {
+                                    console.log('Copied via clipboard API');
+                                    showCopyConfirmation();
+                                }).catch(function(err) {
+                                    console.log('Clipboard API failed, trying fallback:', err);
+                                    fallbackCopy(formatted);
+                                });
+                            } else {
+                                console.log('Clipboard API not available, using fallback');
+                                fallbackCopy(formatted);
+                            }
+                        } catch (error) {
+                            console.error('Copy error:', error);
+                            alert('Copy failed: ' + error.message);
+                        }
+                    });
+                }
+            }
+
+            function fallbackCopy(text) {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.top = '0';
+                textArea.style.left = '0';
+                textArea.style.width = '2em';
+                textArea.style.height = '2em';
+                textArea.style.padding = '0';
+                textArea.style.border = 'none';
+                textArea.style.outline = 'none';
+                textArea.style.boxShadow = 'none';
+                textArea.style.background = 'transparent';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        console.log('Copied via execCommand');
+                        showCopyConfirmation();
+                    } else {
+                        alert('Copy failed. Please manually select and copy the downloaded JSON file instead.');
+                    }
+                } catch (err) {
+                    console.error('execCommand copy failed:', err);
+                    alert('Copy failed. Please use the Download button instead and send the file to Barb.');
+                }
+                document.body.removeChild(textArea);
+            }
+
+            function showCopyConfirmation() {
+                const confirm = document.getElementById('copyConfirm');
+                if (confirm) {
+                    confirm.style.display = 'block';
+                    setTimeout(function() {
+                        confirm.style.display = 'none';
+                    }, 5000); // Show for 5 seconds
+                }
+            }
+        });
+    </script>
+</body>
+</html>
