@@ -84,6 +84,11 @@
             transform: translateY(-2px);
         }
 
+        .card.disabled {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
         .category-selector {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -107,9 +112,15 @@
             gap: 8px;
         }
 
-        .category-btn:hover {
+        .category-btn:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: var(--shadow-soft);
+        }
+
+        .category-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .category-btn.selected {
@@ -190,6 +201,7 @@
             gap: 12px;
             justify-content: center;
             margin-bottom: 30px;
+            flex-wrap: wrap;
         }
 
         button {
@@ -230,6 +242,17 @@
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
+        }
+
+        .btn-warning {
+            background: #ff6b6b;
+            color: white;
+            border: 2px solid #ff6b6b;
+        }
+
+        .btn-warning:hover {
+            background: #ee5a52;
+            border-color: #ee5a52;
         }
 
         .question-section {
@@ -347,6 +370,20 @@
 
         .hidden {
             display: none !important;
+        }
+
+        .alert-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #856404;
+        }
+
+        .alert-box strong {
+            display: block;
+            margin-bottom: 5px;
         }
 
         @media (max-width: 640px) {
@@ -585,6 +622,40 @@
             <p class="subtitle">A space for reflection and growth</p>
         </header>
 
+        <!-- First-time user instructions -->
+        <div class="card" id="instructionsCard" style="margin-bottom: 25px; background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(74, 144, 226, 0.05) 100%);">
+            <div style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleInstructions()">
+                <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.3em; margin: 0; font-weight: 500;">
+                    📖 How to Use This Reflection Tool
+                </h3>
+                <span id="instructionsToggle" style="font-size: 1.5em; transition: transform 0.3s ease;">▼</span>
+            </div>
+            
+            <div id="instructionsContent" style="margin-top: 20px;">
+                <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid var(--color-connection);">
+                    <p style="margin: 0 0 15px 0; line-height: 1.7;">
+                        Welcome! This tool helps you capture meaningful moments from your dressage journey through guided reflection.
+                    </p>
+                    
+                    <div style="margin: 15px 0;">
+                        <strong style="color: var(--color-text); display: block; margin-bottom: 8px;">✨ Here's how it works:</strong>
+                        <ol style="margin: 8px 0; padding-left: 25px; line-height: 1.8;">
+                            <li><strong>Choose a category</strong> that reflects what you'd like to explore today</li>
+                            <li><strong>Review the prompt</strong> - you can pass up to 3 times to find one that resonates</li>
+                            <li><strong>Reflect deeply</strong> by answering 3-4 thoughtful questions</li>
+                            <li><strong>Save your reflection</strong> to your personal library</li>
+                        </ol>
+                    </div>
+                    
+                    <div style="background: rgba(139, 92, 246, 0.08); padding: 12px; border-radius: 6px; margin: 15px 0 0 0;">
+                        <p style="margin: 0; font-size: 0.95em; line-height: 1.6;">
+                            <strong>💡 Tip:</strong> Take your time with each reflection. There's no rush - your insights are stored locally and you can view them anytime in your Reflections Library.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Safari Warning (shown only if localStorage issues detected) -->
         <div id="safariWarning" style="display: none; background: #fff3cd; border: 2px solid #ffc107; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
             <h3 style="margin: 0 0 15px 0; color: #856404; font-size: 1.2em;">⚠️ Data Storage Issue Detected</h3>
@@ -614,6 +685,12 @@
             <p style="margin: 0; color: #004085;">
                 <strong>📱 iOS/iPad Users:</strong> To prevent data loss, use "Copy to Clipboard" regularly to back up your reflections. iOS may clear stored data under certain conditions.
             </p>
+        </div>
+
+        <!-- Active reflection warning -->
+        <div id="activeReflectionWarning" class="alert-box" style="display: none;">
+            <strong>⚠️ Reflection in Progress</strong>
+            You have an active reflection. Please complete or cancel it before starting a new one. Use the "Start Over" button below if you want to begin fresh.
         </div>
 
         <!-- Quick access to reflections library -->
@@ -667,6 +744,7 @@
             <div class="button-group">
                 <button class="btn-secondary" id="passBtn">Pass</button>
                 <button class="btn-primary" id="continueBtn">Reflect on This</button>
+                <button class="btn-warning" id="startOverBtn" style="display: none;">Start Over</button>
             </div>
 
             <!-- Main Reflection -->
@@ -876,7 +954,7 @@
                 "A time when your instructor said something that struck a chord",
                 "A time when you realized how to be even more effective",
                 "A time when you remembered that mistakes are information",
-                "A time when you went back to the basics â€” again",
+                "A time when you went back to the basics — again",
                 "A time when you shifted your perspective from \"doing\" to \"allowing\"",
                 "A time when you realized your confidence was impacting your communication with the horse",
                 "An insight that gave you momentum or took you out of a slump",
@@ -909,7 +987,7 @@
                 "Conflicted priorities",
                 "A repeated mistake",
                 "Fear of failure or judgement",
-                "A loss of trust â€” in yourself or your horse",
+                "A loss of trust — in yourself or your horse",
                 "Inconsistency between rides",
                 "Outgrowing your trainer or barn",
                 "Financial strain limiting lessons or showing",
@@ -976,10 +1054,72 @@
         let passesRemaining = 3;
         let usedPrompts = [];
         let currentStep = 0;
+        let reflectionInProgress = false;
+        let hasUnsavedContent = false;
+
+        // Toggle instructions
+        function toggleInstructions() {
+            const content = document.getElementById('instructionsContent');
+            const toggle = document.getElementById('instructionsToggle');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                toggle.style.transform = 'rotate(180deg)';
+            } else {
+                content.style.display = 'none';
+                toggle.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // Check for unsaved content
+        function checkUnsavedContent() {
+            const textareas = ['mainAnswer', 'obstacleAnswer', 'feelingAnswer', 'influenceAnswer'];
+            return textareas.some(id => {
+                const elem = document.getElementById(id);
+                return elem && elem.value.trim() !== '';
+            });
+        }
+
+        // Update unsaved content flag when user types
+        document.querySelectorAll('textarea').forEach(textarea => {
+            textarea.addEventListener('input', () => {
+                hasUnsavedContent = checkUnsavedContent();
+            });
+        });
+
+        // Warn before leaving page with unsaved content
+        window.addEventListener('beforeunload', (e) => {
+            if (hasUnsavedContent && reflectionInProgress) {
+                e.preventDefault();
+                e.returnValue = 'You have unsaved reflections. Are you sure you want to leave?';
+                return e.returnValue;
+            }
+        });
+
+        // Disable/enable category buttons
+        function setCategoryButtonsState(disabled) {
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.disabled = disabled;
+            });
+        }
+
+        // Show/hide warning
+        function showActiveReflectionWarning(show) {
+            const warning = document.getElementById('activeReflectionWarning');
+            if (warning) {
+                warning.style.display = show ? 'block' : 'none';
+            }
+        }
 
         // Category selection
         document.querySelectorAll('.category-btn').forEach(btn => {
             btn.addEventListener('click', () => {
+                if (reflectionInProgress && hasUnsavedContent) {
+                    showActiveReflectionWarning(true);
+                    setTimeout(() => showActiveReflectionWarning(false), 5000);
+                    return;
+                }
+                
                 // SAFETY: Ensure all question sections are hidden before starting
                 document.getElementById('mainReflection')?.classList.remove('active');
                 document.getElementById('obstacleStrategy')?.classList.remove('active');
@@ -992,6 +1132,13 @@
                 usedPrompts = [];
                 passesRemaining = 3;
                 currentStep = 0;
+                reflectionInProgress = true;
+                hasUnsavedContent = false;
+                
+                // Clear all textareas
+                document.querySelectorAll('textarea').forEach(ta => ta.value = '');
+                
+                setCategoryButtonsState(true);
                 
                 setTimeout(() => {
                     showPrompt();
@@ -1034,8 +1181,19 @@
             document.querySelector('.pass-counter').style.display = 'none';
             document.querySelector('.button-group').style.display = 'none';
             document.getElementById('mainReflection').classList.add('active');
+            document.getElementById('startOverBtn').style.display = 'inline-block';
             currentStep = 2;
             updateProgress();
+        });
+
+        // Start Over button
+        document.getElementById('startOverBtn').addEventListener('click', () => {
+            if (hasUnsavedContent) {
+                if (!confirm('Are you sure you want to start over? All unsaved content will be lost.')) {
+                    return;
+                }
+            }
+            resetForm();
         });
 
         // Continue from main reflection
@@ -1198,6 +1356,10 @@
                 savedReflections.push(reflectionData);
                 localStorage.setItem('dressageReflections', JSON.stringify(savedReflections));
                 
+                // Mark as saved
+                hasUnsavedContent = false;
+                reflectionInProgress = false;
+                
                 // Show completion
                 document.getElementById('promptCard').classList.remove('active');
                 document.getElementById('completionCard').classList.add('active');
@@ -1209,6 +1371,9 @@
                 }
                 
                 updateProgress();
+                
+                // Re-enable category buttons
+                setCategoryButtonsState(false);
             } catch (e) {
                 console.error('Save error:', e);
                 alert('⚠️ Error saving reflection: ' + e.message + '\n\nIf using Safari, make sure Private Browsing is disabled.');
@@ -1236,8 +1401,11 @@
             // Reset prompt card UI elements
             const passCounter = document.querySelector('.pass-counter');
             const buttonGroup = document.querySelector('.button-group');
+            const startOverBtn = document.getElementById('startOverBtn');
+            
             if (passCounter) passCounter.style.display = 'block';
             if (buttonGroup) buttonGroup.style.display = 'flex';
+            if (startOverBtn) startOverBtn.style.display = 'none';
             
             // Hide all question sections
             const mainReflection = document.getElementById('mainReflection');
@@ -1256,6 +1424,11 @@
             passesRemaining = 3;
             usedPrompts = [];
             currentStep = 0;
+            reflectionInProgress = false;
+            hasUnsavedContent = false;
+            
+            // Re-enable category buttons
+            setCategoryButtonsState(false);
             
             updateProgress();
         }
@@ -1315,6 +1488,7 @@
                 
                 if (finalTranscript) {
                     textarea.value += finalTranscript;
+                    hasUnsavedContent = true;
                 }
             };
             
