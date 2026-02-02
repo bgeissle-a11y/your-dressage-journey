@@ -542,6 +542,94 @@
             .debrief-rating {
                 text-align: left;
             }
+
+            .grid-header,
+            .grid-row {
+                grid-template-columns: 1fr repeat(5, 45px);
+                font-size: 0.85em;
+            }
+
+            .grid-header {
+                padding: 12px 15px;
+            }
+
+            .grid-row {
+                padding: 15px;
+            }
+
+            .grid-question {
+                font-size: 0.9em;
+                padding-right: 10px;
+            }
+
+            .grid-option input[type="radio"] {
+                width: 18px;
+                height: 18px;
+            }
+        }
+
+        /* Voice Input Styles */
+        .voice-input-container {
+            position: relative;
+        }
+
+        .voice-btn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--color-border);
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .voice-btn:hover {
+            border-color: var(--color-primary);
+            background: rgba(139, 115, 85, 0.05);
+        }
+
+        .voice-btn.recording {
+            background: var(--color-accent);
+            border-color: var(--color-accent);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .voice-btn.recording svg {
+            fill: white;
+        }
+
+        .voice-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--color-primary);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .voice-input-container textarea {
+            padding-right: 60px;
+        }
+
+        .voice-status {
+            font-size: 0.85em;
+            color: var(--color-accent);
+            margin-top: 5px;
+            font-style: italic;
+            display: none;
+        }
+
+        .voice-status.active {
+            display: block;
         }
 
         @keyframes fadeIn {
@@ -595,6 +683,27 @@
             <p style="margin: 0; color: #004085;">
                 <strong>📱 iOS/iPad Users:</strong> To prevent data loss, use "Copy to Clipboard" regularly to back up your debriefs. iOS may clear stored data under certain conditions.
             </p>
+        </div>
+
+        <div id="voiceInputWarning" style="display: none; background: #fff3cd; border: 2px solid #ffc107; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+            <h3 style="margin: 0 0 15px 0; color: #856404; font-size: 1.2em;">🎤 Voice Input Not Available</h3>
+            
+            <div style="text-align: left; color: #856404;">
+                <p style="margin: 0 0 15px 0; font-weight: 500;">
+                    Voice input requires the form to be accessed through a web server with HTTPS.
+                </p>
+                
+                <p style="margin: 0 0 10px 0; padding: 12px; background: rgba(255,255,255,0.5); border-radius: 8px;">
+                    <strong>To enable voice input:</strong><br>
+                    • Host this file on a web server (GitHub Pages, Netlify, etc.)<br>
+                    • Or access via localhost with a local web server<br>
+                    • Voice input will NOT work when opening files directly from your device
+                </p>
+                
+                <p style="margin: 0; font-size: 0.9em; font-style: italic;">
+                    All other features will continue to work normally. You can still type your reflections.
+                </p>
+            </div>
         </div>
 
         <!-- Main Form -->
@@ -656,7 +765,7 @@
             <div class="section">
                 <div class="section-header">
                     <h2 class="section-title">Quick Ratings</h2>
-                    <p class="section-description">Your immediate impressionsÃ¢â‚¬â€there are no wrong answers.</p>
+                    <p class="section-description">Your immediate impressions—there are no wrong answers.</p>
                 </div>
 
                 <div class="question">
@@ -756,55 +865,90 @@
             <div class="section">
                 <div class="section-header">
                     <h2 class="section-title">What Happened</h2>
-                    <p class="section-description">The heart of your reflectionÃ¢â‚¬â€what stands out from this ride?</p>
+                    <p class="section-description">The heart of your reflection—what stands out from this ride?</p>
                 </div>
 
                 <!-- Personal Milestones and External Validation -->
                 <div style="margin-bottom: 35px;">
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                        <span style="font-size: 1.5em;"><span style="color: #4A90E2;">â– </span><span style="color: #7ED321;">â– </span></span>
+                        <span style="font-size: 1.5em;"><span style="color: #4A90E2;">■</span><span style="color: #7ED321;">■</span></span>
                         <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3em; color: #4A90E2; margin: 0; font-weight: 600;">Personal Milestones and External Validation</h3>
                     </div>
                     <div class="question" style="margin-bottom: 0;">
                         <label>What wins, breakthroughs, or recognition did you experience?</label>
-                        <textarea id="wins" placeholder="What went well? What felt good? What progress did you make? What feedback or recognition did you receive from your coach, judge, or peers? What score or result did you achieve?"></textarea>
+                        <div class="voice-input-container">
+                            <textarea id="wins" placeholder="What went well? What felt good? What progress did you make? What feedback or recognition did you receive from your coach, judge, or peers? What score or result did you achieve?"></textarea>
+                            <button type="button" class="voice-btn" data-target="wins" title="Voice input">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                                </svg>
+                            </button>
+                            <div class="voice-status" id="wins-status">Listening...</div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Aha Moment -->
                 <div style="margin-bottom: 35px;">
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                        <span style="font-size: 1.5em;"><span style="color: #F5A623;">â– </span></span>
+                        <span style="font-size: 1.5em;"><span style="color: #F5A623;">■</span></span>
                         <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3em; color: #F5A623; margin: 0; font-weight: 600;">Aha Moment</h3>
                     </div>
                     <div class="question" style="margin-bottom: 0;">
                         <label>What did you realize or understand?</label>
-                        <textarea id="ahaRealization" placeholder="Did something 'click'? What insight emerged? What did you notice about timing, feel, or technique that changed your understanding?"></textarea>
+                        <div class="voice-input-container">
+                            <textarea id="ahaRealization" placeholder="Did something 'click'? What insight emerged? What did you notice about timing, feel, or technique that changed your understanding?"></textarea>
+                            <button type="button" class="voice-btn" data-target="ahaRealization" title="Voice input">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                                </svg>
+                            </button>
+                            <div class="voice-status" id="ahaRealization-status">Listening...</div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Connection and Feel -->
                 <div style="margin-bottom: 35px;">
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                        <span style="font-size: 1.5em;"><span style="color: #8B5CF6;">â– </span><span style="color: #FF8C42;">â– </span></span>
+                        <span style="font-size: 1.5em;"><span style="color: #8B5CF6;">■</span><span style="color: #FF8C42;">■</span></span>
                         <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3em; color: #8B5CF6; margin: 0; font-weight: 600;">Connection and Feel</h3>
                     </div>
                     <div class="question" style="margin-bottom: 0;">
                         <label>What did you notice about your horse, your partnership, and your body awareness?</label>
-                        <textarea id="horseNotices" placeholder="Their energy, responsiveness, balance, comfort, tensionâ€”what were they communicating? How was your partnership? What did you feel in your bodyâ€”seat, legs, hands, breathing, tension, balance? Where did you feel connection or disconnection?"></textarea>
+                        <div class="voice-input-container">
+                            <textarea id="horseNotices" placeholder="Their energy, responsiveness, balance, comfort, tension—what were they communicating? How was your partnership? What did you feel in your body—seat, legs, hands, breathing, tension, balance? Where did you feel connection or disconnection?"></textarea>
+                            <button type="button" class="voice-btn" data-target="horseNotices" title="Voice input">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                                </svg>
+                            </button>
+                            <div class="voice-status" id="horseNotices-status">Listening...</div>
+                        </div>
                     </div>
                 </div>
-
 
                 <!-- Obstacle -->
                 <div style="margin-bottom: 35px;">
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                        <span style="font-size: 1.5em;"><span style="color: #D0021B;">â– </span></span>
+                        <span style="font-size: 1.5em;"><span style="color: #D0021B;">■</span></span>
                         <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3em; color: #D0021B; margin: 0; font-weight: 600;">Obstacle</h3>
                     </div>
                     <div class="question" style="margin-bottom: 0;">
                         <label>What challenges or frustrations did you encounter?</label>
-                        <textarea id="challenges" placeholder="What was difficult? What didn't work? What left you puzzled? What setback occurred? What felt stuck?"></textarea>
+                        <div class="voice-input-container">
+                            <textarea id="challenges" placeholder="What was difficult? What didn't work? What left you puzzled? What setback occurred? What felt stuck?"></textarea>
+                            <button type="button" class="voice-btn" data-target="challenges" title="Voice input">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                                </svg>
+                            </button>
+                            <div class="voice-status" id="challenges-status">Listening...</div>
+                        </div>
                     </div>
                 </div>
 
@@ -814,7 +958,16 @@
                     
                     <div class="question">
                         <label>What did you specifically work on?</label>
-                        <textarea id="workFocus" placeholder="Exercises, movements, concepts, focus areas (e.g., 'transitions,' 'shoulder-in,' 'steady contact,' 'half-halts')"></textarea>
+                        <div class="voice-input-container">
+                            <textarea id="workFocus" placeholder="Exercises, movements, concepts, focus areas (e.g., 'transitions,' 'shoulder-in,' 'steady contact,' 'half-halts')"></textarea>
+                            <button type="button" class="voice-btn" data-target="workFocus" title="Voice input">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                                </svg>
+                            </button>
+                            <div class="voice-status" id="workFocus-status">Listening...</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -827,7 +980,7 @@
 
         <!-- Completion Screen -->
         <div class="form-container completion-screen" id="completionScreen">
-            <h2>Ã¢Å“â€œ Debrief Saved</h2>
+            <h2>✓ Debrief Saved</h2>
             <p>Your post-ride insights have been recorded. These reflections are the building blocks of your growth as a rider.</p>
             <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
                 <button class="btn-primary" id="newDebriefBtn">New Debrief</button>
@@ -1167,7 +1320,7 @@
                         <div class="debrief-header">
                             <div class="debrief-meta">
                                 <div class="debrief-date">${formattedDate}</div>
-                                <div class="debrief-horse">${debrief.horseName} Ã¢â‚¬Â¢ ${sessionLabels[debrief.sessionType]}</div>
+                                <div class="debrief-horse">${debrief.horseName} • ${sessionLabels[debrief.sessionType]}</div>
                             </div>
                             <div class="debrief-rating">
                                 <div class="rating-number">${debrief.overallQuality}</div>
@@ -1177,25 +1330,25 @@
                         <div class="debrief-content">
                             ${debrief.wins ? `
                                 <div class="content-row">
-                                    <div class="content-label"><span style="color: #4A90E2;">â– </span><span style="color: #7ED321;">â– </span> Milestones & Validation</div>
+                                    <div class="content-label"><span style="color: #4A90E2;">■</span><span style="color: #7ED321;">■</span> Milestones & Validation</div>
                                     <div class="content-value">${debrief.wins}</div>
                                 </div>
                             ` : ''}
                             ${debrief.ahaRealization ? `
                                 <div class="content-row">
-                                    <div class="content-label"><span style="color: #F5A623;">â– </span> Aha Moment</div>
+                                    <div class="content-label"><span style="color: #F5A623;">■</span> Aha Moment</div>
                                     <div class="content-value">${debrief.ahaRealization}</div>
                                 </div>
                             ` : ''}
                             ${debrief.horseNotices ? `
                                 <div class="content-row">
-                                    <div class="content-label"><span style="color: #8B5CF6;">â– </span><span style="color: #FF8C42;">â– </span> Connection & Feel</div>
+                                    <div class="content-label"><span style="color: #8B5CF6;">■</span><span style="color: #FF8C42;">■</span> Connection & Feel</div>
                                     <div class="content-value">${debrief.horseNotices}</div>
                                 </div>
                             ` : ''}
                             ${debrief.challenges ? `
                                 <div class="content-row">
-                                    <div class="content-label"><span style="color: #D0021B;">â– </span> Obstacle</div>
+                                    <div class="content-label"><span style="color: #D0021B;">■</span> Obstacle</div>
                                     <div class="content-value">${debrief.challenges}</div>
                                 </div>
                             ` : ''}
@@ -1321,6 +1474,185 @@
                     updateViewButton();
                 }
             }
+        });
+
+        // Voice Input Functionality
+        let recognition = null;
+        let currentVoiceTarget = null;
+        let voiceInputAvailable = false;
+
+        // Check for secure context (HTTPS or localhost required for microphone access)
+        function checkVoiceInputAvailability() {
+            const isSecureContext = window.isSecureContext || window.location.protocol === 'https:' || 
+                                   window.location.hostname === 'localhost' || 
+                                   window.location.hostname === '127.0.0.1';
+            
+            const hasSpeechRecognition = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+            
+            voiceInputAvailable = isSecureContext && hasSpeechRecognition;
+            
+            if (!voiceInputAvailable) {
+                // Hide all voice input buttons
+                document.querySelectorAll('.voice-btn').forEach(btn => {
+                    btn.style.display = 'none';
+                });
+                
+                // Show warning if it's a browser support issue or security context issue
+                if (!isSecureContext && hasSpeechRecognition) {
+                    document.getElementById('voiceInputWarning').style.display = 'block';
+                } else if (!hasSpeechRecognition) {
+                    // Browser doesn't support speech recognition at all
+                    console.log('Browser does not support Web Speech API');
+                }
+            }
+            
+            return voiceInputAvailable;
+        }
+
+        // Check availability on page load
+        checkVoiceInputAvailability();
+
+        // Check for Web Speech API support
+        if (voiceInputAvailable) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+            
+            let finalTranscript = '';
+            
+            recognition.onstart = function() {
+                console.log('Voice recognition started');
+            };
+            
+            recognition.onresult = function(event) {
+                let interimTranscript = '';
+                
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript + ' ';
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+                
+                if (currentVoiceTarget) {
+                    const textarea = document.getElementById(currentVoiceTarget);
+                    const currentText = textarea.value;
+                    const existingText = currentText.substring(0, currentText.length - interimTranscript.length);
+                    textarea.value = existingText + finalTranscript + interimTranscript;
+                }
+            };
+            
+            recognition.onerror = function(event) {
+                console.error('Voice recognition error:', event.error);
+                stopVoiceInput();
+                
+                if (event.error === 'not-allowed') {
+                    alert('Microphone access denied. Please enable microphone permissions in your browser settings.\n\nNote: Voice input requires HTTPS or localhost access.');
+                } else if (event.error === 'no-speech') {
+                    // Don't alert for no-speech, just stop
+                    console.log('No speech detected');
+                } else {
+                    alert('Voice recognition error: ' + event.error);
+                }
+            };
+            
+            recognition.onend = function() {
+                if (currentVoiceTarget) {
+                    const textarea = document.getElementById(currentVoiceTarget);
+                    // Clean up the final text
+                    textarea.value = (textarea.value || '').trim();
+                    if (textarea.value && !textarea.value.endsWith('.') && !textarea.value.endsWith('!') && !textarea.value.endsWith('?')) {
+                        textarea.value += '. ';
+                    }
+                }
+                stopVoiceInput();
+            };
+        }
+
+        // Voice button click handlers
+        document.querySelectorAll('.voice-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('data-target');
+                
+                if (!voiceInputAvailable) {
+                    alert('Voice input requires HTTPS or localhost access.\n\nPlease host this file on a web server to use voice input.');
+                    return;
+                }
+                
+                if (!recognition) {
+                    alert('Voice input is not supported in your browser. Please try Chrome, Edge, or Safari.');
+                    return;
+                }
+                
+                if (currentVoiceTarget === targetId) {
+                    // Stop if already recording this field
+                    stopVoiceInput();
+                } else {
+                    // Start recording
+                    startVoiceInput(targetId);
+                }
+            });
+        });
+
+        function startVoiceInput(targetId) {
+            // Stop any existing recording
+            if (currentVoiceTarget) {
+                stopVoiceInput();
+            }
+            
+            currentVoiceTarget = targetId;
+            
+            // Update UI
+            const btn = document.querySelector(`.voice-btn[data-target="${targetId}"]`);
+            const status = document.getElementById(`${targetId}-status`);
+            
+            btn.classList.add('recording');
+            if (status) {
+                status.classList.add('active');
+            }
+            
+            // Start recognition
+            try {
+                recognition.start();
+            } catch (e) {
+                console.error('Error starting recognition:', e);
+                stopVoiceInput();
+            }
+        }
+
+        function stopVoiceInput() {
+            if (currentVoiceTarget) {
+                const btn = document.querySelector(`.voice-btn[data-target="${currentVoiceTarget}"]`);
+                const status = document.getElementById(`${currentVoiceTarget}-status`);
+                
+                if (btn) btn.classList.remove('recording');
+                if (status) status.classList.remove('active');
+                
+                currentVoiceTarget = null;
+            }
+            
+            if (recognition) {
+                try {
+                    recognition.stop();
+                } catch (e) {
+                    console.log('Recognition already stopped');
+                }
+            }
+        }
+
+        // Stop voice input when navigating away from form
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            stopVoiceInput();
+        });
+        
+        document.getElementById('saveDraftBtn').addEventListener('click', function() {
+            stopVoiceInput();
         });
     </script>
 </body>
