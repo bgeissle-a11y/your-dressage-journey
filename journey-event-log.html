@@ -202,6 +202,10 @@
             animation: pulse 1.5s ease-in-out infinite;
         }
 
+        .voice-btn.recording svg {
+            stroke: white;
+        }
+
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.7; }
@@ -210,6 +214,18 @@
         .voice-icon {
             width: 20px;
             height: 20px;
+        }
+
+        .voice-status {
+            display: none;
+            font-size: 0.85em;
+            color: var(--color-accent);
+            margin-top: 6px;
+            font-style: italic;
+        }
+
+        .voice-status.active {
+            display: block;
         }
 
         .status-indicator {
@@ -470,12 +486,12 @@
         }
 
         .category-icons {
-            rider-health: '🏥',
-            horse-changes: '🐴',
-            environment: '🏛️',
-            equipment: '🏇',
-            competition: '🏆',
-            financial: '💰'
+            rider-health: 'ðŸ¥',
+            horse-changes: 'ðŸ´',
+            environment: 'ðŸ›ï¸',
+            equipment: 'ðŸ‡',
+            competition: 'ðŸ†',
+            financial: 'ðŸ’°'
         }
 
         .hidden {
@@ -543,6 +559,17 @@
             <button class="btn-secondary" id="viewEventsBtn" style="display: none;">View Event Timeline</button>
         </div>
 
+        <!-- Voice Input Warning -->
+        <div id="voiceInputWarning" style="display: none; background: #fff3cd; border: 2px solid #ffc107; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+            <h3 style="margin: 0 0 15px 0; color: #856404; font-size: 1.1em;">🎤 Voice Input Not Available</h3>
+            <p style="margin: 0; color: #856404; font-size: 0.95em;">
+                Voice input requires the form to be accessed through a web server with HTTPS.<br><br>
+                <strong>To enable voice input:</strong><br>
+                • Access this form via your Netlify URL (HTTPS is automatic)<br>
+                • Voice input will NOT work when opening files directly from your device
+            </p>
+        </div>
+
         <!-- Main Form -->
         <div class="form-container" id="mainForm">
             <!-- Section 1: Event Basics -->
@@ -582,7 +609,7 @@
                 <div class="question">
                     <label>Event Description <span class="required">*</span></label>
                     <textarea id="eventDescription" placeholder="Describe what happened and any initial thoughts about how this might affect your riding..." required></textarea>
-                    <button type="button" class="voice-btn" id="voiceBtn">
+                    <button type="button" class="voice-btn" data-target="eventDescription" title="Voice input">
                         <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                             <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -591,6 +618,7 @@
                         </svg>
                         <span class="voice-text">Use Voice Input</span>
                     </button>
+                    <div class="voice-status" id="eventDescription-status">Listening...</div>
                 </div>
             </div>
 
@@ -705,39 +733,53 @@
             }
         });
 
-        // Voice input functionality
-        function setupVoiceInput(btnId, textareaId) {
-            const btn = document.getElementById(btnId);
-            const textarea = document.getElementById(textareaId);
+        // ===== ROBUST VOICE INPUT FUNCTIONALITY =====
+        let recognition = null;
+        let currentVoiceTarget = null;
+        let voiceInputAvailable = false;
+
+        // Check for secure context (HTTPS or localhost required for microphone access)
+        function checkVoiceInputAvailability() {
+            const isSecureContext = window.isSecureContext || window.location.protocol === 'https:' || 
+                                   window.location.hostname === 'localhost' || 
+                                   window.location.hostname === '127.0.0.1';
             
-            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                btn.style.display = 'none';
-                return;
+            const hasSpeechRecognition = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+            
+            voiceInputAvailable = isSecureContext && hasSpeechRecognition;
+            
+            if (!voiceInputAvailable) {
+                document.querySelectorAll('.voice-btn').forEach(btn => {
+                    btn.style.display = 'none';
+                });
+                
+                if (!isSecureContext && hasSpeechRecognition) {
+                    document.getElementById('voiceInputWarning').style.display = 'block';
+                } else if (!hasSpeechRecognition) {
+                    console.log('Browser does not support Web Speech API');
+                }
             }
             
+            return voiceInputAvailable;
+        }
+
+        checkVoiceInputAvailability();
+
+        if (voiceInputAvailable) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            const recognition = new SpeechRecognition();
+            recognition = new SpeechRecognition();
+            
             recognition.continuous = true;
             recognition.interimResults = true;
+            recognition.lang = 'en-US';
             
-            let isRecording = false;
+            let finalTranscript = '';
             
-            btn.addEventListener('click', () => {
-                if (!isRecording) {
-                    recognition.start();
-                    btn.classList.add('recording');
-                    btn.querySelector('.voice-text').textContent = 'Recording... (click to stop)';
-                    isRecording = true;
-                } else {
-                    recognition.stop();
-                    btn.classList.remove('recording');
-                    btn.querySelector('.voice-text').textContent = 'Use Voice Input';
-                    isRecording = false;
-                }
-            });
+            recognition.onstart = function() {
+                console.log('Voice recognition started');
+            };
             
-            recognition.onresult = (event) => {
-                let finalTranscript = '';
+            recognition.onresult = function(event) {
                 let interimTranscript = '';
                 
                 for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -749,20 +791,110 @@
                     }
                 }
                 
-                if (finalTranscript) {
-                    textarea.value += finalTranscript;
+                if (currentVoiceTarget) {
+                    const textarea = document.getElementById(currentVoiceTarget);
+                    const currentText = textarea.value;
+                    const existingText = currentText.substring(0, currentText.length - interimTranscript.length);
+                    textarea.value = existingText + finalTranscript + interimTranscript;
                 }
             };
             
-            recognition.onerror = (event) => {
-                console.error('Speech recognition error:', event.error);
-                btn.classList.remove('recording');
-                btn.querySelector('.voice-text').textContent = 'Use Voice Input';
-                isRecording = false;
+            recognition.onerror = function(event) {
+                console.error('Voice recognition error:', event.error);
+                stopVoiceInput();
+                
+                if (event.error === 'not-allowed') {
+                    alert('Microphone access denied. Please enable microphone permissions in your browser settings.\n\nNote: Voice input requires HTTPS or localhost access.');
+                } else if (event.error === 'no-speech') {
+                    console.log('No speech detected');
+                } else {
+                    alert('Voice recognition error: ' + event.error);
+                }
+            };
+            
+            recognition.onend = function() {
+                if (currentVoiceTarget) {
+                    const textarea = document.getElementById(currentVoiceTarget);
+                    textarea.value = (textarea.value || '').trim();
+                    if (textarea.value && !textarea.value.endsWith('.') && !textarea.value.endsWith('!') && !textarea.value.endsWith('?')) {
+                        textarea.value += '. ';
+                    }
+                }
+                stopVoiceInput();
             };
         }
-        
-        setupVoiceInput('voiceBtn', 'eventDescription');
+
+        document.querySelectorAll('.voice-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('data-target');
+                
+                if (!voiceInputAvailable) {
+                    alert('Voice input requires HTTPS or localhost access.\n\nPlease access this form via your Netlify URL to use voice input.');
+                    return;
+                }
+                
+                if (!recognition) {
+                    alert('Voice input is not supported in your browser. Please try Chrome, Edge, or Safari.');
+                    return;
+                }
+                
+                if (currentVoiceTarget === targetId) {
+                    stopVoiceInput();
+                } else {
+                    startVoiceInput(targetId);
+                }
+            });
+        });
+
+        function startVoiceInput(targetId) {
+            if (currentVoiceTarget) {
+                stopVoiceInput();
+            }
+            
+            currentVoiceTarget = targetId;
+            
+            const btn = document.querySelector(`.voice-btn[data-target="${targetId}"]`);
+            const status = document.getElementById(`${targetId}-status`);
+            
+            if (btn) {
+                btn.classList.add('recording');
+                const voiceText = btn.querySelector('.voice-text');
+                if (voiceText) voiceText.textContent = 'Recording... (click to stop)';
+            }
+            if (status) status.classList.add('active');
+            
+            try {
+                recognition.start();
+            } catch (e) {
+                console.error('Error starting recognition:', e);
+                stopVoiceInput();
+            }
+        }
+
+        function stopVoiceInput() {
+            if (currentVoiceTarget) {
+                const btn = document.querySelector(`.voice-btn[data-target="${currentVoiceTarget}"]`);
+                const status = document.getElementById(`${currentVoiceTarget}-status`);
+                
+                if (btn) {
+                    btn.classList.remove('recording');
+                    const voiceText = btn.querySelector('.voice-text');
+                    if (voiceText) voiceText.textContent = 'Use Voice Input';
+                }
+                if (status) status.classList.remove('active');
+                
+                currentVoiceTarget = null;
+            }
+            
+            if (recognition) {
+                try {
+                    recognition.stop();
+                } catch (e) {
+                    console.log('Recognition already stopped');
+                }
+            }
+        }
 
         // Show/hide view events button
         function updateViewButton() {
@@ -776,15 +908,15 @@
         // Get category icon
         function getCategoryIcon(type) {
             const icons = {
-                'rider': '🏥',
-                'horse': '🐴',
-                'environment': '🏛️',
-                'equipment': '🏇',
-                'competition': '🏆',
-                'financial': '💰',
-                'other': '📌'
+                'rider': 'ðŸ¥',
+                'horse': 'ðŸ´',
+                'environment': 'ðŸ›ï¸',
+                'equipment': 'ðŸ‡',
+                'competition': 'ðŸ†',
+                'financial': 'ðŸ’°',
+                'other': 'ðŸ“Œ'
             };
-            return icons[type] || '📌';
+            return icons[type] || 'ðŸ“Œ';
         }
 
         // Get type display name
@@ -955,7 +1087,7 @@
                         <div class="event-header">
                             <div>
                                 <div class="event-title">${event.category}</div>
-                                <div class="event-date">${formattedDate} • ${getTypeDisplayName(event.type)}</div>
+                                <div class="event-date">${formattedDate} â€¢ ${getTypeDisplayName(event.type)}</div>
                             </div>
                             <div class="event-status-badge ${statusClass}">
                                 <span class="status-indicator status-${event.status}"></span>
