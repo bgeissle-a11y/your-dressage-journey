@@ -318,6 +318,10 @@
             animation: pulse 1.5s infinite;
         }
 
+        .voice-btn.recording svg {
+            stroke: white;
+        }
+
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.7; }
@@ -326,6 +330,18 @@
         .voice-icon {
             width: 16px;
             height: 16px;
+        }
+
+        .voice-status {
+            display: none;
+            font-size: 0.85em;
+            color: #ff4444;
+            margin-top: 6px;
+            font-style: italic;
+        }
+
+        .voice-status.active {
+            display: block;
         }
 
         .progress-bar {
@@ -687,6 +703,17 @@
             </p>
         </div>
 
+        <!-- Voice Input Warning -->
+        <div id="voiceInputWarning" style="display: none; background: #fff3cd; border: 2px solid #ffc107; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+            <h3 style="margin: 0 0 15px 0; color: #856404; font-size: 1.1em;">🎤 Voice Input Not Available</h3>
+            <p style="margin: 0; color: #856404; font-size: 0.95em;">
+                Voice input requires the form to be accessed through a web server with HTTPS.<br><br>
+                <strong>To enable voice input:</strong><br>
+                • Access this form via your Netlify URL (HTTPS is automatic)<br>
+                • Voice input will NOT work when opening files directly from your device
+            </p>
+        </div>
+
         <!-- Active reflection warning -->
         <div id="activeReflectionWarning" class="alert-box" style="display: none;">
             <strong>⚠️ Reflection in Progress</strong>
@@ -751,7 +778,7 @@
             <div class="question-section" id="mainReflection">
                 <label for="mainAnswer">Share your reflection:</label>
                 <textarea id="mainAnswer" placeholder="Take your time to reflect deeply on this moment in your journey..."></textarea>
-                <button class="voice-btn" id="voiceBtn1">
+                <button type="button" class="voice-btn" data-target="mainAnswer" title="Voice input">
                     <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                         <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -760,6 +787,7 @@
                     </svg>
                     <span class="voice-text">Use Voice Input</span>
                 </button>
+                <div class="voice-status" id="mainAnswer-status">Listening...</div>
                 <div style="margin-top: 25px; text-align: center;">
                     <button class="btn-primary" id="continueToObstacle">Continue</button>
                 </div>
@@ -769,7 +797,7 @@
             <div class="question-section" id="obstacleStrategy">
                 <label for="obstacleAnswer">How might you approach or overcome this obstacle?</label>
                 <textarea id="obstacleAnswer" placeholder="Consider strategies, support systems, or mindset shifts that could help..."></textarea>
-                <button class="voice-btn" id="voiceBtn2">
+                <button type="button" class="voice-btn" data-target="obstacleAnswer" title="Voice input">
                     <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                         <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -778,6 +806,7 @@
                     </svg>
                     <span class="voice-text">Use Voice Input</span>
                 </button>
+                <div class="voice-status" id="obstacleAnswer-status">Listening...</div>
                 <div style="margin-top: 25px; text-align: center;">
                     <button class="btn-primary" id="continueToFeeling">Continue</button>
                 </div>
@@ -787,7 +816,7 @@
             <div class="question-section" id="feelingSection">
                 <label for="feelingAnswer">Describe in a few words how your response to the prompt makes you feel:</label>
                 <textarea id="feelingAnswer" style="min-height: 80px;" placeholder="Grateful, empowered, hopeful, grounded..."></textarea>
-                <button class="voice-btn" id="voiceBtn3">
+                <button type="button" class="voice-btn" data-target="feelingAnswer" title="Voice input">
                     <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                         <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -796,6 +825,7 @@
                     </svg>
                     <span class="voice-text">Use Voice Input</span>
                 </button>
+                <div class="voice-status" id="feelingAnswer-status">Listening...</div>
                 <div style="margin-top: 25px; text-align: center;">
                     <button class="btn-primary" id="continueToInfluence">Continue</button>
                 </div>
@@ -805,7 +835,7 @@
             <div class="question-section" id="influenceSection">
                 <label for="influenceAnswer">How will this influence your approach to future rides?</label>
                 <textarea id="influenceAnswer" placeholder="Consider how this insight or experience will shape your journey forward..."></textarea>
-                <button class="voice-btn" id="voiceBtn4">
+                <button type="button" class="voice-btn" data-target="influenceAnswer" title="Voice input">
                     <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                         <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -814,6 +844,7 @@
                     </svg>
                     <span class="voice-text">Use Voice Input</span>
                 </button>
+                <div class="voice-status" id="influenceAnswer-status">Listening...</div>
                 <div style="margin-top: 25px; text-align: center;">
                     <button class="btn-primary" id="submitBtn">Complete Reflection</button>
                 </div>
@@ -1328,6 +1359,9 @@
 
         // Submit reflection
         document.getElementById('submitBtn').addEventListener('click', () => {
+            // Stop any active voice recording before submitting
+            stopVoiceInput();
+
             if (!document.getElementById('influenceAnswer').value.trim()) {
                 alert('Please share how this will influence your future rides before completing.');
                 return;
@@ -1386,6 +1420,9 @@
         });
 
         function resetForm() {
+            // Stop any active voice recording
+            stopVoiceInput();
+
             // Hide all cards except category selection
             document.getElementById('completionCard').classList.remove('active');
             document.getElementById('promptCard').classList.remove('active');
@@ -1442,39 +1479,57 @@
             document.getElementById('progressFill').style.width = progress + '%';
         }
 
-        // Voice input functionality
-        function setupVoiceInput(btnId, textareaId) {
-            const btn = document.getElementById(btnId);
-            const textarea = document.getElementById(textareaId);
+        // ===== ROBUST VOICE INPUT FUNCTIONALITY =====
+        let recognition = null;
+        let currentVoiceTarget = null;
+        let voiceInputAvailable = false;
+
+        // Check for secure context (HTTPS or localhost required for microphone access)
+        function checkVoiceInputAvailability() {
+            const isSecureContext = window.isSecureContext || window.location.protocol === 'https:' || 
+                                   window.location.hostname === 'localhost' || 
+                                   window.location.hostname === '127.0.0.1';
             
-            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                btn.style.display = 'none';
-                return;
+            const hasSpeechRecognition = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+            
+            voiceInputAvailable = isSecureContext && hasSpeechRecognition;
+            
+            if (!voiceInputAvailable) {
+                // Hide all voice input buttons
+                document.querySelectorAll('.voice-btn').forEach(btn => {
+                    btn.style.display = 'none';
+                });
+                
+                // Show warning if it's a browser support issue or security context issue
+                if (!isSecureContext && hasSpeechRecognition) {
+                    document.getElementById('voiceInputWarning').style.display = 'block';
+                } else if (!hasSpeechRecognition) {
+                    console.log('Browser does not support Web Speech API');
+                }
             }
             
+            return voiceInputAvailable;
+        }
+
+        // Check availability on page load
+        checkVoiceInputAvailability();
+
+        // Set up single shared recognition instance
+        if (voiceInputAvailable) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            const recognition = new SpeechRecognition();
+            recognition = new SpeechRecognition();
+            
             recognition.continuous = true;
             recognition.interimResults = true;
+            recognition.lang = 'en-US';
             
-            let isRecording = false;
+            let finalTranscript = '';
             
-            btn.addEventListener('click', () => {
-                if (!isRecording) {
-                    recognition.start();
-                    btn.classList.add('recording');
-                    btn.querySelector('.voice-text').textContent = 'Recording... (click to stop)';
-                    isRecording = true;
-                } else {
-                    recognition.stop();
-                    btn.classList.remove('recording');
-                    btn.querySelector('.voice-text').textContent = 'Use Voice Input';
-                    isRecording = false;
-                }
-            });
+            recognition.onstart = function() {
+                console.log('Voice recognition started');
+            };
             
-            recognition.onresult = (event) => {
-                let finalTranscript = '';
+            recognition.onresult = function(event) {
                 let interimTranscript = '';
                 
                 for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -1486,24 +1541,132 @@
                     }
                 }
                 
-                if (finalTranscript) {
-                    textarea.value += finalTranscript;
+                if (currentVoiceTarget) {
+                    const textarea = document.getElementById(currentVoiceTarget);
+                    const currentText = textarea.value;
+                    const existingText = currentText.substring(0, currentText.length - interimTranscript.length);
+                    textarea.value = existingText + finalTranscript + interimTranscript;
                     hasUnsavedContent = true;
                 }
             };
             
-            recognition.onerror = (event) => {
-                console.error('Speech recognition error:', event.error);
-                btn.classList.remove('recording');
-                btn.querySelector('.voice-text').textContent = 'Use Voice Input';
-                isRecording = false;
+            recognition.onerror = function(event) {
+                console.error('Voice recognition error:', event.error);
+                stopVoiceInput();
+                
+                if (event.error === 'not-allowed') {
+                    alert('Microphone access denied. Please enable microphone permissions in your browser settings.\n\nNote: Voice input requires HTTPS or localhost access.');
+                } else if (event.error === 'no-speech') {
+                    // Don't alert for no-speech, just stop gracefully
+                    console.log('No speech detected');
+                } else {
+                    alert('Voice recognition error: ' + event.error);
+                }
+            };
+            
+            recognition.onend = function() {
+                if (currentVoiceTarget) {
+                    const textarea = document.getElementById(currentVoiceTarget);
+                    // Clean up the final text
+                    textarea.value = (textarea.value || '').trim();
+                    if (textarea.value && !textarea.value.endsWith('.') && !textarea.value.endsWith('!') && !textarea.value.endsWith('?')) {
+                        textarea.value += '. ';
+                    }
+                }
+                stopVoiceInput();
             };
         }
-        
-        setupVoiceInput('voiceBtn1', 'mainAnswer');
-        setupVoiceInput('voiceBtn2', 'obstacleAnswer');
-        setupVoiceInput('voiceBtn3', 'feelingAnswer');
-        setupVoiceInput('voiceBtn4', 'influenceAnswer');
+
+        // Voice button click handlers (uses data-target attribute)
+        document.querySelectorAll('.voice-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('data-target');
+                
+                if (!voiceInputAvailable) {
+                    alert('Voice input requires HTTPS or localhost access.\n\nPlease access this form via your Netlify URL to use voice input.');
+                    return;
+                }
+                
+                if (!recognition) {
+                    alert('Voice input is not supported in your browser. Please try Chrome, Edge, or Safari.');
+                    return;
+                }
+                
+                if (currentVoiceTarget === targetId) {
+                    // Stop if already recording this field
+                    stopVoiceInput();
+                } else {
+                    // Start recording (will stop any existing recording first)
+                    startVoiceInput(targetId);
+                }
+            });
+        });
+
+        function startVoiceInput(targetId) {
+            // Stop any existing recording first
+            if (currentVoiceTarget) {
+                stopVoiceInput();
+            }
+            
+            currentVoiceTarget = targetId;
+            
+            // Update UI
+            const btn = document.querySelector(`.voice-btn[data-target="${targetId}"]`);
+            const status = document.getElementById(`${targetId}-status`);
+            
+            if (btn) {
+                btn.classList.add('recording');
+                const voiceText = btn.querySelector('.voice-text');
+                if (voiceText) voiceText.textContent = 'Recording... (click to stop)';
+            }
+            if (status) {
+                status.classList.add('active');
+            }
+            
+            // Start recognition with error handling
+            try {
+                recognition.start();
+            } catch (e) {
+                console.error('Error starting recognition:', e);
+                stopVoiceInput();
+            }
+        }
+
+        function stopVoiceInput() {
+            if (currentVoiceTarget) {
+                const btn = document.querySelector(`.voice-btn[data-target="${currentVoiceTarget}"]`);
+                const status = document.getElementById(`${currentVoiceTarget}-status`);
+                
+                if (btn) {
+                    btn.classList.remove('recording');
+                    const voiceText = btn.querySelector('.voice-text');
+                    if (voiceText) voiceText.textContent = 'Use Voice Input';
+                }
+                if (status) status.classList.remove('active');
+                
+                currentVoiceTarget = null;
+            }
+            
+            if (recognition) {
+                try {
+                    recognition.stop();
+                } catch (e) {
+                    console.log('Recognition already stopped');
+                }
+            }
+        }
+
+        // Stop voice input when navigating between sections
+        document.getElementById('continueToObstacle').addEventListener('click', function() {
+            stopVoiceInput();
+        });
+        document.getElementById('continueToFeeling').addEventListener('click', function() {
+            stopVoiceInput();
+        });
+        document.getElementById('continueToInfluence').addEventListener('click', function() {
+            stopVoiceInput();
+        });
 
         // Show quick view button if reflections exist
         function updateQuickViewButton() {
