@@ -179,7 +179,37 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {loading ? (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+          background: 'linear-gradient(to bottom, #FAF8F5 0%, #F5F1EB 100%)'
+        }}>
+          <div style={{
+            textAlign: 'center',
+            color: '#8B7355'
+          }}>
+            <div style={{
+              width: '50px',
+              height: '50px',
+              border: '4px solid #E0D5C7',
+              borderTop: '4px solid #8B7355',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              margin: '0 auto 1rem'
+            }} />
+            <p style={{ fontSize: '1.1rem', fontWeight: '500' }}>Loading Your Dressage Journey...</p>
+            <style>{`
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+            `}</style>
+          </div>
+        </div>
+      ) : children}
     </AuthContext.Provider>
   );
 }

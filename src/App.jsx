@@ -5,6 +5,7 @@ import SignUp from './components/Auth/SignUp';
 import SignIn from './components/Auth/SignIn';
 import ForgotPassword from './components/Auth/ForgotPassword';
 import Dashboard from './pages/Dashboard';
+import Home from './pages/Home';
 import './App.css';
 
 function App() {
@@ -27,11 +28,11 @@ function App() {
             }
           />
 
-          {/* Default Route - Redirect to dashboard or signin */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          {/* Default Route - Smart redirect based on auth state */}
+          <Route path="/" element={<Home />} />
 
-          {/* 404 - Redirect to dashboard */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          {/* 404 - Redirect to home */}
+          <Route path="*" element={<Home />} />
         </Routes>
       </AuthProvider>
     </Router>
