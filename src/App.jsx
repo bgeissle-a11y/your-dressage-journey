@@ -1,20 +1,41 @@
-import { useState } from 'react'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import PrivateRoute from './components/Auth/PrivateRoute';
+import SignUp from './components/Auth/SignUp';
+import SignIn from './components/Auth/SignIn';
+import ForgotPassword from './components/Auth/ForgotPassword';
+import Dashboard from './pages/Dashboard';
+import './App.css';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Your Dressage Journey</h1>
-        <p>Welcome to your journey tracking application</p>
-      </header>
-      <main>
-        <p>
-          This is your development environment. Ready to start building!
-        </p>
-      </main>
-    </div>
-  )
+    <Router>
+      <AuthProvider>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+
+          {/* Protected Routes */}
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Default Route - Redirect to dashboard or signin */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+          {/* 404 - Redirect to dashboard */}
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </AuthProvider>
+    </Router>
+  );
 }
 
-export default App
+export default App;
