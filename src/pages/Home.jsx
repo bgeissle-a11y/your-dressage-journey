@@ -1,5 +1,4 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 /**
@@ -7,16 +6,11 @@ import { useAuth } from '../contexts/AuthContext';
  */
 export default function Home() {
   const { currentUser } = useAuth();
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (currentUser && currentUser.emailVerified) {
-      navigate('/dashboard', { replace: true });
-    } else {
-      navigate('/signin', { replace: true });
-    }
-  }, [currentUser, navigate]);
+  // Redirect based on authentication state
+  if (currentUser && currentUser.emailVerified) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
-  // Show nothing while redirecting
-  return null;
+  return <Navigate to="/signin" replace />;
 }
