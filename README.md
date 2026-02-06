@@ -24,10 +24,10 @@ npm install
 ```
 
 3. Configure Firebase:
-   - Go to [Firebase Console](https://console.firebase.google.com/)
-   - Create a new project or select existing
-   - Get your config from Project Settings > General > Your apps
-   - Update `src/firebase-config.js` with your Firebase credentials
+   - **See [FIREBASE-SETUP.md](FIREBASE-SETUP.md) for detailed setup instructions**
+   - Copy `.env.example` to `.env`
+   - Add your Firebase credentials to `.env`
+   - Firebase will be configured automatically from environment variables
 
 4. Start the development server:
 ```bash
