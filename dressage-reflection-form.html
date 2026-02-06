@@ -1,0 +1,2010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Dressage Journey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-personal: #4A90E2;
+            --color-validation: #7ED321;
+            --color-aha: #F5A623;
+            --color-obstacle: #D0021B;
+            --color-connection: #8B5CF6;
+            --color-feel: #FF8C42;
+            --color-bg: #FDFBF7;
+            --color-text: #2C2C2C;
+            --color-text-light: #666666;
+            --color-border: #E8E3DA;
+            --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            background: linear-gradient(135deg, #FDFBF7 0%, #F5F1E8 100%);
+            color: var(--color-text);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 40px 20px 20px;
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3em;
+            font-weight: 300;
+            letter-spacing: 1px;
+            color: var(--color-text);
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            color: var(--color-text-light);
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 30px;
+            border: 1px solid var(--color-border);
+            transition: all 0.3s ease;
+        }
+
+        .card.active {
+            box-shadow: var(--shadow-medium);
+            transform: translateY(-2px);
+        }
+
+        .card.disabled {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .category-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .category-btn {
+            padding: 20px;
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1em;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .category-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .category-btn.selected {
+            border-width: 3px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .category-btn .icon {
+            font-size: 2em;
+        }
+
+        .category-btn.personal { border-color: var(--color-personal); color: var(--color-personal); }
+        .category-btn.personal.selected { background: rgba(74, 144, 226, 0.1); }
+
+        .category-btn.validation { border-color: var(--color-validation); color: var(--color-validation); }
+        .category-btn.validation.selected { background: rgba(126, 211, 33, 0.1); }
+
+        .category-btn.aha { border-color: var(--color-aha); color: var(--color-aha); }
+        .category-btn.aha.selected { background: rgba(245, 166, 35, 0.1); }
+
+        .category-btn.obstacle { border-color: var(--color-obstacle); color: var(--color-obstacle); }
+        .category-btn.obstacle.selected { background: rgba(208, 2, 27, 0.1); }
+
+        .category-btn.connection { border-color: var(--color-connection); color: var(--color-connection); }
+        .category-btn.connection.selected { background: rgba(139, 92, 246, 0.1); }
+
+        .category-btn.feel { border-color: var(--color-feel); color: var(--color-feel); }
+        .category-btn.feel.selected { background: rgba(255, 140, 66, 0.1); }
+
+        .prompt-section {
+            display: none;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .prompt-section.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .prompt-display {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 248, 248, 0.9) 100%);
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border-left: 4px solid;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+        }
+
+        .prompt-display.personal { border-left-color: var(--color-personal); }
+        .prompt-display.validation { border-left-color: var(--color-validation); }
+        .prompt-display.aha { border-left-color: var(--color-aha); }
+        .prompt-display.obstacle { border-left-color: var(--color-obstacle); }
+        .prompt-display.connection { border-left-color: var(--color-connection); }
+        .prompt-display.feel { border-left-color: var(--color-feel); }
+
+        .prompt-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4em;
+            font-weight: 400;
+            line-height: 1.6;
+        }
+
+        .pass-counter {
+            text-align: center;
+            color: var(--color-text-light);
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Lato', sans-serif;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 400;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-primary {
+            background: var(--color-text);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1a1a1a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--color-text);
+            border: 2px solid var(--color-border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--color-text-light);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-warning {
+            background: #ff6b6b;
+            color: white;
+            border: 2px solid #ff6b6b;
+        }
+
+        .btn-warning:hover {
+            background: #ee5a52;
+            border-color: #ee5a52;
+        }
+
+        .question-section {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .question-section.active {
+            display: block;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        label {
+            display: block;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2em;
+            margin-bottom: 12px;
+            color: var(--color-text);
+            font-weight: 500;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 16px;
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            font-family: 'Lato', sans-serif;
+            font-size: 1em;
+            line-height: 1.6;
+            resize: vertical;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--color-text);
+            box-shadow: 0 0 0 3px rgba(44, 44, 44, 0.1);
+        }
+
+        .voice-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .voice-btn:hover {
+            border-color: var(--color-text-light);
+        }
+
+        .voice-btn.recording {
+            background: #ff4444;
+            color: white;
+            border-color: #ff4444;
+            animation: pulse 1.5s infinite;
+        }
+
+        .voice-btn.recording svg {
+            stroke: white;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .voice-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        .voice-status {
+            display: none;
+            font-size: 0.85em;
+            color: #ff4444;
+            margin-top: 6px;
+            font-style: italic;
+        }
+
+        .voice-status.active {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--color-border);
+            border-radius: 3px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-personal), var(--color-connection));
+            transition: width 0.4s ease;
+            border-radius: 3px;
+        }
+
+        .completion-message {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .completion-message.active {
+            display: block;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .completion-message h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            font-weight: 400;
+        }
+
+        .completion-message p {
+            font-size: 1.1em;
+            color: var(--color-text-light);
+            margin-bottom: 25px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .alert-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #856404;
+        }
+
+        .alert-box strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 2.2em;
+            }
+
+            .card {
+                padding: 25px;
+            }
+
+            .category-selector {
+                grid-template-columns: 1fr;
+            }
+
+            .prompt-text {
+                font-size: 1.2em;
+            }
+        }
+
+        /* Reflections Library Styles */
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid var(--color-border);
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-family: 'Lato', sans-serif;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--color-text-light);
+        }
+
+        .filter-btn.active {
+            background: var(--color-text);
+            color: white;
+            border-color: var(--color-text);
+        }
+
+        .reflection-card {
+            background: white;
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .reflection-card:hover {
+            box-shadow: var(--shadow-soft);
+            transform: translateX(4px);
+        }
+
+        .reflection-card.personal { border-left: 4px solid var(--color-personal); }
+        .reflection-card.validation { border-left: 4px solid var(--color-validation); }
+        .reflection-card.aha { border-left: 4px solid var(--color-aha); }
+        .reflection-card.obstacle { border-left: 4px solid var(--color-obstacle); }
+        .reflection-card.connection { border-left: 4px solid var(--color-connection); }
+        .reflection-card.feel { border-left: 4px solid var(--color-feel); }
+
+        .reflection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            gap: 15px;
+        }
+
+        .reflection-category {
+            font-size: 0.85em;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .reflection-category.personal { background: rgba(74, 144, 226, 0.15); color: var(--color-personal); }
+        .reflection-category.validation { background: rgba(126, 211, 33, 0.15); color: var(--color-validation); }
+        .reflection-category.aha { background: rgba(245, 166, 35, 0.15); color: var(--color-aha); }
+        .reflection-category.obstacle { background: rgba(208, 2, 27, 0.15); color: var(--color-obstacle); }
+        .reflection-category.connection { background: rgba(139, 92, 246, 0.15); color: var(--color-connection); }
+        .reflection-category.feel { background: rgba(255, 140, 66, 0.15); color: var(--color-feel); }
+
+        .reflection-date {
+            font-size: 0.85em;
+            color: var(--color-text-light);
+        }
+
+        .reflection-prompt {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2em;
+            font-weight: 500;
+            margin-bottom: 15px;
+            color: var(--color-text);
+        }
+
+        .reflection-content {
+            margin-bottom: 12px;
+        }
+
+        .reflection-label {
+            font-size: 0.85em;
+            font-weight: 600;
+            color: var(--color-text-light);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .reflection-text {
+            color: var(--color-text);
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .reflection-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--color-border);
+        }
+
+        .btn-small {
+            padding: 6px 14px;
+            font-size: 0.85em;
+            border-radius: 6px;
+            border: 1px solid var(--color-border);
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-small:hover {
+            background: var(--color-text);
+            color: white;
+            border-color: var(--color-text);
+        }
+
+        .btn-delete {
+            margin-left: auto;
+            color: var(--color-obstacle);
+            border-color: var(--color-obstacle);
+        }
+
+        .btn-delete:hover {
+            background: var(--color-obstacle);
+            color: white;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2em;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            color: var(--color-text-light);
+            margin-top: 4px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: var(--shadow-medium);
+        }
+
+        .modal-content h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6em;
+            margin-bottom: 15px;
+        }
+
+        .modal-content input,
+        .modal-content textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            font-family: 'Lato', sans-serif;
+            margin-bottom: 15px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Your Dressage Journey</h1>
+            <p class="subtitle">A space for reflection and growth</p>
+        </header>
+
+        <!-- First-time user instructions -->
+        <div class="card" id="instructionsCard" style="margin-bottom: 25px; background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(74, 144, 226, 0.05) 100%);">
+            <div style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleInstructions()">
+                <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.3em; margin: 0; font-weight: 500;">
+                    📖 How to Use This Reflection Tool
+                </h3>
+                <span id="instructionsToggle" style="font-size: 1.5em; transition: transform 0.3s ease;">▼</span>
+            </div>
+            
+            <div id="instructionsContent" style="margin-top: 20px;">
+                <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid var(--color-connection);">
+                    <p style="margin: 0 0 15px 0; line-height: 1.7;">
+                        Welcome! This tool helps you capture meaningful moments from your dressage journey through guided reflection.
+                    </p>
+                    
+                    <div style="margin: 15px 0;">
+                        <strong style="color: var(--color-text); display: block; margin-bottom: 8px;">✨ Here's how it works:</strong>
+                        <ol style="margin: 8px 0; padding-left: 25px; line-height: 1.8;">
+                            <li><strong>Choose a category</strong> that reflects what you'd like to explore today</li>
+                            <li><strong>Review the prompt</strong> - you can pass up to 3 times to find one that resonates</li>
+                            <li><strong>Reflect deeply</strong> by answering 3-4 thoughtful questions</li>
+                            <li><strong>Save your reflection</strong> to your personal library</li>
+                        </ol>
+                    </div>
+                    
+                    <div style="background: rgba(139, 92, 246, 0.08); padding: 12px; border-radius: 6px; margin: 15px 0 0 0;">
+                        <p style="margin: 0; font-size: 0.95em; line-height: 1.6;">
+                            <strong>💡 Tip:</strong> Take your time with each reflection. There's no rush - your insights are stored locally and you can view them anytime in your Reflections Library.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Safari Warning (shown only if localStorage issues detected) -->
+        <div id="safariWarning" style="display: none; background: #fff3cd; border: 2px solid #ffc107; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+            <h3 style="margin: 0 0 15px 0; color: #856404; font-size: 1.2em;">⚠️ Data Storage Issue Detected</h3>
+            
+            <div style="text-align: left; color: #856404;">
+                <p style="margin: 0 0 15px 0; font-weight: 500;">
+                    Your reflections may not save properly. This commonly happens on iPhone/iPad when:
+                </p>
+                
+                <ul style="margin: 0 0 15px 0; padding-left: 25px;">
+                    <li style="margin-bottom: 8px;"><strong>Private Browsing is enabled</strong> - Go to Safari settings and disable Private Browsing</li>
+                    <li style="margin-bottom: 8px;"><strong>File opened from Files app</strong> - These forms must be hosted on a web server to save data properly</li>
+                    <li style="margin-bottom: 8px;"><strong>"Prevent Cross-Site Tracking" is on</strong> - This may clear data. Check Settings → Safari</li>
+                </ul>
+                
+                <p style="margin: 0 0 10px 0; padding: 12px; background: rgba(255,255,255,0.5); border-radius: 8px;">
+                    <strong>✓ Recommended Solution:</strong> Use "Copy to Clipboard" after each session to save your data externally until we resolve this issue.
+                </p>
+                
+                <p style="margin: 0; font-size: 0.9em; font-style: italic;">
+                    Contact your program administrator if this warning persists.
+                </p>
+            </div>
+        </div>
+
+        <div id="iosBackupReminder" style="display: none; background: #e7f3ff; border: 2px solid #0066cc; border-radius: 12px; padding: 15px; margin-bottom: 20px;">
+            <p style="margin: 0; color: #004085;">
+                <strong>📱 iOS/iPad Users:</strong> To prevent data loss, use "Copy to Clipboard" regularly to back up your reflections. iOS may clear stored data under certain conditions.
+            </p>
+        </div>
+
+        <!-- Voice Input Warning -->
+        <div id="voiceInputWarning" style="display: none; background: #fff3cd; border: 2px solid #ffc107; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+            <h3 style="margin: 0 0 15px 0; color: #856404; font-size: 1.1em;">🎤 Voice Input Not Available</h3>
+            <p style="margin: 0; color: #856404; font-size: 0.95em;">
+                Voice input requires the form to be accessed through a web server with HTTPS.<br><br>
+                <strong>To enable voice input:</strong><br>
+                • Access this form via your Netlify URL (HTTPS is automatic)<br>
+                • Voice input will NOT work when opening files directly from your device
+            </p>
+        </div>
+
+        <!-- Active reflection warning -->
+        <div id="activeReflectionWarning" class="alert-box" style="display: none;">
+            <strong>⚠️ Reflection in Progress</strong>
+            You have an active reflection. Please complete or cancel it before starting a new one. Use the "Start Over" button below if you want to begin fresh.
+        </div>
+
+        <!-- Quick access to reflections library -->
+        <div style="text-align: center; margin-bottom: 20px;">
+            <button class="btn-secondary" id="quickViewReflectionsBtn" style="display: none;">View My Reflections</button>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+
+        <!-- Category Selection -->
+        <div class="card active" id="categoryCard">
+            <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 1.8em; margin-bottom: 25px; font-weight: 400; text-align: center;">Choose Your Reflection Category</h2>
+            <div class="category-selector">
+                <button class="category-btn personal" data-category="personal">
+                    <span class="icon" style="color: var(--color-personal);">■</span>
+                    <span>Personal Milestone</span>
+                </button>
+                <button class="category-btn validation" data-category="validation">
+                    <span class="icon" style="color: var(--color-validation);">■</span>
+                    <span>External Validation</span>
+                </button>
+                <button class="category-btn aha" data-category="aha">
+                    <span class="icon" style="color: var(--color-aha);">■</span>
+                    <span>Aha Moment</span>
+                </button>
+                <button class="category-btn obstacle" data-category="obstacle">
+                    <span class="icon" style="color: var(--color-obstacle);">■</span>
+                    <span>Obstacle</span>
+                </button>
+                <button class="category-btn connection" data-category="connection">
+                    <span class="icon" style="color: var(--color-connection);">■</span>
+                    <span>Connection</span>
+                </button>
+                <button class="category-btn feel" data-category="feel">
+                    <span class="icon" style="color: var(--color-feel);">■</span>
+                    <span>Feel</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Prompt Selection and Reflection -->
+        <div class="card prompt-section" id="promptCard">
+            <div class="pass-counter" id="passCounter">Passes remaining: 3</div>
+            
+            <div class="prompt-display" id="promptDisplay">
+                <p class="prompt-text" id="promptText"></p>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-secondary" id="passBtn">Pass</button>
+                <button class="btn-primary" id="continueBtn">Reflect on This</button>
+                <button class="btn-warning" id="startOverBtn" style="display: none;">Start Over</button>
+            </div>
+
+            <!-- Main Reflection -->
+            <div class="question-section" id="mainReflection">
+                <label for="mainAnswer">Share your reflection:</label>
+                <textarea id="mainAnswer" placeholder="Take your time to reflect deeply on this moment in your journey..."></textarea>
+                <button type="button" class="voice-btn" data-target="mainAnswer" title="Voice input">
+                    <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" y1="19" x2="12" y2="23"></line>
+                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                    <span class="voice-text">Use Voice Input</span>
+                </button>
+                <div class="voice-status" id="mainAnswer-status">Listening...</div>
+                <div style="margin-top: 25px; text-align: center;">
+                    <button class="btn-primary" id="continueToObstacle">Continue</button>
+                </div>
+            </div>
+
+            <!-- Obstacle Strategy (conditional) -->
+            <div class="question-section" id="obstacleStrategy">
+                <label for="obstacleAnswer">How might you approach or overcome this obstacle?</label>
+                <textarea id="obstacleAnswer" placeholder="Consider strategies, support systems, or mindset shifts that could help..."></textarea>
+                <button type="button" class="voice-btn" data-target="obstacleAnswer" title="Voice input">
+                    <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" y1="19" x2="12" y2="23"></line>
+                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                    <span class="voice-text">Use Voice Input</span>
+                </button>
+                <div class="voice-status" id="obstacleAnswer-status">Listening...</div>
+                <div style="margin-top: 25px; text-align: center;">
+                    <button class="btn-primary" id="continueToFeeling">Continue</button>
+                </div>
+            </div>
+
+            <!-- Feeling -->
+            <div class="question-section" id="feelingSection">
+                <label for="feelingAnswer">Describe in a few words how your response to the prompt makes you feel:</label>
+                <textarea id="feelingAnswer" style="min-height: 80px;" placeholder="Grateful, empowered, hopeful, grounded..."></textarea>
+                <button type="button" class="voice-btn" data-target="feelingAnswer" title="Voice input">
+                    <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" y1="19" x2="12" y2="23"></line>
+                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                    <span class="voice-text">Use Voice Input</span>
+                </button>
+                <div class="voice-status" id="feelingAnswer-status">Listening...</div>
+                <div style="margin-top: 25px; text-align: center;">
+                    <button class="btn-primary" id="continueToInfluence">Continue</button>
+                </div>
+            </div>
+
+            <!-- Future Influence -->
+            <div class="question-section" id="influenceSection">
+                <label for="influenceAnswer">How will this influence your approach to future rides?</label>
+                <textarea id="influenceAnswer" placeholder="Consider how this insight or experience will shape your journey forward..."></textarea>
+                <button type="button" class="voice-btn" data-target="influenceAnswer" title="Voice input">
+                    <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" y1="19" x2="12" y2="23"></line>
+                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                    <span class="voice-text">Use Voice Input</span>
+                </button>
+                <div class="voice-status" id="influenceAnswer-status">Listening...</div>
+                <div style="margin-top: 25px; text-align: center;">
+                    <button class="btn-primary" id="submitBtn">Complete Reflection</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Completion Message -->
+        <div class="card completion-message" id="completionCard">
+            <h2>✨ Reflection Complete ✨</h2>
+            <p>Thank you for taking time to reflect on your dressage journey. Your insights are valuable steps toward growth and deeper connection.</p>
+            <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                <button class="btn-primary" id="newReflectionBtn">Start New Reflection</button>
+                <button class="btn-secondary" id="viewReflectionsBtn">View Past Reflections</button>
+            </div>
+        </div>
+
+        <!-- Past Reflections View -->
+        <div class="card" id="reflectionsLibrary" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
+                <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 1.8em; font-weight: 400; margin: 0;">Your Reflection Journey</h2>
+                <button class="btn-secondary" id="backToFormBtn">Back to New Reflection</button>
+            </div>
+
+            <div style="margin-bottom: 25px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                <button class="btn-primary" id="copyToClipboardBtn">Copy to Clipboard</button>
+                <button class="btn-secondary" id="clearAllBtn" style="margin-left: auto;">Clear All Reflections</button>
+            </div>
+
+            <div style="background: rgba(139, 115, 85, 0.05); border: 1px solid var(--color-border); border-radius: 8px; padding: 15px; margin-bottom: 25px;">
+                <p style="font-size: 0.9em; color: var(--color-text-light); margin: 0;">
+                    <strong style="color: var(--color-text);">💡 Share Your Data:</strong> Use "Copy to Clipboard" to share your reflections with your coach or for AI analysis. The copied text includes all your reflections in an easy-to-read format.
+                </p>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="font-size: 1em; margin-bottom: 8px;">Filter by category:</label>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="personal"><span style="color: #4A90E2;">■</span> Personal</button>
+                    <button class="filter-btn" data-filter="validation"><span style="color: #7ED321;">■</span> Validation</button>
+                    <button class="filter-btn" data-filter="aha"><span style="color: #F5A623;">■</span> Aha Moment</button>
+                    <button class="filter-btn" data-filter="obstacle"><span style="color: #D0021B;">■</span> Obstacle</button>
+                    <button class="filter-btn" data-filter="connection"><span style="color: #8B5CF6;">■</span> Connection</button>
+                    <button class="filter-btn" data-filter="feel"><span style="color: #FF8C42;">■</span> Feel</button>
+                </div>
+            </div>
+
+            <div id="reflectionsList"></div>
+
+            <div id="noReflections" style="text-align: center; padding: 60px 20px; color: var(--color-text-light); display: none;">
+                <p style="font-size: 1.2em; margin-bottom: 15px;">No reflections yet</p>
+                <p>Start your first reflection to begin tracking your dressage journey.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Copy Confirmation Modal -->
+    <div class="modal" id="copyModal">
+        <div class="modal-content">
+            <h3>✓ Copied to Clipboard!</h3>
+            <p style="color: var(--color-text-light); margin-bottom: 20px; font-size: 0.95em;">
+                Your reflections have been copied. You can now paste them into an email, document, or message.
+            </p>
+            <div class="modal-actions">
+                <button class="btn-primary" id="closeCopyModal">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const prompts = {
+            personal: [
+                "A lifestyle change that gave you more productive time in the saddle",
+                "A skill you once avoided that you now attempt",
+                "A change you made that improved your horse's comfort or confidence",
+                "A time you rode in an intimidating situation",
+                "A time you rode a new horse",
+                "A time you rode at a new, higher level",
+                "A time you got back in the saddle after a break and found your footing again",
+                "A riding or training breakthrough",
+                "A fitness goal achieved",
+                "A time when you felt proud after a difficult lesson or moment in the saddle",
+                "A riding goal achieved",
+                "A breakthrough in rhythm, connection, or harmony during a ride",
+                "A milestone you didn't recognize at the time",
+                "A lesson that left you feeling invincible",
+                "A time you handled frustration better than before",
+                "A ride that felt like true partnership",
+                "A time when you felt your confidence expand",
+                "A setback that led to long-term growth",
+                "A time you exceeded your own expectations",
+                "Earning your first medal, certification, or score milestone",
+                "The first time you rode a particular movement or test",
+                "A time you felt your commitment paid off",
+                "A moment you look back on with pride",
+                "Mastering a movement you'd watched others do for years",
+                "Your first time helping another rider"
+            ],
+            validation: [
+                "Encouragement from a coach when you needed it most",
+                "Feedback that confirmed you were improving",
+                "A compliment that surprised you",
+                "Someone noticing progress you hadn't seen yet",
+                "A judge's comment that changed your perspective",
+                "Positive feedback after a difficult ride",
+                "A trainer believing in you before you did",
+                "Recognition that felt earned",
+                "A ribbon, score, or result that boosted confidence",
+                "A judge's or coach's comment that made you feel proud",
+                "Support from a barn mate or peer",
+                "Someone acknowledging your effort, not just results",
+                "A time someone treated you like a real rider, not just a beginner",
+                "Validation that helped you keep going",
+                "Praise that confirmed your focus",
+                "Encouragement during a setback",
+                "Being trusted with more responsibility",
+                "Feeling seen for your consistency",
+                "A reminder from someone else to keep going",
+                "Feedback that reframed a mistake",
+                "A moment where recognition felt aligned with your values",
+                "Acknowledgement from an unexpected source",
+                "A quiet nod or small comment that stuck with you",
+                "Being asked to demonstrate for other riders",
+                "A photograph that captured something you'd been working toward"
+            ],
+            aha: [
+                "A time that something \"clicked\"",
+                "A moment when the basics made sense",
+                "A time when you realized less effort brought better results",
+                "A time when the why behind an exercise became clear",
+                "A time when you figured out the correct timing to give the aid",
+                "A time when you realized that tension is an obstacle",
+                "A moment you connected theory to feeling",
+                "A time when you discovered that balance is key",
+                "A time when you realized your horse was giving feedback all along",
+                "A time when you figured out that frustration wasn't helpful",
+                "A time you felt the perfect half-halt, transition, or moment of collection",
+                "A time when your instructor said something that struck a chord",
+                "A time when you realized how to be even more effective",
+                "A time when you remembered that mistakes are information",
+                "A time when you went back to the basics — again",
+                "A time when you shifted your perspective from \"doing\" to \"allowing\"",
+                "A time when you realized your confidence was impacting your communication with the horse",
+                "An insight that gave you momentum or took you out of a slump",
+                "A time you realized that progress isn't linear",
+                "A time when you recognized mental focus as a skill",
+                "A realization about partnership vs control",
+                "A realization about your own learning style",
+                "A moment when you realized you needed to put patience and empathy over getting something done",
+                "Realizing your seat influences everything",
+                "Understanding that \"soft\" doesn't mean \"weak\""
+            ],
+            obstacle: [
+                "A plateau that lasted longer than expected",
+                "A lesson that left you discouraged",
+                "A time you received conflicting advice",
+                "A time you felt stuck despite effort",
+                "A confidence setback",
+                "A physical issue or physical setback",
+                "A horse health or soundness issue",
+                "A time you felt frustration with slow progress",
+                "A misunderstanding with your horse",
+                "An injury or fall that shook your confidence",
+                "Comparison to others",
+                "Loss of motivation",
+                "A ride that didn't match expectations",
+                "Feeling pressure to advance too quickly",
+                "A period of self-doubt",
+                "A missed opportunity",
+                "Lack of resources (money, time, etc)",
+                "Conflicted priorities",
+                "A repeated mistake",
+                "Fear of failure or judgement",
+                "A loss of trust — in yourself or your horse",
+                "Inconsistency between rides",
+                "Outgrowing your trainer or barn",
+                "Financial strain limiting lessons or showing",
+                "Loss of your primary horse (sale, retirement, death)"
+            ],
+            connection: [
+                "A time your horse tried their heart out for you",
+                "Recognizing when your horse was teaching you",
+                "A moment of mutual understanding",
+                "Your horse forgiving a mistake",
+                "Building trust with a difficult or traumatized horse",
+                "The day your horse chose to be with you",
+                "Recognizing your horse's personality emerging",
+                "A time your horse showed you what they needed",
+                "Your horse taking care of you when you were unbalanced",
+                "The moment you stopped seeing your horse as a tool",
+                "A ride where you and your horse were completely in sync",
+                "A time your horse met you halfway when you were struggling",
+                "Recognizing your horse's effort even when the result wasn't perfect",
+                "A moment your horse clearly communicated something to you",
+                "A time you prioritized your horse's needs over your riding agenda",
+                "The first time you truly felt your horse relax under you",
+                "A time your horse showed confidence because of your partnership",
+                "Recognizing when your horse was having an off day and adjusting accordingly",
+                "A moment of play or joy with your horse outside of work",
+                "A time your horse's expression changed when they saw you",
+                "Understanding your horse's quirks and preferences",
+                "A time you advocated for your horse's wellbeing",
+                "The moment you realized your horse knows you as well as you know them",
+                "A time your horse gave more than you asked for",
+                "A breakthrough in how you communicate with your horse"
+            ],
+            feel: [
+                "The first time you truly felt your seat bones",
+                "Discovering where tension lives in your body while riding",
+                "Feeling the moment of suspension in the trot",
+                "Being physically aware of where your horse's energy is leaking out",
+                "The first time you felt your core engage independently",
+                "Recognizing the difference between gripping and wrapping your leg",
+                "Feeling when your shoulders creep up (and learning to drop them)",
+                "The moment you felt the hind legs push",
+                "Discovering you were holding your breath",
+                "Learning to feel diagonal pairs in the trot",
+                "The first time you felt collection as an upward energy",
+                "Recognizing when your weight shifts unconsciously",
+                "Feeling the horse's back come up beneath you",
+                "Learning to soften a locked joint (elbow, knee, ankle, jaw)",
+                "The sensation of your horse stepping into the contact",
+                "Feeling the difference between pulling and half-halting",
+                "Discovering your \"strong\" side vs. \"weak\" side",
+                "Learning to feel when you're ahead of or behind the motion",
+                "The first time you felt your hip follow the canter",
+                "Recognizing when you brace against movement",
+                "Feeling throughness travel from back to front",
+                "A time when your horse's balance improved because of a change in your balance",
+                "The moment you felt rhythmic breathing sync with the gait",
+                "Discovering how your eyes/gaze affects your balance",
+                "Feeling the difference between passive and active sitting"
+            ]
+        };
+
+        let currentCategory = null;
+        let currentPromptIndex = null;
+        let passesRemaining = 3;
+        let usedPrompts = [];
+        let currentStep = 0;
+        let reflectionInProgress = false;
+        let hasUnsavedContent = false;
+
+        // Toggle instructions
+        function toggleInstructions() {
+            const content = document.getElementById('instructionsContent');
+            const toggle = document.getElementById('instructionsToggle');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                toggle.style.transform = 'rotate(180deg)';
+            } else {
+                content.style.display = 'none';
+                toggle.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // Check for unsaved content
+        function checkUnsavedContent() {
+            const textareas = ['mainAnswer', 'obstacleAnswer', 'feelingAnswer', 'influenceAnswer'];
+            return textareas.some(id => {
+                const elem = document.getElementById(id);
+                return elem && elem.value.trim() !== '';
+            });
+        }
+
+        // Update unsaved content flag when user types
+        document.querySelectorAll('textarea').forEach(textarea => {
+            textarea.addEventListener('input', () => {
+                hasUnsavedContent = checkUnsavedContent();
+            });
+        });
+
+        // Warn before leaving page with unsaved content
+        window.addEventListener('beforeunload', (e) => {
+            if (hasUnsavedContent && reflectionInProgress) {
+                e.preventDefault();
+                e.returnValue = 'You have unsaved reflections. Are you sure you want to leave?';
+                return e.returnValue;
+            }
+        });
+
+        // Disable/enable category buttons
+        function setCategoryButtonsState(disabled) {
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.disabled = disabled;
+            });
+        }
+
+        // Show/hide warning
+        function showActiveReflectionWarning(show) {
+            const warning = document.getElementById('activeReflectionWarning');
+            if (warning) {
+                warning.style.display = show ? 'block' : 'none';
+            }
+        }
+
+        // Category selection
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (reflectionInProgress && hasUnsavedContent) {
+                    showActiveReflectionWarning(true);
+                    setTimeout(() => showActiveReflectionWarning(false), 5000);
+                    return;
+                }
+                
+                // SAFETY: Ensure all question sections are hidden before starting
+                document.getElementById('mainReflection')?.classList.remove('active');
+                document.getElementById('obstacleStrategy')?.classList.remove('active');
+                document.getElementById('feelingSection')?.classList.remove('active');
+                document.getElementById('influenceSection')?.classList.remove('active');
+                
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                currentCategory = btn.dataset.category;
+                usedPrompts = [];
+                passesRemaining = 3;
+                currentStep = 0;
+                reflectionInProgress = true;
+                hasUnsavedContent = false;
+                
+                // Clear all textareas
+                document.querySelectorAll('textarea').forEach(ta => ta.value = '');
+                
+                setCategoryButtonsState(true);
+                
+                setTimeout(() => {
+                    showPrompt();
+                    document.getElementById('categoryCard').classList.remove('active');
+                    document.getElementById('promptCard').classList.add('active');
+                    currentStep = 1;
+                    updateProgress();
+                }, 300);
+            });
+        });
+
+        function showPrompt() {
+            const availablePrompts = prompts[currentCategory].filter((_, index) => !usedPrompts.includes(index));
+            
+            if (availablePrompts.length === 0) {
+                usedPrompts = [];
+            }
+            
+            const randomIndex = Math.floor(Math.random() * availablePrompts.length);
+            const promptText = availablePrompts[randomIndex];
+            currentPromptIndex = prompts[currentCategory].indexOf(promptText);
+            
+            document.getElementById('promptText').textContent = promptText;
+            document.getElementById('promptDisplay').className = `prompt-display ${currentCategory}`;
+            document.getElementById('passCounter').textContent = `Passes remaining: ${passesRemaining}`;
+            document.getElementById('passBtn').disabled = passesRemaining === 0;
+        }
+
+        // Pass button
+        document.getElementById('passBtn').addEventListener('click', () => {
+            if (passesRemaining > 0) {
+                passesRemaining--;
+                usedPrompts.push(currentPromptIndex);
+                showPrompt();
+            }
+        });
+
+        // Continue to reflection
+        document.getElementById('continueBtn').addEventListener('click', () => {
+            document.querySelector('.pass-counter').style.display = 'none';
+            document.querySelector('.button-group').style.display = 'none';
+            document.getElementById('mainReflection').classList.add('active');
+            document.getElementById('startOverBtn').style.display = 'inline-block';
+            currentStep = 2;
+            updateProgress();
+        });
+
+        // Start Over button
+        document.getElementById('startOverBtn').addEventListener('click', () => {
+            if (hasUnsavedContent) {
+                if (!confirm('Are you sure you want to start over? All unsaved content will be lost.')) {
+                    return;
+                }
+            }
+            resetForm();
+        });
+
+        // Continue from main reflection
+        document.getElementById('continueToObstacle').addEventListener('click', () => {
+            const mainAnswer = document.getElementById('mainAnswer');
+            if (!mainAnswer) {
+                alert('Error: Form element not found. Please reload the page.');
+                return;
+            }
+            
+            if (!mainAnswer.value.trim()) {
+                alert('Please share your reflection before continuing.');
+                return;
+            }
+            
+            try {
+                document.getElementById('mainReflection').classList.remove('active');
+                
+                if (currentCategory === 'obstacle') {
+                    document.getElementById('obstacleStrategy').classList.add('active');
+                    currentStep = 3;
+                } else {
+                    document.getElementById('feelingSection').classList.add('active');
+                    currentStep = 3;
+                }
+                updateProgress();
+            } catch (e) {
+                console.error('Error advancing form:', e);
+                alert('Error advancing form. Please try again or reload the page.');
+            }
+        });
+
+        // Continue from obstacle strategy
+        document.getElementById('continueToFeeling').addEventListener('click', () => {
+            if (!document.getElementById('obstacleAnswer').value.trim()) {
+                alert('Please share your approach before continuing.');
+                return;
+            }
+            
+            document.getElementById('obstacleStrategy').classList.remove('active');
+            document.getElementById('feelingSection').classList.add('active');
+            currentStep = 4;
+            updateProgress();
+        });
+
+        // Continue from feeling
+        document.getElementById('continueToInfluence').addEventListener('click', () => {
+            if (!document.getElementById('feelingAnswer').value.trim()) {
+                alert('Please describe how this makes you feel before continuing.');
+                return;
+            }
+            
+            document.getElementById('feelingSection').classList.remove('active');
+            document.getElementById('influenceSection').classList.add('active');
+            
+            if (currentCategory === 'obstacle') {
+                currentStep = 5;
+            } else {
+                currentStep = 4;
+            }
+            
+            updateProgress();
+        });
+
+        // Detect iOS/iPad
+        function isIOSDevice() {
+            return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        }
+
+        // Check if file is opened via file:// protocol
+        function isFileProtocol() {
+            return window.location.protocol === 'file:';
+        }
+
+        // Check localStorage availability
+        function isLocalStorageAvailable() {
+            try {
+                const test = '__localStorage_test__';
+                localStorage.setItem(test, test);
+                localStorage.removeItem(test);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // Test localStorage persistence (check if data survives between checks)
+        function testPersistence() {
+            const testKey = '__persistence_test__';
+            const testValue = Date.now().toString();
+            
+            try {
+                // Check if we have a previous test value
+                const previousValue = localStorage.getItem(testKey);
+                
+                if (previousValue && previousValue !== testValue) {
+                    // Data persisted from a previous session - good!
+                    localStorage.setItem(testKey, testValue);
+                    return true;
+                }
+                
+                // First time or same session - set the value
+                localStorage.setItem(testKey, testValue);
+                return null; // Unknown - need to wait for next session
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // Show appropriate warnings
+        const isIOS = isIOSDevice();
+        const isFile = isFileProtocol();
+        const hasStorage = isLocalStorageAvailable();
+        const persistenceTest = testPersistence();
+
+        if (!hasStorage || isFile) {
+            document.getElementById('safariWarning').style.display = 'block';
+            
+            if (isFile) {
+                alert('⚠️ IMPORTANT: This file is opened from your device storage.\n\n' +
+                      'Data will NOT be saved properly.\n\n' +
+                      'Please access this through a web server or use "Copy to Clipboard" after each session.');
+            } else {
+                alert('⚠️ Storage not available.\n\nThis may happen in Private Browsing mode.\n\n' +
+                      'Please disable Private Browsing to save your reflections.');
+            }
+        } else if (isIOS) {
+            // Show iOS backup reminder
+            document.getElementById('iosBackupReminder').style.display = 'block';
+        }
+
+        // Submit reflection
+        document.getElementById('submitBtn').addEventListener('click', () => {
+            // Stop any active voice recording before submitting
+            stopVoiceInput();
+
+            if (!document.getElementById('influenceAnswer').value.trim()) {
+                alert('Please share how this will influence your future rides before completing.');
+                return;
+            }
+            
+            // Check localStorage availability
+            if (!isLocalStorageAvailable()) {
+                alert('⚠️ Cannot save reflection. Storage is not available. Please disable Private Browsing mode in Safari.');
+                return;
+            }
+            
+            // Collect all data
+            const reflectionData = {
+                category: currentCategory,
+                prompt: document.getElementById('promptText').textContent,
+                mainReflection: document.getElementById('mainAnswer').value,
+                obstacleStrategy: currentCategory === 'obstacle' ? document.getElementById('obstacleAnswer').value : null,
+                feeling: document.getElementById('feelingAnswer').value,
+                influence: document.getElementById('influenceAnswer').value,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Save to localStorage with error handling
+            try {
+                const savedReflections = JSON.parse(localStorage.getItem('dressageReflections') || '[]');
+                savedReflections.push(reflectionData);
+                localStorage.setItem('dressageReflections', JSON.stringify(savedReflections));
+                
+                // Mark as saved
+                hasUnsavedContent = false;
+                reflectionInProgress = false;
+                
+                // Show completion
+                document.getElementById('promptCard').classList.remove('active');
+                document.getElementById('completionCard').classList.add('active');
+                
+                if (currentCategory === 'obstacle') {
+                    currentStep = 6;
+                } else {
+                    currentStep = 5;
+                }
+                
+                updateProgress();
+                
+                // Re-enable category buttons
+                setCategoryButtonsState(false);
+            } catch (e) {
+                console.error('Save error:', e);
+                alert('⚠️ Error saving reflection: ' + e.message + '\n\nIf using Safari, make sure Private Browsing is disabled.');
+            }
+        });
+
+        // New reflection
+        document.getElementById('newReflectionBtn').addEventListener('click', () => {
+            resetForm();
+        });
+
+        function resetForm() {
+            // Stop any active voice recording
+            stopVoiceInput();
+
+            // Hide all cards except category selection
+            document.getElementById('completionCard').classList.remove('active');
+            document.getElementById('promptCard').classList.remove('active');
+            document.getElementById('reflectionsLibrary').style.display = 'none';
+            document.getElementById('categoryCard').classList.add('active');
+            
+            // Clear category selection
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
+            
+            // Clear all textareas
+            document.querySelectorAll('textarea').forEach(ta => ta.value = '');
+            
+            // Reset prompt card UI elements
+            const passCounter = document.querySelector('.pass-counter');
+            const buttonGroup = document.querySelector('.button-group');
+            const startOverBtn = document.getElementById('startOverBtn');
+            
+            if (passCounter) passCounter.style.display = 'block';
+            if (buttonGroup) buttonGroup.style.display = 'flex';
+            if (startOverBtn) startOverBtn.style.display = 'none';
+            
+            // Hide all question sections
+            const mainReflection = document.getElementById('mainReflection');
+            const obstacleStrategy = document.getElementById('obstacleStrategy');
+            const feelingSection = document.getElementById('feelingSection');
+            const influenceSection = document.getElementById('influenceSection');
+            
+            if (mainReflection) mainReflection.classList.remove('active');
+            if (obstacleStrategy) obstacleStrategy.classList.remove('active');
+            if (feelingSection) feelingSection.classList.remove('active');
+            if (influenceSection) influenceSection.classList.remove('active');
+            
+            // Reset all state variables
+            currentCategory = null;
+            currentPromptIndex = null;
+            passesRemaining = 3;
+            usedPrompts = [];
+            currentStep = 0;
+            reflectionInProgress = false;
+            hasUnsavedContent = false;
+            
+            // Re-enable category buttons
+            setCategoryButtonsState(false);
+            
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const totalSteps = currentCategory === 'obstacle' ? 6 : 5;
+            let progress = (currentStep / totalSteps) * 100;
+            
+            if (progress > 100) progress = 100;
+            
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        // ===== ROBUST VOICE INPUT FUNCTIONALITY =====
+        let recognition = null;
+        let currentVoiceTarget = null;
+        let voiceInputAvailable = false;
+
+        // Check for secure context (HTTPS or localhost required for microphone access)
+        function checkVoiceInputAvailability() {
+            const isSecureContext = window.isSecureContext || window.location.protocol === 'https:' || 
+                                   window.location.hostname === 'localhost' || 
+                                   window.location.hostname === '127.0.0.1';
+            
+            const hasSpeechRecognition = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+            
+            voiceInputAvailable = isSecureContext && hasSpeechRecognition;
+            
+            if (!voiceInputAvailable) {
+                // Hide all voice input buttons
+                document.querySelectorAll('.voice-btn').forEach(btn => {
+                    btn.style.display = 'none';
+                });
+                
+                // Show warning if it's a browser support issue or security context issue
+                if (!isSecureContext && hasSpeechRecognition) {
+                    document.getElementById('voiceInputWarning').style.display = 'block';
+                } else if (!hasSpeechRecognition) {
+                    console.log('Browser does not support Web Speech API');
+                }
+            }
+            
+            return voiceInputAvailable;
+        }
+
+        // Check availability on page load
+        checkVoiceInputAvailability();
+
+        // Set up single shared recognition instance
+        if (voiceInputAvailable) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+            
+            let finalTranscript = '';
+            
+            recognition.onstart = function() {
+                console.log('Voice recognition started');
+            };
+            
+            recognition.onresult = function(event) {
+                let interimTranscript = '';
+                
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript + ' ';
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+                
+                if (currentVoiceTarget) {
+                    const textarea = document.getElementById(currentVoiceTarget);
+                    const currentText = textarea.value;
+                    const existingText = currentText.substring(0, currentText.length - interimTranscript.length);
+                    textarea.value = existingText + finalTranscript + interimTranscript;
+                    hasUnsavedContent = true;
+                }
+            };
+            
+            recognition.onerror = function(event) {
+                console.error('Voice recognition error:', event.error);
+                stopVoiceInput();
+                
+                if (event.error === 'not-allowed') {
+                    alert('Microphone access denied. Please enable microphone permissions in your browser settings.\n\nNote: Voice input requires HTTPS or localhost access.');
+                } else if (event.error === 'no-speech') {
+                    // Don't alert for no-speech, just stop gracefully
+                    console.log('No speech detected');
+                } else {
+                    alert('Voice recognition error: ' + event.error);
+                }
+            };
+            
+            recognition.onend = function() {
+                if (currentVoiceTarget) {
+                    const textarea = document.getElementById(currentVoiceTarget);
+                    // Clean up the final text
+                    textarea.value = (textarea.value || '').trim();
+                    if (textarea.value && !textarea.value.endsWith('.') && !textarea.value.endsWith('!') && !textarea.value.endsWith('?')) {
+                        textarea.value += '. ';
+                    }
+                }
+                stopVoiceInput();
+            };
+        }
+
+        // Voice button click handlers (uses data-target attribute)
+        document.querySelectorAll('.voice-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('data-target');
+                
+                if (!voiceInputAvailable) {
+                    alert('Voice input requires HTTPS or localhost access.\n\nPlease access this form via your Netlify URL to use voice input.');
+                    return;
+                }
+                
+                if (!recognition) {
+                    alert('Voice input is not supported in your browser. Please try Chrome, Edge, or Safari.');
+                    return;
+                }
+                
+                if (currentVoiceTarget === targetId) {
+                    // Stop if already recording this field
+                    stopVoiceInput();
+                } else {
+                    // Start recording (will stop any existing recording first)
+                    startVoiceInput(targetId);
+                }
+            });
+        });
+
+        function startVoiceInput(targetId) {
+            // Stop any existing recording first
+            if (currentVoiceTarget) {
+                stopVoiceInput();
+            }
+            
+            currentVoiceTarget = targetId;
+            
+            // Update UI
+            const btn = document.querySelector(`.voice-btn[data-target="${targetId}"]`);
+            const status = document.getElementById(`${targetId}-status`);
+            
+            if (btn) {
+                btn.classList.add('recording');
+                const voiceText = btn.querySelector('.voice-text');
+                if (voiceText) voiceText.textContent = 'Recording... (click to stop)';
+            }
+            if (status) {
+                status.classList.add('active');
+            }
+            
+            // Start recognition with error handling
+            try {
+                recognition.start();
+            } catch (e) {
+                console.error('Error starting recognition:', e);
+                stopVoiceInput();
+            }
+        }
+
+        function stopVoiceInput() {
+            if (currentVoiceTarget) {
+                const btn = document.querySelector(`.voice-btn[data-target="${currentVoiceTarget}"]`);
+                const status = document.getElementById(`${currentVoiceTarget}-status`);
+                
+                if (btn) {
+                    btn.classList.remove('recording');
+                    const voiceText = btn.querySelector('.voice-text');
+                    if (voiceText) voiceText.textContent = 'Use Voice Input';
+                }
+                if (status) status.classList.remove('active');
+                
+                currentVoiceTarget = null;
+            }
+            
+            if (recognition) {
+                try {
+                    recognition.stop();
+                } catch (e) {
+                    console.log('Recognition already stopped');
+                }
+            }
+        }
+
+        // Stop voice input when navigating between sections
+        document.getElementById('continueToObstacle').addEventListener('click', function() {
+            stopVoiceInput();
+        });
+        document.getElementById('continueToFeeling').addEventListener('click', function() {
+            stopVoiceInput();
+        });
+        document.getElementById('continueToInfluence').addEventListener('click', function() {
+            stopVoiceInput();
+        });
+
+        // Show quick view button if reflections exist
+        function updateQuickViewButton() {
+            const savedReflections = JSON.parse(localStorage.getItem('dressageReflections') || '[]');
+            const quickBtn = document.getElementById('quickViewReflectionsBtn');
+            if (savedReflections.length > 0) {
+                quickBtn.style.display = 'inline-block';
+            } else {
+                quickBtn.style.display = 'none';
+            }
+        }
+
+        updateQuickViewButton();
+
+        // View reflections library
+        document.getElementById('viewReflectionsBtn').addEventListener('click', showReflectionsLibrary);
+        document.getElementById('quickViewReflectionsBtn').addEventListener('click', showReflectionsLibrary);
+
+        function showReflectionsLibrary() {
+            document.getElementById('completionCard').classList.remove('active');
+            document.getElementById('categoryCard').classList.remove('active');
+            document.getElementById('promptCard').classList.remove('active');
+            document.getElementById('reflectionsLibrary').style.display = 'block';
+            
+            renderReflections();
+        }
+
+        document.getElementById('backToFormBtn').addEventListener('click', () => {
+            document.getElementById('reflectionsLibrary').style.display = 'none';
+            resetForm();
+        });
+
+        // Filter functionality
+        let currentFilter = 'all';
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                renderReflections(currentFilter);
+            });
+        });
+
+        function renderReflections(filter = 'all') {
+            const savedReflections = JSON.parse(localStorage.getItem('dressageReflections') || '[]');
+            const container = document.getElementById('reflectionsList');
+            const noReflections = document.getElementById('noReflections');
+            
+            if (savedReflections.length === 0) {
+                container.innerHTML = '';
+                noReflections.style.display = 'block';
+                return;
+            }
+            
+            noReflections.style.display = 'none';
+            
+            const filtered = filter === 'all' 
+                ? savedReflections 
+                : savedReflections.filter(r => r.category === filter);
+            
+            // Calculate statistics
+            const stats = {
+                total: savedReflections.length,
+                personal: savedReflections.filter(r => r.category === 'personal').length,
+                validation: savedReflections.filter(r => r.category === 'validation').length,
+                aha: savedReflections.filter(r => r.category === 'aha').length,
+                obstacle: savedReflections.filter(r => r.category === 'obstacle').length,
+                connection: savedReflections.filter(r => r.category === 'connection').length,
+                feel: savedReflections.filter(r => r.category === 'feel').length
+            };
+            
+            let html = `
+                <div class="stats-container">
+                    <div class="stat-item">
+                        <div class="stat-number">${stats.total}</div>
+                        <div class="stat-label">Total Reflections</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${stats.personal}</div>
+                        <div class="stat-label"><span style="color: #4A90E2;">■</span> Personal</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${stats.validation}</div>
+                        <div class="stat-label"><span style="color: #7ED321;">■</span> Validation</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${stats.aha}</div>
+                        <div class="stat-label"><span style="color: #F5A623;">■</span> Aha Moments</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${stats.obstacle}</div>
+                        <div class="stat-label"><span style="color: #D0021B;">■</span> Obstacles</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${stats.connection}</div>
+                        <div class="stat-label"><span style="color: #8B5CF6;">■</span> Connection</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${stats.feel}</div>
+                        <div class="stat-label"><span style="color: #FF8C42;">■</span> Feel</div>
+                    </div>
+                </div>
+            `;
+            
+            filtered.reverse().forEach((reflection, index) => {
+                const date = new Date(reflection.timestamp);
+                const formattedDate = date.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                const categoryLabels = {
+                    personal: 'Personal Milestone',
+                    validation: 'External Validation',
+                    aha: 'Aha Moment',
+                    obstacle: 'Obstacle',
+                    connection: 'Connection',
+                    feel: 'Feel'
+                };
+                
+                html += `
+                    <div class="reflection-card ${reflection.category}">
+                        <div class="reflection-header">
+                            <span class="reflection-category ${reflection.category}">${categoryLabels[reflection.category]}</span>
+                            <span class="reflection-date">${formattedDate}</span>
+                        </div>
+                        <div class="reflection-prompt">${reflection.prompt}</div>
+                        
+                        <div class="reflection-content">
+                            <div class="reflection-label">Reflection</div>
+                            <div class="reflection-text">${reflection.mainReflection}</div>
+                        </div>
+                        
+                        ${reflection.obstacleStrategy ? `
+                            <div class="reflection-content">
+                                <div class="reflection-label">Approach to Obstacle</div>
+                                <div class="reflection-text">${reflection.obstacleStrategy}</div>
+                            </div>
+                        ` : ''}
+                        
+                        <div class="reflection-content">
+                            <div class="reflection-label">Feeling</div>
+                            <div class="reflection-text">${reflection.feeling}</div>
+                        </div>
+                        
+                        <div class="reflection-content">
+                            <div class="reflection-label">Future Influence</div>
+                            <div class="reflection-text">${reflection.influence}</div>
+                        </div>
+                        
+                        <div class="reflection-actions">
+                            <button class="btn-small share-individual-btn" data-index="${savedReflections.length - 1 - index}">Share This</button>
+                            <button class="btn-small btn-delete delete-btn" data-index="${savedReflections.length - 1 - index}">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            
+            // Add delete listeners
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    if (confirm('Are you sure you want to delete this reflection?')) {
+                        const index = parseInt(e.target.dataset.index);
+                        deleteReflection(index);
+                    }
+                });
+            });
+            
+            // Add individual share listeners
+            document.querySelectorAll('.share-individual-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = parseInt(e.target.dataset.index);
+                    shareIndividualReflection(index);
+                });
+            });
+        }
+
+        function deleteReflection(index) {
+            try {
+                const savedReflections = JSON.parse(localStorage.getItem('dressageReflections') || '[]');
+                savedReflections.splice(index, 1);
+                localStorage.setItem('dressageReflections', JSON.stringify(savedReflections));
+                renderReflections(currentFilter);
+                updateQuickViewButton();
+            } catch (e) {
+                console.error('Delete error:', e);
+                alert('Error deleting reflection. Please try again.');
+            }
+        }
+
+        // Export to JSON
+        // Copy to Clipboard using reliable textarea method
+        document.getElementById('copyToClipboardBtn').addEventListener('click', () => {
+            const savedReflections = JSON.parse(localStorage.getItem('dressageReflections') || '[]');
+            
+            if (savedReflections.length === 0) {
+                alert('No reflections to copy.');
+                return;
+            }
+            
+            let textContent = 'DRESSAGE JOURNEY REFLECTIONS\n\n';
+            
+            const categoryLabels = {
+                personal: 'Personal Milestone',
+                validation: 'External Validation',
+                aha: 'Aha Moment',
+                obstacle: 'Obstacle',
+                connection: 'Connection',
+                feel: 'Feel'
+            };
+            
+            savedReflections.slice().reverse().forEach((reflection, index) => {
+                const date = new Date(reflection.timestamp).toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric'
+                });
+                
+                textContent += `\n========== Reflection ${index + 1} ==========\n`;
+                textContent += `Category: ${categoryLabels[reflection.category]}\n`;
+                textContent += `Date: ${date}\n`;
+                textContent += `Prompt: ${reflection.prompt}\n\n`;
+                textContent += `REFLECTION:\n${reflection.mainReflection}\n\n`;
+                
+                if (reflection.obstacleStrategy) {
+                    textContent += `APPROACH TO OBSTACLE:\n${reflection.obstacleStrategy}\n\n`;
+                }
+                
+                textContent += `FEELING:\n${reflection.feeling}\n\n`;
+                textContent += `FUTURE INFLUENCE:\n${reflection.influence}\n\n`;
+            });
+            
+            // Use textarea method (most reliable)
+            const textArea = document.createElement('textarea');
+            textArea.value = textContent;
+            textArea.style.position = 'fixed';
+            textArea.style.top = '0';
+            textArea.style.left = '0';
+            textArea.style.width = '2em';
+            textArea.style.height = '2em';
+            textArea.style.padding = '0';
+            textArea.style.border = 'none';
+            textArea.style.outline = 'none';
+            textArea.style.boxShadow = 'none';
+            textArea.style.background = 'transparent';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    document.getElementById('copyModal').classList.add('active');
+                } else {
+                    alert('Copy failed. Please select and copy the text manually.');
+                }
+            } catch (err) {
+                console.error('Copy error:', err);
+                alert('Unable to copy. Please try selecting the text and pressing Ctrl+C (or Cmd+C on Mac).');
+            } finally {
+                document.body.removeChild(textArea);
+            }
+        });
+
+        document.getElementById('closeCopyModal').addEventListener('click', () => {
+            document.getElementById('copyModal').classList.remove('active');
+        });
+
+        function shareIndividualReflection(index) {
+            const savedReflections = JSON.parse(localStorage.getItem('dressageReflections') || '[]');
+            const reflection = savedReflections[index];
+            
+            const categoryLabels = {
+                personal: 'Personal Milestone',
+                validation: 'External Validation',
+                aha: 'Aha Moment',
+                obstacle: 'Obstacle',
+                connection: 'Connection',
+                feel: 'Feel'
+            };
+            
+            const date = new Date(reflection.timestamp).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric'
+            });
+            
+            let textContent = 'DRESSAGE JOURNEY REFLECTION\n\n';
+            textContent += `Category: ${categoryLabels[reflection.category]}\n`;
+            textContent += `Date: ${date}\n`;
+            textContent += `Prompt: ${reflection.prompt}\n\n`;
+            textContent += `REFLECTION:\n${reflection.mainReflection}\n\n`;
+            
+            if (reflection.obstacleStrategy) {
+                textContent += `APPROACH TO OBSTACLE:\n${reflection.obstacleStrategy}\n\n`;
+            }
+            
+            textContent += `FEELING:\n${reflection.feeling}\n\n`;
+            textContent += `FUTURE INFLUENCE:\n${reflection.influence}\n`;
+            
+            // Use textarea method
+            const textArea = document.createElement('textarea');
+            textArea.value = textContent;
+            textArea.style.position = 'fixed';
+            textArea.style.top = '0';
+            textArea.style.left = '0';
+            textArea.style.width = '2em';
+            textArea.style.height = '2em';
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    document.getElementById('copyModal').classList.add('active');
+                }
+            } catch (err) {
+                console.error('Copy error:', err);
+            } finally {
+                document.body.removeChild(textArea);
+            }
+        }
+
+        // Clear all reflections
+        document.getElementById('clearAllBtn').addEventListener('click', () => {
+            if (confirm('Are you sure you want to delete ALL reflections? This cannot be undone.')) {
+                if (confirm('This will permanently delete all your reflections. Are you absolutely sure?')) {
+                    localStorage.removeItem('dressageReflections');
+                    renderReflections();
+                    updateQuickViewButton();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

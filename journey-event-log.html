@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journey Event Log | Your Dressage Journey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #8B7355;
+            --color-secondary: #D4A574;
+            --color-accent: #C67B5C;
+            --color-success: #6B8E5F;
+            --color-warning: #D4A574;
+            --color-bg: #FAF8F5;
+            --color-bg-secondary: #F5F1EB;
+            --color-text: #3A3A3A;
+            --color-text-light: #7A7A7A;
+            --color-border: #E0D5C7;
+            --shadow-soft: 0 2px 12px rgba(139, 115, 85, 0.08);
+            --shadow-medium: 0 4px 24px rgba(139, 115, 85, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background: linear-gradient(to bottom, var(--color-bg) 0%, var(--color-bg-secondary) 100%);
+            color: var(--color-text);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--color-border);
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8em;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 1.05em;
+            color: var(--color-text-light);
+            font-weight: 400;
+        }
+
+        .quick-access {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--color-border);
+            overflow: hidden;
+        }
+
+        .section {
+            padding: 40px;
+            border-bottom: 2px solid var(--color-bg-secondary);
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--color-secondary);
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
+            color: var(--color-primary);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .section-description {
+            color: var(--color-text-light);
+            font-size: 0.95em;
+        }
+
+        .question {
+            margin-bottom: 30px;
+        }
+
+        .question:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--color-text);
+            font-weight: 500;
+            font-size: 1.05em;
+        }
+
+        .required {
+            color: var(--color-accent);
+            margin-left: 4px;
+        }
+
+        .help-text {
+            font-size: 0.9em;
+            color: var(--color-text-light);
+            margin-top: 6px;
+            font-style: italic;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--color-border);
+            border-radius: 10px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%238B7355' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
+            padding-right: 40px;
+        }
+
+        .voice-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: var(--color-bg-secondary);
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+
+        .voice-btn:hover {
+            background: white;
+            border-color: var(--color-secondary);
+        }
+
+        .voice-btn.recording {
+            background: var(--color-accent);
+            color: white;
+            border-color: var(--color-accent);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .voice-btn.recording svg {
+            stroke: white;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .voice-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .voice-status {
+            display: none;
+            font-size: 0.85em;
+            color: var(--color-accent);
+            margin-top: 6px;
+            font-style: italic;
+        }
+
+        .voice-status.active {
+            display: block;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-active {
+            background: var(--color-accent);
+        }
+
+        .status-resolved {
+            background: var(--color-success);
+        }
+
+        .status-ongoing {
+            background: var(--color-warning);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            padding: 40px;
+            background: var(--color-bg-secondary);
+        }
+
+        button {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1.05em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(139, 115, 85, 0.25);
+        }
+
+        .btn-primary:hover {
+            background: #6F5C44;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(139, 115, 85, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--color-primary);
+            border: 2px solid var(--color-border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--color-primary);
+            background: rgba(139, 115, 85, 0.05);
+        }
+
+        .completion-screen {
+            display: none;
+            text-align: center;
+            padding: 60px 40px;
+        }
+
+        .completion-screen.active {
+            display: block;
+        }
+
+        .completion-screen h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5em;
+            color: var(--color-primary);
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .completion-screen p {
+            font-size: 1.1em;
+            color: var(--color-text-light);
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+
+        .event-library {
+            display: none;
+        }
+
+        .event-library.active {
+            display: block;
+        }
+
+        .timeline-container {
+            position: relative;
+            padding: 40px;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 60px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--color-secondary), var(--color-border));
+        }
+
+        .event-card {
+            position: relative;
+            background: white;
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            margin-left: 100px;
+            transition: all 0.3s ease;
+        }
+
+        .event-card:hover {
+            box-shadow: var(--shadow-soft);
+            border-color: var(--color-secondary);
+        }
+
+        .event-icon {
+            position: absolute;
+            left: -65px;
+            top: 25px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid var(--color-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--color-bg-secondary);
+        }
+
+        .event-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4em;
+            color: var(--color-primary);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .event-date {
+            color: var(--color-text-light);
+            font-size: 0.95em;
+        }
+
+        .event-status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .badge-active {
+            background: rgba(198, 123, 92, 0.15);
+            color: var(--color-accent);
+        }
+
+        .badge-resolved {
+            background: rgba(107, 142, 95, 0.15);
+            color: var(--color-success);
+        }
+
+        .badge-ongoing {
+            background: rgba(212, 165, 116, 0.15);
+            color: var(--color-warning);
+        }
+
+        .event-details {
+            color: var(--color-text);
+            line-height: 1.7;
+        }
+
+        .detail-row {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: var(--color-text-light);
+            font-size: 0.9em;
+        }
+
+        .detail-value {
+            color: var(--color-text);
+        }
+
+        .event-description {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--color-bg-secondary);
+            font-style: italic;
+            color: var(--color-text-light);
+        }
+
+        .filter-section {
+            padding: 30px 40px;
+            background: var(--color-bg-secondary);
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--color-secondary);
+        }
+
+        .filter-btn.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .no-events {
+            text-align: center;
+            padding: 60px 40px;
+            color: var(--color-text-light);
+        }
+
+        .category-icons {
+            rider-health: 'ðŸ¥',
+            horse-changes: 'ðŸ´',
+            environment: 'ðŸ›ï¸',
+            equipment: 'ðŸ‡',
+            competition: 'ðŸ†',
+            financial: 'ðŸ’°'
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2em;
+            }
+
+            .section {
+                padding: 30px 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+                padding: 30px 20px;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .event-card {
+                margin-left: 60px;
+            }
+
+            .event-icon {
+                left: -50px;
+                width: 35px;
+                height: 35px;
+                font-size: 1em;
+            }
+
+            .timeline-line {
+                left: 42px;
+            }
+
+            .detail-row {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-container,
+        .event-library {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Journey Event Log</h1>
+            <p class="subtitle">Track significant events that shape your riding journey</p>
+        </header>
+
+        <div class="quick-access">
+            <button class="btn-secondary" id="viewEventsBtn" style="display: none;">View Event Timeline</button>
+        </div>
+
+        <!-- Voice Input Warning -->
+        <div id="voiceInputWarning" style="display: none; background: #fff3cd; border: 2px solid #ffc107; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+            <h3 style="margin: 0 0 15px 0; color: #856404; font-size: 1.1em;">🎤 Voice Input Not Available</h3>
+            <p style="margin: 0; color: #856404; font-size: 0.95em;">
+                Voice input requires the form to be accessed through a web server with HTTPS.<br><br>
+                <strong>To enable voice input:</strong><br>
+                • Access this form via your Netlify URL (HTTPS is automatic)<br>
+                • Voice input will NOT work when opening files directly from your device
+            </p>
+        </div>
+
+        <!-- Main Form -->
+        <div class="form-container" id="mainForm">
+            <!-- Section 1: Event Basics -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Event Details</h2>
+                    <p class="section-description">Capture the who, what, when of this significant event.</p>
+                </div>
+
+                <div class="question">
+                    <label>Brief Event Summary <span class="required">*</span></label>
+                    <input type="text" id="eventCategory" placeholder="e.g., Started new horse, Moved to new barn, Shoulder injury..." required>
+                    <p class="help-text">What happened? (Examples: pregnancy, new saddle, changed trainers, horse retirement, started physical therapy, show season begins)</p>
+                </div>
+
+                <div class="question">
+                    <label>Event Type <span class="required">*</span></label>
+                    <select id="eventType" required>
+                        <option value="">Select general category...</option>
+                        <option value="rider">Rider Health/Physical</option>
+                        <option value="horse">Horse Change</option>
+                        <option value="environment">Environment/Support System</option>
+                        <option value="equipment">Equipment/Tack</option>
+                        <option value="competition">Competition/Goals</option>
+                        <option value="financial">Financial</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <p class="help-text">Which area does this event primarily affect?</p>
+                </div>
+
+                <div class="question">
+                    <label>Date Event Occurred <span class="required">*</span></label>
+                    <input type="date" id="eventDate" required>
+                    <p class="help-text">When did this event actually happen? (You can log retroactively)</p>
+                </div>
+
+                <div class="question">
+                    <label>Event Description <span class="required">*</span></label>
+                    <textarea id="eventDescription" placeholder="Describe what happened and any initial thoughts about how this might affect your riding..." required></textarea>
+                    <button type="button" class="voice-btn" data-target="eventDescription" title="Voice input">
+                        <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                            <line x1="12" y1="19" x2="12" y2="23"></line>
+                            <line x1="8" y1="23" x2="16" y2="23"></line>
+                        </svg>
+                        <span class="voice-text">Use Voice Input</span>
+                    </button>
+                    <div class="voice-status" id="eventDescription-status">Listening...</div>
+                </div>
+            </div>
+
+            <!-- Section 2: Impact Assessment -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Impact Assessment</h2>
+                    <p class="section-description">Help us understand the scope and timeline of this event's impact.</p>
+                </div>
+
+                <div class="question">
+                    <label>Magnitude <span class="required">*</span></label>
+                    <select id="eventMagnitude" required>
+                        <option value="">Select magnitude...</option>
+                        <option value="minor">Minor - Small change in routine or approach</option>
+                        <option value="moderate">Moderate - Noticeable change requiring adaptation</option>
+                        <option value="major">Major - Significant change affecting multiple aspects of riding</option>
+                    </select>
+                    <p class="help-text">How significant is this change to your riding life?</p>
+                </div>
+
+                <div class="question">
+                    <label>Projected Impact Duration <span class="required">*</span></label>
+                    <select id="impactDuration" required>
+                        <option value="">Select timeframe...</option>
+                        <option value="1-week">1 week</option>
+                        <option value="2-4-weeks">2-4 weeks</option>
+                        <option value="1-3-months">1-3 months</option>
+                        <option value="3-6-months">3-6 months</option>
+                        <option value="6-plus-months">6+ months</option>
+                        <option value="ongoing">Ongoing/Indefinite</option>
+                    </select>
+                    <p class="help-text">How long do you expect this event to affect your riding?</p>
+                </div>
+
+                <div class="question">
+                    <label>Current Status <span class="required">*</span></label>
+                    <select id="eventStatus" required>
+                        <option value="active">Active - Currently dealing with the immediate impact</option>
+                        <option value="ongoing">Ongoing Management - Incorporated into new normal</option>
+                        <option value="resolved">Resolved - Impact has ended</option>
+                    </select>
+                </div>
+
+                <div class="question" id="resolutionDateContainer" style="display: none;">
+                    <label>Resolution Date</label>
+                    <input type="date" id="resolutionDate">
+                    <p class="help-text">When did the impact of this event end?</p>
+                </div>
+            </div>
+
+            <!-- Button Group -->
+            <div class="button-group">
+                <button type="button" class="btn-secondary" id="cancelBtn">Cancel</button>
+                <button type="button" class="btn-primary" id="saveEventBtn">Log Event</button>
+            </div>
+        </div>
+
+        <!-- Completion Screen -->
+        <div class="completion-screen" id="completionScreen">
+            <h2>Event Logged</h2>
+            <p>Your journey event has been recorded. This will provide valuable context for analyzing patterns in your riding over time.</p>
+            <div class="button-group">
+                <button class="btn-secondary" id="newEventBtn">Log Another Event</button>
+                <button class="btn-primary" id="viewFromCompletionBtn">View Event Timeline</button>
+            </div>
+        </div>
+
+        <!-- Event Library/Timeline -->
+        <div class="event-library" id="eventLibrary">
+            <div class="filter-section">
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">All Events</button>
+                    <button class="filter-btn" data-filter="rider">Rider</button>
+                    <button class="filter-btn" data-filter="horse">Horse</button>
+                    <button class="filter-btn" data-filter="environment">Environment</button>
+                    <button class="filter-btn" data-filter="equipment">Equipment</button>
+                    <button class="filter-btn" data-filter="competition">Competition</button>
+                    <button class="filter-btn" data-filter="financial">Financial</button>
+                    <button class="filter-btn" data-filter="other">Other</button>
+                    <button class="filter-btn" data-filter="active-only">Active Only</button>
+                </div>
+            </div>
+
+            <div class="timeline-container">
+                <div class="timeline-line"></div>
+                <div id="eventsList"></div>
+                <div id="noEvents" class="no-events" style="display: none;">
+                    <p>No events logged yet. Start tracking significant events to see how they shape your riding journey.</p>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-secondary" id="backToFormBtn">Log New Event</button>
+                <button class="btn-primary" id="exportTimelineBtn">Export Timeline</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set today's date as default
+        document.getElementById('eventDate').valueAsDate = new Date();
+
+        // Show/hide resolution date based on status
+        document.getElementById('eventStatus').addEventListener('change', function() {
+            const container = document.getElementById('resolutionDateContainer');
+            if (this.value === 'resolved') {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+                document.getElementById('resolutionDate').value = '';
+            }
+        });
+
+        // ===== ROBUST VOICE INPUT FUNCTIONALITY =====
+        let recognition = null;
+        let currentVoiceTarget = null;
+        let voiceInputAvailable = false;
+
+        // Check for secure context (HTTPS or localhost required for microphone access)
+        function checkVoiceInputAvailability() {
+            const isSecureContext = window.isSecureContext || window.location.protocol === 'https:' || 
+                                   window.location.hostname === 'localhost' || 
+                                   window.location.hostname === '127.0.0.1';
+            
+            const hasSpeechRecognition = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+            
+            voiceInputAvailable = isSecureContext && hasSpeechRecognition;
+            
+            if (!voiceInputAvailable) {
+                document.querySelectorAll('.voice-btn').forEach(btn => {
+                    btn.style.display = 'none';
+                });
+                
+                if (!isSecureContext && hasSpeechRecognition) {
+                    document.getElementById('voiceInputWarning').style.display = 'block';
+                } else if (!hasSpeechRecognition) {
+                    console.log('Browser does not support Web Speech API');
+                }
+            }
+            
+            return voiceInputAvailable;
+        }
+
+        checkVoiceInputAvailability();
+
+        if (voiceInputAvailable) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+            
+            let finalTranscript = '';
+            
+            recognition.onstart = function() {
+                console.log('Voice recognition started');
+            };
+            
+            recognition.onresult = function(event) {
+                let interimTranscript = '';
+                
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript + ' ';
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+                
+                if (currentVoiceTarget) {
+                    const textarea = document.getElementById(currentVoiceTarget);
+                    const currentText = textarea.value;
+                    const existingText = currentText.substring(0, currentText.length - interimTranscript.length);
+                    textarea.value = existingText + finalTranscript + interimTranscript;
+                }
+            };
+            
+            recognition.onerror = function(event) {
+                console.error('Voice recognition error:', event.error);
+                stopVoiceInput();
+                
+                if (event.error === 'not-allowed') {
+                    alert('Microphone access denied. Please enable microphone permissions in your browser settings.\n\nNote: Voice input requires HTTPS or localhost access.');
+                } else if (event.error === 'no-speech') {
+                    console.log('No speech detected');
+                } else {
+                    alert('Voice recognition error: ' + event.error);
+                }
+            };
+            
+            recognition.onend = function() {
+                if (currentVoiceTarget) {
+                    const textarea = document.getElementById(currentVoiceTarget);
+                    textarea.value = (textarea.value || '').trim();
+                    if (textarea.value && !textarea.value.endsWith('.') && !textarea.value.endsWith('!') && !textarea.value.endsWith('?')) {
+                        textarea.value += '. ';
+                    }
+                }
+                stopVoiceInput();
+            };
+        }
+
+        document.querySelectorAll('.voice-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('data-target');
+                
+                if (!voiceInputAvailable) {
+                    alert('Voice input requires HTTPS or localhost access.\n\nPlease access this form via your Netlify URL to use voice input.');
+                    return;
+                }
+                
+                if (!recognition) {
+                    alert('Voice input is not supported in your browser. Please try Chrome, Edge, or Safari.');
+                    return;
+                }
+                
+                if (currentVoiceTarget === targetId) {
+                    stopVoiceInput();
+                } else {
+                    startVoiceInput(targetId);
+                }
+            });
+        });
+
+        function startVoiceInput(targetId) {
+            if (currentVoiceTarget) {
+                stopVoiceInput();
+            }
+            
+            currentVoiceTarget = targetId;
+            
+            const btn = document.querySelector(`.voice-btn[data-target="${targetId}"]`);
+            const status = document.getElementById(`${targetId}-status`);
+            
+            if (btn) {
+                btn.classList.add('recording');
+                const voiceText = btn.querySelector('.voice-text');
+                if (voiceText) voiceText.textContent = 'Recording... (click to stop)';
+            }
+            if (status) status.classList.add('active');
+            
+            try {
+                recognition.start();
+            } catch (e) {
+                console.error('Error starting recognition:', e);
+                stopVoiceInput();
+            }
+        }
+
+        function stopVoiceInput() {
+            if (currentVoiceTarget) {
+                const btn = document.querySelector(`.voice-btn[data-target="${currentVoiceTarget}"]`);
+                const status = document.getElementById(`${currentVoiceTarget}-status`);
+                
+                if (btn) {
+                    btn.classList.remove('recording');
+                    const voiceText = btn.querySelector('.voice-text');
+                    if (voiceText) voiceText.textContent = 'Use Voice Input';
+                }
+                if (status) status.classList.remove('active');
+                
+                currentVoiceTarget = null;
+            }
+            
+            if (recognition) {
+                try {
+                    recognition.stop();
+                } catch (e) {
+                    console.log('Recognition already stopped');
+                }
+            }
+        }
+
+        // Show/hide view events button
+        function updateViewButton() {
+            const events = JSON.parse(localStorage.getItem('journeyEvents') || '[]');
+            const btn = document.getElementById('viewEventsBtn');
+            btn.style.display = events.length > 0 ? 'inline-block' : 'none';
+        }
+
+        updateViewButton();
+
+        // Get category icon
+        function getCategoryIcon(type) {
+            const icons = {
+                'rider': 'ðŸ¥',
+                'horse': 'ðŸ´',
+                'environment': 'ðŸ›ï¸',
+                'equipment': 'ðŸ‡',
+                'competition': 'ðŸ†',
+                'financial': 'ðŸ’°',
+                'other': 'ðŸ“Œ'
+            };
+            return icons[type] || 'ðŸ“Œ';
+        }
+
+        // Get type display name
+        function getTypeDisplayName(type) {
+            const names = {
+                'rider': 'Rider',
+                'horse': 'Horse',
+                'environment': 'Environment',
+                'equipment': 'Equipment',
+                'competition': 'Competition',
+                'financial': 'Financial',
+                'other': 'Other'
+            };
+            return names[type] || type;
+        }
+
+        // Save event
+        function saveEvent() {
+            // Validate required fields
+            const requiredFields = {
+                eventCategory: document.getElementById('eventCategory'),
+                eventType: document.getElementById('eventType'),
+                eventDate: document.getElementById('eventDate'),
+                eventDescription: document.getElementById('eventDescription'),
+                eventMagnitude: document.getElementById('eventMagnitude'),
+                impactDuration: document.getElementById('impactDuration'),
+                eventStatus: document.getElementById('eventStatus')
+            };
+
+            for (let [key, field] of Object.entries(requiredFields)) {
+                if (!field.value.trim()) {
+                    alert('Please fill in all required fields.');
+                    field.focus();
+                    return false;
+                }
+            }
+
+            const event = {
+                id: Date.now(),
+                category: document.getElementById('eventCategory').value,
+                type: document.getElementById('eventType').value,
+                date: document.getElementById('eventDate').value,
+                description: document.getElementById('eventDescription').value,
+                magnitude: document.getElementById('eventMagnitude').value,
+                duration: document.getElementById('impactDuration').value,
+                status: document.getElementById('eventStatus').value,
+                resolutionDate: document.getElementById('resolutionDate').value,
+                timestamp: new Date().toISOString()
+            };
+
+            const events = JSON.parse(localStorage.getItem('journeyEvents') || '[]');
+            events.push(event);
+            localStorage.setItem('journeyEvents', JSON.stringify(events));
+
+            return true;
+        }
+
+        // Submit handler
+        document.getElementById('saveEventBtn').addEventListener('click', function() {
+            if (saveEvent()) {
+                document.getElementById('mainForm').style.display = 'none';
+                document.getElementById('completionScreen').classList.add('active');
+                updateViewButton();
+            }
+        });
+
+        // Cancel button
+        document.getElementById('cancelBtn').addEventListener('click', resetForm);
+
+        // Reset form
+        function resetForm() {
+            document.getElementById('mainForm').reset();
+            document.getElementById('eventDate').valueAsDate = new Date();
+            document.getElementById('resolutionDateContainer').style.display = 'none';
+            document.getElementById('mainForm').style.display = 'block';
+            document.getElementById('completionScreen').classList.remove('active');
+            document.getElementById('eventLibrary').classList.remove('active');
+        }
+
+        document.getElementById('newEventBtn').addEventListener('click', resetForm);
+
+        // View events
+        document.getElementById('viewEventsBtn').addEventListener('click', showEvents);
+        document.getElementById('viewFromCompletionBtn').addEventListener('click', showEvents);
+
+        function showEvents() {
+            document.getElementById('mainForm').style.display = 'none';
+            document.getElementById('completionScreen').classList.remove('active');
+            document.getElementById('eventLibrary').classList.add('active');
+            renderEvents();
+        }
+
+        document.getElementById('backToFormBtn').addEventListener('click', resetForm);
+
+        // Filter functionality
+        let currentFilter = 'all';
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.filter;
+                renderEvents(currentFilter);
+            });
+        });
+
+        // Render events
+        function renderEvents(filter = 'all') {
+            const events = JSON.parse(localStorage.getItem('journeyEvents') || '[]');
+            const container = document.getElementById('eventsList');
+            const noEvents = document.getElementById('noEvents');
+            
+            if (events.length === 0) {
+                container.innerHTML = '';
+                noEvents.style.display = 'block';
+                return;
+            }
+            
+            noEvents.style.display = 'none';
+            
+            // Filter events
+            let filtered = events;
+            if (filter === 'active-only') {
+                filtered = events.filter(e => e.status === 'active');
+            } else if (filter !== 'all') {
+                filtered = events.filter(e => e.type === filter);
+            }
+            
+            // Sort by date (most recent first)
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            let html = '';
+            
+            const magnitudeLabels = {
+                minor: 'Minor',
+                moderate: 'Moderate',
+                major: 'Major'
+            };
+
+            const durationLabels = {
+                '1-week': '1 week',
+                '2-4-weeks': '2-4 weeks',
+                '1-3-months': '1-3 months',
+                '3-6-months': '3-6 months',
+                '6-plus-months': '6+ months',
+                'ongoing': 'Ongoing'
+            };
+
+            const statusLabels = {
+                active: 'Active',
+                ongoing: 'Ongoing Management',
+                resolved: 'Resolved'
+            };
+            
+            filtered.forEach((event) => {
+                const date = new Date(event.date);
+                const formattedDate = date.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric'
+                });
+
+                const statusClass = event.status === 'resolved' ? 'badge-resolved' : 
+                                  event.status === 'ongoing' ? 'badge-ongoing' : 'badge-active';
+                
+                html += `
+                    <div class="event-card">
+                        <div class="event-icon">${getCategoryIcon(event.type)}</div>
+                        <div class="event-header">
+                            <div>
+                                <div class="event-title">${event.category}</div>
+                                <div class="event-date">${formattedDate} â€¢ ${getTypeDisplayName(event.type)}</div>
+                            </div>
+                            <div class="event-status-badge ${statusClass}">
+                                <span class="status-indicator status-${event.status}"></span>
+                                ${statusLabels[event.status]}
+                            </div>
+                        </div>
+                        <div class="event-details">
+                            <div class="detail-row">
+                                <div class="detail-label">Magnitude:</div>
+                                <div class="detail-value">${magnitudeLabels[event.magnitude]}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Projected Duration:</div>
+                                <div class="detail-value">${durationLabels[event.duration]}</div>
+                            </div>
+                            ${event.resolutionDate ? `
+                                <div class="detail-row">
+                                    <div class="detail-label">Resolved:</div>
+                                    <div class="detail-value">${new Date(event.resolutionDate).toLocaleDateString('en-US', { 
+                                        year: 'numeric', 
+                                        month: 'long', 
+                                        day: 'numeric'
+                                    })}</div>
+                                </div>
+                            ` : ''}
+                            <div class="event-description">${event.description}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // Export timeline
+        document.getElementById('exportTimelineBtn').addEventListener('click', function() {
+            const events = JSON.parse(localStorage.getItem('journeyEvents') || '[]');
+            
+            if (events.length === 0) {
+                alert('No events to export.');
+                return;
+            }
+
+            // Sort by date
+            events.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            let exportText = '='.repeat(60) + '\n';
+            exportText += 'YOUR DRESSAGE JOURNEY - EVENT TIMELINE\n';
+            exportText += '='.repeat(60) + '\n\n';
+
+            const magnitudeLabels = {
+                minor: 'Minor',
+                moderate: 'Moderate',
+                major: 'Major'
+            };
+
+            const durationLabels = {
+                '1-week': '1 week',
+                '2-4-weeks': '2-4 weeks',
+                '1-3-months': '1-3 months',
+                '3-6-months': '3-6 months',
+                '6-plus-months': '6+ months',
+                'ongoing': 'Ongoing'
+            };
+
+            const statusLabels = {
+                active: 'Active',
+                ongoing: 'Ongoing Management',
+                resolved: 'Resolved'
+            };
+
+            events.forEach((event, index) => {
+                const date = new Date(event.date);
+                const formattedDate = date.toLocaleDateString('en-US', { 
+                    weekday: 'long',
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric'
+                });
+
+                exportText += `EVENT ${index + 1}\n`;
+                exportText += '-'.repeat(60) + '\n';
+                exportText += `Event: ${event.category}\n`;
+                exportText += `Type: ${getTypeDisplayName(event.type)}\n`;
+                exportText += `Date: ${formattedDate}\n`;
+                exportText += `Status: ${statusLabels[event.status]}\n`;
+                exportText += `Magnitude: ${magnitudeLabels[event.magnitude]}\n`;
+                exportText += `Projected Duration: ${durationLabels[event.duration]}\n`;
+                
+                if (event.resolutionDate) {
+                    const resDate = new Date(event.resolutionDate);
+                    exportText += `Resolution Date: ${resDate.toLocaleDateString('en-US', { 
+                        weekday: 'long',
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric'
+                    })}\n`;
+                }
+                
+                exportText += `\nDescription:\n${event.description}\n\n`;
+                exportText += '='.repeat(60) + '\n\n';
+            });
+
+            exportText += `Total Events: ${events.length}\n`;
+            exportText += `Active Events: ${events.filter(e => e.status === 'active').length}\n`;
+            exportText += `Exported: ${new Date().toLocaleString()}\n`;
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(exportText).then(() => {
+                alert('Timeline copied to clipboard! You can paste it into any document.');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Could not copy to clipboard. Please try again.');
+            });
+        });
+    </script>
+</body>
+</html>
