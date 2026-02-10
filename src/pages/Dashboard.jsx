@@ -1,116 +1,111 @@
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import '../components/Forms/Forms.css';
+
+const sections = [
+  {
+    title: 'Record',
+    items: [
+      { label: 'Post-Ride Debrief', description: 'Log your ride experience and rate intentions', to: '/debriefs/new', color: '#8B7355' },
+      { label: 'Reflection', description: 'Capture personal milestones, aha moments, and growth', to: '/reflections/new', color: '#4A90E2' },
+      { label: 'Observation', description: 'Note what you learn watching others ride', to: '/observations/new', color: '#8B5CF6' },
+    ]
+  },
+  {
+    title: 'Plan',
+    items: [
+      { label: 'Event Preparation', description: 'Create a personalized preparation roadmap', to: '/event-prep/new', color: '#C67B5C' },
+      { label: 'Journey Event', description: 'Track life changes that affect your riding', to: '/events/new', color: '#6B8E5F' },
+    ]
+  },
+  {
+    title: 'Review',
+    items: [
+      { label: 'All Debriefs', description: 'Browse your ride history', to: '/debriefs' },
+      { label: 'All Reflections', description: 'Review your reflection library', to: '/reflections' },
+      { label: 'All Observations', description: 'View observation notes', to: '/observations' },
+      { label: 'Journey Events', description: 'View your timeline', to: '/events' },
+      { label: 'Event Preps', description: 'View preparation plans', to: '/event-prep' },
+    ]
+  },
+  {
+    title: 'Profile',
+    items: [
+      { label: 'Rider Profile', description: 'Your riding background and goals', to: '/profile/rider' },
+      { label: 'My Horses', description: 'Manage your horse profiles', to: '/horses' },
+    ]
+  }
+];
 
 export default function Dashboard() {
-  const { currentUser, logout } = useAuth();
-  const navigate = useNavigate();
-
-  async function handleLogout() {
-    const result = await logout();
-    if (result.success) {
-      navigate('/signin');
-    }
-  }
+  const { currentUser } = useAuth();
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-      <header style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '2rem',
-        paddingBottom: '1rem',
-        borderBottom: '2px solid #E0D5C7'
-      }}>
-        <div>
-          <h1 style={{
-            fontFamily: 'Playfair Display, serif',
-            color: '#8B7355',
-            marginBottom: '0.5rem'
-          }}>
-            Your Dressage Journey
-          </h1>
-          <p style={{ color: '#666' }}>
-            Welcome back, <strong>{currentUser?.displayName || 'Rider'}</strong>!
-          </p>
-        </div>
-        <button
-          onClick={handleLogout}
-          style={{
-            padding: '0.75rem 1.5rem',
-            backgroundColor: '#8B7355',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          Sign Out
-        </button>
-      </header>
-
-      <div style={{
-        backgroundColor: 'white',
-        padding: '2rem',
-        borderRadius: '12px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-      }}>
-        <h2 style={{
-          fontFamily: 'Playfair Display, serif',
+    <div>
+      <div style={{ marginBottom: '2rem' }}>
+        <h1 style={{
+          fontFamily: "'Playfair Display', serif",
           color: '#8B7355',
-          marginBottom: '1rem'
+          fontSize: '2em',
+          marginBottom: '0.5rem'
         }}>
-          Dashboard
-        </h2>
-        <p style={{ color: '#666', lineHeight: '1.6', marginBottom: '1.5rem' }}>
-          This is your dashboard! Phase 2 (Authentication) is complete.
-          Next steps will include adding forms, data management, and analytics.
-        </p>
-
-        <div style={{
-          padding: '1.5rem',
-          backgroundColor: '#E8F5E9',
-          borderRadius: '8px',
-          border: '1px solid #A5D6A7'
-        }}>
-          <h3 style={{ color: '#2E7D32', marginBottom: '0.5rem' }}>
-            ✅ Authentication Working!
-          </h3>
-          <p style={{ color: '#2E7D32', margin: 0 }}>
-            Your account is authenticated and email is verified.
-          </p>
-        </div>
-
-        <div style={{ marginTop: '2rem' }}>
-          <h3 style={{
-            fontFamily: 'Playfair Display, serif',
-            color: '#8B7355',
-            marginBottom: '1rem'
-          }}>
-            Account Information
-          </h3>
-          <ul style={{
-            listStyle: 'none',
-            padding: 0,
-            color: '#666'
-          }}>
-            <li style={{ marginBottom: '0.5rem' }}>
-              <strong>Email:</strong> {currentUser?.email}
-            </li>
-            <li style={{ marginBottom: '0.5rem' }}>
-              <strong>Name:</strong> {currentUser?.displayName || 'Not set'}
-            </li>
-            <li style={{ marginBottom: '0.5rem' }}>
-              <strong>Email Verified:</strong> {currentUser?.emailVerified ? '✅ Yes' : '❌ No'}
-            </li>
-            <li style={{ marginBottom: '0.5rem' }}>
-              <strong>Account Created:</strong> {new Date(currentUser?.metadata.creationTime).toLocaleDateString()}
-            </li>
-          </ul>
-        </div>
+          Welcome back, {currentUser?.displayName || 'Rider'}!
+        </h1>
+        <p style={{ color: '#666' }}>What would you like to do today?</p>
       </div>
+
+      {sections.map(section => (
+        <div key={section.title} style={{ marginBottom: '2rem' }}>
+          <h2 style={{
+            fontFamily: "'Playfair Display', serif",
+            color: '#8B7355',
+            fontSize: '1.35em',
+            marginBottom: '0.75rem',
+            paddingBottom: '0.5rem',
+            borderBottom: '2px solid #E0D5C7'
+          }}>
+            {section.title}
+          </h2>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+            gap: '0.75rem'
+          }}>
+            {section.items.map(item => (
+              <Link
+                key={item.to}
+                to={item.to}
+                style={{
+                  display: 'block',
+                  padding: '1.25rem 1.5rem',
+                  background: 'white',
+                  borderRadius: '12px',
+                  border: '1px solid #E0D5C7',
+                  borderLeft: item.color ? `4px solid ${item.color}` : '1px solid #E0D5C7',
+                  textDecoration: 'none',
+                  transition: 'all 0.2s ease',
+                  color: 'inherit'
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.boxShadow = '0 4px 16px rgba(139, 115, 85, 0.12)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.boxShadow = 'none';
+                  e.currentTarget.style.transform = 'none';
+                }}
+              >
+                <div style={{ fontWeight: 600, color: '#3A3A3A', marginBottom: '0.25rem' }}>
+                  {item.label}
+                </div>
+                <div style={{ fontSize: '0.88rem', color: '#7A7A7A', lineHeight: 1.4 }}>
+                  {item.description}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

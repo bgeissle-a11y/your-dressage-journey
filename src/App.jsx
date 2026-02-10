@@ -1,11 +1,33 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import PrivateRoute from './components/Auth/PrivateRoute';
+import AppLayout from './components/Layout/AppLayout';
 import SignUp from './components/Auth/SignUp';
 import SignIn from './components/Auth/SignIn';
 import ForgotPassword from './components/Auth/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import Home from './pages/Home';
+
+// Profile
+import RiderProfileForm from './components/RiderProfile/RiderProfileForm';
+import HorseProfileList from './components/HorseProfile/HorseProfileList';
+import HorseProfileForm from './components/HorseProfile/HorseProfileForm';
+
+// Record
+import ReflectionList from './components/Reflection/ReflectionList';
+import ReflectionForm from './components/Reflection/ReflectionForm';
+import DebriefList from './components/Debrief/DebriefList';
+import DebriefForm from './components/Debrief/DebriefForm';
+import ObservationList from './components/Observation/ObservationList';
+import ObservationForm from './components/Observation/ObservationForm';
+
+// Plan
+import JourneyEventList from './components/JourneyEvent/JourneyEventList';
+import JourneyEventForm from './components/JourneyEvent/JourneyEventForm';
+import EventPrepList from './components/EventPrep/EventPrepList';
+import EventPrepForm from './components/EventPrep/EventPrepForm';
+import EventPrepPlan from './components/EventPrep/EventPrepPlan';
+
 import './App.css';
 
 function App() {
@@ -18,20 +40,45 @@ function App() {
           <Route path="/signin" element={<SignIn />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
-          {/* Protected Routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <PrivateRoute>
-                <Dashboard />
-              </PrivateRoute>
-            }
-          />
+          {/* Protected Routes - wrapped in AppLayout */}
+          <Route element={<PrivateRoute><AppLayout /></PrivateRoute>}>
+            <Route path="/dashboard" element={<Dashboard />} />
 
-          {/* Default Route - Smart redirect based on auth state */}
+            {/* Profile */}
+            <Route path="/profile/rider" element={<RiderProfileForm />} />
+            <Route path="/horses" element={<HorseProfileList />} />
+            <Route path="/horses/new" element={<HorseProfileForm />} />
+            <Route path="/horses/:id/edit" element={<HorseProfileForm />} />
+
+            {/* Reflections */}
+            <Route path="/reflections" element={<ReflectionList />} />
+            <Route path="/reflections/new" element={<ReflectionForm />} />
+            <Route path="/reflections/:id/edit" element={<ReflectionForm />} />
+
+            {/* Debriefs */}
+            <Route path="/debriefs" element={<DebriefList />} />
+            <Route path="/debriefs/new" element={<DebriefForm />} />
+            <Route path="/debriefs/:id/edit" element={<DebriefForm />} />
+
+            {/* Observations */}
+            <Route path="/observations" element={<ObservationList />} />
+            <Route path="/observations/new" element={<ObservationForm />} />
+            <Route path="/observations/:id/edit" element={<ObservationForm />} />
+
+            {/* Journey Events */}
+            <Route path="/events" element={<JourneyEventList />} />
+            <Route path="/events/new" element={<JourneyEventForm />} />
+            <Route path="/events/:id/edit" element={<JourneyEventForm />} />
+
+            {/* Event Prep */}
+            <Route path="/event-prep" element={<EventPrepList />} />
+            <Route path="/event-prep/new" element={<EventPrepForm />} />
+            <Route path="/event-prep/:id/edit" element={<EventPrepForm />} />
+            <Route path="/event-prep/:id/plan" element={<EventPrepPlan />} />
+          </Route>
+
+          {/* Default Route */}
           <Route path="/" element={<Home />} />
-
-          {/* 404 - Redirect to home */}
           <Route path="*" element={<Home />} />
         </Routes>
       </AuthProvider>

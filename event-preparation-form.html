@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Preparation Planner | Your Dressage Journey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #8B7355;
+            --color-secondary: #D4A574;
+            --color-accent: #C67B5C;
+            --color-success: #6B8E5F;
+            --color-bg: #FAF8F5;
+            --color-bg-secondary: #F5F1EB;
+            --color-text: #3A3A3A;
+            --color-text-light: #7A7A7A;
+            --color-border: #E0D5C7;
+            --shadow-soft: 0 2px 12px rgba(139, 115, 85, 0.08);
+            --shadow-medium: 0 4px 24px rgba(139, 115, 85, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background: linear-gradient(to bottom, var(--color-bg) 0%, var(--color-bg-secondary) 100%);
+            color: var(--color-text);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--color-border);
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5em;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 1.05em;
+            color: var(--color-text-light);
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--color-border);
+            overflow: hidden;
+        }
+
+        .section {
+            padding: 40px;
+            border-bottom: 2px solid var(--color-bg-secondary);
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--color-secondary);
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
+            color: var(--color-primary);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .section-description {
+            color: var(--color-text-light);
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group.half {
+            display: inline-block;
+            width: calc(50% - 10px);
+            margin-right: 20px;
+        }
+
+        .form-group.half:nth-child(even) {
+            margin-right: 0;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            color: var(--color-text);
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .label-optional {
+            color: var(--color-text-light);
+            font-weight: 400;
+            font-style: italic;
+            font-size: 0.85em;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="email"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--color-border);
+            border-radius: 10px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.95em;
+            color: var(--color-text);
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        input[type="email"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--color-secondary);
+            box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.1);
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        textarea.tall {
+            min-height: 120px;
+        }
+
+        .goal-concern-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .goal-concern-item input {
+            flex: 1;
+        }
+
+        .goal-concern-item .number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--color-secondary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9em;
+            flex-shrink: 0;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--color-primary);
+        }
+
+        .info-box {
+            background: var(--color-bg);
+            border-left: 4px solid var(--color-accent);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 0.9em;
+            color: var(--color-text-light);
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            color: var(--color-text);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+        }
+
+        button {
+            flex: 1;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button[type="submit"] {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        button[type="submit"]:hover {
+            background: #6F5A43;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        button[type="button"] {
+            background: var(--color-bg-secondary);
+            color: var(--color-text);
+            border: 2px solid var(--color-border);
+        }
+
+        button[type="button"]:hover {
+            background: var(--color-border);
+        }
+
+        .success-message {
+            background: var(--color-success);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+        }
+
+        .character-count {
+            font-size: 0.85em;
+            color: var(--color-text-light);
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .section {
+                padding: 30px 20px;
+            }
+
+            .form-group.half {
+                display: block;
+                width: 100%;
+                margin-right: 0;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Event Preparation Planner</h1>
+            <p class="subtitle">Let's create your personalized preparation roadmap for success</p>
+        </header>
+
+        <div class="success-message" id="successMessage">
+            ✓ Your event preparation plan has been saved! Generating your personalized roadmap...
+        </div>
+
+        <form id="eventPrepForm" class="form-container">
+            <!-- Event Details Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Event Details</h2>
+                    <p class="section-description">Tell us about the experience you're preparing for</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventName">Event Name</label>
+                    <input type="text" id="eventName" name="eventName" placeholder="e.g., Spring Championship Show, Jane Smith Clinic, First Lesson with New Trainer" required>
+                </div>
+
+                <div class="form-group half">
+                    <label for="eventDate">Event Date</label>
+                    <input type="date" id="eventDate" name="eventDate" required>
+                </div>
+
+                <div class="form-group half">
+                    <label for="eventType">Event Type</label>
+                    <select id="eventType" name="eventType" required>
+                        <option value="">Select type...</option>
+                        <option value="show">Competition/Show</option>
+                        <option value="clinic">Clinic/Workshop</option>
+                        <option value="new-trainer">Lesson with New Trainer</option>
+                        <option value="evaluation">Level Assessment/Evaluation</option>
+                        <option value="demo">Demonstration/Performance</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="otherTypeGroup" style="display: none;">
+                    <label for="eventTypeOther">Please specify</label>
+                    <input type="text" id="eventTypeOther" name="eventTypeOther" placeholder="Describe the event type">
+                </div>
+
+                <div class="form-group">
+                    <label for="eventLocation">Location <span class="label-optional">(optional)</span></label>
+                    <input type="text" id="eventLocation" name="eventLocation" placeholder="Venue name or city">
+                </div>
+
+                <div class="form-group">
+                    <label for="eventDescription">Additional Event Details <span class="label-optional">(optional)</span></label>
+                    <textarea id="eventDescription" name="eventDescription" placeholder="Any other relevant details about this event (multi-day format, specific tests/classes, clinician background, etc.)"></textarea>
+                </div>
+            </div>
+
+            <!-- Current Context Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Your Current Context</h2>
+                    <p class="section-description">Help us understand where you are right now</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="horseName">Horse for This Event</label>
+                    <select id="horseName" name="horseName" required>
+                        <option value="">Select horse...</option>
+                        <!-- Will be populated from rider's horse profiles -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="currentLevel">Current Level/Stage</label>
+                    <input type="text" id="currentLevel" name="currentLevel" placeholder="e.g., Training Level, 2nd Level, PSG" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="targetLevel">Level for This Event <span class="label-optional">(if different)</span></label>
+                    <input type="text" id="targetLevel" name="targetLevel" placeholder="e.g., Moving up to First Level, Intermediate 1">
+                </div>
+
+                <div class="form-group">
+                    <label>What's your experience with this type of event?</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="exp-first" name="eventExperience" value="first-time">
+                            <label for="exp-first" style="margin: 0;">First time</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="exp-some" name="eventExperience" value="some-experience">
+                            <label for="exp-some" style="margin: 0;">Some experience</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="exp-regular" name="eventExperience" value="regular">
+                            <label for="exp-regular" style="margin: 0;">Regular participant</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="currentChallenges">Current Technical or Physical Challenges <span class="label-optional">(optional)</span></label>
+                    <textarea id="currentChallenges" name="currentChallenges" class="tall" placeholder="Describe any specific movements, patterns, or physical issues you're working through right now (e.g., inconsistent tempi changes, struggling with half-pass left, horse tension in transitions, recovering from injury)"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="recentProgress">Recent Progress or Breakthroughs <span class="label-optional">(optional)</span></label>
+                    <textarea id="recentProgress" name="recentProgress" placeholder="Any recent improvements, aha moments, or wins to build on"></textarea>
+                </div>
+            </div>
+
+            <!-- Goals Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Your Goals</h2>
+                    <p class="section-description">What do you want to achieve at this event? (List up to 3)</p>
+                </div>
+
+                <div class="info-box">
+                    <strong>Tip:</strong> Good goals are specific and measurable. Instead of "do well," try "score 62% or higher" or "execute clean lead changes" or "feel confident in warm-up."
+                </div>
+
+                <div class="goal-concern-item">
+                    <div class="number">1</div>
+                    <input type="text" id="goal1" name="goal1" placeholder="Primary goal" required>
+                </div>
+
+                <div class="goal-concern-item">
+                    <div class="number">2</div>
+                    <input type="text" id="goal2" name="goal2" placeholder="Second goal (optional)">
+                </div>
+
+                <div class="goal-concern-item">
+                    <div class="number">3</div>
+                    <input type="text" id="goal3" name="goal3" placeholder="Third goal (optional)">
+                </div>
+            </div>
+
+            <!-- Concerns Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Your Concerns</h2>
+                    <p class="section-description">What worries you about this event? (List up to 3)</p>
+                </div>
+
+                <div class="info-box">
+                    <strong>Why we ask:</strong> Naming your concerns helps us address them directly in your preparation plan. Common concerns include nerves, horse behavior, specific technical elements, or recovery from setbacks.
+                </div>
+
+                <div class="goal-concern-item">
+                    <div class="number">1</div>
+                    <input type="text" id="concern1" name="concern1" placeholder="Primary concern">
+                </div>
+
+                <div class="goal-concern-item">
+                    <div class="number">2</div>
+                    <input type="text" id="concern2" name="concern2" placeholder="Second concern (optional)">
+                </div>
+
+                <div class="goal-concern-item">
+                    <div class="number">3</div>
+                    <input type="text" id="concern3" name="concern3" placeholder="Third concern (optional)">
+                </div>
+            </div>
+
+            <!-- Resources & Preparation Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Resources & Preparation Time</h2>
+                    <p class="section-description">Help us tailor your plan to your available resources</p>
+                </div>
+
+                <div class="form-group">
+                    <label>How many days per week can you typically ride between now and the event?</label>
+                    <select id="ridingFrequency" name="ridingFrequency" required>
+                        <option value="">Select...</option>
+                        <option value="1-2">1-2 days/week</option>
+                        <option value="3-4">3-4 days/week</option>
+                        <option value="5-6">5-6 days/week</option>
+                        <option value="7">7 days/week</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Do you have regular access to a trainer/coach?</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="coach-weekly" name="coachAccess" value="weekly">
+                            <label for="coach-weekly" style="margin: 0;">Weekly lessons</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="coach-biweekly" name="coachAccess" value="biweekly">
+                            <label for="coach-biweekly" style="margin: 0;">Every 2 weeks</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="coach-monthly" name="coachAccess" value="monthly">
+                            <label for="coach-monthly" style="margin: 0;">Monthly</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="coach-occasional" name="coachAccess" value="occasional">
+                            <label for="coach-occasional" style="margin: 0;">Occasional</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="coach-none" name="coachAccess" value="none">
+                            <label for="coach-none" style="margin: 0;">Self-training</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>What resources do you have available? <span class="label-optional">(check all that apply)</span></label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="res-mirrors" name="resources" value="mirrors">
+                            <label for="res-mirrors" style="margin: 0;">Mirrors in arena</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="res-video" name="resources" value="video">
+                            <label for="res-video" style="margin: 0;">Video capability</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="res-ground" name="resources" value="ground-person">
+                            <label for="res-ground" style="margin: 0;">Ground person/eyes</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="res-facility" name="resources" value="show-facility">
+                            <label for="res-facility" style="margin: 0;">Can school at show venue</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="constraints">Time or Resource Constraints <span class="label-optional">(optional)</span></label>
+                    <textarea id="constraints" name="constraints" placeholder="Any limitations we should know about (travel schedule, horse soundness issues, weather-dependent arena access, etc.)"></textarea>
+                </div>
+            </div>
+
+            <!-- Additional Information Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Anything Else?</h2>
+                    <p class="section-description">Share any other context that would help us create your ideal preparation plan</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="additionalInfo">Additional Information <span class="label-optional">(optional)</span></label>
+                    <textarea id="additionalInfo" name="additionalInfo" class="tall" placeholder="Mental game focus areas, past experiences with similar events, specific people you're riding with/against, anxiety triggers, motivation strategies that work for you, etc."></textarea>
+                    <div class="character-count">
+                        <span id="additionalInfoCount">0</span> characters
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="preferredCoach">Preferred Coaching Voice <span class="label-optional">(optional)</span></label>
+                    <select id="preferredCoach" name="preferredCoach">
+                        <option value="">No preference - surprise me</option>
+                        <option value="klaus">Herr Klaus von Steinberg (Stern European master)</option>
+                        <option value="jordan">Dr. Jordan Hayes (Neutral analyst)</option>
+                        <option value="emma">Coach Emma (Encouraging instructor)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Submit Section -->
+            <div class="section">
+                <div class="button-group">
+                    <button type="button" onclick="saveAsDraft()">Save as Draft</button>
+                    <button type="submit">Generate My Preparation Plan</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Form initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHorseProfiles();
+            setupEventTypeToggle();
+            setupCharacterCounter();
+            setupFormSubmission();
+            loadDraftIfExists();
+        });
+
+        // Load horse profiles from user data
+        function loadHorseProfiles() {
+            const horseSelect = document.getElementById('horseName');
+            // This would connect to the actual horse profile data
+            // For now, placeholder options
+            const horses = ['Rocket Star', 'Pony', 'Astrid', 'D'];
+            horses.forEach(horse => {
+                const option = document.createElement('option');
+                option.value = horse;
+                option.textContent = horse;
+                horseSelect.appendChild(option);
+            });
+        }
+
+        // Toggle "other" event type field
+        function setupEventTypeToggle() {
+            const eventType = document.getElementById('eventType');
+            const otherGroup = document.getElementById('otherTypeGroup');
+            
+            eventType.addEventListener('change', function() {
+                if (this.value === 'other') {
+                    otherGroup.style.display = 'block';
+                    document.getElementById('eventTypeOther').required = true;
+                } else {
+                    otherGroup.style.display = 'none';
+                    document.getElementById('eventTypeOther').required = false;
+                }
+            });
+        }
+
+        // Character counter for additional info
+        function setupCharacterCounter() {
+            const textarea = document.getElementById('additionalInfo');
+            const counter = document.getElementById('additionalInfoCount');
+            
+            textarea.addEventListener('input', function() {
+                counter.textContent = this.value.length;
+            });
+        }
+
+        // Form submission handler
+        function setupFormSubmission() {
+            const form = document.getElementById('eventPrepForm');
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = collectFormData();
+                saveToLocalStorage(formData);
+                
+                // Show success message
+                const successMsg = document.getElementById('successMessage');
+                successMsg.style.display = 'block';
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                // In production, this would generate the preparation plan
+                console.log('Event Preparation Data:', formData);
+                
+                // Simulate plan generation
+                setTimeout(() => {
+                    alert('Your personalized preparation plan is ready!');
+                    // Would navigate to plan view or download
+                }, 1500);
+            });
+        }
+
+        // Collect all form data
+        function collectFormData() {
+            const form = document.getElementById('eventPrepForm');
+            const formData = new FormData(form);
+            
+            const data = {
+                timestamp: new Date().toISOString(),
+                eventDetails: {
+                    name: formData.get('eventName'),
+                    date: formData.get('eventDate'),
+                    type: formData.get('eventType'),
+                    typeOther: formData.get('eventTypeOther'),
+                    location: formData.get('eventLocation'),
+                    description: formData.get('eventDescription')
+                },
+                currentContext: {
+                    horse: formData.get('horseName'),
+                    currentLevel: formData.get('currentLevel'),
+                    targetLevel: formData.get('targetLevel'),
+                    experience: formData.get('eventExperience'),
+                    challenges: formData.get('currentChallenges'),
+                    progress: formData.get('recentProgress')
+                },
+                goals: [
+                    formData.get('goal1'),
+                    formData.get('goal2'),
+                    formData.get('goal3')
+                ].filter(Boolean),
+                concerns: [
+                    formData.get('concern1'),
+                    formData.get('concern2'),
+                    formData.get('concern3')
+                ].filter(Boolean),
+                resources: {
+                    ridingFrequency: formData.get('ridingFrequency'),
+                    coachAccess: formData.get('coachAccess'),
+                    available: formData.getAll('resources'),
+                    constraints: formData.get('constraints')
+                },
+                additional: {
+                    info: formData.get('additionalInfo'),
+                    preferredCoach: formData.get('preferredCoach')
+                }
+            };
+            
+            return data;
+        }
+
+        // Save to localStorage
+        function saveToLocalStorage(data) {
+            try {
+                localStorage.setItem('ydj_event_prep_' + data.eventDetails.date, JSON.stringify(data));
+                localStorage.setItem('ydj_event_prep_latest', JSON.stringify(data));
+            } catch (e) {
+                console.error('Could not save to localStorage:', e);
+            }
+        }
+
+        // Save as draft
+        function saveAsDraft() {
+            const formData = collectFormData();
+            saveToLocalStorage(formData);
+            
+            alert('Draft saved! You can return to complete this form later.');
+        }
+
+        // Load draft if exists
+        function loadDraftIfExists() {
+            try {
+                const draft = localStorage.getItem('ydj_event_prep_latest');
+                if (draft && confirm('We found a saved draft. Would you like to continue where you left off?')) {
+                    const data = JSON.parse(draft);
+                    populateForm(data);
+                }
+            } catch (e) {
+                console.error('Could not load draft:', e);
+            }
+        }
+
+        // Populate form with saved data
+        function populateForm(data) {
+            // Event Details
+            document.getElementById('eventName').value = data.eventDetails.name || '';
+            document.getElementById('eventDate').value = data.eventDetails.date || '';
+            document.getElementById('eventType').value = data.eventDetails.type || '';
+            document.getElementById('eventLocation').value = data.eventDetails.location || '';
+            document.getElementById('eventDescription').value = data.eventDetails.description || '';
+            
+            // Current Context
+            document.getElementById('horseName').value = data.currentContext.horse || '';
+            document.getElementById('currentLevel').value = data.currentContext.currentLevel || '';
+            document.getElementById('targetLevel').value = data.currentContext.targetLevel || '';
+            document.getElementById('currentChallenges').value = data.currentContext.challenges || '';
+            document.getElementById('recentProgress').value = data.currentContext.progress || '';
+            
+            // Goals
+            data.goals.forEach((goal, index) => {
+                const input = document.getElementById('goal' + (index + 1));
+                if (input) input.value = goal;
+            });
+            
+            // Concerns
+            data.concerns.forEach((concern, index) => {
+                const input = document.getElementById('concern' + (index + 1));
+                if (input) input.value = concern;
+            });
+            
+            // Resources
+            document.getElementById('ridingFrequency').value = data.resources.ridingFrequency || '';
+            document.getElementById('constraints').value = data.resources.constraints || '';
+            
+            // Additional
+            document.getElementById('additionalInfo').value = data.additional.info || '';
+            document.getElementById('preferredCoach').value = data.additional.preferredCoach || '';
+        }
+    </script>
+</body>
+</html>
