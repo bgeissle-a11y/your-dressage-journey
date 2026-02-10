@@ -88,12 +88,13 @@ export {
   getCompletedEvents,
   getEventsByHorse,
   updateEventPrepPlan,
-  togglePrepTask,
-  toggleEquipmentPacked,
-  addScore,
   deleteEventPrepPlan,
   EVENT_PREP_TYPES,
-  DRESSAGE_LEVELS,
+  EXPERIENCE_LEVELS,
+  RIDING_FREQUENCIES,
+  COACH_ACCESS_OPTIONS,
+  AVAILABLE_RESOURCES,
+  COACHING_VOICES,
   EVENT_PREP_STATUSES,
   DEFAULT_EQUIPMENT
 } from './eventPrepPlannerService';

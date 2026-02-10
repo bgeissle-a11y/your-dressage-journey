@@ -7,79 +7,104 @@ const base = createBaseService(COLLECTION);
  * Event Preparation Planner Service
  *
  * Helps riders plan and prepare for dressage events, shows, clinics,
- * and other competitions with structured preparation tracking.
+ * and other experiences with structured preparation tracking.
  *
- * Data model:
+ * Data model (matches event-preparation-form.html):
  * {
- *   userId:          string  - Firebase Auth UID
+ *   userId:             string  - Firebase Auth UID
  *
- *   // Event Details
- *   eventName:       string  - required, name of event
- *   eventType:       string  - "show" | "clinic" | "schooling-show" | "championship" | "other"
- *   eventDate:       string  - required, ISO date
- *   eventEndDate:    string  - optional, ISO date (for multi-day events)
- *   location:        string  - venue name/address
- *   organizerName:   string  - optional
- *   horseName:       string  - which horse for this event
+ *   // Section 1: Event Details
+ *   eventName:          string  - required
+ *   eventDate:          string  - required, ISO date
+ *   eventType:          string  - "show" | "clinic" | "new-trainer" | "evaluation" | "demo" | "other"
+ *   eventTypeOther:     string  - only when eventType === "other"
+ *   location:           string  - venue name or city
+ *   eventDescription:   string  - additional event details
  *
- *   // Competition Details
- *   level:           string  - dressage level being ridden
- *   tests:           array   - [{ testName, testNumber, rideTime }]
- *   classEntries:    string  - optional, class numbers or descriptions
+ *   // Section 2: Current Context
+ *   horseName:          string  - which horse for this event
+ *   currentLevel:       string  - current dressage level
+ *   targetLevel:        string  - level for this event if different
+ *   eventExperience:    string  - "first-time" | "some-experience" | "regular"
+ *   currentChallenges:  string  - technical or physical challenges
+ *   recentProgress:     string  - recent breakthroughs
  *
- *   // Goals
- *   goals:           array   - [{ goal, priority }]
- *   focusAreas:      string  - what to specifically focus on
+ *   // Section 3: Goals (up to 3)
+ *   goals:              array   - [string, string, string]
  *
- *   // Preparation Timeline
- *   prepTasks:       array   - [{ task, dueDate, completed, notes }]
+ *   // Section 4: Concerns (up to 3)
+ *   concerns:           array   - [string, string, string]
  *
- *   // Day-of Plan
- *   arrivalTime:     string  - when to arrive at venue
- *   warmUpPlan:      string  - warm-up strategy and timing
- *   rideTimePlan:    string  - notes for during the ride
- *   coolDownPlan:    string  - post-ride plan
+ *   // Section 5: Resources & Preparation
+ *   ridingFrequency:    string  - "1-2" | "3-4" | "5-6" | "7"
+ *   coachAccess:        string  - "weekly" | "biweekly" | "monthly" | "occasional" | "none"
+ *   availableResources: array   - ["mirrors", "video", "ground-person", "show-facility"]
+ *   constraints:        string  - time or resource constraints
  *
- *   // Equipment Checklist
- *   equipmentList:   array   - [{ item, packed, category }]
+ *   // Section 6: Additional
+ *   additionalInfo:     string  - free-form additional context
+ *   preferredCoach:     string  - "klaus" | "jordan" | "emma" | ""
  *
- *   // Travel
- *   travelNotes:     string  - directions, trailer, overnight plans
- *   departureTime:   string  - when to leave
+ *   // Generated plan (future AI integration)
+ *   generatedPlan:      string|null
  *
- *   // Post-Event
- *   postEventNotes:  string  - notes after the event
- *   lessonsLearned:  string  - what to carry forward
- *   scores:          array   - [{ testName, score, placing, judgeComments }]
+ *   // Interactive checklists (plan view)
+ *   equipmentList:      array   - [{ item, packed, category }]
+ *   prepTasks:          array   - [{ task, dueDate, completed, notes }]
  *
  *   // Status
- *   status:          string  - "planning" | "confirmed" | "completed" | "cancelled"
+ *   status:             string  - "planning" | "confirmed" | "completed" | "cancelled"
  * }
  */
 
-// Event type options
+// Event type options (matching HTML form)
 export const EVENT_PREP_TYPES = [
-  { value: 'show', label: 'Recognized Show' },
-  { value: 'schooling-show', label: 'Schooling Show' },
-  { value: 'clinic', label: 'Clinic' },
-  { value: 'championship', label: 'Championship' },
+  { value: 'show', label: 'Competition/Show' },
+  { value: 'clinic', label: 'Clinic/Workshop' },
+  { value: 'new-trainer', label: 'Lesson with New Trainer' },
+  { value: 'evaluation', label: 'Level Assessment/Evaluation' },
+  { value: 'demo', label: 'Demonstration/Performance' },
   { value: 'other', label: 'Other' }
 ];
 
-// Dressage levels
-export const DRESSAGE_LEVELS = [
-  { value: 'intro', label: 'Introductory' },
-  { value: 'training', label: 'Training Level' },
-  { value: 'first', label: 'First Level' },
-  { value: 'second', label: 'Second Level' },
-  { value: 'third', label: 'Third Level' },
-  { value: 'fourth', label: 'Fourth Level' },
-  { value: 'psg', label: 'Prix St. Georges' },
-  { value: 'inter1', label: 'Intermediate I' },
-  { value: 'inter2', label: 'Intermediate II' },
-  { value: 'gp', label: 'Grand Prix' },
-  { value: 'freestyle', label: 'Freestyle/Musical' },
-  { value: 'pas-de-deux', label: 'Pas de Deux' }
+// Event experience levels
+export const EXPERIENCE_LEVELS = [
+  { value: 'first-time', label: 'First time' },
+  { value: 'some-experience', label: 'Some experience' },
+  { value: 'regular', label: 'Regular participant' }
+];
+
+// Riding frequency options
+export const RIDING_FREQUENCIES = [
+  { value: '1-2', label: '1-2 days/week' },
+  { value: '3-4', label: '3-4 days/week' },
+  { value: '5-6', label: '5-6 days/week' },
+  { value: '7', label: '7 days/week' }
+];
+
+// Coach access options
+export const COACH_ACCESS_OPTIONS = [
+  { value: 'weekly', label: 'Weekly lessons' },
+  { value: 'biweekly', label: 'Every 2 weeks' },
+  { value: 'monthly', label: 'Monthly' },
+  { value: 'occasional', label: 'Occasional' },
+  { value: 'none', label: 'Self-training' }
+];
+
+// Available resources checkboxes
+export const AVAILABLE_RESOURCES = [
+  { value: 'mirrors', label: 'Mirrors in arena' },
+  { value: 'video', label: 'Video capability' },
+  { value: 'ground-person', label: 'Ground person/eyes' },
+  { value: 'show-facility', label: 'Can school at show venue' }
+];
+
+// Coaching voice options
+export const COACHING_VOICES = [
+  { value: '', label: 'No preference - surprise me' },
+  { value: 'klaus', label: 'Herr Klaus von Steinberg (Stern European master)' },
+  { value: 'jordan', label: 'Dr. Jordan Hayes (Neutral analyst)' },
+  { value: 'emma', label: 'Coach Emma (Encouraging instructor)' }
 ];
 
 // Event status options
@@ -90,7 +115,7 @@ export const EVENT_PREP_STATUSES = [
   { value: 'cancelled', label: 'Cancelled' }
 ];
 
-// Default equipment checklist categories and items
+// Default equipment checklist
 export const DEFAULT_EQUIPMENT = [
   { item: 'Saddle', packed: false, category: 'tack' },
   { item: 'Bridle', packed: false, category: 'tack' },
@@ -121,44 +146,44 @@ export const DEFAULT_EQUIPMENT = [
  */
 export async function createEventPrepPlan(userId, planData) {
   return base.create(userId, {
-    // Event details
+    // Section 1: Event Details
     eventName: planData.eventName || '',
-    eventType: planData.eventType || '',
     eventDate: planData.eventDate || '',
-    eventEndDate: planData.eventEndDate || null,
+    eventType: planData.eventType || '',
+    eventTypeOther: planData.eventTypeOther || '',
     location: planData.location || '',
-    organizerName: planData.organizerName || '',
+    eventDescription: planData.eventDescription || '',
+
+    // Section 2: Current Context
     horseName: planData.horseName || '',
+    currentLevel: planData.currentLevel || '',
+    targetLevel: planData.targetLevel || '',
+    eventExperience: planData.eventExperience || '',
+    currentChallenges: planData.currentChallenges || '',
+    recentProgress: planData.recentProgress || '',
 
-    // Competition details
-    level: planData.level || '',
-    tests: planData.tests || [],
-    classEntries: planData.classEntries || '',
-
-    // Goals
+    // Section 3: Goals
     goals: planData.goals || [],
-    focusAreas: planData.focusAreas || '',
 
-    // Preparation timeline
-    prepTasks: planData.prepTasks || [],
+    // Section 4: Concerns
+    concerns: planData.concerns || [],
 
-    // Day-of plan
-    arrivalTime: planData.arrivalTime || '',
-    warmUpPlan: planData.warmUpPlan || '',
-    rideTimePlan: planData.rideTimePlan || '',
-    coolDownPlan: planData.coolDownPlan || '',
+    // Section 5: Resources
+    ridingFrequency: planData.ridingFrequency || '',
+    coachAccess: planData.coachAccess || '',
+    availableResources: planData.availableResources || [],
+    constraints: planData.constraints || '',
 
-    // Equipment checklist
-    equipmentList: planData.equipmentList || [...DEFAULT_EQUIPMENT],
+    // Section 6: Additional
+    additionalInfo: planData.additionalInfo || '',
+    preferredCoach: planData.preferredCoach || '',
 
-    // Travel
-    travelNotes: planData.travelNotes || '',
-    departureTime: planData.departureTime || '',
+    // Generated plan (future AI)
+    generatedPlan: null,
 
-    // Post-event (filled in after)
-    postEventNotes: planData.postEventNotes || '',
-    lessonsLearned: planData.lessonsLearned || '',
-    scores: planData.scores || [],
+    // Interactive checklists
+    equipmentList: [...DEFAULT_EQUIPMENT],
+    prepTasks: [],
 
     // Status
     status: planData.status || 'planning'
@@ -209,53 +234,6 @@ export async function getEventsByHorse(userId, horseName) {
  */
 export async function updateEventPrepPlan(docId, data) {
   return base.update(docId, data);
-}
-
-/**
- * Update a specific prep task's completion status
- */
-export async function togglePrepTask(docId, taskIndex, completed) {
-  const result = await base.read(docId);
-  if (!result.success) return result;
-
-  const prepTasks = [...result.data.prepTasks];
-  if (taskIndex >= 0 && taskIndex < prepTasks.length) {
-    prepTasks[taskIndex] = { ...prepTasks[taskIndex], completed };
-    return base.update(docId, { prepTasks });
-  }
-  return { success: false, error: 'Task index out of range' };
-}
-
-/**
- * Update equipment packed status
- */
-export async function toggleEquipmentPacked(docId, itemIndex, packed) {
-  const result = await base.read(docId);
-  if (!result.success) return result;
-
-  const equipmentList = [...result.data.equipmentList];
-  if (itemIndex >= 0 && itemIndex < equipmentList.length) {
-    equipmentList[itemIndex] = { ...equipmentList[itemIndex], packed };
-    return base.update(docId, { equipmentList });
-  }
-  return { success: false, error: 'Equipment index out of range' };
-}
-
-/**
- * Add a score entry after completing an event
- */
-export async function addScore(docId, scoreData) {
-  const result = await base.read(docId);
-  if (!result.success) return result;
-
-  const scores = [...(result.data.scores || []), {
-    testName: scoreData.testName || '',
-    score: scoreData.score || '',
-    placing: scoreData.placing || '',
-    judgeComments: scoreData.judgeComments || ''
-  }];
-
-  return base.update(docId, { scores });
 }
 
 /**

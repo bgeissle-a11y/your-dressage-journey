@@ -67,6 +67,11 @@ export default function EventPrepList() {
     }
   }
 
+  function eventTypeLabel(plan) {
+    if (plan.eventType === 'other') return plan.eventTypeOther || 'Other';
+    return TYPE_LABELS[plan.eventType] || plan.eventType;
+  }
+
   if (loading) {
     return <div className="loading-state">Loading event preparations...</div>;
   }
@@ -116,7 +121,7 @@ export default function EventPrepList() {
                     </div>
                     <div className="list-card-meta">
                       <span>{formatDate(plan.eventDate)}</span>
-                      {plan.eventType && <span>{TYPE_LABELS[plan.eventType] || plan.eventType}</span>}
+                      {plan.eventType && <span>{eventTypeLabel(plan)}</span>}
                       {plan.horseName && <span>{plan.horseName}</span>}
                       <span className={`status-badge ${statusBadgeClass(plan.status)}`}>
                         {STATUS_LABELS[plan.status] || plan.status}

@@ -3,12 +3,17 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   getEventPrepPlan, updateEventPrepPlan,
-  EVENT_PREP_TYPES, DRESSAGE_LEVELS, EVENT_PREP_STATUSES
+  EVENT_PREP_TYPES, EXPERIENCE_LEVELS, RIDING_FREQUENCIES,
+  COACH_ACCESS_OPTIONS, AVAILABLE_RESOURCES, COACHING_VOICES, EVENT_PREP_STATUSES
 } from '../../services';
 import '../Forms/Forms.css';
 
 const TYPE_LABELS = Object.fromEntries(EVENT_PREP_TYPES.map(t => [t.value, t.label]));
-const LEVEL_LABELS = Object.fromEntries(DRESSAGE_LEVELS.map(l => [l.value, l.label]));
+const EXP_LABELS = Object.fromEntries(EXPERIENCE_LEVELS.map(e => [e.value, e.label]));
+const FREQ_LABELS = Object.fromEntries(RIDING_FREQUENCIES.map(f => [f.value, f.label]));
+const COACH_LABELS = Object.fromEntries(COACH_ACCESS_OPTIONS.map(c => [c.value, c.label]));
+const RESOURCE_LABELS = Object.fromEntries(AVAILABLE_RESOURCES.map(r => [r.value, r.label]));
+const VOICE_LABELS = Object.fromEntries(COACHING_VOICES.filter(v => v.value).map(v => [v.value, v.label]));
 const STATUS_LABELS = Object.fromEntries(EVENT_PREP_STATUSES.map(s => [s.value, s.label]));
 
 const EQUIPMENT_CATEGORIES = {
@@ -61,8 +66,7 @@ export default function EventPrepPlan() {
     if (!plan?.eventDate) return null;
     const now = new Date();
     const event = new Date(plan.eventDate + 'T00:00:00');
-    const diff = Math.ceil((event - now) / (1000 * 60 * 60 * 24));
-    return diff;
+    return Math.ceil((event - now) / (1000 * 60 * 60 * 24));
   }
 
   function formatDate(dateStr) {
@@ -98,12 +102,16 @@ export default function EventPrepPlan() {
   const completedTasks = (plan.prepTasks || []).filter(t => t.completed).length;
   const totalTasks = (plan.prepTasks || []).length;
 
+  const eventTypeLabel = plan.eventType === 'other'
+    ? (plan.eventTypeOther || 'Other')
+    : (TYPE_LABELS[plan.eventType] || plan.eventType);
+
   return (
     <div className="form-page">
       <div className="form-page-header">
         <h1>{plan.eventName}</h1>
         <p>
-          {TYPE_LABELS[plan.eventType] || plan.eventType}
+          {eventTypeLabel}
           {plan.location && ` at ${plan.location}`}
         </p>
       </div>
@@ -122,11 +130,11 @@ export default function EventPrepPlan() {
             <div>
               <div style={{ fontSize: '1.1rem', fontWeight: 600, color: '#3A3A3A' }}>
                 {formatDate(plan.eventDate)}
-                {plan.eventEndDate && ` - ${formatDate(plan.eventEndDate)}`}
               </div>
               <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
                 {plan.horseName && <span style={{ fontSize: '0.9rem', color: '#7A7A7A' }}>{plan.horseName}</span>}
-                {plan.level && <span style={{ fontSize: '0.9rem', color: '#7A7A7A' }}>{LEVEL_LABELS[plan.level] || plan.level}</span>}
+                {plan.currentLevel && <span style={{ fontSize: '0.9rem', color: '#7A7A7A' }}>{plan.currentLevel}</span>}
+                {plan.eventExperience && <span style={{ fontSize: '0.9rem', color: '#7A7A7A' }}>{EXP_LABELS[plan.eventExperience] || plan.eventExperience}</span>}
                 <span className={`status-badge status-${plan.status === 'completed' ? 'resolved' : plan.status === 'planning' ? 'active' : 'ongoing'}`}>
                   {STATUS_LABELS[plan.status] || plan.status}
                 </span>
@@ -144,13 +152,25 @@ export default function EventPrepPlan() {
           </div>
         </div>
 
+        {/* Context */}
+        {(plan.targetLevel || plan.currentChallenges || plan.recentProgress) && (
+          <div className="form-section">
+            <div className="form-section-header">
+              <h2 className="form-section-title">Context</h2>
+            </div>
+            {plan.targetLevel && <div style={{ marginBottom: '0.75rem' }}><strong>Target Level:</strong> {plan.targetLevel}</div>}
+            {plan.currentChallenges && <div style={{ marginBottom: '0.75rem' }}><strong>Current Challenges:</strong><p style={{ marginTop: '0.25rem', color: '#3A3A3A', lineHeight: 1.6 }}>{plan.currentChallenges}</p></div>}
+            {plan.recentProgress && <div style={{ marginBottom: '0.75rem' }}><strong>Recent Progress:</strong><p style={{ marginTop: '0.25rem', color: '#3A3A3A', lineHeight: 1.6 }}>{plan.recentProgress}</p></div>}
+          </div>
+        )}
+
         {/* Goals */}
         {plan.goals && plan.goals.length > 0 && (
           <div className="form-section">
             <div className="form-section-header">
               <h2 className="form-section-title">Goals</h2>
             </div>
-            {plan.goals.map((g, i) => (
+            {plan.goals.map((goal, i) => (
               <div key={i} style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -158,47 +178,73 @@ export default function EventPrepPlan() {
                 padding: '10px 0',
                 borderBottom: i < plan.goals.length - 1 ? '1px solid #F0EBE3' : 'none'
               }}>
-                <span style={{
-                  padding: '2px 8px',
-                  borderRadius: '6px',
-                  fontSize: '0.75rem',
-                  fontWeight: 500,
-                  background: g.priority === 'high' ? '#D0021B20' : g.priority === 'low' ? '#7ED32120' : '#F5A62320',
-                  color: g.priority === 'high' ? '#D0021B' : g.priority === 'low' ? '#6B8E5F' : '#C67B5C'
-                }}>
-                  {g.priority}
-                </span>
-                <span>{g.goal}</span>
+                <div style={{
+                  width: '28px', height: '28px', borderRadius: '50%',
+                  background: '#D4A574', color: 'white', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center',
+                  fontWeight: 600, fontSize: '0.85rem', flexShrink: 0
+                }}>{i + 1}</div>
+                <span>{goal}</span>
               </div>
             ))}
           </div>
         )}
 
-        {/* Focus Areas */}
-        {plan.focusAreas && (
+        {/* Concerns */}
+        {plan.concerns && plan.concerns.length > 0 && (
           <div className="form-section">
             <div className="form-section-header">
-              <h2 className="form-section-title">Focus Areas</h2>
+              <h2 className="form-section-title">Concerns</h2>
             </div>
-            <p style={{ color: '#3A3A3A', lineHeight: 1.6 }}>{plan.focusAreas}</p>
+            {plan.concerns.map((concern, i) => (
+              <div key={i} style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '10px 0',
+                borderBottom: i < plan.concerns.length - 1 ? '1px solid #F0EBE3' : 'none'
+              }}>
+                <div style={{
+                  width: '28px', height: '28px', borderRadius: '50%',
+                  background: '#C67B5C', color: 'white', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center',
+                  fontWeight: 600, fontSize: '0.85rem', flexShrink: 0
+                }}>{i + 1}</div>
+                <span>{concern}</span>
+              </div>
+            ))}
           </div>
         )}
 
-        {/* Day-of Plan */}
-        {(plan.warmUpPlan || plan.rideTimePlan || plan.coolDownPlan || plan.arrivalTime) && (
+        {/* Resources */}
+        {(plan.ridingFrequency || plan.coachAccess || (plan.availableResources && plan.availableResources.length > 0)) && (
           <div className="form-section">
             <div className="form-section-header">
-              <h2 className="form-section-title">Day-of Plan</h2>
+              <h2 className="form-section-title">Resources</h2>
             </div>
-            {(plan.departureTime || plan.arrivalTime) && (
-              <div style={{ display: 'flex', gap: '2rem', marginBottom: '1rem' }}>
-                {plan.departureTime && <div><strong>Depart:</strong> {plan.departureTime}</div>}
-                {plan.arrivalTime && <div><strong>Arrive:</strong> {plan.arrivalTime}</div>}
+            <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+              {plan.ridingFrequency && <div><strong>Riding:</strong> {FREQ_LABELS[plan.ridingFrequency] || plan.ridingFrequency}</div>}
+              {plan.coachAccess && <div><strong>Coach:</strong> {COACH_LABELS[plan.coachAccess] || plan.coachAccess}</div>}
+            </div>
+            {plan.availableResources && plan.availableResources.length > 0 && (
+              <div style={{ marginBottom: '0.75rem' }}>
+                <strong>Available:</strong>{' '}
+                {plan.availableResources.map(r => RESOURCE_LABELS[r] || r).join(', ')}
               </div>
             )}
-            {plan.warmUpPlan && <div style={{ marginBottom: '1rem' }}><strong>Warm-Up:</strong><p style={{ marginTop: '0.25rem', color: '#3A3A3A' }}>{plan.warmUpPlan}</p></div>}
-            {plan.rideTimePlan && <div style={{ marginBottom: '1rem' }}><strong>Ride Plan:</strong><p style={{ marginTop: '0.25rem', color: '#3A3A3A' }}>{plan.rideTimePlan}</p></div>}
-            {plan.coolDownPlan && <div><strong>Cool-Down:</strong><p style={{ marginTop: '0.25rem', color: '#3A3A3A' }}>{plan.coolDownPlan}</p></div>}
+            {plan.constraints && <div><strong>Constraints:</strong><p style={{ marginTop: '0.25rem', color: '#3A3A3A', lineHeight: 1.6 }}>{plan.constraints}</p></div>}
+          </div>
+        )}
+
+        {/* Additional Info */}
+        {(plan.eventDescription || plan.additionalInfo || plan.preferredCoach) && (
+          <div className="form-section">
+            <div className="form-section-header">
+              <h2 className="form-section-title">Additional Details</h2>
+            </div>
+            {plan.eventDescription && <div style={{ marginBottom: '0.75rem' }}><strong>Event Details:</strong><p style={{ marginTop: '0.25rem', color: '#3A3A3A', lineHeight: 1.6 }}>{plan.eventDescription}</p></div>}
+            {plan.additionalInfo && <div style={{ marginBottom: '0.75rem' }}><strong>Additional Context:</strong><p style={{ marginTop: '0.25rem', color: '#3A3A3A', lineHeight: 1.6 }}>{plan.additionalInfo}</p></div>}
+            {plan.preferredCoach && <div><strong>Coaching Voice:</strong> {VOICE_LABELS[plan.preferredCoach] || plan.preferredCoach}</div>}
           </div>
         )}
 
@@ -260,38 +306,6 @@ export default function EventPrepPlan() {
                 ))}
               </div>
             ))}
-          </div>
-        )}
-
-        {/* Travel Notes */}
-        {plan.travelNotes && (
-          <div className="form-section">
-            <div className="form-section-header">
-              <h2 className="form-section-title">Travel Notes</h2>
-            </div>
-            <p style={{ color: '#3A3A3A', lineHeight: 1.6 }}>{plan.travelNotes}</p>
-          </div>
-        )}
-
-        {/* Post-Event (only show for completed) */}
-        {plan.status === 'completed' && (
-          <div className="form-section">
-            <div className="form-section-header">
-              <h2 className="form-section-title">Post-Event</h2>
-            </div>
-            {plan.postEventNotes && <div style={{ marginBottom: '1rem' }}><strong>Notes:</strong><p style={{ marginTop: '0.25rem' }}>{plan.postEventNotes}</p></div>}
-            {plan.lessonsLearned && <div style={{ marginBottom: '1rem' }}><strong>Lessons Learned:</strong><p style={{ marginTop: '0.25rem' }}>{plan.lessonsLearned}</p></div>}
-            {plan.scores && plan.scores.length > 0 && (
-              <div>
-                <strong>Scores:</strong>
-                {plan.scores.map((s, i) => (
-                  <div key={i} style={{ padding: '8px 0', borderBottom: '1px solid #F0EBE3' }}>
-                    <div>{s.testName}: <strong>{s.score}</strong>{s.placing && ` (${s.placing})`}</div>
-                    {s.judgeComments && <div style={{ fontSize: '0.9rem', color: '#7A7A7A', fontStyle: 'italic' }}>{s.judgeComments}</div>}
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         )}
 
