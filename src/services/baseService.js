@@ -7,9 +7,6 @@ import {
   updateDoc,
   query,
   where,
-  orderBy,
-  limit,
-  startAfter,
   serverTimestamp,
   Timestamp
 } from 'firebase/firestore';
@@ -84,31 +81,38 @@ export function createBaseService(collectionName) {
         const {
           orderField = 'createdAt',
           orderDirection = 'desc',
-          limitCount = 50,
-          startAfterDoc = null
+          limitCount = 50
         } = options;
 
-        let q = query(
+        // Use only equality filters to avoid requiring composite indexes.
+        // Sorting is done client-side after fetching.
+        const q = query(
           colRef,
           where('userId', '==', userId),
-          where('isDeleted', '==', false),
-          orderBy(orderField, orderDirection),
-          limit(limitCount)
+          where('isDeleted', '==', false)
         );
 
-        if (startAfterDoc) {
-          q = query(q, startAfter(startAfterDoc));
-        }
-
         const querySnapshot = await getDocs(q);
-        const data = querySnapshot.docs.map(d => ({
+        let data = querySnapshot.docs.map(d => ({
           id: d.id,
           ...formatTimestamps(d.data())
         }));
 
-        const lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
+        // Client-side sort
+        data.sort((a, b) => {
+          const aVal = a[orderField] || '';
+          const bVal = b[orderField] || '';
+          if (aVal < bVal) return orderDirection === 'asc' ? -1 : 1;
+          if (aVal > bVal) return orderDirection === 'asc' ? 1 : -1;
+          return 0;
+        });
 
-        return { success: true, data, lastDoc };
+        // Client-side limit
+        if (limitCount && data.length > limitCount) {
+          data = data.slice(0, limitCount);
+        }
+
+        return { success: true, data };
       } catch (error) {
         console.error(`Error reading all ${collectionName}:`, error);
         return { success: false, error: error.message };
