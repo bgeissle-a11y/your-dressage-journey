@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { createReflection, getReflection, updateReflection, REFLECTION_CATEGORIES } from '../../services';
 import FormField from '../Forms/FormField';
 import VoiceInput from '../Forms/VoiceInput';
+import useDisableAutofill from '../../hooks/useDisableAutofill';
 import '../Forms/Forms.css';
 
 const CATEGORY_COLORS = {
@@ -126,8 +127,10 @@ export default function ReflectionForm() {
   const { id } = useParams();
   const isEdit = Boolean(id);
 
+  const formRef = useRef(null);
   const mainRef = useRef(null);
   const obstacleRef = useRef(null);
+  useDisableAutofill(formRef);
   const feelingRef = useRef(null);
   const influenceRef = useRef(null);
 
@@ -359,7 +362,7 @@ export default function ReflectionForm() {
 
       {/* Step 3: Reflection Writing */}
       {step === 'reflect' && (
-        <form onSubmit={handleSubmit} autoComplete="off">
+        <form ref={formRef} onSubmit={handleSubmit} autoComplete="off">
           <div className="form-card">
             {errors.submit && <div className="form-section"><div className="form-alert form-alert-error">{errors.submit}</div></div>}
 

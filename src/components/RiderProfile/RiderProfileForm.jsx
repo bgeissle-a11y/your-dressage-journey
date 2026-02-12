@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { createRiderProfile, getRiderProfile, updateRiderProfile } from '../../services';
 import FormSection from '../Forms/FormSection';
 import FormField from '../Forms/FormField';
 import RadioGroup from '../Forms/RadioGroup';
 import CheckboxGroup from '../Forms/CheckboxGroup';
+import useDisableAutofill from '../../hooks/useDisableAutofill';
 import '../Forms/Forms.css';
 
 const LEVEL_OPTIONS = [
@@ -49,6 +50,9 @@ const MOBILE_OPTIONS = [
 
 export default function RiderProfileForm() {
   const { currentUser } = useAuth();
+  const formRef = useRef(null);
+  useDisableAutofill(formRef);
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -164,7 +168,7 @@ export default function RiderProfileForm() {
         <p>Tell us about your riding journey</p>
       </div>
 
-      <form onSubmit={handleSubmit} autoComplete="off">
+      <form ref={formRef} onSubmit={handleSubmit} autoComplete="off">
         <div className="form-card">
           {message && <div className="form-section"><div className="form-alert form-alert-success">{message}</div></div>}
           {errors.submit && <div className="form-section"><div className="form-alert form-alert-error">{errors.submit}</div></div>}

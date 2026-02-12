@@ -8,6 +8,7 @@ import {
 import FormSection from '../Forms/FormSection';
 import FormField from '../Forms/FormField';
 import VoiceInput from '../Forms/VoiceInput';
+import useDisableAutofill from '../../hooks/useDisableAutofill';
 import '../Forms/Forms.css';
 
 export default function JourneyEventForm() {
@@ -15,7 +16,9 @@ export default function JourneyEventForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = Boolean(id);
+  const formRef = useRef(null);
   const descriptionRef = useRef(null);
+  useDisableAutofill(formRef);
 
   const [formData, setFormData] = useState({
     category: '',
@@ -114,7 +117,7 @@ export default function JourneyEventForm() {
         <p>Track significant events that shape your riding journey</p>
       </div>
 
-      <form onSubmit={handleSubmit} autoComplete="off">
+      <form ref={formRef} onSubmit={handleSubmit} autoComplete="off">
         <div className="form-card">
           {errors.submit && <div className="form-section"><div className="form-alert form-alert-error">{errors.submit}</div></div>}
 

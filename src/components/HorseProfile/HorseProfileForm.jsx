@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { createHorseProfile, getHorseProfile, updateHorseProfile } from '../../services';
 import FormSection from '../Forms/FormSection';
 import FormField from '../Forms/FormField';
+import useDisableAutofill from '../../hooks/useDisableAutofill';
 import '../Forms/Forms.css';
 
 const LEVEL_OPTIONS = [
@@ -50,6 +51,9 @@ export default function HorseProfileForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = Boolean(id);
+
+  const formRef = useRef(null);
+  useDisableAutofill(formRef);
 
   const [formData, setFormData] = useState({
     riderName: '',
@@ -152,7 +156,7 @@ export default function HorseProfileForm() {
         <p>Most fields are optional - fill in what you know</p>
       </div>
 
-      <form onSubmit={handleSubmit} autoComplete="off">
+      <form ref={formRef} onSubmit={handleSubmit} autoComplete="off">
         <div className="form-card">
           {errors.submit && <div className="form-section"><div className="form-alert form-alert-error">{errors.submit}</div></div>}
 
