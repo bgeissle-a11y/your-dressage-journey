@@ -129,6 +129,47 @@
             margin-left: 4px;
         }
 
+        .optional-label {
+            color: var(--color-text-light);
+            font-weight: 400;
+            font-size: 0.9em;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border: 2px solid var(--color-border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .radio-option:hover {
+            border-color: var(--color-secondary);
+            background: rgba(212, 165, 116, 0.05);
+        }
+
+        .radio-option.selected {
+            border-color: var(--color-primary);
+            background: rgba(139, 115, 85, 0.08);
+        }
+
+        input[type="radio"] {
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--color-primary);
+        }
+
         .help-text {
             font-size: 0.9em;
             color: var(--color-text-light);
@@ -202,10 +243,6 @@
             animation: pulse 1.5s ease-in-out infinite;
         }
 
-        .voice-btn.recording svg {
-            stroke: white;
-        }
-
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.7; }
@@ -214,18 +251,6 @@
         .voice-icon {
             width: 20px;
             height: 20px;
-        }
-
-        .voice-status {
-            display: none;
-            font-size: 0.85em;
-            color: var(--color-accent);
-            margin-top: 6px;
-            font-style: italic;
-        }
-
-        .voice-status.active {
-            display: block;
         }
 
         .status-indicator {
@@ -486,12 +511,12 @@
         }
 
         .category-icons {
-            rider-health: 'ðŸ¥',
-            horse-changes: 'ðŸ´',
-            environment: 'ðŸ›ï¸',
-            equipment: 'ðŸ‡',
-            competition: 'ðŸ†',
-            financial: 'ðŸ’°'
+            rider-health: '🏥',
+            horse-changes: '🐴',
+            environment: '🏛️',
+            equipment: '🏇',
+            competition: '🏆',
+            financial: '💰'
         }
 
         .hidden {
@@ -559,17 +584,6 @@
             <button class="btn-secondary" id="viewEventsBtn" style="display: none;">View Event Timeline</button>
         </div>
 
-        <!-- Voice Input Warning -->
-        <div id="voiceInputWarning" style="display: none; background: #fff3cd; border: 2px solid #ffc107; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
-            <h3 style="margin: 0 0 15px 0; color: #856404; font-size: 1.1em;">🎤 Voice Input Not Available</h3>
-            <p style="margin: 0; color: #856404; font-size: 0.95em;">
-                Voice input requires the form to be accessed through a web server with HTTPS.<br><br>
-                <strong>To enable voice input:</strong><br>
-                • Access this form via your Netlify URL (HTTPS is automatic)<br>
-                • Voice input will NOT work when opening files directly from your device
-            </p>
-        </div>
-
         <!-- Main Form -->
         <div class="form-container" id="mainForm">
             <!-- Section 1: Event Basics -->
@@ -580,20 +594,48 @@
                 </div>
 
                 <div class="question">
+                    <label>Was this event: <span class="required">*</span></label>
+                    <div class="radio-group" id="entryMode">
+                        <div class="radio-option" data-value="planned">
+                            <input type="radio" name="entryMode" value="planned" id="mode-planned">
+                            <label for="mode-planned" style="margin: 0; cursor: pointer; flex: 1;">
+                                <strong>Planned</strong> - Show, clinic, audit, lesson prepared for using Event Preparation
+                            </label>
+                        </div>
+                        <div class="radio-option" data-value="unplanned">
+                            <input type="radio" name="entryMode" value="unplanned" id="mode-unplanned" checked>
+                            <label for="mode-unplanned" style="margin: 0; cursor: pointer; flex: 1;">
+                                <strong>Unplanned</strong> - Injury, barn move, equipment change, etc.
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question" id="prepReferenceContainer" style="display: none;">
+                    <label>Event Preparation Reference <span class="optional-label">(optional)</span></label>
+                    <select id="prepReference">
+                        <option value="">Select a prepared event or leave blank...</option>
+                    </select>
+                    <p class="help-text">Link to an Event Preparation you created for this event</p>
+                </div>
+
+                <div class="question">
                     <label>Brief Event Summary <span class="required">*</span></label>
                     <input type="text" id="eventCategory" placeholder="e.g., Started new horse, Moved to new barn, Shoulder injury..." required>
-                    <p class="help-text">What happened? (Examples: pregnancy, new saddle, changed trainers, horse retirement, started physical therapy, show season begins)</p>
+                    <p class="help-text" id="categoryHelpText">What happened? (Examples: pregnancy, new saddle, changed trainers, horse retirement, started physical therapy, show season begins)</p>
                 </div>
 
                 <div class="question">
                     <label>Event Type <span class="required">*</span></label>
                     <select id="eventType" required>
                         <option value="">Select general category...</option>
+                        <option value="competition">Competition/Show</option>
+                        <option value="clinic">Clinic/Educational</option>
+                        <option value="evaluation">Evaluation/Audit</option>
                         <option value="rider">Rider Health/Physical</option>
                         <option value="horse">Horse Change</option>
                         <option value="environment">Environment/Support System</option>
                         <option value="equipment">Equipment/Tack</option>
-                        <option value="competition">Competition/Goals</option>
                         <option value="financial">Financial</option>
                         <option value="other">Other</option>
                     </select>
@@ -609,7 +651,7 @@
                 <div class="question">
                     <label>Event Description <span class="required">*</span></label>
                     <textarea id="eventDescription" placeholder="Describe what happened and any initial thoughts about how this might affect your riding..." required></textarea>
-                    <button type="button" class="voice-btn" data-target="eventDescription" title="Voice input">
+                    <button type="button" class="voice-btn" id="voiceBtn">
                         <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                             <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -618,7 +660,6 @@
                         </svg>
                         <span class="voice-text">Use Voice Input</span>
                     </button>
-                    <div class="voice-status" id="eventDescription-status">Listening...</div>
                 </div>
             </div>
 
@@ -670,6 +711,70 @@
                 </div>
             </div>
 
+            <!-- Section 3: Post-Event Reflection (for planned events only) -->
+            <div class="section" id="postEventReflection" style="display: none;">
+                <div class="section-header">
+                    <h2 class="section-title">Post-Event Reflection</h2>
+                    <p class="section-description">Compare what you planned with what actually happened.</p>
+                </div>
+
+                <div class="question">
+                    <label>How did reality compare to your expectations?</label>
+                    <textarea id="realityVsExpectation" placeholder="What went as planned? What surprised you?"></textarea>
+                    <button type="button" class="voice-btn" id="voiceBtn2">
+                        <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                            <line x1="12" y1="19" x2="12" y2="23"></line>
+                            <line x1="8" y1="23" x2="16" y2="23"></line>
+                        </svg>
+                        <span class="voice-text">Use Voice Input</span>
+                    </button>
+                </div>
+
+                <div class="question">
+                    <label>Key takeaways or lessons learned</label>
+                    <textarea id="lessonsLearned" placeholder="What did you learn from this experience?"></textarea>
+                    <button type="button" class="voice-btn" id="voiceBtn3">
+                        <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                            <line x1="12" y1="19" x2="12" y2="23"></line>
+                            <line x1="8" y1="23" x2="16" y2="23"></line>
+                        </svg>
+                        <span class="voice-text">Use Voice Input</span>
+                    </button>
+                </div>
+
+                <div class="question">
+                    <label>Unexpected outcomes <span class="optional-label">(positive or challenging)</span></label>
+                    <textarea id="unexpectedOutcomes" placeholder="Anything that caught you off guard?"></textarea>
+                    <button type="button" class="voice-btn" id="voiceBtn4">
+                        <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                            <line x1="12" y1="19" x2="12" y2="23"></line>
+                            <line x1="8" y1="23" x2="16" y2="23"></line>
+                        </svg>
+                        <span class="voice-text">Use Voice Input</span>
+                    </button>
+                </div>
+
+                <div class="question">
+                    <label>Would you approach this differently next time?</label>
+                    <textarea id="futureApproach" placeholder="What would you keep the same? What would you change?"></textarea>
+                    <button type="button" class="voice-btn" id="voiceBtn5">
+                        <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                            <line x1="12" y1="19" x2="12" y2="23"></line>
+                            <line x1="8" y1="23" x2="16" y2="23"></line>
+                        </svg>
+                        <span class="voice-text">Use Voice Input</span>
+                    </button>
+                </div>
+            </div>
+
             <!-- Button Group -->
             <div class="button-group">
                 <button type="button" class="btn-secondary" id="cancelBtn">Cancel</button>
@@ -692,13 +797,16 @@
             <div class="filter-section">
                 <div class="filter-buttons">
                     <button class="filter-btn active" data-filter="all">All Events</button>
+                    <button class="filter-btn" data-filter="competition">Competition</button>
+                    <button class="filter-btn" data-filter="clinic">Clinic</button>
+                    <button class="filter-btn" data-filter="evaluation">Evaluation</button>
                     <button class="filter-btn" data-filter="rider">Rider</button>
                     <button class="filter-btn" data-filter="horse">Horse</button>
                     <button class="filter-btn" data-filter="environment">Environment</button>
                     <button class="filter-btn" data-filter="equipment">Equipment</button>
-                    <button class="filter-btn" data-filter="competition">Competition</button>
                     <button class="filter-btn" data-filter="financial">Financial</button>
                     <button class="filter-btn" data-filter="other">Other</button>
+                    <button class="filter-btn" data-filter="planned-only">Planned Only</button>
                     <button class="filter-btn" data-filter="active-only">Active Only</button>
                 </div>
             </div>
@@ -722,6 +830,57 @@
         // Set today's date as default
         document.getElementById('eventDate').valueAsDate = new Date();
 
+        // Entry mode toggle
+        const entryModeRadios = document.querySelectorAll('input[name="entryMode"]');
+        const postEventSection = document.getElementById('postEventReflection');
+        const prepReferenceContainer = document.getElementById('prepReferenceContainer');
+        const categoryHelpText = document.getElementById('categoryHelpText');
+
+        entryModeRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                const isPlanned = this.value === 'planned';
+                
+                // Update visual selection
+                document.querySelectorAll('#entryMode .radio-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                this.closest('.radio-option').classList.add('selected');
+                
+                // Show/hide sections
+                postEventSection.style.display = isPlanned ? 'block' : 'none';
+                prepReferenceContainer.style.display = isPlanned ? 'block' : 'none';
+                
+                // Update help text
+                if (isPlanned) {
+                    categoryHelpText.textContent = 'Event name (Examples: Spring Championship Show, Jane Smith Clinic, First lesson with new trainer)';
+                } else {
+                    categoryHelpText.textContent = 'What happened? (Examples: pregnancy, new saddle, changed trainers, horse retirement, started physical therapy, show season begins)';
+                }
+            });
+        });
+
+        // Load saved Event Preparations into dropdown
+        function loadEventPreparations() {
+            const preps = JSON.parse(localStorage.getItem('eventPreparations') || '[]');
+            const select = document.getElementById('prepReference');
+            
+            // Clear existing options except the first one
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+            
+            // Add saved event preparations
+            preps.forEach(prep => {
+                const option = document.createElement('option');
+                option.value = prep.timestamp;
+                const eventDate = new Date(prep.eventDetails.date).toLocaleDateString();
+                option.textContent = `${prep.eventDetails.name} - ${eventDate}`;
+                select.appendChild(option);
+            });
+        }
+
+        loadEventPreparations();
+
         // Show/hide resolution date based on status
         document.getElementById('eventStatus').addEventListener('change', function() {
             const container = document.getElementById('resolutionDateContainer');
@@ -733,53 +892,39 @@
             }
         });
 
-        // ===== ROBUST VOICE INPUT FUNCTIONALITY =====
-        let recognition = null;
-        let currentVoiceTarget = null;
-        let voiceInputAvailable = false;
-
-        // Check for secure context (HTTPS or localhost required for microphone access)
-        function checkVoiceInputAvailability() {
-            const isSecureContext = window.isSecureContext || window.location.protocol === 'https:' || 
-                                   window.location.hostname === 'localhost' || 
-                                   window.location.hostname === '127.0.0.1';
+        // Voice input functionality
+        function setupVoiceInput(btnId, textareaId) {
+            const btn = document.getElementById(btnId);
+            const textarea = document.getElementById(textareaId);
             
-            const hasSpeechRecognition = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
-            
-            voiceInputAvailable = isSecureContext && hasSpeechRecognition;
-            
-            if (!voiceInputAvailable) {
-                document.querySelectorAll('.voice-btn').forEach(btn => {
-                    btn.style.display = 'none';
-                });
-                
-                if (!isSecureContext && hasSpeechRecognition) {
-                    document.getElementById('voiceInputWarning').style.display = 'block';
-                } else if (!hasSpeechRecognition) {
-                    console.log('Browser does not support Web Speech API');
-                }
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                btn.style.display = 'none';
+                return;
             }
             
-            return voiceInputAvailable;
-        }
-
-        checkVoiceInputAvailability();
-
-        if (voiceInputAvailable) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SpeechRecognition();
-            
+            const recognition = new SpeechRecognition();
             recognition.continuous = true;
             recognition.interimResults = true;
-            recognition.lang = 'en-US';
             
-            let finalTranscript = '';
+            let isRecording = false;
             
-            recognition.onstart = function() {
-                console.log('Voice recognition started');
-            };
+            btn.addEventListener('click', () => {
+                if (!isRecording) {
+                    recognition.start();
+                    btn.classList.add('recording');
+                    btn.querySelector('.voice-text').textContent = 'Recording... (click to stop)';
+                    isRecording = true;
+                } else {
+                    recognition.stop();
+                    btn.classList.remove('recording');
+                    btn.querySelector('.voice-text').textContent = 'Use Voice Input';
+                    isRecording = false;
+                }
+            });
             
-            recognition.onresult = function(event) {
+            recognition.onresult = (event) => {
+                let finalTranscript = '';
                 let interimTranscript = '';
                 
                 for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -791,110 +936,24 @@
                     }
                 }
                 
-                if (currentVoiceTarget) {
-                    const textarea = document.getElementById(currentVoiceTarget);
-                    const currentText = textarea.value;
-                    const existingText = currentText.substring(0, currentText.length - interimTranscript.length);
-                    textarea.value = existingText + finalTranscript + interimTranscript;
+                if (finalTranscript) {
+                    textarea.value += finalTranscript;
                 }
             };
             
-            recognition.onerror = function(event) {
-                console.error('Voice recognition error:', event.error);
-                stopVoiceInput();
-                
-                if (event.error === 'not-allowed') {
-                    alert('Microphone access denied. Please enable microphone permissions in your browser settings.\n\nNote: Voice input requires HTTPS or localhost access.');
-                } else if (event.error === 'no-speech') {
-                    console.log('No speech detected');
-                } else {
-                    alert('Voice recognition error: ' + event.error);
-                }
-            };
-            
-            recognition.onend = function() {
-                if (currentVoiceTarget) {
-                    const textarea = document.getElementById(currentVoiceTarget);
-                    textarea.value = (textarea.value || '').trim();
-                    if (textarea.value && !textarea.value.endsWith('.') && !textarea.value.endsWith('!') && !textarea.value.endsWith('?')) {
-                        textarea.value += '. ';
-                    }
-                }
-                stopVoiceInput();
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                btn.classList.remove('recording');
+                btn.querySelector('.voice-text').textContent = 'Use Voice Input';
+                isRecording = false;
             };
         }
-
-        document.querySelectorAll('.voice-btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('data-target');
-                
-                if (!voiceInputAvailable) {
-                    alert('Voice input requires HTTPS or localhost access.\n\nPlease access this form via your Netlify URL to use voice input.');
-                    return;
-                }
-                
-                if (!recognition) {
-                    alert('Voice input is not supported in your browser. Please try Chrome, Edge, or Safari.');
-                    return;
-                }
-                
-                if (currentVoiceTarget === targetId) {
-                    stopVoiceInput();
-                } else {
-                    startVoiceInput(targetId);
-                }
-            });
-        });
-
-        function startVoiceInput(targetId) {
-            if (currentVoiceTarget) {
-                stopVoiceInput();
-            }
-            
-            currentVoiceTarget = targetId;
-            
-            const btn = document.querySelector(`.voice-btn[data-target="${targetId}"]`);
-            const status = document.getElementById(`${targetId}-status`);
-            
-            if (btn) {
-                btn.classList.add('recording');
-                const voiceText = btn.querySelector('.voice-text');
-                if (voiceText) voiceText.textContent = 'Recording... (click to stop)';
-            }
-            if (status) status.classList.add('active');
-            
-            try {
-                recognition.start();
-            } catch (e) {
-                console.error('Error starting recognition:', e);
-                stopVoiceInput();
-            }
-        }
-
-        function stopVoiceInput() {
-            if (currentVoiceTarget) {
-                const btn = document.querySelector(`.voice-btn[data-target="${currentVoiceTarget}"]`);
-                const status = document.getElementById(`${currentVoiceTarget}-status`);
-                
-                if (btn) {
-                    btn.classList.remove('recording');
-                    const voiceText = btn.querySelector('.voice-text');
-                    if (voiceText) voiceText.textContent = 'Use Voice Input';
-                }
-                if (status) status.classList.remove('active');
-                
-                currentVoiceTarget = null;
-            }
-            
-            if (recognition) {
-                try {
-                    recognition.stop();
-                } catch (e) {
-                    console.log('Recognition already stopped');
-                }
-            }
-        }
+        
+        setupVoiceInput('voiceBtn', 'eventDescription');
+        setupVoiceInput('voiceBtn2', 'realityVsExpectation');
+        setupVoiceInput('voiceBtn3', 'lessonsLearned');
+        setupVoiceInput('voiceBtn4', 'unexpectedOutcomes');
+        setupVoiceInput('voiceBtn5', 'futureApproach');
 
         // Show/hide view events button
         function updateViewButton() {
@@ -905,28 +964,45 @@
 
         updateViewButton();
 
-        // Get category icon
-        function getCategoryIcon(type) {
-            const icons = {
-                'rider': 'ðŸ¥',
-                'horse': 'ðŸ´',
-                'environment': 'ðŸ›ï¸',
-                'equipment': 'ðŸ‡',
-                'competition': 'ðŸ†',
-                'financial': 'ðŸ’°',
-                'other': 'ðŸ“Œ'
+        // Get category icon based on type and entry mode
+        function getCategoryIcon(type, entryMode) {
+            const plannedIcons = {
+                'competition': '🏆',
+                'clinic': '🎓',
+                'evaluation': '📋',
+                'rider': '🏥',
+                'horse': '🐴',
+                'environment': '🏛️',
+                'equipment': '🏇',
+                'financial': '💰',
+                'other': '📌'
             };
-            return icons[type] || 'ðŸ“Œ';
+            
+            const unplannedIcons = {
+                'competition': '🎯',
+                'clinic': '📚',
+                'evaluation': '✅',
+                'rider': '🏥',
+                'horse': '🐴',
+                'environment': '🏛️',
+                'equipment': '🏇',
+                'financial': '💰',
+                'other': '⚡'
+            };
+            
+            return entryMode === 'planned' ? (plannedIcons[type] || '📅') : (unplannedIcons[type] || '⚡');
         }
 
         // Get type display name
         function getTypeDisplayName(type) {
             const names = {
+                'competition': 'Competition/Show',
+                'clinic': 'Clinic/Educational',
+                'evaluation': 'Evaluation/Audit',
                 'rider': 'Rider',
                 'horse': 'Horse',
                 'environment': 'Environment',
                 'equipment': 'Equipment',
-                'competition': 'Competition',
                 'financial': 'Financial',
                 'other': 'Other'
             };
@@ -937,6 +1013,7 @@
         function saveEvent() {
             // Validate required fields
             const requiredFields = {
+                entryMode: document.querySelector('input[name="entryMode"]:checked'),
                 eventCategory: document.getElementById('eventCategory'),
                 eventType: document.getElementById('eventType'),
                 eventDate: document.getElementById('eventDate'),
@@ -947,15 +1024,18 @@
             };
 
             for (let [key, field] of Object.entries(requiredFields)) {
-                if (!field.value.trim()) {
+                if (!field || (field.tagName === 'INPUT' && field.type === 'text' && !field.value.trim()) ||
+                    (field.tagName === 'SELECT' && !field.value)) {
                     alert('Please fill in all required fields.');
-                    field.focus();
+                    if (field.focus) field.focus();
                     return false;
                 }
             }
 
+            const entryMode = document.querySelector('input[name="entryMode"]:checked').value;
             const event = {
                 id: Date.now(),
+                entryMode: entryMode,
                 category: document.getElementById('eventCategory').value,
                 type: document.getElementById('eventType').value,
                 date: document.getElementById('eventDate').value,
@@ -966,6 +1046,17 @@
                 resolutionDate: document.getElementById('resolutionDate').value,
                 timestamp: new Date().toISOString()
             };
+
+            // Add planned event fields if applicable
+            if (entryMode === 'planned') {
+                event.prepReference = document.getElementById('prepReference').value;
+                event.reflection = {
+                    realityVsExpectation: document.getElementById('realityVsExpectation').value,
+                    lessonsLearned: document.getElementById('lessonsLearned').value,
+                    unexpectedOutcomes: document.getElementById('unexpectedOutcomes').value,
+                    futureApproach: document.getElementById('futureApproach').value
+                };
+            }
 
             const events = JSON.parse(localStorage.getItem('journeyEvents') || '[]');
             events.push(event);
@@ -991,6 +1082,22 @@
             document.getElementById('mainForm').reset();
             document.getElementById('eventDate').valueAsDate = new Date();
             document.getElementById('resolutionDateContainer').style.display = 'none';
+            
+            // Reset entry mode to unplanned
+            document.getElementById('mode-unplanned').checked = true;
+            document.querySelectorAll('#entryMode .radio-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            document.getElementById('mode-unplanned').closest('.radio-option').classList.add('selected');
+            
+            // Hide planned event sections
+            document.getElementById('postEventReflection').style.display = 'none';
+            document.getElementById('prepReferenceContainer').style.display = 'none';
+            
+            // Reset help text
+            document.getElementById('categoryHelpText').textContent = 'What happened? (Examples: pregnancy, new saddle, changed trainers, horse retirement, started physical therapy, show season begins)';
+            
+            // Show/hide appropriate screens
             document.getElementById('mainForm').style.display = 'block';
             document.getElementById('completionScreen').classList.remove('active');
             document.getElementById('eventLibrary').classList.remove('active');
@@ -1040,6 +1147,8 @@
             let filtered = events;
             if (filter === 'active-only') {
                 filtered = events.filter(e => e.status === 'active');
+            } else if (filter === 'planned-only') {
+                filtered = events.filter(e => e.entryMode === 'planned');
             } else if (filter !== 'all') {
                 filtered = events.filter(e => e.type === filter);
             }
@@ -1081,13 +1190,16 @@
                 const statusClass = event.status === 'resolved' ? 'badge-resolved' : 
                                   event.status === 'ongoing' ? 'badge-ongoing' : 'badge-active';
                 
+                const entryMode = event.entryMode || 'unplanned';
+                const entryModeLabel = entryMode === 'planned' ? 'Planned Event' : 'Unplanned Event';
+                
                 html += `
                     <div class="event-card">
-                        <div class="event-icon">${getCategoryIcon(event.type)}</div>
+                        <div class="event-icon">${getCategoryIcon(event.type, entryMode)}</div>
                         <div class="event-header">
                             <div>
                                 <div class="event-title">${event.category}</div>
-                                <div class="event-date">${formattedDate} â€¢ ${getTypeDisplayName(event.type)}</div>
+                                <div class="event-date">${formattedDate} • ${getTypeDisplayName(event.type)} • ${entryModeLabel}</div>
                             </div>
                             <div class="event-status-badge ${statusClass}">
                                 <span class="status-indicator status-${event.status}"></span>
@@ -1114,6 +1226,36 @@
                                 </div>
                             ` : ''}
                             <div class="event-description">${event.description}</div>
+                            
+                            ${entryMode === 'planned' && event.reflection ? `
+                                <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid var(--color-bg-secondary);">
+                                    <h4 style="font-family: 'Playfair Display', serif; color: var(--color-primary); margin-bottom: 15px; font-size: 1.2em;">Post-Event Reflection</h4>
+                                    ${event.reflection.realityVsExpectation ? `
+                                        <div style="margin-bottom: 15px;">
+                                            <div style="font-weight: 600; color: var(--color-text-light); font-size: 0.9em; margin-bottom: 5px;">Reality vs. Expectations:</div>
+                                            <div>${event.reflection.realityVsExpectation}</div>
+                                        </div>
+                                    ` : ''}
+                                    ${event.reflection.lessonsLearned ? `
+                                        <div style="margin-bottom: 15px;">
+                                            <div style="font-weight: 600; color: var(--color-text-light); font-size: 0.9em; margin-bottom: 5px;">Lessons Learned:</div>
+                                            <div>${event.reflection.lessonsLearned}</div>
+                                        </div>
+                                    ` : ''}
+                                    ${event.reflection.unexpectedOutcomes ? `
+                                        <div style="margin-bottom: 15px;">
+                                            <div style="font-weight: 600; color: var(--color-text-light); font-size: 0.9em; margin-bottom: 5px;">Unexpected Outcomes:</div>
+                                            <div>${event.reflection.unexpectedOutcomes}</div>
+                                        </div>
+                                    ` : ''}
+                                    ${event.reflection.futureApproach ? `
+                                        <div style="margin-bottom: 15px;">
+                                            <div style="font-weight: 600; color: var(--color-text-light); font-size: 0.9em; margin-bottom: 5px;">Future Approach:</div>
+                                            <div>${event.reflection.futureApproach}</div>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            ` : ''}
                         </div>
                     </div>
                 `;
@@ -1167,11 +1309,14 @@
                     month: 'long', 
                     day: 'numeric'
                 });
+                
+                const entryMode = event.entryMode || 'unplanned';
 
                 exportText += `EVENT ${index + 1}\n`;
                 exportText += '-'.repeat(60) + '\n';
                 exportText += `Event: ${event.category}\n`;
                 exportText += `Type: ${getTypeDisplayName(event.type)}\n`;
+                exportText += `Entry Mode: ${entryMode === 'planned' ? 'Planned Event' : 'Unplanned Event'}\n`;
                 exportText += `Date: ${formattedDate}\n`;
                 exportText += `Status: ${statusLabels[event.status]}\n`;
                 exportText += `Magnitude: ${magnitudeLabels[event.magnitude]}\n`;
@@ -1187,7 +1332,25 @@
                     })}\n`;
                 }
                 
-                exportText += `\nDescription:\n${event.description}\n\n`;
+                exportText += `\nDescription:\n${event.description}\n`;
+                
+                if (entryMode === 'planned' && event.reflection) {
+                    exportText += '\nPOST-EVENT REFLECTION:\n';
+                    exportText += '-'.repeat(40) + '\n';
+                    if (event.reflection.realityVsExpectation) {
+                        exportText += `Reality vs. Expectations:\n${event.reflection.realityVsExpectation}\n\n`;
+                    }
+                    if (event.reflection.lessonsLearned) {
+                        exportText += `Lessons Learned:\n${event.reflection.lessonsLearned}\n\n`;
+                    }
+                    if (event.reflection.unexpectedOutcomes) {
+                        exportText += `Unexpected Outcomes:\n${event.reflection.unexpectedOutcomes}\n\n`;
+                    }
+                    if (event.reflection.futureApproach) {
+                        exportText += `Future Approach:\n${event.reflection.futureApproach}\n\n`;
+                    }
+                }
+                
                 exportText += '='.repeat(60) + '\n\n';
             });
 
