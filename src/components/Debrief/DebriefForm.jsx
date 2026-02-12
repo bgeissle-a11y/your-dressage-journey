@@ -237,7 +237,7 @@ export default function DebriefForm() {
         <p>Capture your insights while they're fresh</p>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} autoComplete="off">
         <div className="form-card">
           {errors.submit && <div className="form-section"><div className="form-alert form-alert-error">{errors.submit}</div></div>}
 

@@ -196,7 +196,7 @@ export default function EventPrepForm() {
         <p>Let's create your personalized preparation roadmap for success</p>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} autoComplete="off">
         <div className="form-card">
           {errors.submit && <div className="form-section"><div className="form-alert form-alert-error">{errors.submit}</div></div>}
 

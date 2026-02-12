@@ -164,7 +164,7 @@ export default function RiderProfileForm() {
         <p>Tell us about your riding journey</p>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} autoComplete="off">
         <div className="form-card">
           {message && <div className="form-section"><div className="form-alert form-alert-success">{message}</div></div>}
           {errors.submit && <div className="form-section"><div className="form-alert form-alert-error">{errors.submit}</div></div>}
