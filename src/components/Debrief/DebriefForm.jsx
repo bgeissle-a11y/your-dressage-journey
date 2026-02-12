@@ -10,7 +10,6 @@ import FormSection from '../Forms/FormSection';
 import FormField from '../Forms/FormField';
 import RadioGroup from '../Forms/RadioGroup';
 import VoiceInput from '../Forms/VoiceInput';
-import useDisableAutofill from '../../hooks/useDisableAutofill';
 import '../Forms/Forms.css';
 
 const NARRATIVE_FIELDS = [
@@ -54,9 +53,7 @@ export default function DebriefForm() {
   const { id } = useParams();
   const isEdit = Boolean(id);
 
-  const formRef = useRef(null);
   const narrativeRefs = useRef({});
-  useDisableAutofill(formRef);
 
   const [horseNames, setHorseNames] = useState([]);
   const [intentions, setIntentions] = useState(loadSavedIntentions);
@@ -240,7 +237,7 @@ export default function DebriefForm() {
         <p>Capture your insights while they're fresh</p>
       </div>
 
-      <form ref={formRef} onSubmit={handleSubmit} autoComplete="off">
+      <form onSubmit={handleSubmit} autoComplete="off">
         <div className="form-card">
           {errors.submit && <div className="form-section"><div className="form-alert form-alert-error">{errors.submit}</div></div>}
 

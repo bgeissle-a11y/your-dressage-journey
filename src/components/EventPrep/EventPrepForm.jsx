@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
@@ -11,7 +11,6 @@ import FormSection from '../Forms/FormSection';
 import FormField from '../Forms/FormField';
 import RadioGroup from '../Forms/RadioGroup';
 import CheckboxGroup from '../Forms/CheckboxGroup';
-import useDisableAutofill from '../../hooks/useDisableAutofill';
 import '../Forms/Forms.css';
 
 export default function EventPrepForm() {
@@ -19,9 +18,6 @@ export default function EventPrepForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = Boolean(id);
-
-  const formRef = useRef(null);
-  useDisableAutofill(formRef);
 
   const [horseNames, setHorseNames] = useState([]);
   const [formData, setFormData] = useState({
@@ -200,7 +196,7 @@ export default function EventPrepForm() {
         <p>Let's create your personalized preparation roadmap for success</p>
       </div>
 
-      <form ref={formRef} onSubmit={handleSubmit} autoComplete="off">
+      <form onSubmit={handleSubmit} autoComplete="off">
         <div className="form-card">
           {errors.submit && <div className="form-section"><div className="form-alert form-alert-error">{errors.submit}</div></div>}
 

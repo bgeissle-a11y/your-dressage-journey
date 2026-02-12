@@ -5,7 +5,6 @@ import { createObservation, getObservation, updateObservation, CONTEXT_TYPES } f
 import FormSection from '../Forms/FormSection';
 import FormField from '../Forms/FormField';
 import VoiceInput from '../Forms/VoiceInput';
-import useDisableAutofill from '../../hooks/useDisableAutofill';
 import '../Forms/Forms.css';
 
 const OBSERVATION_FIELDS = [
@@ -26,9 +25,7 @@ export default function ObservationForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = Boolean(id);
-  const formRef = useRef(null);
   const textareaRefs = useRef({});
-  useDisableAutofill(formRef);
 
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
@@ -172,7 +169,7 @@ export default function ObservationForm() {
         <p>Note what you learn watching others ride</p>
       </div>
 
-      <form ref={formRef} onSubmit={handleSubmit} autoComplete="off">
+      <form onSubmit={handleSubmit} autoComplete="off">
         <div className="form-card">
           {errors.submit && <div className="form-section"><div className="form-alert form-alert-error">{errors.submit}</div></div>}
 
