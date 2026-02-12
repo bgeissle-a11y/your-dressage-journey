@@ -358,7 +358,7 @@ export default function EventPrepForm() {
 
           {/* Section 5: Resources & Preparation Time */}
           <FormSection title="Resources & Preparation Time" description="Help us tailor your plan to your available resources">
-            <FormField label="How many days per week can you typically ride?" error={errors.ridingFrequency}>
+            <FormField label="How many days per week can you typically ride between now and the event?" error={errors.ridingFrequency}>
               <select name="ridingFrequency" value={formData.ridingFrequency} onChange={handleChange} disabled={loading} className={errors.ridingFrequency ? 'error' : ''}>
                 <option value="">Select...</option>
                 {RIDING_FREQUENCIES.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}

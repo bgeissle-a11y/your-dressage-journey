@@ -598,6 +598,35 @@
   background: #F5F1EB;
 }
 
+/* Export Button (used on list pages) */
+.btn-export-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.85rem;
+  background: #FAF8F5;
+  border: 1.5px solid #E0D5C7;
+  border-radius: 6px;
+  color: #7A7A7A;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'Work Sans', sans-serif;
+  transition: all 0.2s ease;
+}
+
+.btn-export-sm:hover {
+  border-color: #8B7355;
+  color: #8B7355;
+  background: white;
+}
+
+.list-page-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
 /* Mobile Responsive */
 @media (max-width: 640px) {
   .form-section {

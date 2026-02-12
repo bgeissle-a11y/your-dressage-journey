@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { getAllJourneyEvents, deleteJourneyEvent, EVENT_TYPES } from '../../services';
+import { exportToCSV, exportToJSON, EXPORT_COLUMNS } from '../../utils/exportUtils';
 import '../Forms/Forms.css';
 
 const STATUS_LABELS = {
@@ -75,7 +76,15 @@ export default function JourneyEventList() {
     <div className="list-page">
       <div className="list-page-header">
         <h1>Journey Events</h1>
-        <Link to="/events/new" className="btn-new">+ Log Event</Link>
+        <div className="list-page-actions">
+          {events.length > 0 && (
+            <>
+              <button className="btn-export-sm" onClick={() => exportToCSV(events, 'journey-events', EXPORT_COLUMNS.journeyEvents)}>CSV</button>
+              <button className="btn-export-sm" onClick={() => exportToJSON(events, 'journey-events')}>JSON</button>
+            </>
+          )}
+          <Link to="/events/new" className="btn-new">+ Log Event</Link>
+        </div>
       </div>
 
       {events.length === 0 ? (

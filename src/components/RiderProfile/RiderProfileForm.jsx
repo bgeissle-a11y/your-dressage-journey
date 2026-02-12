@@ -9,29 +9,29 @@ import '../Forms/Forms.css';
 
 const LEVEL_OPTIONS = [
   { value: 'beginning', label: 'Just beginning' },
-  { value: 'while', label: 'Been at it a while' },
-  { value: 'block', label: 'Been around the block' }
+  { value: 'while', label: "I've been at this a while" },
+  { value: 'block', label: "I've been around the block a time or two" }
 ];
 
 const FREQUENCY_OPTIONS = [
-  { value: '1-2', label: '1-2 times/week' },
-  { value: '3-4', label: '3-4 times/week' },
-  { value: '5-6', label: '5-6 times/week' },
-  { value: '7+', label: '7+ times/week' }
+  { value: '1-2', label: '1-2 times per week' },
+  { value: '3-4', label: '3-4 times per week' },
+  { value: '5-6', label: '5-6 times per week' },
+  { value: '7+', label: 'Daily (7+ times per week)' }
 ];
 
 const COACH_OPTIONS = [
-  { value: 'weekly', label: 'Weekly' },
-  { value: 'biweekly', label: 'Biweekly' },
-  { value: 'occasional', label: 'Occasional' },
-  { value: 'independent', label: 'Independent' }
+  { value: 'weekly', label: 'Weekly or more' },
+  { value: 'biweekly', label: 'Bi-weekly or monthly' },
+  { value: 'occasional', label: 'Occasional lessons' },
+  { value: 'independent', label: 'Independent (no regular lessons)' }
 ];
 
 const OWNERSHIP_OPTIONS = [
-  { value: 'own', label: 'Own a horse' },
-  { value: 'lease', label: 'Lease' },
-  { value: 'schoolHorse', label: 'School horses' },
-  { value: 'training', label: 'Professional training' }
+  { value: 'own', label: 'I own my horse(s)' },
+  { value: 'lease', label: 'I lease a horse' },
+  { value: 'schoolHorse', label: 'I ride school/lesson horses' },
+  { value: 'training', label: 'I ride horses professionally' }
 ];
 
 const DEVICE_OPTIONS = [
@@ -184,7 +184,7 @@ export default function RiderProfileForm() {
           </FormSection>
 
           <FormSection title="Experience & Training" description="Your riding background">
-            <FormField label="Experience Level" error={errors.level}>
+            <FormField label="My experience level" error={errors.level}>
               <RadioGroup name="level" options={LEVEL_OPTIONS} value={formData.level} onChange={handleChange} disabled={loading} />
             </FormField>
             <FormField label="Riding Frequency" error={errors.frequency}>
@@ -215,10 +215,10 @@ export default function RiderProfileForm() {
 
           <FormSection title="Your Journey" description="Tell us about your relationship with riding">
             <FormField label="Why do you ride?" error={errors.whyRide}>
-              <textarea name="whyRide" value={formData.whyRide} onChange={handleChange} disabled={loading} className={errors.whyRide ? 'error' : ''} placeholder="What draws you to dressage?" />
+              <textarea name="whyRide" value={formData.whyRide} onChange={handleChange} disabled={loading} className={errors.whyRide ? 'error' : ''} placeholder="Share what draws you to dressage..." />
             </FormField>
-            <FormField label="What do you enjoy most about dressage?" optional>
-              <textarea name="enjoyMost" value={formData.enjoyMost} onChange={handleChange} disabled={loading} placeholder="What keeps you coming back?" />
+            <FormField label="What do you enjoy most about dressage?" optional helpText="Optional, but helps us understand your journey">
+              <textarea name="enjoyMost" value={formData.enjoyMost} onChange={handleChange} disabled={loading} placeholder="What aspects of dressage bring you the most joy?" />
             </FormField>
           </FormSection>
 

@@ -13,11 +13,11 @@ import VoiceInput from '../Forms/VoiceInput';
 import '../Forms/Forms.css';
 
 const NARRATIVE_FIELDS = [
-  { key: 'wins', label: 'Wins & Validation', color: '#7ED321', placeholder: 'What went well? Personal milestones? Positive feedback?' },
-  { key: 'ahaRealization', label: 'Aha Moments', color: '#F5A623', placeholder: 'What clicked? New realizations?' },
-  { key: 'horseNotices', label: 'Connection & Feel', color: '#8B5CF6', placeholder: 'What did you notice about your horse? Connection moments?' },
-  { key: 'challenges', label: 'Challenges', color: '#D0021B', placeholder: 'What was difficult? Obstacles encountered?' },
-  { key: 'workFocus', label: 'What We Worked On', color: '#4A90E2', placeholder: 'Specific exercises, movements, or focuses?' }
+  { key: 'wins', label: 'Personal Milestones and External Validation', color: '#7ED321', placeholder: 'What went well? What felt good? What progress did you make? What feedback or recognition did you receive from your coach, judge, or peers?' },
+  { key: 'ahaRealization', label: 'Aha Moment', color: '#F5A623', placeholder: "Did something 'click'? What insight emerged? What did you notice about timing, feel, or technique that changed your understanding?" },
+  { key: 'horseNotices', label: 'Connection and Feel', color: '#8B5CF6', placeholder: 'Their energy, responsiveness, balance, comfort, tension -- what were they communicating? How was your partnership? What did you feel in your body -- seat, legs, hands, breathing, tension, balance?' },
+  { key: 'challenges', label: 'Obstacle', color: '#D0021B', placeholder: "What was difficult? What didn't work? What left you puzzled? What setback occurred? What felt stuck?" },
+  { key: 'workFocus', label: 'Additional notes on your work', color: '#4A90E2', placeholder: "Exercises, movements, concepts, focus areas (e.g., 'transitions,' 'shoulder-in,' 'steady contact,' 'half-halts')" }
 ];
 
 const STORAGE_KEY = 'ydj-debrief-intentions';
@@ -25,9 +25,19 @@ const STORAGE_KEY = 'ydj-debrief-intentions';
 function loadSavedIntentions() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : ['Soft hands', 'Breathe', 'Heels down', 'Look up', 'Sit tall'];
+    return saved ? JSON.parse(saved) : [
+      'Did you ride with gratitude and joy?',
+      "Did you work to gain and maintain the horse's best balance?",
+      'Did you adjust your position to maximize your effectiveness and the comfort of the horse?',
+      'Did you recover quickly from challenges or loss of focus?'
+    ];
   } catch {
-    return ['Soft hands', 'Breathe', 'Heels down', 'Look up', 'Sit tall'];
+    return [
+      'Did you ride with gratitude and joy?',
+      "Did you work to gain and maintain the horse's best balance?",
+      'Did you adjust your position to maximize your effectiveness and the comfort of the horse?',
+      'Did you recover quickly from challenges or loss of focus?'
+    ];
   }
 }
 
@@ -224,7 +234,7 @@ export default function DebriefForm() {
     <div className="form-page">
       <div className="form-page-header">
         <h1>{isEdit ? 'Edit Debrief' : 'Post-Ride Debrief'}</h1>
-        <p>Capture your ride experience while it's fresh</p>
+        <p>Capture your insights while they're fresh</p>
       </div>
 
       <form onSubmit={handleSubmit}>
@@ -234,10 +244,10 @@ export default function DebriefForm() {
           {/* Section 1: Ride Basics */}
           <FormSection title="Ride Basics">
             <div className="form-row">
-              <FormField label="Ride Date" error={errors.rideDate}>
+              <FormField label="Date of Ride" error={errors.rideDate}>
                 <input type="date" name="rideDate" value={formData.rideDate} onChange={handleChange} disabled={loading} />
               </FormField>
-              <FormField label="Horse" error={errors.horseName}>
+              <FormField label="Horse" error={errors.horseName} helpText="Which horse did you ride?">
                 <input
                   type="text"
                   name="horseName"
@@ -253,13 +263,13 @@ export default function DebriefForm() {
                 </datalist>
               </FormField>
             </div>
-            <FormField label="Session Type" error={errors.sessionType}>
+            <FormField label="Type of Session" error={errors.sessionType}>
               <RadioGroup name="sessionType" options={SESSION_TYPES} value={formData.sessionType} onChange={handleChange} disabled={loading} />
             </FormField>
           </FormSection>
 
           {/* Section 2: Quick Ratings */}
-          <FormSection title="Quick Check-In" description="How was the energy today?">
+          <FormSection title="Quick Ratings" description="Your immediate impressions -- there are no wrong answers.">
             <FormField label={`Overall Ride Quality: ${formData.overallQuality}/10`}>
               <input
                 type="range"
@@ -272,7 +282,7 @@ export default function DebriefForm() {
                 style={{ width: '100%', accentColor: '#8B7355' }}
               />
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#7A7A7A' }}>
-                <span>Rough</span><span>Average</span><span>Amazing</span>
+                <span>Challenging/Frustrating</span><span>Excellent/Breakthrough</span>
               </div>
             </FormField>
             <FormField label="Your Energy Level" optional>
@@ -281,13 +291,13 @@ export default function DebriefForm() {
             <FormField label="Horse's Energy Level" optional>
               <RadioGroup name="horseEnergy" options={HORSE_ENERGY_LEVELS} value={formData.horseEnergy} onChange={handleChange} disabled={loading} />
             </FormField>
-            <FormField label="Your Mental State" optional>
+            <FormField label="Your mental/emotional state" optional>
               <RadioGroup name="mentalState" options={MENTAL_STATES} value={formData.mentalState} onChange={handleChange} disabled={loading} />
             </FormField>
           </FormSection>
 
           {/* Section 3: Riding Intentions */}
-          <FormSection title="Riding Intentions" description="Rate how well you maintained each intention (1-5)">
+          <FormSection title="Riding Intentions" description="How well did you meet your intentions for this ride?">
             <div style={{ marginBottom: '1rem' }}>
               {intentions.map(intention => (
                 <div key={intention} style={{
@@ -381,7 +391,7 @@ export default function DebriefForm() {
           </FormSection>
 
           {/* Section 4: Narrative */}
-          <FormSection title="Ride Narrative" description="Fill in what resonates - all fields are optional">
+          <FormSection title="What Happened" description="The heart of your reflection -- what stands out from this ride?">
             {NARRATIVE_FIELDS.map(field => (
               <FormField key={field.key} label={field.label} optional>
                 <textarea
@@ -406,7 +416,7 @@ export default function DebriefForm() {
               Cancel
             </button>
             <button type="button" className="btn btn-secondary" onClick={() => handleSubmit(null, true)} disabled={loading}>
-              {loading ? 'Saving...' : 'Save Draft'}
+              {loading ? 'Saving...' : 'Save as Draft'}
             </button>
             <button type="submit" className="btn btn-primary" disabled={loading}>
               {loading ? 'Saving...' : (isEdit ? 'Update Debrief' : 'Complete Debrief')}

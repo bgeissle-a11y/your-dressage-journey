@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { getAllReflections, deleteReflection, REFLECTION_CATEGORIES } from '../../services';
+import { exportToCSV, exportToJSON, EXPORT_COLUMNS } from '../../utils/exportUtils';
 import '../Forms/Forms.css';
 
 const CATEGORY_COLORS = {
@@ -66,7 +67,15 @@ export default function ReflectionList() {
     <div className="list-page">
       <div className="list-page-header">
         <h1>Reflections</h1>
-        <Link to="/reflections/new" className="btn-new">+ New Reflection</Link>
+        <div className="list-page-actions">
+          {reflections.length > 0 && (
+            <>
+              <button className="btn-export-sm" onClick={() => exportToCSV(reflections, 'reflections', EXPORT_COLUMNS.reflections)}>CSV</button>
+              <button className="btn-export-sm" onClick={() => exportToJSON(reflections, 'reflections')}>JSON</button>
+            </>
+          )}
+          <Link to="/reflections/new" className="btn-new">+ New Reflection</Link>
+        </div>
       </div>
 
       {reflections.length === 0 ? (

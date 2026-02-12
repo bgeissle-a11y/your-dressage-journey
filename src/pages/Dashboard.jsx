@@ -1,6 +1,16 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import '../components/Forms/Forms.css';
+import useDashboardData from '../hooks/useDashboardData';
+import {
+  getAllDebriefs,
+  getAllReflections,
+  getAllObservations,
+  getAllJourneyEvents,
+  getAllEventPrepPlans
+} from '../services';
+import { exportToCSV, exportToJSON, EXPORT_COLUMNS } from '../utils/exportUtils';
+import './Dashboard.css';
 
 const sections = [
   {
@@ -37,75 +47,179 @@ const sections = [
   }
 ];
 
+function qualityColor(q) {
+  if (q >= 8) return '#6B8E5F';
+  if (q >= 5) return '#D4A574';
+  return '#D0021B';
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', {
+    month: 'short', day: 'numeric'
+  });
+}
+
 export default function Dashboard() {
   const { currentUser } = useAuth();
+  const { loading, stats, recentDebriefs, upcomingEvents } = useDashboardData();
+  const [exporting, setExporting] = useState(false);
+
+  async function handleExportAll(format) {
+    if (!currentUser || exporting) return;
+    setExporting(true);
+
+    try {
+      const [debRes, refRes, obsRes, evtRes, prepRes] = await Promise.all([
+        getAllDebriefs(currentUser.uid),
+        getAllReflections(currentUser.uid),
+        getAllObservations(currentUser.uid),
+        getAllJourneyEvents(currentUser.uid),
+        getAllEventPrepPlans(currentUser.uid)
+      ]);
+
+      const exportFn = format === 'csv' ? exportToCSV : exportToJSON;
+      const today = new Date().toISOString().split('T')[0];
+
+      if (debRes.success && debRes.data.length) exportFn(debRes.data, `ydj-debriefs-${today}`, EXPORT_COLUMNS.debriefs);
+      if (refRes.success && refRes.data.length) exportFn(refRes.data, `ydj-reflections-${today}`, EXPORT_COLUMNS.reflections);
+      if (obsRes.success && obsRes.data.length) exportFn(obsRes.data, `ydj-observations-${today}`, EXPORT_COLUMNS.observations);
+      if (evtRes.success && evtRes.data.length) exportFn(evtRes.data, `ydj-journey-events-${today}`, EXPORT_COLUMNS.journeyEvents);
+      if (prepRes.success && prepRes.data.length) exportFn(prepRes.data, `ydj-event-preps-${today}`, EXPORT_COLUMNS.eventPrepPlans);
+    } catch (err) {
+      console.error('Export failed:', err);
+    }
+
+    setExporting(false);
+  }
+
+  if (loading) {
+    return <div className="dashboard-loading">Loading your journey...</div>;
+  }
 
   return (
-    <div>
-      <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{
-          fontFamily: "'Playfair Display', serif",
-          color: '#8B7355',
-          fontSize: '2em',
-          marginBottom: '0.5rem'
-        }}>
-          Welcome back, {currentUser?.displayName || 'Rider'}!
-        </h1>
-        <p style={{ color: '#666' }}>What would you like to do today?</p>
+    <div className="dashboard">
+      {/* Welcome */}
+      <div className="dashboard-welcome">
+        <h1>Welcome back, {currentUser?.displayName || 'Rider'}!</h1>
+        <p>What would you like to do today?</p>
       </div>
 
-      {sections.map(section => (
-        <div key={section.title} style={{ marginBottom: '2rem' }}>
-          <h2 style={{
-            fontFamily: "'Playfair Display', serif",
-            color: '#8B7355',
-            fontSize: '1.35em',
-            marginBottom: '0.75rem',
-            paddingBottom: '0.5rem',
-            borderBottom: '2px solid #E0D5C7'
-          }}>
-            {section.title}
-          </h2>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-            gap: '0.75rem'
-          }}>
-            {section.items.map(item => (
-              <Link
-                key={item.to}
-                to={item.to}
-                style={{
-                  display: 'block',
-                  padding: '1.25rem 1.5rem',
-                  background: 'white',
-                  borderRadius: '12px',
-                  border: '1px solid #E0D5C7',
-                  borderLeft: item.color ? `4px solid ${item.color}` : '1px solid #E0D5C7',
-                  textDecoration: 'none',
-                  transition: 'all 0.2s ease',
-                  color: 'inherit'
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.boxShadow = '0 4px 16px rgba(139, 115, 85, 0.12)';
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.boxShadow = 'none';
-                  e.currentTarget.style.transform = 'none';
-                }}
-              >
-                <div style={{ fontWeight: 600, color: '#3A3A3A', marginBottom: '0.25rem' }}>
-                  {item.label}
-                </div>
-                <div style={{ fontSize: '0.88rem', color: '#7A7A7A', lineHeight: 1.4 }}>
-                  {item.description}
-                </div>
-              </Link>
-            ))}
+      {/* Stat Cards */}
+      {stats && (
+        <div className="dashboard-stats">
+          <div className="stat-card">
+            <div className="stat-value">{stats.debriefCount}</div>
+            <div className="stat-label">Rides Logged</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-value">{stats.reflectionCount}</div>
+            <div className="stat-label">Reflections</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-value">
+              {stats.categoryCoverage.covered}/{stats.categoryCoverage.total}
+            </div>
+            <div className="stat-label">Categories</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-value">{stats.streak}<span style={{ fontSize: '0.6em', fontWeight: 400 }}>wk</span></div>
+            <div className="stat-label">Riding Streak</div>
           </div>
         </div>
-      ))}
+      )}
+
+      {/* Recent Rides + Quick Actions */}
+      <div className="dashboard-middle">
+        <div className="dashboard-recent">
+          <h2>Recent Rides</h2>
+          {recentDebriefs.length === 0 ? (
+            <div className="recent-empty">
+              No rides logged yet. <Link to="/debriefs/new" style={{ color: '#8B7355' }}>Log your first ride</Link>
+            </div>
+          ) : (
+            <>
+              {recentDebriefs.map(d => (
+                <Link key={d.id} to={`/debriefs/${d.id}/edit`} className="recent-item">
+                  <div className="recent-item-left">
+                    <span className="recent-horse">{d.horseName || 'Untitled'}</span>
+                    <span className="recent-date">{formatDate(d.rideDate)}</span>
+                  </div>
+                  {d.overallQuality && (
+                    <span
+                      className="recent-quality"
+                      style={{
+                        background: `${qualityColor(d.overallQuality)}20`,
+                        color: qualityColor(d.overallQuality)
+                      }}
+                    >
+                      {d.overallQuality}/10
+                    </span>
+                  )}
+                </Link>
+              ))}
+              <Link to="/debriefs" className="recent-view-all">View all debriefs</Link>
+            </>
+          )}
+        </div>
+
+        <div className="dashboard-actions">
+          <h2>Quick Actions</h2>
+          <Link to="/debriefs/new" className="action-btn"><span>+</span> New Debrief</Link>
+          <Link to="/reflections/new" className="action-btn"><span>+</span> New Reflection</Link>
+          <Link to="/observations/new" className="action-btn"><span>+</span> New Observation</Link>
+          <Link to="/event-prep/new" className="action-btn"><span>+</span> Event Prep</Link>
+          <Link to="/events/new" className="action-btn"><span>+</span> Journey Event</Link>
+
+          {upcomingEvents.length > 0 && (
+            <div className="dashboard-upcoming">
+              <h3>Upcoming Events</h3>
+              {upcomingEvents.map(evt => (
+                <div key={evt.id} className="upcoming-item">
+                  <span className="upcoming-name">{evt.eventName}</span>
+                  <span className="upcoming-date">{formatDate(evt.eventDate)}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Section Cards */}
+      <div className="dashboard-sections">
+        {sections.map(section => (
+          <div key={section.title} className="dashboard-section">
+            <h2>{section.title}</h2>
+            <div className="dashboard-cards">
+              {section.items.map(item => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className="dashboard-card"
+                  style={item.color ? { borderLeft: `4px solid ${item.color}` } : undefined}
+                >
+                  <div className="dashboard-card-label">{item.label}</div>
+                  <div className="dashboard-card-desc">{item.description}</div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Export All */}
+      <div className="dashboard-export">
+        <h2>Export My Data</h2>
+        <p>Download all your journey data. Each collection exports as a separate file.</p>
+        <div className="export-buttons">
+          <button className="btn-export" onClick={() => handleExportAll('csv')} disabled={exporting}>
+            Export All as CSV
+          </button>
+          <button className="btn-export" onClick={() => handleExportAll('json')} disabled={exporting}>
+            Export All as JSON
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

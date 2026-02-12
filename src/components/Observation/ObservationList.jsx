@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { getAllObservations, deleteObservation, CONTEXT_TYPES } from '../../services';
+import { exportToCSV, exportToJSON, EXPORT_COLUMNS } from '../../utils/exportUtils';
 import '../Forms/Forms.css';
 
 const CONTEXT_LABELS = Object.fromEntries(CONTEXT_TYPES.map(c => [c.value, c.label]));
@@ -64,7 +65,15 @@ export default function ObservationList() {
     <div className="list-page">
       <div className="list-page-header">
         <h1>Observations</h1>
-        <Link to="/observations/new" className="btn-new">+ New Observation</Link>
+        <div className="list-page-actions">
+          {observations.length > 0 && (
+            <>
+              <button className="btn-export-sm" onClick={() => exportToCSV(observations, 'observations', EXPORT_COLUMNS.observations)}>CSV</button>
+              <button className="btn-export-sm" onClick={() => exportToJSON(observations, 'observations')}>JSON</button>
+            </>
+          )}
+          <Link to="/observations/new" className="btn-new">+ New Observation</Link>
+        </div>
       </div>
 
       {observations.length === 0 ? (

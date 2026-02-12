@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { getAllEventPrepPlans, deleteEventPrepPlan, EVENT_PREP_TYPES, EVENT_PREP_STATUSES } from '../../services';
+import { exportToCSV, exportToJSON, EXPORT_COLUMNS } from '../../utils/exportUtils';
 import '../Forms/Forms.css';
 
 const TYPE_LABELS = Object.fromEntries(EVENT_PREP_TYPES.map(t => [t.value, t.label]));
@@ -80,7 +81,15 @@ export default function EventPrepList() {
     <div className="list-page">
       <div className="list-page-header">
         <h1>Event Preparations</h1>
-        <Link to="/event-prep/new" className="btn-new">+ New Event Prep</Link>
+        <div className="list-page-actions">
+          {plans.length > 0 && (
+            <>
+              <button className="btn-export-sm" onClick={() => exportToCSV(plans, 'event-preps', EXPORT_COLUMNS.eventPrepPlans)}>CSV</button>
+              <button className="btn-export-sm" onClick={() => exportToJSON(plans, 'event-preps')}>JSON</button>
+            </>
+          )}
+          <Link to="/event-prep/new" className="btn-new">+ New Event Prep</Link>
+        </div>
       </div>
 
       {plans.length === 0 ? (

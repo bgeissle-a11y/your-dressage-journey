@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { getAllDebriefs, deleteDebrief } from '../../services';
+import { exportToCSV, exportToJSON, EXPORT_COLUMNS } from '../../utils/exportUtils';
 import '../Forms/Forms.css';
 
 const SESSION_LABELS = {
@@ -74,7 +75,15 @@ export default function DebriefList() {
     <div className="list-page">
       <div className="list-page-header">
         <h1>Post-Ride Debriefs</h1>
-        <Link to="/debriefs/new" className="btn-new">+ New Debrief</Link>
+        <div className="list-page-actions">
+          {debriefs.length > 0 && (
+            <>
+              <button className="btn-export-sm" onClick={() => exportToCSV(debriefs, 'debriefs', EXPORT_COLUMNS.debriefs)}>CSV</button>
+              <button className="btn-export-sm" onClick={() => exportToJSON(debriefs, 'debriefs')}>JSON</button>
+            </>
+          )}
+          <Link to="/debriefs/new" className="btn-new">+ New Debrief</Link>
+        </div>
       </div>
 
       {debriefs.length === 0 ? (
