@@ -1,0 +1,385 @@
+/* Tips & FAQ Page */
+.tips-faq-page {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Header */
+.tips-header {
+  text-align: center;
+  background: white;
+  padding: 50px 30px 40px;
+  border-radius: 20px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 24px rgba(139, 115, 85, 0.12);
+  border: 1px solid #E0D5C7;
+}
+
+.tips-logo {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 25px;
+  background: #8B7355;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3em;
+}
+
+.tips-header h1 {
+  font-family: 'Playfair Display', serif;
+  color: #8B7355;
+  font-size: 2.8em;
+  margin-bottom: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.tips-subtitle {
+  color: #7A7A7A;
+  font-size: 1.2em;
+  margin-bottom: 20px;
+}
+
+.tips-tagline-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #8B7355, #D4A574);
+  color: white;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 0.9em;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Sections */
+.tips-section {
+  background: white;
+  padding: 40px;
+  margin-bottom: 25px;
+  border-radius: 20px;
+  box-shadow: 0 2px 12px rgba(139, 115, 85, 0.08);
+  border: 1px solid #E0D5C7;
+}
+
+.tips-section h2 {
+  font-family: 'Playfair Display', serif;
+  color: #8B7355;
+  font-size: 2em;
+  margin-bottom: 20px;
+  font-weight: 600;
+  border-bottom: 3px solid #D4A574;
+  padding-bottom: 12px;
+}
+
+.tips-section h3 {
+  font-family: 'Playfair Display', serif;
+  color: #8B7355;
+  font-size: 1.4em;
+  margin: 30px 0 15px;
+  font-weight: 600;
+}
+
+.tips-section h3:first-of-type {
+  margin-top: 10px;
+}
+
+/* Welcome / body text */
+.tips-welcome-text {
+  font-size: 1.1em;
+  line-height: 1.8;
+  margin-bottom: 25px;
+}
+
+.tips-text-block {
+  margin-bottom: 20px;
+}
+
+.tips-text-spacing {
+  margin-top: 15px;
+}
+
+.tips-text-spacing-sm {
+  margin-top: 10px;
+}
+
+/* Emphasis box */
+.tips-emphasis {
+  background: linear-gradient(135deg, rgba(139, 115, 85, 0.1), rgba(212, 165, 116, 0.1));
+  padding: 20px;
+  border-radius: 12px;
+  border-left: 4px solid #8B7355;
+  margin: 25px 0;
+}
+
+.tips-emphasis strong {
+  color: #8B7355;
+}
+
+/* Numbered steps */
+.tips-numbered-steps {
+  counter-reset: step-counter;
+  list-style: none;
+  padding-left: 0;
+}
+
+.tips-numbered-steps li {
+  counter-increment: step-counter;
+  margin-bottom: 25px;
+  padding-left: 60px;
+  position: relative;
+}
+
+.tips-numbered-steps li::before {
+  content: counter(step-counter);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #8B7355, #D4A574);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.2em;
+}
+
+.tips-numbered-steps li strong {
+  display: block;
+  color: #8B7355;
+  font-size: 1.1em;
+  margin-bottom: 8px;
+}
+
+/* Bullet lists */
+.tips-bullets {
+  margin: 15px 0 15px 25px;
+  line-height: 1.8;
+}
+
+.tips-bullets li {
+  margin-bottom: 10px;
+}
+
+/* Tip box */
+.tips-tip-box {
+  background: #F5F1EB;
+  padding: 20px;
+  border-radius: 12px;
+  margin: 20px 0;
+  border-left: 4px solid #D4A574;
+}
+
+.tips-tip-box h4 {
+  color: #8B7355;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+/* Color legend */
+.tips-color-legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.tips-color-legend--stacked {
+  grid-template-columns: 1fr;
+}
+
+.tips-color-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #E0D5C7;
+}
+
+.tips-color-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tips-color-desc {
+  font-size: 0.95em;
+  color: #666;
+}
+
+/* Form cards grid */
+.tips-form-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin: 25px 0;
+}
+
+.tips-form-card {
+  background: white;
+  border: 1px solid #E0D5C7;
+  border-radius: 14px;
+  padding: 22px 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.tips-form-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(139, 115, 85, 0.15);
+}
+
+.tips-form-card--static {
+  cursor: default;
+  opacity: 0.85;
+}
+
+.tips-form-card--static:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.tips-card-icon {
+  font-size: 1.6em;
+  margin-bottom: 10px;
+}
+
+.tips-card-title {
+  font-family: 'Playfair Display', serif;
+  color: #8B7355;
+  font-weight: 600;
+  font-size: 1.05em;
+  margin-bottom: 6px;
+}
+
+.tips-card-desc {
+  font-size: 0.88em;
+  color: #666;
+  line-height: 1.5;
+}
+
+.tips-card-freq {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 0.78em;
+  font-weight: 600;
+  color: #8B7355;
+  background: rgba(139, 115, 85, 0.1);
+  padding: 3px 10px;
+  border-radius: 10px;
+}
+
+/* Table of Contents */
+.tips-toc a {
+  display: block;
+  color: #8B7355;
+  text-decoration: none;
+  padding: 8px 0;
+  font-size: 1.02em;
+  border-bottom: 1px solid #F0E9DF;
+  transition: padding-left 0.2s ease, color 0.2s ease;
+}
+
+.tips-toc a:last-child {
+  border-bottom: none;
+}
+
+.tips-toc a:hover {
+  padding-left: 8px;
+  color: #D4A574;
+}
+
+/* Contact box */
+.tips-contact-box {
+  background: linear-gradient(135deg, #8B7355, #D4A574);
+  color: white;
+  padding: 30px;
+  border-radius: 16px;
+  text-align: center;
+  margin-top: 30px;
+  margin-bottom: 25px;
+}
+
+.tips-contact-box h3 {
+  font-family: 'Playfair Display', serif;
+  color: white;
+  font-size: 1.4em;
+  margin-bottom: 15px;
+}
+
+.tips-contact-lead {
+  margin-bottom: 15px;
+  font-size: 1.1em;
+}
+
+.tips-contact-box a {
+  color: white;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.tips-contact-footnote {
+  margin-top: 20px;
+  font-size: 0.95em;
+  opacity: 0.9;
+}
+
+/* Footer quote */
+.tips-footer-quote {
+  text-align: center;
+  padding: 40px 20px;
+  color: #7A7A7A;
+}
+
+.tips-quote {
+  font-style: italic;
+  font-size: 1.1em;
+}
+
+.tips-footer-tagline {
+  margin-top: 15px;
+  font-weight: 500;
+  color: #8B7355;
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .tips-header {
+    padding: 30px 20px;
+  }
+
+  .tips-header h1 {
+    font-size: 2em;
+  }
+
+  .tips-section {
+    padding: 25px;
+  }
+
+  .tips-section h2 {
+    font-size: 1.6em;
+  }
+
+  .tips-numbered-steps li {
+    padding-left: 50px;
+  }
+
+  .tips-numbered-steps li::before {
+    width: 35px;
+    height: 35px;
+    font-size: 1em;
+  }
+
+  .tips-form-cards {
+    grid-template-columns: 1fr;
+  }
+}

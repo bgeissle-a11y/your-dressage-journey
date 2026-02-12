@@ -6,6 +6,7 @@ import SignUp from './components/Auth/SignUp';
 import SignIn from './components/Auth/SignIn';
 import ForgotPassword from './components/Auth/ForgotPassword';
 import Dashboard from './pages/Dashboard';
+import TipsAndFaq from './pages/TipsAndFaq';
 import Home from './pages/Home';
 
 // Profile
@@ -43,6 +44,7 @@ function App() {
           {/* Protected Routes - wrapped in AppLayout */}
           <Route element={<PrivateRoute><AppLayout /></PrivateRoute>}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/tips-and-faq" element={<TipsAndFaq />} />
 
             {/* Profile */}
             <Route path="/profile/rider" element={<RiderProfileForm />} />

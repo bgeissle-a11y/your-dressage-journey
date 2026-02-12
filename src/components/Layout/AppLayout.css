@@ -121,6 +121,38 @@
   margin: 0.35rem 0.5rem;
 }
 
+/* Help link */
+.nav-help-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-help-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid #E0D5C7;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #8B7355;
+  line-height: 1;
+}
+
+.nav-help-link:hover .nav-help-icon,
+.nav-help-link.active .nav-help-icon {
+  background: #8B7355;
+  color: white;
+  border-color: #8B7355;
+}
+
+.nav-help-label {
+  font-size: 0.88rem;
+}
+
 /* User section */
 .nav-user {
   display: flex;

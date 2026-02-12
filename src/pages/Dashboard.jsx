@@ -105,6 +105,14 @@ export default function Dashboard() {
         <p>What would you like to do today?</p>
       </div>
 
+      {/* Getting Started banner — shown when user has no debriefs yet */}
+      {stats && stats.debriefCount === 0 && (
+        <Link to="/tips-and-faq" className="dashboard-getting-started">
+          <strong>New here?</strong> Check out our Tips &amp; FAQ for a quick guide to getting the most from your journey.
+          <span className="getting-started-arrow">&rarr;</span>
+        </Link>
+      )}
+
       {/* Stat Cards */}
       {stats && (
         <div className="dashboard-stats">

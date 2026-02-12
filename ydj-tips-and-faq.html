@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tips & FAQ | Your Dressage Journey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #FAF8F5 0%, #F5F1EB 100%);
+            padding: 20px;
+            line-height: 1.7;
+            color: #3A3A3A;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            background: white;
+            padding: 50px 30px 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 24px rgba(139, 115, 85, 0.12);
+            border: 1px solid #E0D5C7;
+        }
+
+        .logo-placeholder {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 25px;
+            background: #8B7355;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            color: #8B7355;
+            font-size: 2.8em;
+            margin-bottom: 12px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            color: #7A7A7A;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .tagline-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #8B7355, #D4A574);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .section {
+            background: white;
+            padding: 40px;
+            margin-bottom: 25px;
+            border-radius: 20px;
+            box-shadow: 0 2px 12px rgba(139, 115, 85, 0.08);
+            border: 1px solid #E0D5C7;
+        }
+
+        h2 {
+            font-family: 'Playfair Display', serif;
+            color: #8B7355;
+            font-size: 2em;
+            margin-bottom: 20px;
+            font-weight: 600;
+            border-bottom: 3px solid #D4A574;
+            padding-bottom: 12px;
+        }
+
+        h3 {
+            font-family: 'Playfair Display', serif;
+            color: #8B7355;
+            font-size: 1.4em;
+            margin: 30px 0 15px;
+            font-weight: 600;
+        }
+
+        h3:first-of-type {
+            margin-top: 10px;
+        }
+
+        .welcome-text {
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+
+        .emphasis {
+            background: linear-gradient(135deg, rgba(139, 115, 85, 0.1), rgba(212, 165, 116, 0.1));
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #8B7355;
+            margin: 25px 0;
+        }
+
+        .emphasis strong {
+            color: #8B7355;
+        }
+
+        .numbered-steps {
+            counter-reset: step-counter;
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .numbered-steps li {
+            counter-increment: step-counter;
+            margin-bottom: 25px;
+            padding-left: 60px;
+            position: relative;
+        }
+
+        .numbered-steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #8B7355, #D4A574);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2em;
+        }
+
+        .numbered-steps li strong {
+            display: block;
+            color: #8B7355;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        ul.bullets {
+            margin: 15px 0 15px 25px;
+            line-height: 1.8;
+        }
+
+        ul.bullets li {
+            margin-bottom: 10px;
+        }
+
+        .tip-box {
+            background: #F5F1EB;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 4px solid #D4A574;
+        }
+
+        .tip-box h4 {
+            color: #8B7355;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .color-legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .color-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #E0D5C7;
+        }
+
+        .color-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* Form cards grid */
+        .form-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin: 25px 0;
+        }
+
+        .form-card {
+            background: white;
+            border: 1px solid #E0D5C7;
+            border-radius: 14px;
+            padding: 22px 20px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .form-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(139, 115, 85, 0.15);
+        }
+
+        .form-card .card-icon {
+            font-size: 1.6em;
+            margin-bottom: 10px;
+        }
+
+        .form-card .card-title {
+            font-family: 'Playfair Display', serif;
+            color: #8B7355;
+            font-weight: 600;
+            font-size: 1.05em;
+            margin-bottom: 6px;
+        }
+
+        .form-card .card-desc {
+            font-size: 0.88em;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .form-card .card-freq {
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 0.78em;
+            font-weight: 600;
+            color: #8B7355;
+            background: rgba(139, 115, 85, 0.1);
+            padding: 3px 10px;
+            border-radius: 10px;
+        }
+
+        .contact-box {
+            background: linear-gradient(135deg, #8B7355, #D4A574);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .contact-box h3 {
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .contact-box a {
+            color: white;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        /* TOC styles */
+        .toc {
+            margin: 20px 0 0;
+        }
+
+        .toc a {
+            display: block;
+            color: #8B7355;
+            text-decoration: none;
+            padding: 8px 0;
+            font-size: 1.02em;
+            border-bottom: 1px solid #F0E9DF;
+            transition: padding-left 0.2s ease, color 0.2s ease;
+        }
+
+        .toc a:last-child {
+            border-bottom: none;
+        }
+
+        .toc a:hover {
+            padding-left: 8px;
+            color: #D4A574;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 15px;
+            }
+
+            nav {
+                padding: 12px 15px !important;
+                gap: 8px !important;
+            }
+
+            nav span {
+                display: block;
+                width: 100%;
+                text-align: center;
+                margin: 0 0 8px 0 !important;
+            }
+
+            nav a {
+                flex: 1 1 auto;
+                text-align: center;
+                font-size: 0.8em !important;
+                padding: 8px 12px !important;
+            }
+
+            header {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .section {
+                padding: 25px;
+            }
+
+            h2 {
+                font-size: 1.6em;
+            }
+
+            .numbered-steps li {
+                padding-left: 50px;
+            }
+
+            .numbered-steps li::before {
+                width: 35px;
+                height: 35px;
+                font-size: 1em;
+            }
+
+            .form-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .section {
+                page-break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Menu -->
+    <nav style="
+        position: sticky;
+        top: 0;
+        background: linear-gradient(135deg, #8B7355, #D4A574);
+        padding: 15px 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        z-index: 1000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    ">
+        <span style="color: white; font-weight: 600; font-size: 0.9em; margin-right: 10px;">QUICK ACCESS:</span>
+        <a href="post-ride-debrief.html" style="
+            background: white;
+            color: #8B7355;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)'"
+           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            📝 Post-Ride Debrief
+        </a>
+        <a href="dressage-reflection-form.html" style="
+            background: white;
+            color: #8B7355;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)'"
+           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            💭 Reflection Form
+        </a>
+        <a href="horse-profile.html" style="
+            background: white;
+            color: #8B7355;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)'"
+           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            🐴 Horse Profile
+        </a>
+        <a href="rider-profile.html" style="
+            background: rgba(255,255,255,0.9);
+            color: #8B7355;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85em;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)'"
+           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            🏇 Rider Profile
+        </a>
+        <a href="event-preparation-form.html" style="
+            background: rgba(255,255,255,0.9);
+            color: #8B7355;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85em;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)'"
+           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            📋 Event Prep
+        </a>
+        <a href="journey-event-log.html" style="
+            background: rgba(255,255,255,0.9);
+            color: #8B7355;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85em;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)'"
+           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            📅 Event Log
+        </a>
+        <a href="observation-form.html" style="
+            background: rgba(255,255,255,0.85);
+            color: #8B7355;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85em;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)'"
+           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            👁️ Observation
+        </a>
+    </nav>
+
+    <div class="container">
+        <header>
+            <div class="logo-placeholder">🐴</div>
+            <h1>Tips & FAQ</h1>
+            <p class="subtitle">Everything you need to get the most from Your Dressage Journey</p>
+            <span class="tagline-badge">ILLUMINATE YOUR JOURNEY</span>
+        </header>
+
+        <!-- Table of Contents -->
+        <div class="section">
+            <h2>On This Page</h2>
+            <nav class="toc">
+                <a href="#your-forms">Your Forms at a Glance</a>
+                <a href="#getting-started">Getting Started</a>
+                <a href="#daily-workflow">Your Daily & Weekly Workflow</a>
+                <a href="#reflections">The Six Reflection Categories</a>
+                <a href="#profiles">Setting Up Your Profiles</a>
+                <a href="#events">Events: Logging & Preparation</a>
+                <a href="#observations">Observation Form</a>
+                <a href="#assessments">Self-Assessments</a>
+                <a href="#best-tips">Getting the Most Value</a>
+                <a href="#contact">Questions? Problems? Ideas?</a>
+            </nav>
+        </div>
+
+        <!-- SECTION: Your Forms at a Glance -->
+        <div class="section" id="your-forms">
+            <h2>Your Forms at a Glance</h2>
+            <p class="welcome-text">
+                Your Dressage Journey gives you a complete toolkit for capturing, reflecting on, and understanding your riding. Each form serves a specific purpose—and together, they give the AI the richest possible picture of your journey.
+            </p>
+
+            <div class="form-cards">
+                <a href="rider-profile.html" class="form-card">
+                    <div class="card-icon">🏇</div>
+                    <div class="card-title">Rider Profile</div>
+                    <div class="card-desc">Your riding background, goals, training focus, and personal context.</div>
+                    <span class="card-freq">One-time setup</span>
+                </a>
+                <a href="horse-profile.html" class="form-card">
+                    <div class="card-icon">🐴</div>
+                    <div class="card-title">Horse Profile</div>
+                    <div class="card-desc">Your horse's (or horses') details, temperament, training history, and quirks that matter.</div>
+                    <span class="card-freq">One-time setup</span>
+                </a>
+                <a href="post-ride-debrief.html" class="form-card">
+                    <div class="card-icon">📝</div>
+                    <div class="card-title">Post-Ride Debrief</div>
+                    <div class="card-desc">Set intentions, capture rider and horse states, and record what happened, what worked, and what to focus on next.</div>
+                    <span class="card-freq">After every ride</span>
+                </a>
+                <a href="dressage-reflection-form.html" class="form-card">
+                    <div class="card-icon">💭</div>
+                    <div class="card-title">Reflection Form</div>
+                    <div class="card-desc">Deeper exploration across six categories with curated prompts to guide your thinking.</div>
+                    <span class="card-freq">Weekly+  (anytime!)</span>
+                </a>
+                <a href="event-preparation-form.html" class="form-card">
+                    <div class="card-icon">📋</div>
+                    <div class="card-title">Event Preparation</div>
+                    <div class="card-desc">Plan ahead for shows, clinics, and competitions within the next six months.</div>
+                    <span class="card-freq">Before events</span>
+                </a>
+                <a href="journey-event-log.html" class="form-card">
+                    <div class="card-icon">📅</div>
+                    <div class="card-title">Journey Event Log</div>
+                    <div class="card-desc">Record shows, clinics, vet visits, rider or horse health issues, environmental changes, and their impact and significance.</div>
+                    <span class="card-freq">As they happen</span>
+                </a>
+                <a href="observation-form.html" class="form-card">
+                    <div class="card-icon">👁️</div>
+                    <div class="card-title">Observation Form</div>
+                    <div class="card-desc">Capture insights from watching clinics, lessons, videos, and other riders.</div>
+                    <span class="card-freq">When opportunities arise</span>
+                </a>
+                <a href="rider-self-assessment.html" class="form-card">
+                    <div class="card-icon">📊</div>
+                    <div class="card-title">Self-Assessments</div>
+                    <div class="card-desc">Periodic check-ins on your riding skills and physical readiness.</div>
+                    <span class="card-freq">Monthly / Quarterly</span>
+                </a>
+            </div>
+
+            <div class="emphasis">
+                <strong>Start with your profiles, then build the habit.</strong> Complete your Rider Profile and Horse Profile(s) first—they give the AI essential context. Then focus on Post-Ride Debriefs after every ride and one Reflection per week. The other forms add richness as opportunities arise.
+            </div>
+        </div>
+
+        <!-- SECTION: Getting Started -->
+        <div class="section" id="getting-started">
+            <h2>Getting Started</h2>
+            
+            <ol class="numbered-steps">
+                <li>
+                    <strong>Complete Your Rider Profile</strong>
+                    Tell us about your riding background, goals, current level, and what you're working on. This gives the AI essential context about who you are as a rider.
+                </li>
+
+                <li>
+                    <strong>Complete Your Horse Profile(s)</strong>
+                    Enter your horse's details—breed, age, temperament, training level, strengths, and any quirks. If you ride multiple horses, create a profile for each.
+                </li>
+
+                <li>
+                    <strong>Bookmark the Post-Ride Debrief on Your Phone</strong>
+                    This is your primary daily tool. Save it to your phone's home screen for instant access at the barn. You'll use this after every ride—the memories are freshest right after you dismount.
+                </li>
+
+                <li>
+                    <strong>Bookmark the Reflection Form on Your Phone</strong>
+                    This is for deeper reflections. Save it alongside the debrief form. We suggest weekly as a starting rhythm, but reflect as often as you like—there's no limit.
+                </li>
+
+                <li>
+                    <strong>Try Voice Input</strong>
+                    All forms support voice input on mobile. Tap the microphone icon in any text field—this is a game-changer for quick entries while untacking or capturing observations on the go.
+                </li>
+            </ol>
+
+            <div class="tip-box">
+                <h4>💡 Pro Tip: Mobile-First Setup</h4>
+                <p>You'll do most of your data entry on your phone at the barn. Set yourself up for success by bookmarking the Debrief and Reflection forms to your home screen and practicing voice input before your next ride.</p>
+            </div>
+        </div>
+
+        <!-- SECTION: Daily & Weekly Workflow -->
+        <div class="section" id="daily-workflow">
+            <h2>Your Daily &amp; Weekly Workflow</h2>
+            
+            <h3>After Every Ride (2–5 Minutes)</h3>
+            <p style="margin-bottom: 20px;">Open the <strong>Post-Ride Debrief</strong> on your phone while you're still at the barn. Not every section needs an answer—follow what's meaningful for today's ride.</p>
+
+            <div class="emphasis">
+                <strong>Key debrief features:</strong> Set your <strong>ride intentions</strong> before you mount (what are you focusing on today?) and note whether you met them afterward. The debrief also captures your <strong>rider state</strong> and <strong>horse state</strong>—energy, mood, focus, tension—going into and coming out of the ride. These states are powerful data points: over time, the AI can show you which conditions consistently produce your best work.
+            </div>
+
+            <div class="color-legend">
+                <div class="color-item">
+                    <div class="color-dot" style="background: #4A90E2;"></div>
+                    <span><strong>Breakthrough:</strong> What worked</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-dot" style="background: #F5A623;"></div>
+                    <span><strong>Aha Moment:</strong> What clicked</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-dot" style="background: #8B5CF6;"></div>
+                    <span><strong>Connection:</strong> Your horse</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-dot" style="background: #7ED321;"></div>
+                    <span><strong>Validation:</strong> Feedback</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-dot" style="background: #D0021B;"></div>
+                    <span><strong>Challenge:</strong> What's hard</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-dot" style="background: #FF8C42;"></div>
+                    <span><strong>Feel:</strong> Body awareness</span>
+                </div>
+            </div>
+
+            <h3>Weekly (10–15 Minutes)</h3>
+            <p>Choose one <strong>Reflection</strong> from the six categories. These dig deeper into specific moments, challenges, or realizations. The prompts help trigger memories and guide your thinking. If a prompt doesn't resonate, pass it—you get three passes per session.</p>
+
+            <p style="margin-top: 15px;"><strong>Weekly is a great rhythm, but it's not a limit.</strong> Reflect whenever inspiration strikes and as often as you like. Had a breakthrough lesson on Monday and a frustrating ride on Thursday? Capture both. The more reflections you record, the richer the patterns the AI can find.</p>
+
+            <h3>The More You Collect, The More You Discover</h3>
+            <p style="margin-top: 10px;">Think of data collection like building a puzzle. Five pieces show you a corner. Twenty pieces reveal a pattern. Fifty pieces show you the full picture. Be generous with your reflections and debriefs—each one adds another data point that helps the AI identify what's really going on beneath the surface.</p>
+        </div>
+
+        <!-- SECTION: Six Reflection Categories -->
+        <div class="section" id="reflections">
+            <h2>The Six Reflection Categories</h2>
+            
+            <p style="margin-bottom: 20px;">Each week, pick one category that resonates with where you are right now. Over time, aim to capture reflections across all six categories so the AI has a complete picture of your riding experience.</p>
+
+            <div class="color-legend" style="grid-template-columns: 1fr;">
+                <div class="color-item">
+                    <div class="color-dot" style="background: #4A90E2;"></div>
+                    <div>
+                        <strong>🟦 Personal Milestone</strong><br>
+                        <span style="font-size: 0.95em; color: #666;">Achievements, breakthroughs, goals met—the wins that matter to you regardless of external recognition</span>
+                    </div>
+                </div>
+                <div class="color-item">
+                    <div class="color-dot" style="background: #7ED321;"></div>
+                    <div>
+                        <strong>🟩 External Validation</strong><br>
+                        <span style="font-size: 0.95em; color: #666;">Feedback from coaches, judges, peers—recognition that moved you forward or shifted your perspective</span>
+                    </div>
+                </div>
+                <div class="color-item">
+                    <div class="color-dot" style="background: #F5A623;"></div>
+                    <div>
+                        <strong>🟨 Aha Moment</strong><br>
+                        <span style="font-size: 0.95em; color: #666;">The click, the realization, the sudden understanding—when theory connected to feeling or something finally made sense</span>
+                    </div>
+                </div>
+                <div class="color-item">
+                    <div class="color-dot" style="background: #D0021B;"></div>
+                    <div>
+                        <strong>🟥 Obstacle</strong><br>
+                        <span style="font-size: 0.95em; color: #666;">Challenges, setbacks, frustrations—the hard parts of the journey including physical, mental, financial, or partnership issues</span>
+                    </div>
+                </div>
+                <div class="color-item">
+                    <div class="color-dot" style="background: #8B5CF6;"></div>
+                    <div>
+                        <strong>🟪 Connection</strong><br>
+                        <span style="font-size: 0.95em; color: #666;">Moments with your horse—partnership, communication, mutual understanding, trust building, and what they teach you</span>
+                    </div>
+                </div>
+                <div class="color-item">
+                    <div class="color-dot" style="background: #FF8C42;"></div>
+                    <div>
+                        <strong>🟧 Feel (Body Awareness)</strong><br>
+                        <span style="font-size: 0.95em; color: #666;">Physical sensations and discoveries—the first time you felt your seat bones, recognized tension patterns, or understood biomechanics through your body</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <h4>💡 How Prompts Work</h4>
+                <p>Each category has 25 prompts to trigger specific memories. When you select a category, you'll see one prompt. If it doesn't resonate, you can pass it (3 passes per session) to see another. The goal is to capture meaningful moments, not force responses to prompts that don't fit your experience.</p>
+            </div>
+        </div>
+
+        <!-- SECTION: Profiles -->
+        <div class="section" id="profiles">
+            <h2>Setting Up Your Profiles</h2>
+            
+            <p class="welcome-text">
+                Your Rider Profile and Horse Profile(s) are the foundation of personalized analysis. They give the AI the context it needs to make your coaching insights specific to <em>you</em> rather than generic advice.
+            </p>
+
+            <h3>🏇 Rider Profile</h3>
+            <p>Your riding background, current level, goals, training frequency, instructor information, and what you're working on. This helps the AI calibrate its feedback to your experience and ambitions. Update it whenever your circumstances change—new instructor, new goals, different training focus.</p>
+
+            <h3>🐴 Horse Profile(s)</h3>
+            <p>Your horse's breed, age, training level, temperament, strengths, areas of development, and any quirks or considerations. The more the AI knows about your horse, the better it can interpret patterns in your ride debriefs. Create a profile for each horse you ride regularly—the AI tracks patterns for each partnership separately.</p>
+
+            <div class="tip-box">
+                <h4>💡 Keep Profiles Current</h4>
+                <p>Profiles aren't "set and forget." As your training evolves, your horse progresses, or your goals shift, update your profiles. Current profiles mean more relevant analysis.</p>
+            </div>
+        </div>
+
+        <!-- SECTION: Events -->
+        <div class="section" id="events">
+            <h2>Events: Logging &amp; Preparation</h2>
+            
+            <p class="welcome-text">
+                Two forms work together to help you get the most from shows, clinics, lessons, and other significant moments in your dressage journey.
+            </p>
+
+            <h3>📋 Event Preparation Form</h3>
+            <p>Use this <strong>before</strong> an upcoming show, clinic, or significant lesson that's <strong>within the next six months</strong>. (Beyond six months, plans change too much to be practical.) It helps you think through your goals, preparation plan, potential challenges, and what you want to focus on. Structured preparation leads to better performance and—just as importantly—better learning from the experience afterward.</p>
+
+            <ul class="bullets">
+                <li><strong>Shows &amp; competitions:</strong> Define your goals beyond just scores—what do you want to demonstrate? What are you testing?</li>
+                <li><strong>Clinics:</strong> Identify specific questions and focus areas so you arrive with clarity</li>
+                <li><strong>Significant lessons:</strong> Prepare when you're working on something new or challenging with your instructor</li>
+            </ul>
+
+            <h3>📅 Journey Event Log</h3>
+            <p>Use this <strong>after</strong> (or during) significant events to create a record. Log shows, clinics, vet visits, rider or horse health issues, environmental changes (new barn, footing changes, seasonal shifts), farrier visits, new equipment, or training milestones. The form captures not just what happened, but the <strong>impact and significance</strong> of each event on your journey. These entries become data points the AI uses to correlate events with changes in your riding patterns.</p>
+
+            <div class="emphasis">
+                <strong>The power of pairing these forms:</strong> When you prepare for an event AND log what actually happened, the AI can analyze the gap between intention and outcome—one of the most revealing patterns in rider development.
+            </div>
+
+            <div class="tip-box">
+                <h4>💡 Don't Forget the "Small" Events</h4>
+                <p>A farrier visit, a saddle fitting, a sore back, allergy season, even a change in turnout schedule can affect your riding. Log these too—they often explain patterns that would otherwise seem mysterious.</p>
+            </div>
+        </div>
+
+        <!-- SECTION: Observation Form -->
+        <div class="section" id="observations">
+            <h2>Observation Form</h2>
+            
+            <p class="welcome-text">
+                Beyond your own riding, there's tremendous value in capturing insights from <strong>watching others</strong>. The Observation Form lets you document learning moments when you:
+            </p>
+
+            <ul class="bullets">
+                <li><strong>Attend a clinic</strong> as an auditor or participant</li>
+                <li><strong>Watch your trainer ride your horse</strong></li>
+                <li><strong>Observe training sessions</strong> at your barn</li>
+                <li><strong>Audit a show</strong> or competition</li>
+                <li><strong>Watch instructional videos</strong> or competitions online</li>
+            </ul>
+
+            <h3>How It Works</h3>
+            <p>The Observation Form is structured similarly to your reflections, allowing you to capture multiple learning moments from a single event using five categories (Feel is not included since it captures your own body awareness while riding):</p>
+
+            <div class="color-legend" style="margin: 20px 0;">
+                <div class="color-item">
+                    <div class="color-dot" style="background: #4A90E2;"></div>
+                    <span><strong>Breakthrough:</strong> Technical or training breakthroughs you observed</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-dot" style="background: #F5A623;"></div>
+                    <span><strong>Aha Moment:</strong> What resonated and how you could apply it</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-dot" style="background: #8B5CF6;"></div>
+                    <span><strong>Connection:</strong> Horse-rider partnership dynamics</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-dot" style="background: #7ED321;"></div>
+                    <span><strong>Validation:</strong> Concepts confirmed or validated</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-dot" style="background: #D0021B;"></div>
+                    <span><strong>Obstacle:</strong> Challenges and how they were overcome</span>
+                </div>
+            </div>
+
+            <h3>Why This Matters</h3>
+            <p>Observation data enriches your overall pattern analysis. When the AI sees both what you experience in the saddle AND what resonates when you watch others, it can identify gaps between what you recognize intellectually and what you're implementing practically. This reveals blind spots and accelerates learning transfer.</p>
+
+            <div class="tip-box">
+                <h4>💡 Best Use Cases</h4>
+                <p><strong>Most valuable:</strong> Watching your trainer ride your own horse (direct application to your partnership), attending clinics with instructors whose methods you want to understand better, or watching riders just one level above you (close enough to be immediately applicable).</p>
+            </div>
+        </div>
+
+        <!-- SECTION: Self-Assessments -->
+        <div class="section" id="assessments">
+            <h2>Self-Assessments</h2>
+            
+            <p class="welcome-text">
+                Periodic self-assessments give you and the AI a structured snapshot of where you are right now—both as a rider and physically.
+            </p>
+
+            <h3>📊 Rider Self-Assessment</h3>
+            <p>A structured review of your riding skills, confidence levels, and areas of focus across different aspects of dressage. Taking this periodically lets you track how your self-perception evolves over time—and the AI can compare your self-assessment against patterns in your ride debriefs for deeper insight.</p>
+
+            <h3>🏋️ Physical Self-Assessment</h3>
+            <p>An honest look at your physical readiness for riding—flexibility, core strength, balance, fitness, and any limitations. Physical factors have a huge impact on riding performance, and tracking them helps the AI connect the dots between your body and your rides.</p>
+
+            <div class="tip-box">
+                <h4>💡 When to Reassess</h4>
+                <p>Take your first self-assessments when you start, then revisit them monthly or quarterly. They're especially valuable after a break from riding, recovering from an injury, changing training intensity, or starting work with a new horse.</p>
+            </div>
+        </div>
+
+        <!-- SECTION: Getting the Most Value -->
+        <div class="section" id="best-tips">
+            <h2>Getting the Most Value</h2>
+            
+            <h3>Write for Future You, Not for Perfection</h3>
+            <p>Three specific sentences beat one vague paragraph every time. "Slow to pick up right lead" is infinitely more useful than "horse was stiff." The AI finds patterns in specifics, not generalities.</p>
+
+            <h3>Use Voice Input at the Barn</h3>
+            <p>On mobile, tap the microphone icon in any text field. Talk through your observations while untacking—it's faster than typing and captures details you'd forget by the time you get home.</p>
+
+            <h3>Set Intentions, Then Track Results</h3>
+            <p>Before your ride, note what you're planning to focus on. After, note what actually happened. The gap between intention and result reveals where you need support.</p>
+
+            <h3>Be Honest About the Hard Stuff</h3>
+            <p>The AI learns most from obstacles and challenges. If you only record wins, the analysis won't have enough signal to help you break through plateaus.</p>
+
+            <h3>Use "Compared To" Language</h3>
+            <p>Adding comparison takes 5 seconds but multiplies value: "More balanced than last Tuesday" or "Stiffer than warmup" or "Better after the walk break." Context creates patterns.</p>
+
+            <h3>Pair Preparation with Follow-Up</h3>
+            <p>Use the Event Preparation form before shows and clinics, then log the event and complete a debrief afterward. This before/after pairing is one of the richest sources of insight the AI can work with.</p>
+
+            <div class="tip-box">
+                <h4>💡 The 2-Minute Rule</h4>
+                <p>If completing a form feels like it's taking more than 5 minutes, you're overthinking it. Capture the key details and move on. Consistent 2-minute entries beat sporadic 20-minute essays.</p>
+            </div>
+        </div>
+
+        <!-- Contact Section -->
+        <div class="contact-box" id="contact">
+            <h3>Questions? Problems? Ideas?</h3>
+            <p style="margin-bottom: 15px; font-size: 1.1em;">We'd love to hear from you:</p>
+            <p><a href="mailto:barb@yourdressagejourney.com">barb@yourdressagejourney.com</a></p>
+            <p style="margin-top: 20px; font-size: 0.95em; opacity: 0.9;">Your feedback shapes this platform. No question is too small, no idea is too weird.</p>
+        </div>
+
+        <div style="text-align: center; padding: 40px 20px; color: #7A7A7A;">
+            <p style="font-style: italic; font-size: 1.1em;">"Five rides show you what happened. Twenty rides reveal why it keeps happening.<br>Fifty rides show you the conditions that create your best work."</p>
+            <p style="margin-top: 15px; font-weight: 500; color: #8B7355;">Illuminate Your Journey</p>
+        </div>
+    </div>
+</body>
+</html>

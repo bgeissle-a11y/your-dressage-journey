@@ -129,6 +129,15 @@ export default function AppLayout() {
               )}
             </div>
 
+            <Link
+              to="/tips-and-faq"
+              className={`nav-link nav-help-link ${location.pathname === '/tips-and-faq' ? 'active' : ''}`}
+              title="Tips & FAQ"
+            >
+              <span className="nav-help-icon">?</span>
+              <span className="nav-help-label">Help</span>
+            </Link>
+
             <div className="nav-user">
               <span className="nav-username">{currentUser?.displayName || 'Rider'}</span>
               <button onClick={handleLogout} className="btn-sign-out">
