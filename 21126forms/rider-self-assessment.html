@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rider Self-Assessment | Your Dressage Journey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #8B7355;
+            --color-secondary: #D4A574;
+            --color-accent: #C67B5C;
+            --color-bg: #FAF8F5;
+            --color-bg-secondary: #F5F1EB;
+            --color-text: #3A3A3A;
+            --color-text-light: #7A7A7A;
+            --color-border: #E0D5C7;
+            --shadow-soft: 0 2px 12px rgba(139, 115, 85, 0.08);
+            --shadow-medium: 0 4px 24px rgba(139, 115, 85, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background: linear-gradient(to bottom, var(--color-bg) 0%, var(--color-bg-secondary) 100%);
+            color: var(--color-text);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--color-border);
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8em;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 1.05em;
+            color: var(--color-text-light);
+            font-weight: 400;
+            margin-bottom: 20px;
+        }
+
+        .intro-text {
+            font-size: 0.95em;
+            color: var(--color-text);
+            line-height: 1.7;
+            max-width: 700px;
+            margin: 20px auto 0;
+            padding: 20px;
+            background: rgba(139, 115, 85, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(139, 115, 85, 0.15);
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--color-border);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            padding: 40px;
+            border-bottom: 2px solid var(--color-bg-secondary);
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--color-secondary);
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
+            color: var(--color-primary);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .section-description {
+            color: var(--color-text-light);
+            font-size: 0.95em;
+            font-style: italic;
+        }
+
+        .question-group {
+            margin-bottom: 40px;
+        }
+
+        .question-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .question-label {
+            display: block;
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: var(--color-primary);
+            line-height: 1.5;
+        }
+
+        .sub-question {
+            font-weight: 500;
+            font-size: 0.95em;
+            margin: 15px 0 8px 0;
+            color: var(--color-text);
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 14px 16px;
+            border: 2px solid var(--color-border);
+            border-radius: 10px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1em;
+            background: white;
+            transition: all 0.3s ease;
+            color: var(--color-text);
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+        }
+
+        textarea.short {
+            min-height: 80px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--color-border);
+            border-radius: 10px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1em;
+            background: white;
+            transition: all 0.3s ease;
+            color: var(--color-text);
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+        }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border: 2px solid var(--color-border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .checkbox-option:hover {
+            border-color: var(--color-secondary);
+            background: rgba(212, 165, 116, 0.05);
+        }
+
+        .checkbox-option.selected {
+            border-color: var(--color-primary);
+            background: rgba(139, 115, 85, 0.08);
+        }
+
+        input[type="checkbox"] {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--color-primary);
+        }
+
+        .checkbox-label {
+            font-size: 0.95em;
+            color: var(--color-text);
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .counter {
+            font-size: 0.85em;
+            color: var(--color-text-light);
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        .counter.warning {
+            color: var(--color-accent);
+            font-weight: 600;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            padding: 40px;
+            background: var(--color-bg-secondary);
+        }
+
+        button {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1.05em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(139, 115, 85, 0.25);
+        }
+
+        .btn-primary:hover {
+            background: #6F5C44;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(139, 115, 85, 0.3);
+        }
+
+        .btn-primary:disabled {
+            background: var(--color-border);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .completion-screen {
+            display: none;
+            text-align: center;
+            padding: 60px 40px;
+        }
+
+        .completion-screen.active {
+            display: block;
+        }
+
+        .completion-screen h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5em;
+            color: var(--color-primary);
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .completion-screen p {
+            font-size: 1.1em;
+            color: var(--color-text-light);
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .section {
+                padding: 30px 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+                padding: 30px 20px;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .checkbox-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-container {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .scenario-box {
+            background: rgba(139, 115, 85, 0.05);
+            border-left: 4px solid var(--color-primary);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .scenario-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3em;
+            color: var(--color-primary);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        /* Quantitative Scales */
+        .scale-group {
+            margin-bottom: 35px;
+        }
+
+        .scale-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .scale-label {
+            font-weight: 600;
+            font-size: 1.05em;
+            color: var(--color-primary);
+            margin-bottom: 4px;
+        }
+
+        .scale-hint {
+            font-size: 0.88em;
+            color: var(--color-text-light);
+            font-style: italic;
+            margin-bottom: 14px;
+            line-height: 1.5;
+        }
+
+        .scale-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .scale-anchor {
+            font-size: 0.78em;
+            color: var(--color-text-light);
+            min-width: 72px;
+            line-height: 1.3;
+        }
+
+        .scale-anchor.left { text-align: right; }
+        .scale-anchor.right { text-align: left; }
+
+        .scale-track {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(to right, var(--color-border) 0%, var(--color-secondary) 100%);
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            border: 3px solid white;
+            box-shadow: 0 2px 6px rgba(139, 115, 85, 0.35);
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            border: 3px solid white;
+            box-shadow: 0 2px 6px rgba(139, 115, 85, 0.35);
+            cursor: pointer;
+        }
+
+        .scale-value {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            color: white;
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-top: 10px;
+            box-shadow: 0 2px 8px rgba(139, 115, 85, 0.2);
+        }
+
+        .scale-ticks {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 4px 0 0;
+        }
+
+        .scale-ticks span {
+            font-size: 0.7em;
+            color: var(--color-text-light);
+            width: 20px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .scale-anchor {
+                min-width: 54px;
+                font-size: 0.72em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Rider Self-Assessment</h1>
+            <p class="subtitle">Understanding your mental patterns and experiences in the saddle</p>
+            <div class="intro-text">
+                This assessment helps us understand your unique mental and emotional patterns while riding. Your honest responses will inform personalized recommendations in your Grand Prix Thinking and Physical Foundations dashboards. Take your timeâ€”there are no right or wrong answers.
+            </div>
+        </header>
+
+        <!-- Main Form -->
+        <div class="form-container" id="mainForm">
+            <!-- Section 1: Awareness & Internal States -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Awareness: Your Internal Landscape</h2>
+                    <p class="section-description">Recognizing your feelings and internal dialogue helps you understand your patterns and triggers.</p>
+                </div>
+
+                <!-- At My Best -->
+                <div class="question-group">
+                    <div class="scenario-box">
+                        <div class="scenario-title">ðŸŒŸ When Things Are Going Well</div>
+                        
+                        <div class="sub-question">Complete this statement: I feel at my best in the saddle when...</div>
+                        <textarea id="bestWhen" placeholder="Example: when my horse is soft and responsive, when I feel balanced and quiet, when I trust my preparation..."></textarea>
+
+                        <div class="sub-question">Describe the feeling(s) you have when things are going well during your ride:</div>
+                        <textarea id="bestFeelings" placeholder="Example: confident, calm, connected, powerful, joyful, focused, flowing..."></textarea>
+
+                        <div class="sub-question">What is your internal dialogue?</div>
+                        <textarea id="bestDialogue" class="short" placeholder="Example: 'Yes, this is it!' 'We've got this.' 'Just keep allowing.' What do you say to yourself?"></textarea>
+                    </div>
+                </div>
+
+                <!-- Starting to Lose It -->
+                <div class="question-group">
+                    <div class="scenario-box">
+                        <div class="scenario-title">âš ï¸ When Things Start Going Downhill</div>
+                        
+                        <div class="sub-question">Complete this statement: I know I am starting to lose it (my confidence, focus) during my ride when...</div>
+                        <textarea id="losingWhen" placeholder="Example: when my horse becomes tense, when I make the same mistake twice, when nothing seems to work..."></textarea>
+
+                        <div class="sub-question">Describe the feeling(s) you have when things are starting to go poorly:</div>
+                        <textarea id="losingFeelings" placeholder="Example: frustrated, tense, anxious, scattered, worried, self-critical..."></textarea>
+
+                        <div class="sub-question">What is your internal dialogue?</div>
+                        <textarea id="losingDialogue" class="short" placeholder="Example: 'Why isn't this working?' 'I'm doing it wrong again.' 'This is going badly.' What do you say to yourself?"></textarea>
+                    </div>
+                </div>
+
+                <!-- Lost It -->
+                <div class="question-group">
+                    <div class="scenario-box">
+                        <div class="scenario-title">ðŸ”´ When Things Have Gone From Bad to Worse</div>
+                        
+                        <div class="sub-question">Complete this statement: I know I've lost it (my confidence, focus) during my ride when...</div>
+                        <textarea id="lostWhen" placeholder="Example: when I want to get off, when I feel like crying, when I stop trying..."></textarea>
+
+                        <div class="sub-question">Describe the feeling(s) you have when things have completely fallen apart:</div>
+                        <textarea id="lostFeelings" placeholder="Example: defeated, overwhelmed, embarrassed, angry, hopeless, disconnected..."></textarea>
+
+                        <div class="sub-question">What is your internal dialogue?</div>
+                        <textarea id="lostDialogue" class="short" placeholder="Example: 'I can't do this.' 'I'm not good enough.' 'What's the point?' What do you say to yourself?"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Role Models & Experiences -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Your Dressage Journey</h2>
+                    <p class="section-description">Understanding what inspires you and what you've overcome.</p>
+                </div>
+
+                <div class="question-group">
+                    <label class="question-label">Name one or two dressage role models:</label>
+                    <input type="text" id="roleModels" placeholder="Names of riders, trainers, or figures you admire...">
+                    
+                    <div class="sub-question">What do you admire about them?</div>
+                    <textarea id="roleModelQualities" class="short" placeholder="What qualities, skills, or approaches do they have that you respect or aspire to?"></textarea>
+                </div>
+
+                <div class="question-group">
+                    <label class="question-label">What has been your biggest horse-related challenge to date?</label>
+                    <textarea id="biggestChallenge" placeholder="Describe a significant obstacle or difficult period in your riding journey..."></textarea>
+                    
+                    <div class="sub-question">How did you overcome it (or how are you working through it)?</div>
+                    <textarea id="challengeResolution" placeholder="What strategies, support, or mindset shifts helped you address this challenge?"></textarea>
+                </div>
+
+                <div class="question-group">
+                    <label class="question-label">What has been your greatest horse-related performance to date?</label>
+                    <textarea id="greatestPerformance" placeholder="A ride, lesson, show, or moment where you felt you performed at your best..."></textarea>
+                    
+                    <div class="sub-question">What helped you get there?</div>
+                    <textarea id="performanceFactors" placeholder="What preparation, support, mindset, or conditions contributed to this success?"></textarea>
+                </div>
+            </div>
+
+            <!-- Section 3: Energy & Regulation -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Self-Regulation</h2>
+                    <p class="section-description">Understanding what energizes and calms you.</p>
+                </div>
+
+                <div class="question-group">
+                    <label class="question-label">What makes you feel more energetic?</label>
+                    <textarea id="energizers" class="short" placeholder="Activities, environments, people, or practices that boost your energy and motivation..."></textarea>
+                </div>
+
+                <div class="question-group">
+                    <label class="question-label">What helps you to relax?</label>
+                    <textarea id="relaxers" class="short" placeholder="Activities, environments, people, or practices that help you unwind and feel calm..."></textarea>
+                </div>
+            </div>
+
+            <!-- Section 4: Current Attributes -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Your Strengths</h2>
+                    <p class="section-description">Check up to 4 attributes you most often display while riding or pursuing your dressage journey.</p>
+                </div>
+
+                <div class="checkbox-grid" id="currentAttributesGrid">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+                <div class="counter" id="currentCounter">0 of 4 selected</div>
+            </div>
+
+            <!-- Section 5: Desired Attributes -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Growth Areas</h2>
+                    <p class="section-description">Are there any attributes you would like to bring into focus more in your dressage journey? Select up to 4.</p>
+                </div>
+
+                <div class="checkbox-grid" id="desiredAttributesGrid">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+                <div class="counter" id="desiredCounter">0 of 4 selected</div>
+            </div>
+
+            <!-- Section 6: Quantitative Self-Rating -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Quick Self-Rating</h2>
+                    <p class="section-description">Rate yourself honestly on each dimension. There are no "right" scores — this snapshot helps track your growth over time.</p>
+                </div>
+
+                <div class="scale-group">
+                    <div class="scale-label">Position & Seat</div>
+                    <div class="scale-hint">Alignment, balance, ability to follow the horse's movement</div>
+                    <div class="scale-wrapper">
+                        <span class="scale-anchor left">Still developing basics</span>
+                        <div class="scale-track">
+                            <input type="range" id="scalePosition" min="1" max="10" value="5" oninput="document.getElementById('valPosition').textContent=this.value">
+                            <div class="scale-ticks"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+                            <span class="scale-value" id="valPosition">5</span>
+                        </div>
+                        <span class="scale-anchor right">Secure &amp; independent</span>
+                    </div>
+                </div>
+
+                <div class="scale-group">
+                    <div class="scale-label">Aids & Communication</div>
+                    <div class="scale-hint">Clarity, timing, and coordination of leg, seat, and hand aids</div>
+                    <div class="scale-wrapper">
+                        <span class="scale-anchor left">Learning to coordinate</span>
+                        <div class="scale-track">
+                            <input type="range" id="scaleAids" min="1" max="10" value="5" oninput="document.getElementById('valAids').textContent=this.value">
+                            <div class="scale-ticks"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+                            <span class="scale-value" id="valAids">5</span>
+                        </div>
+                        <span class="scale-anchor right">Subtle &amp; refined</span>
+                    </div>
+                </div>
+
+                <div class="scale-group">
+                    <div class="scale-label">Feel & Timing</div>
+                    <div class="scale-hint">Sensing what the horse is doing, responding in the right moment</div>
+                    <div class="scale-wrapper">
+                        <span class="scale-anchor left">Building awareness</span>
+                        <div class="scale-track">
+                            <input type="range" id="scaleFeel" min="1" max="10" value="5" oninput="document.getElementById('valFeel').textContent=this.value">
+                            <div class="scale-ticks"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+                            <span class="scale-value" id="valFeel">5</span>
+                        </div>
+                        <span class="scale-anchor right">Instinctive &amp; precise</span>
+                    </div>
+                </div>
+
+                <div class="scale-group">
+                    <div class="scale-label">Knowledge & Understanding</div>
+                    <div class="scale-hint">Theory, training scale concepts, understanding why exercises work</div>
+                    <div class="scale-wrapper">
+                        <span class="scale-anchor left">Still exploring</span>
+                        <div class="scale-track">
+                            <input type="range" id="scaleKnowledge" min="1" max="10" value="5" oninput="document.getElementById('valKnowledge').textContent=this.value">
+                            <div class="scale-ticks"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+                            <span class="scale-value" id="valKnowledge">5</span>
+                        </div>
+                        <span class="scale-anchor right">Deep &amp; connected</span>
+                    </div>
+                </div>
+
+                <div class="scale-group">
+                    <div class="scale-label">Mental Game</div>
+                    <div class="scale-hint">Focus, confidence, composure under pressure, resilience after setbacks</div>
+                    <div class="scale-wrapper">
+                        <span class="scale-anchor left">Easily rattled</span>
+                        <div class="scale-track">
+                            <input type="range" id="scaleMental" min="1" max="10" value="5" oninput="document.getElementById('valMental').textContent=this.value">
+                            <div class="scale-ticks"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+                            <span class="scale-value" id="valMental">5</span>
+                        </div>
+                        <span class="scale-anchor right">Mentally tough</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn-primary" id="submitBtn" disabled>Complete Assessment</button>
+            </div>
+        </div>
+
+        <!-- Completion Screen -->
+        <div class="form-container completion-screen" id="completionScreen">
+            <h2>âœ“ Assessment Complete</h2>
+            <p>Thank you for taking the time to reflect on your riding experiences and mental patterns. Your responses will help create personalized recommendations tailored to your unique journey.</p>
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <button class="btn-primary" onclick="downloadAssessment()">Download My Responses</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const attributes = [
+            'Curious',
+            'Resilient',
+            'Adaptable',
+            'Proactive',
+            'Self-directed',
+            'Passionate',
+            'Purpose-driven',
+            'Responsive',
+            'Focused',
+            'Courageous',
+            'Grateful',
+            'Joyful',
+            'Confident',
+            'Committed',
+            'Dedicated',
+            'Composed',
+            'Empathetic'
+        ];
+
+        // Populate attribute grids
+        function populateAttributeGrid(gridId, counterId, maxSelections) {
+            const grid = document.getElementById(gridId);
+            const counter = document.getElementById(counterId);
+            
+            attributes.forEach((attr, index) => {
+                const option = document.createElement('div');
+                option.className = 'checkbox-option';
+                option.innerHTML = `
+                    <input type="checkbox" id="${gridId}-${index}" value="${attr}">
+                    <label for="${gridId}-${index}" class="checkbox-label">${attr}</label>
+                `;
+                
+                const checkbox = option.querySelector('input[type="checkbox"]');
+                
+                option.addEventListener('click', (e) => {
+                    if (e.target.tagName !== 'INPUT') {
+                        checkbox.click();
+                    }
+                });
+                
+                checkbox.addEventListener('change', () => {
+                    const checkedCount = document.querySelectorAll(`#${gridId} input[type="checkbox"]:checked`).length;
+                    
+                    if (checkedCount > maxSelections) {
+                        checkbox.checked = false;
+                        counter.textContent = `Maximum ${maxSelections} attributes - please unselect one first`;
+                        counter.classList.add('warning');
+                        setTimeout(() => {
+                            counter.textContent = `${maxSelections} of ${maxSelections} selected`;
+                            counter.classList.remove('warning');
+                        }, 2000);
+                    } else {
+                        if (checkbox.checked) {
+                            option.classList.add('selected');
+                        } else {
+                            option.classList.remove('selected');
+                        }
+                        counter.textContent = `${checkedCount} of ${maxSelections} selected`;
+                        counter.classList.remove('warning');
+                    }
+                    
+                    checkFormCompletion();
+                });
+                
+                grid.appendChild(option);
+            });
+        }
+
+        populateAttributeGrid('currentAttributesGrid', 'currentCounter', 4);
+        populateAttributeGrid('desiredAttributesGrid', 'desiredCounter', 4);
+
+        // Check form completion
+        function checkFormCompletion() {
+            const requiredFields = [
+                'bestWhen', 'bestFeelings', 'bestDialogue',
+                'losingWhen', 'losingFeelings', 'losingDialogue',
+                'lostWhen', 'lostFeelings', 'lostDialogue',
+                'roleModels', 'roleModelQualities',
+                'biggestChallenge', 'challengeResolution',
+                'greatestPerformance', 'performanceFactors',
+                'energizers', 'relaxers'
+            ];
+            
+            const allFilled = requiredFields.every(id => {
+                const field = document.getElementById(id);
+                return field && field.value.trim() !== '';
+            });
+            
+            const currentSelected = document.querySelectorAll('#currentAttributesGrid input[type="checkbox"]:checked').length;
+            const desiredSelected = document.querySelectorAll('#desiredAttributesGrid input[type="checkbox"]:checked').length;
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = !(allFilled && currentSelected > 0 && desiredSelected > 0);
+        }
+
+        // Add event listeners to all text inputs
+        document.querySelectorAll('textarea, input[type="text"]').forEach(field => {
+            field.addEventListener('input', checkFormCompletion);
+        });
+
+        // Submit form
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            const assessment = {
+                timestamp: new Date().toISOString(),
+                awareness: {
+                    atBest: {
+                        when: document.getElementById('bestWhen').value,
+                        feelings: document.getElementById('bestFeelings').value,
+                        dialogue: document.getElementById('bestDialogue').value
+                    },
+                    startingToLose: {
+                        when: document.getElementById('losingWhen').value,
+                        feelings: document.getElementById('losingFeelings').value,
+                        dialogue: document.getElementById('losingDialogue').value
+                    },
+                    lostIt: {
+                        when: document.getElementById('lostWhen').value,
+                        feelings: document.getElementById('lostFeelings').value,
+                        dialogue: document.getElementById('lostDialogue').value
+                    }
+                },
+                journey: {
+                    roleModels: document.getElementById('roleModels').value,
+                    roleModelQualities: document.getElementById('roleModelQualities').value,
+                    biggestChallenge: document.getElementById('biggestChallenge').value,
+                    challengeResolution: document.getElementById('challengeResolution').value,
+                    greatestPerformance: document.getElementById('greatestPerformance').value,
+                    performanceFactors: document.getElementById('performanceFactors').value
+                },
+                selfRegulation: {
+                    energizers: document.getElementById('energizers').value,
+                    relaxers: document.getElementById('relaxers').value
+                },
+                attributes: {
+                    current: Array.from(document.querySelectorAll('#currentAttributesGrid input[type="checkbox"]:checked')).map(cb => cb.value),
+                    desired: Array.from(document.querySelectorAll('#desiredAttributesGrid input[type="checkbox"]:checked')).map(cb => cb.value)
+                },
+                selfRatings: {
+                    positionAndSeat: parseInt(document.getElementById('scalePosition').value),
+                    aidsAndCommunication: parseInt(document.getElementById('scaleAids').value),
+                    feelAndTiming: parseInt(document.getElementById('scaleFeel').value),
+                    knowledgeAndUnderstanding: parseInt(document.getElementById('scaleKnowledge').value),
+                    mentalGame: parseInt(document.getElementById('scaleMental').value)
+                }
+            };
+            
+            // Save to localStorage
+            localStorage.setItem('riderSelfAssessment', JSON.stringify(assessment));
+            
+            // Show completion screen
+            document.getElementById('mainForm').style.display = 'none';
+            document.getElementById('completionScreen').classList.add('active');
+        });
+
+        function downloadAssessment() {
+            const assessment = JSON.parse(localStorage.getItem('riderSelfAssessment'));
+            
+            let textContent = 'RIDER SELF-ASSESSMENT\n';
+            textContent += '='.repeat(80) + '\n\n';
+            textContent += `Date: ${new Date(assessment.timestamp).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            })}\n\n`;
+            
+            textContent += 'AWARENESS: YOUR INTERNAL LANDSCAPE\n';
+            textContent += '='.repeat(80) + '\n\n';
+            
+            textContent += 'ðŸŒŸ WHEN THINGS ARE GOING WELL\n';
+            textContent += '-'.repeat(80) + '\n';
+            textContent += `I feel at my best when: ${assessment.awareness.atBest.when}\n\n`;
+            textContent += `Feelings: ${assessment.awareness.atBest.feelings}\n\n`;
+            textContent += `Internal dialogue: ${assessment.awareness.atBest.dialogue}\n\n\n`;
+            
+            textContent += 'âš ï¸ WHEN THINGS START GOING DOWNHILL\n';
+            textContent += '-'.repeat(80) + '\n';
+            textContent += `I know I'm starting to lose it when: ${assessment.awareness.startingToLose.when}\n\n`;
+            textContent += `Feelings: ${assessment.awareness.startingToLose.feelings}\n\n`;
+            textContent += `Internal dialogue: ${assessment.awareness.startingToLose.dialogue}\n\n\n`;
+            
+            textContent += 'ðŸ”´ WHEN THINGS HAVE GONE FROM BAD TO WORSE\n';
+            textContent += '-'.repeat(80) + '\n';
+            textContent += `I know I've lost it when: ${assessment.awareness.lostIt.when}\n\n`;
+            textContent += `Feelings: ${assessment.awareness.lostIt.feelings}\n\n`;
+            textContent += `Internal dialogue: ${assessment.awareness.lostIt.dialogue}\n\n\n`;
+            
+            textContent += 'YOUR DRESSAGE JOURNEY\n';
+            textContent += '='.repeat(80) + '\n\n';
+            textContent += `Role Models: ${assessment.journey.roleModels}\n\n`;
+            textContent += `What I admire: ${assessment.journey.roleModelQualities}\n\n`;
+            textContent += `Biggest Challenge: ${assessment.journey.biggestChallenge}\n\n`;
+            textContent += `How I overcame it: ${assessment.journey.challengeResolution}\n\n`;
+            textContent += `Greatest Performance: ${assessment.journey.greatestPerformance}\n\n`;
+            textContent += `What helped me get there: ${assessment.journey.performanceFactors}\n\n\n`;
+            
+            textContent += 'SELF-REGULATION\n';
+            textContent += '='.repeat(80) + '\n\n';
+            textContent += `What energizes me: ${assessment.selfRegulation.energizers}\n\n`;
+            textContent += `What helps me relax: ${assessment.selfRegulation.relaxers}\n\n\n`;
+            
+            textContent += 'ATTRIBUTES\n';
+            textContent += '='.repeat(80) + '\n\n';
+            textContent += 'Current Strengths:\n';
+            assessment.attributes.current.forEach(attr => {
+                textContent += `  â€¢ ${attr}\n`;
+            });
+            textContent += '\n';
+            textContent += 'Desired Growth Areas:\n';
+            assessment.attributes.desired.forEach(attr => {
+                textContent += `  â€¢ ${attr}\n`;
+            });
+            textContent += '\n\n';
+            
+            textContent += 'SELF-RATINGS (1-10)\n';
+            textContent += '='.repeat(80) + '\n\n';
+            const ratingLabels = {
+                positionAndSeat: 'Position & Seat',
+                aidsAndCommunication: 'Aids & Communication',
+                feelAndTiming: 'Feel & Timing',
+                knowledgeAndUnderstanding: 'Knowledge & Understanding',
+                mentalGame: 'Mental Game'
+            };
+            for (const [key, label] of Object.entries(ratingLabels)) {
+                const val = assessment.selfRatings[key];
+                const bar = '\u2588'.repeat(val) + '\u2591'.repeat(10 - val);
+                textContent += `${label}: ${bar}  ${val}/10\n`;
+            }
+            textContent += '\n';
+            
+            // Download as text file
+            const blob = new Blob([textContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `rider-self-assessment-${new Date().toISOString().split('T')[0]}.txt`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,2290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Ride Debrief | Your Dressage Journey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #8B7355;
+            --color-secondary: #D4A574;
+            --color-accent: #C67B5C;
+            --color-success: #6B8E5F;
+            --color-bg: #FAF8F5;
+            --color-bg-secondary: #F5F1EB;
+            --color-text: #3A3A3A;
+            --color-text-light: #7A7A7A;
+            --color-border: #E0D5C7;
+            --shadow-soft: 0 2px 12px rgba(139, 115, 85, 0.08);
+            --shadow-medium: 0 4px 24px rgba(139, 115, 85, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background: linear-gradient(to bottom, var(--color-bg) 0%, var(--color-bg-secondary) 100%);
+            color: var(--color-text);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--color-border);
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8em;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 1.05em;
+            color: var(--color-text-light);
+            font-weight: 400;
+        }
+
+        .quick-access {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--color-border);
+            overflow: hidden;
+        }
+
+        .section {
+            padding: 40px;
+            border-bottom: 2px solid var(--color-bg-secondary);
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--color-secondary);
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
+            color: var(--color-primary);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .section-description {
+            color: var(--color-text-light);
+            font-size: 0.95em;
+            font-style: italic;
+        }
+
+        .question {
+            margin-bottom: 35px;
+        }
+
+        .question:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            font-size: 1.05em;
+            margin-bottom: 10px;
+            color: var(--color-text);
+        }
+
+        .required {
+            color: var(--color-accent);
+            margin-left: 4px;
+        }
+
+        .help-text {
+            font-size: 0.9em;
+            color: var(--color-text-light);
+            margin-top: 6px;
+            font-style: italic;
+        }
+
+        input[type="date"],
+        input[type="text"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--color-border);
+            border-radius: 10px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1em;
+            background: white;
+            transition: all 0.3s ease;
+            color: var(--color-text);
+        }
+
+        input[type="date"]:focus,
+        input[type="text"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238B7355' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 40px;
+        }
+
+        .radio-group,
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .radio-option,
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            padding: 14px 18px;
+            border: 2px solid var(--color-border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .radio-option:hover,
+        .checkbox-option:hover {
+            border-color: var(--color-secondary);
+            background: rgba(212, 165, 116, 0.05);
+        }
+
+        .radio-option.selected,
+        .checkbox-option.selected {
+            border-color: var(--color-primary);
+            background: rgba(139, 115, 85, 0.08);
+        }
+
+        input[type="radio"],
+        input[type="checkbox"] {
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--color-primary);
+        }
+
+        .scale-container {
+            padding: 20px 0;
+        }
+
+        .scale-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .scale-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85em;
+            color: var(--color-text-light);
+            padding: 0 5px;
+        }
+
+        .scale-label {
+            flex: 1;
+            text-align: center;
+        }
+
+        .scale-label:first-child {
+            text-align: left;
+        }
+
+        .scale-label:last-child {
+            text-align: right;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 8px;
+            border-radius: 5px;
+            background: linear-gradient(to right, var(--color-accent), var(--color-secondary), var(--color-success));
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid var(--color-primary);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid var(--color-primary);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            transform: scale(1.15);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .scale-value {
+            font-weight: 600;
+            font-size: 1.3em;
+            color: var(--color-primary);
+            min-width: 50px;
+            text-align: center;
+        }
+
+        /* Intentions Grid Styles */
+        .intentions-grid {
+            background: white;
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .grid-header {
+            display: grid;
+            grid-template-columns: 1fr repeat(5, 70px);
+            gap: 0;
+            background: var(--color-bg-secondary);
+            border-bottom: 2px solid var(--color-border);
+            padding: 15px 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+            color: var(--color-primary);
+        }
+
+        .grid-header div:first-child {
+            padding-right: 20px;
+        }
+
+        .grid-header div:not(:first-child) {
+            text-align: center;
+        }
+
+        .grid-row {
+            display: grid;
+            grid-template-columns: 1fr repeat(5, 70px);
+            gap: 0;
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--color-bg-secondary);
+            align-items: center;
+            transition: background 0.2s ease;
+        }
+
+        .grid-row:last-child {
+            border-bottom: none;
+        }
+
+        .grid-row:hover {
+            background: rgba(139, 115, 85, 0.02);
+        }
+
+        .grid-question {
+            font-size: 0.95em;
+            color: var(--color-text);
+            padding-right: 20px;
+        }
+
+        .grid-option {
+            text-align: center;
+            position: relative;
+        }
+
+        .grid-option input[type="radio"] {
+            width: 22px;
+            height: 22px;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .intentions-manage {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: flex-end;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.9em;
+            border-radius: 8px;
+            border: 2px solid var(--color-border);
+            background: white;
+            color: var(--color-primary);
+            cursor: pointer;
+            font-family: 'Work Sans', sans-serif;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-small:hover {
+            border-color: var(--color-primary);
+            background: rgba(139, 115, 85, 0.05);
+        }
+
+        .manage-intentions-panel {
+            background: var(--color-bg-secondary);
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            display: none;
+        }
+
+        .manage-intentions-panel.active {
+            display: block;
+        }
+
+        .intention-edit-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .intention-edit-item input {
+            flex: 1;
+        }
+
+        .intention-edit-item button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Work Sans', sans-serif;
+            font-weight: 500;
+            background: var(--color-accent);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .intention-edit-item button:hover {
+            background: #B56A4D;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            padding: 40px;
+            background: var(--color-bg-secondary);
+        }
+
+        button {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1.05em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(139, 115, 85, 0.25);
+        }
+
+        .btn-primary:hover {
+            background: #6F5C44;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(139, 115, 85, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--color-primary);
+            border: 2px solid var(--color-border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--color-primary);
+            background: rgba(139, 115, 85, 0.05);
+        }
+
+        .completion-screen {
+            display: none;
+            text-align: center;
+            padding: 60px 40px;
+        }
+
+        .completion-screen.active {
+            display: block;
+        }
+
+        .completion-screen h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5em;
+            color: var(--color-primary);
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .completion-screen p {
+            font-size: 1.1em;
+            color: var(--color-text-light);
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+
+        .debrief-library {
+            display: none;
+        }
+
+        .debrief-library.active {
+            display: block;
+        }
+
+        .debrief-card {
+            background: white;
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .debrief-card:hover {
+            box-shadow: var(--shadow-soft);
+            border-color: var(--color-secondary);
+        }
+
+        .debrief-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--color-bg-secondary);
+        }
+
+        .debrief-meta {
+            flex: 1;
+        }
+
+        .debrief-date {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3em;
+            color: var(--color-primary);
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .debrief-horse {
+            color: var(--color-text-light);
+            font-size: 0.95em;
+        }
+
+        .debrief-rating {
+            text-align: right;
+        }
+
+        .rating-number {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--color-primary);
+            font-family: 'Playfair Display', serif;
+        }
+
+        .rating-label {
+            font-size: 0.85em;
+            color: var(--color-text-light);
+        }
+
+        .debrief-content {
+            display: grid;
+            gap: 15px;
+        }
+
+        .content-row {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: 12px;
+        }
+
+        .content-label {
+            font-weight: 600;
+            color: var(--color-primary);
+            font-size: 0.9em;
+        }
+
+        .content-value {
+            color: var(--color-text);
+        }
+
+        .intentions-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .intention-score {
+            background: var(--color-bg-secondary);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .intention-score-value {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 4px;
+        }
+
+        .intention-score-label {
+            font-size: 0.85em;
+            color: var(--color-text-light);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            border: 2px solid var(--color-border);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5em;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--color-text-light);
+            font-size: 0.9em;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 18px;
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--color-secondary);
+        }
+
+        .filter-btn.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2em;
+            }
+
+            .section {
+                padding: 30px 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+                padding: 30px 20px;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .content-row {
+                grid-template-columns: 1fr;
+            }
+
+            .debrief-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .debrief-rating {
+                text-align: left;
+            }
+
+            .grid-header,
+            .grid-row {
+                grid-template-columns: 1fr repeat(5, 45px);
+                font-size: 0.85em;
+            }
+
+            .grid-header {
+                padding: 12px 15px;
+            }
+
+            .grid-row {
+                padding: 15px;
+            }
+
+            .grid-question {
+                font-size: 0.9em;
+                padding-right: 10px;
+            }
+
+            .grid-option input[type="radio"] {
+                width: 18px;
+                height: 18px;
+            }
+        }
+
+        /* Voice Input Styles */
+        .voice-input-container {
+            position: relative;
+        }
+
+        .voice-btn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--color-border);
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .voice-btn:hover {
+            border-color: var(--color-primary);
+            background: rgba(139, 115, 85, 0.05);
+        }
+
+        .voice-btn.recording {
+            background: var(--color-accent);
+            border-color: var(--color-accent);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .voice-btn.recording svg {
+            fill: white;
+        }
+
+        .voice-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--color-primary);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .voice-input-container textarea {
+            padding-right: 60px;
+        }
+
+        .voice-status {
+            font-size: 0.85em;
+            color: var(--color-accent);
+            margin-top: 5px;
+            font-style: italic;
+            display: none;
+        }
+
+        .voice-status.active {
+            display: block;
+        }
+
+        /* Movement/Exercise Tag Styles */
+        .movement-category {
+            margin-bottom: 20px;
+        }
+
+        .movement-category-label {
+            font-weight: 600;
+            font-size: 0.9em;
+            color: var(--color-primary);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .movement-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .movement-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 14px;
+            border: 2px solid var(--color-border);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            font-size: 0.9em;
+            user-select: none;
+        }
+
+        .movement-tag:hover {
+            border-color: var(--color-secondary);
+            background: rgba(212, 165, 116, 0.05);
+        }
+
+        .movement-tag.selected {
+            border-color: var(--color-primary);
+            background: rgba(139, 115, 85, 0.12);
+            color: var(--color-primary);
+            font-weight: 500;
+        }
+
+        .movement-tag input[type="checkbox"] {
+            display: none;
+        }
+
+        .dual-scale-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .dual-scale-row {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-container,
+        .debrief-library {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Your Dressage Journey</h1>
+            <p class="subtitle" style="font-size: 1.3em; font-weight: 500; margin-top: 10px;">Post-Ride Debrief</p>
+            <p class="subtitle">Capture your insights while they're fresh</p>
+        </header>
+
+        <div class="quick-access">
+            <button class="btn-secondary" id="viewDebriefs" style="display: none;">View Past Debriefs</button>
+        </div>
+
+        <div id="safariWarning" style="display: none; background: #fff3cd; border: 2px solid #ffc107; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+            <h3 style="margin: 0 0 15px 0; color: #856404; font-size: 1.2em;">⚠️ Data Storage Issue Detected</h3>
+            
+            <div style="text-align: left; color: #856404;">
+                <p style="margin: 0 0 15px 0; font-weight: 500;">
+                    Your debriefs may not save properly. This commonly happens on iPhone/iPad when:
+                </p>
+                
+                <ul style="margin: 0 0 15px 0; padding-left: 25px;">
+                    <li style="margin-bottom: 8px;"><strong>Private Browsing is enabled</strong> - Go to Safari settings and disable Private Browsing</li>
+                    <li style="margin-bottom: 8px;"><strong>File opened from Files app</strong> - These forms must be hosted on a web server to save data properly</li>
+                    <li style="margin-bottom: 8px;"><strong>"Prevent Cross-Site Tracking" is on</strong> - This may clear data. Check Settings → Safari</li>
+                </ul>
+                
+                <p style="margin: 0 0 10px 0; padding: 12px; background: rgba(255,255,255,0.5); border-radius: 8px;">
+                    <strong>✓ Recommended Solution:</strong> Use "Copy to Clipboard" after each session to save your data externally until we resolve this issue.
+                </p>
+                
+                <p style="margin: 0; font-size: 0.9em; font-style: italic;">
+                    Contact your program administrator if this warning persists.
+                </p>
+            </div>
+        </div>
+
+        <div id="iosBackupReminder" style="display: none; background: #e7f3ff; border: 2px solid #0066cc; border-radius: 12px; padding: 15px; margin-bottom: 20px;">
+            <p style="margin: 0; color: #004085;">
+                <strong>📱 iOS/iPad Users:</strong> To prevent data loss, use "Copy to Clipboard" regularly to back up your debriefs. iOS may clear stored data under certain conditions.
+            </p>
+        </div>
+
+        <div id="voiceInputWarning" style="display: none; background: #fff3cd; border: 2px solid #ffc107; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+            <h3 style="margin: 0 0 15px 0; color: #856404; font-size: 1.2em;">🎤 Voice Input Not Available</h3>
+            
+            <div style="text-align: left; color: #856404;">
+                <p style="margin: 0 0 15px 0; font-weight: 500;">
+                    Voice input requires the form to be accessed through a web server with HTTPS.
+                </p>
+                
+                <p style="margin: 0 0 10px 0; padding: 12px; background: rgba(255,255,255,0.5); border-radius: 8px;">
+                    <strong>To enable voice input:</strong><br>
+                    • Host this file on a web server (GitHub Pages, Netlify, etc.)<br>
+                    • Or access via localhost with a local web server<br>
+                    • Voice input will NOT work when opening files directly from your device
+                </p>
+                
+                <p style="margin: 0; font-size: 0.9em; font-style: italic;">
+                    All other features will continue to work normally. You can still type your reflections.
+                </p>
+            </div>
+        </div>
+
+        <!-- Main Form -->
+        <div class="form-container" id="mainForm">
+            <!-- Section 1: Ride Basics -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Ride Basics</h2>
+                </div>
+
+                <div class="question">
+                    <label>Date of Ride <span class="required">*</span></label>
+                    <input type="date" id="rideDate" required>
+                </div>
+
+                <div class="question">
+                    <label>Horse <span class="required">*</span></label>
+                    <input type="text" id="horseName" list="horseList" required>
+                    <datalist id="horseList"></datalist>
+                    <p class="help-text">Which horse did you ride?</p>
+                </div>
+
+                <div class="question">
+                    <label>Type of Session <span class="required">*</span></label>
+                    <div class="radio-group" id="sessionType">
+                        <div class="radio-option" data-value="lesson">
+                            <input type="radio" name="sessionType" value="lesson" id="session-lesson">
+                            <label for="session-lesson" style="margin: 0; cursor: pointer; flex: 1;">Lesson</label>
+                        </div>
+                        <div class="radio-option" data-value="schooling">
+                            <input type="radio" name="sessionType" value="schooling" id="session-schooling">
+                            <label for="session-schooling" style="margin: 0; cursor: pointer; flex: 1;">Schooling/Practice</label>
+                        </div>
+                        <div class="radio-option" data-value="conditioning">
+                            <input type="radio" name="sessionType" value="conditioning" id="session-conditioning">
+                            <label for="session-conditioning" style="margin: 0; cursor: pointer; flex: 1;">Conditioning/Hacking</label>
+                        </div>
+                        <div class="radio-option" data-value="clinic">
+                            <input type="radio" name="sessionType" value="clinic" id="session-clinic">
+                            <label for="session-clinic" style="margin: 0; cursor: pointer; flex: 1;">Clinic</label>
+                        </div>
+                        <div class="radio-option" data-value="show-schooling">
+                            <input type="radio" name="sessionType" value="show-schooling" id="session-show-schooling">
+                            <label for="session-show-schooling" style="margin: 0; cursor: pointer; flex: 1;">Show Schooling</label>
+                        </div>
+                        <div class="radio-option" data-value="show-test">
+                            <input type="radio" name="sessionType" value="show-test" id="session-show-test">
+                            <label for="session-show-test" style="margin: 0; cursor: pointer; flex: 1;">Show Test</label>
+                        </div>
+                        <div class="radio-option" data-value="other">
+                            <input type="radio" name="sessionType" value="other" id="session-other">
+                            <label for="session-other" style="margin: 0; cursor: pointer; flex: 1;">Other</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Quick Ratings -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Quick Ratings</h2>
+                    <p class="section-description">Your immediate impressions—there are no wrong answers.</p>
+                </div>
+
+                <div class="question">
+                    <label>Overall ride quality <span class="required">*</span></label>
+                    <div class="scale-container">
+                        <div class="scale-wrapper">
+                            <input type="range" id="overallQuality" min="1" max="10" value="5" required>
+                            <span class="scale-value" id="qualityValue">5</span>
+                        </div>
+                        <div class="scale-labels">
+                            <span class="scale-label">Challenging/Frustrating</span>
+                            <span class="scale-label">Excellent/Breakthrough</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <label>Your energy level <span class="required">*</span></label>
+                    <div class="radio-group" id="riderEnergy">
+                        <div class="radio-option" data-value="low">
+                            <input type="radio" name="riderEnergy" value="low" id="energy-low">
+                            <label for="energy-low" style="margin: 0; cursor: pointer; flex: 1;">Low/Fatigued</label>
+                        </div>
+                        <div class="radio-option" data-value="moderate">
+                            <input type="radio" name="riderEnergy" value="moderate" id="energy-moderate">
+                            <label for="energy-moderate" style="margin: 0; cursor: pointer; flex: 1;">Moderate/Steady</label>
+                        </div>
+                        <div class="radio-option" data-value="high">
+                            <input type="radio" name="riderEnergy" value="high" id="energy-high">
+                            <label for="energy-high" style="margin: 0; cursor: pointer; flex: 1;">High/Energized</label>
+                        </div>
+                        <div class="radio-option" data-value="variable">
+                            <input type="radio" name="riderEnergy" value="variable" id="energy-variable">
+                            <label for="energy-variable" style="margin: 0; cursor: pointer; flex: 1;">Variable/Mixed</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <label>Horse's energy level <span class="required">*</span></label>
+                    <div class="radio-group" id="horseEnergy">
+                        <div class="radio-option" data-value="low">
+                            <input type="radio" name="horseEnergy" value="low" id="horse-energy-low">
+                            <label for="horse-energy-low" style="margin: 0; cursor: pointer; flex: 1;">Low/Sluggish</label>
+                        </div>
+                        <div class="radio-option" data-value="moderate">
+                            <input type="radio" name="horseEnergy" value="moderate" id="horse-energy-moderate">
+                            <label for="horse-energy-moderate" style="margin: 0; cursor: pointer; flex: 1;">Moderate/Steady</label>
+                        </div>
+                        <div class="radio-option" data-value="high">
+                            <input type="radio" name="horseEnergy" value="high" id="horse-energy-high">
+                            <label for="horse-energy-high" style="margin: 0; cursor: pointer; flex: 1;">High/Forward</label>
+                        </div>
+                        <div class="radio-option" data-value="variable">
+                            <input type="radio" name="horseEnergy" value="variable" id="horse-energy-variable">
+                            <label for="horse-energy-variable" style="margin: 0; cursor: pointer; flex: 1;">Variable/Inconsistent</label>
+                        </div>
+                        <div class="radio-option" data-value="tense">
+                            <input type="radio" name="horseEnergy" value="tense" id="horse-energy-tense">
+                            <label for="horse-energy-tense" style="margin: 0; cursor: pointer; flex: 1;">Tense/Reactive</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <label>Your mental/emotional state <span class="required">*</span></label>
+                    <div class="radio-group" id="mentalState">
+                        <div class="radio-option" data-value="calm">
+                            <input type="radio" name="mentalState" value="calm" id="mental-calm">
+                            <label for="mental-calm" style="margin: 0; cursor: pointer; flex: 1;">Calm/Centered</label>
+                        </div>
+                        <div class="radio-option" data-value="focused">
+                            <input type="radio" name="mentalState" value="focused" id="mental-focused">
+                            <label for="mental-focused" style="margin: 0; cursor: pointer; flex: 1;">Focused/Determined</label>
+                        </div>
+                        <div class="radio-option" data-value="frustrated">
+                            <input type="radio" name="mentalState" value="frustrated" id="mental-frustrated">
+                            <label for="mental-frustrated" style="margin: 0; cursor: pointer; flex: 1;">Frustrated/Tense</label>
+                        </div>
+                        <div class="radio-option" data-value="uncertain">
+                            <input type="radio" name="mentalState" value="uncertain" id="mental-uncertain">
+                            <label for="mental-uncertain" style="margin: 0; cursor: pointer; flex: 1;">Uncertain/Confused</label>
+                        </div>
+                        <div class="radio-option" data-value="joyful">
+                            <input type="radio" name="mentalState" value="joyful" id="mental-joyful">
+                            <label for="mental-joyful" style="margin: 0; cursor: pointer; flex: 1;">Joyful/Flowing</label>
+                        </div>
+                        <div class="radio-option" data-value="mixed">
+                            <input type="radio" name="mentalState" value="mixed" id="mental-mixed">
+                            <label for="mental-mixed" style="margin: 0; cursor: pointer; flex: 1;">Mixed/Complex</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <label>Your confidence level this ride</label>
+                    <div class="scale-container">
+                        <div class="scale-wrapper">
+                            <input type="range" id="confidenceLevel" min="1" max="10" value="5">
+                            <span class="scale-value" id="confidenceValue">5</span>
+                        </div>
+                        <div class="scale-labels">
+                            <span class="scale-label">Very uncertain</span>
+                            <span class="scale-label">Fully confident</span>
+                        </div>
+                    </div>
+                    <p class="help-text">How confident did you feel in yourself as a rider during this session?</p>
+                </div>
+
+                <div class="question">
+                    <label>Energy/Effort Level</label>
+                    <p class="help-text" style="margin-bottom: 15px;">Rate the physical effort/energy on a numeric scale for trend tracking.</p>
+                    <div class="dual-scale-row">
+                        <div>
+                            <label style="font-size: 0.95em; font-weight: 500; margin-bottom: 8px;">Rider Effort</label>
+                            <div class="scale-container" style="padding: 10px 0;">
+                                <div class="scale-wrapper">
+                                    <input type="range" id="riderEffort" min="1" max="10" value="5">
+                                    <span class="scale-value" id="riderEffortValue">5</span>
+                                </div>
+                                <div class="scale-labels">
+                                    <span class="scale-label">Easy/Light</span>
+                                    <span class="scale-label">Maximal</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.95em; font-weight: 500; margin-bottom: 8px;">Horse Effort</label>
+                            <div class="scale-container" style="padding: 10px 0;">
+                                <div class="scale-wrapper">
+                                    <input type="range" id="horseEffort" min="1" max="10" value="5">
+                                    <span class="scale-value" id="horseEffortValue">5</span>
+                                </div>
+                                <div class="scale-labels">
+                                    <span class="scale-label">Easy/Light</span>
+                                    <span class="scale-label">Maximal</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Riding Intentions</h2>
+                    <p class="section-description">How well did you meet your intentions for this ride?</p>
+                </div>
+
+                <div class="intentions-manage">
+                    <button class="btn-small" id="manageIntentionsBtn">Manage Intentions</button>
+                </div>
+
+                <div class="manage-intentions-panel" id="manageIntentionsPanel">
+                    <h3 style="margin-bottom: 20px; color: var(--color-primary); font-family: 'Playfair Display', serif;">Edit Your Intentions</h3>
+                    <div id="intentionEditList"></div>
+                    <button class="btn-small" id="addIntentionBtn">+ Add Intention</button>
+                    <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid var(--color-border);">
+                        <button class="btn-primary" id="saveIntentionsBtn">Save Intentions</button>
+                    </div>
+                </div>
+
+                <div class="intentions-grid" id="intentionsGrid">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Section 3: What Happened -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">What Happened</h2>
+                    <p class="section-description">The heart of your reflection—what stands out from this ride?</p>
+                </div>
+
+                <!-- Personal Milestones and External Validation -->
+                <div style="margin-bottom: 35px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        <span style="font-size: 1.5em;"><span style="color: #4A90E2;">■</span><span style="color: #7ED321;">■</span></span>
+                        <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3em; color: #4A90E2; margin: 0; font-weight: 600;">Personal Milestones and External Validation</h3>
+                    </div>
+                    <div class="question" style="margin-bottom: 0;">
+                        <label>What wins, breakthroughs, or recognition did you experience?</label>
+                        <div class="voice-input-container">
+                            <textarea id="wins" placeholder="What went well? What felt good? What progress did you make? What feedback or recognition did you receive from your coach, judge, or peers? What score or result did you achieve?"></textarea>
+                            <button type="button" class="voice-btn" data-target="wins" title="Voice input">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                                </svg>
+                            </button>
+                            <div class="voice-status" id="wins-status">Listening...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aha Moment -->
+                <div style="margin-bottom: 35px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        <span style="font-size: 1.5em;"><span style="color: #F5A623;">■</span></span>
+                        <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3em; color: #F5A623; margin: 0; font-weight: 600;">Aha Moment</h3>
+                    </div>
+                    <div class="question" style="margin-bottom: 0;">
+                        <label>What did you realize or understand?</label>
+                        <div class="voice-input-container">
+                            <textarea id="ahaRealization" placeholder="Did something 'click'? What insight emerged? What did you notice about timing, feel, or technique that changed your understanding?"></textarea>
+                            <button type="button" class="voice-btn" data-target="ahaRealization" title="Voice input">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                                </svg>
+                            </button>
+                            <div class="voice-status" id="ahaRealization-status">Listening...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Connection and Feel -->
+                <div style="margin-bottom: 35px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        <span style="font-size: 1.5em;"><span style="color: #8B5CF6;">■</span><span style="color: #FF8C42;">■</span></span>
+                        <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3em; color: #8B5CF6; margin: 0; font-weight: 600;">Connection and Feel</h3>
+                    </div>
+                    <div class="question" style="margin-bottom: 0;">
+                        <label>What did you notice about your horse, your partnership, and your body awareness?</label>
+                        <div class="voice-input-container">
+                            <textarea id="horseNotices" placeholder="Their energy, responsiveness, balance, comfort, tension—what were they communicating? How was your partnership? What did you feel in your body—seat, legs, hands, breathing, tension, balance? Where did you feel connection or disconnection?"></textarea>
+                            <button type="button" class="voice-btn" data-target="horseNotices" title="Voice input">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                                </svg>
+                            </button>
+                            <div class="voice-status" id="horseNotices-status">Listening...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Obstacle -->
+                <div style="margin-bottom: 35px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        <span style="font-size: 1.5em;"><span style="color: #D0021B;">■</span></span>
+                        <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3em; color: #D0021B; margin: 0; font-weight: 600;">Obstacle</h3>
+                    </div>
+                    <div class="question" style="margin-bottom: 0;">
+                        <label>What challenges or frustrations did you encounter?</label>
+                        <div class="voice-input-container">
+                            <textarea id="challenges" placeholder="What was difficult? What didn't work? What left you puzzled? What setback occurred? What felt stuck?"></textarea>
+                            <button type="button" class="voice-btn" data-target="challenges" title="Voice input">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                                </svg>
+                            </button>
+                            <div class="voice-status" id="challenges-status">Listening...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Context -->
+                <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid var(--color-bg-secondary);">
+                    <h3 style="font-family: 'Playfair Display', serif; font-size: 1.2em; color: var(--color-primary); margin-bottom: 8px; font-weight: 600;">Additional Context</h3>
+                    
+                    <div class="question">
+                        <label>Identify the key focus areas addressed during this ride <span class="required">*</span></label>
+                        <p class="help-text" style="margin-bottom: 15px;">Select all that apply, then add details below.</p>
+                        
+                        <div class="movement-category">
+                            <div class="movement-category-label">Basics & Gaits</div>
+                            <div class="movement-tags">
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="walk-work"> Walk Work</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="trot-work"> Trot Work</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="canter-work"> Canter Work</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="transitions"> Transitions</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="halt-salute"> Halt/Salute</label>
+                            </div>
+                        </div>
+
+                        <div class="movement-category">
+                            <div class="movement-category-label">Figures</div>
+                            <div class="movement-tags">
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="circles"> Circles</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="serpentines"> Serpentines</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="figure-8"> Figure 8</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="diagonals"> Diagonals</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="centerline"> Centerline</label>
+                            </div>
+                        </div>
+
+                        <div class="movement-category">
+                            <div class="movement-category-label">Lateral Work</div>
+                            <div class="movement-tags">
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="leg-yield"> Leg Yield</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="shoulder-in"> Shoulder-In</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="haunches-in"> Haunches-In (Travers)</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="renvers"> Renvers</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="half-pass"> Half-Pass</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="turn-on-forehand"> Turn on Forehand</label>
+                            </div>
+                        </div>
+
+                        <div class="movement-category">
+                            <div class="movement-category-label">Advanced Movements</div>
+                            <div class="movement-tags">
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="extensions"> Extensions</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="counter-canter"> Counter Canter</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="simple-change"> Simple Change</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="flying-change"> Flying Change</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="turn-on-haunches"> Turn on Haunches</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="pirouette"> Pirouette</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="piaffe"> Piaffe</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="passage"> Passage</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="tempi-changes"> Tempi Changes</label>
+                            </div>
+                        </div>
+
+                        <div class="movement-category">
+                            <div class="movement-category-label">Horse/Training Focus Areas</div>
+                            <div class="movement-tags">
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="rhythm"> Rhythm</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="balance"> Balance</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="bend-flexion"> Bend & Flexion</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="straightness"> Straightness</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="impulsion"> Impulsion</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="collection"> Collection</label>
+                            </div>
+                        </div>
+
+                        <div class="movement-category">
+                            <div class="movement-category-label">Rider Focus Areas</div>
+                            <div class="movement-tags">
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="contact"> Contact/Connection</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="rider-position"> Rider Position</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="breathing"> Breathing</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="concentration-focus"> Concentration/Focus</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="accuracy"> Accuracy</label>
+                                <label class="movement-tag"><input type="checkbox" name="movements" value="test-ride-through"> Test Ride-Through</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>Additional notes on your work</label>
+                        <div class="voice-input-container">
+                            <textarea id="workFocus" placeholder="Exercises, movements, concepts, focus areas (e.g., 'transitions,' 'shoulder-in,' 'steady contact,' 'half-halts')"></textarea>
+                            <button type="button" class="voice-btn" data-target="workFocus" title="Voice input">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                                </svg>
+                            </button>
+                            <div class="voice-status" id="workFocus-status">Listening...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn-secondary" id="saveDraftBtn">Save as Draft</button>
+                <button type="button" class="btn-primary" id="submitBtn">Complete Debrief</button>
+            </div>
+        </div>
+
+        <!-- Completion Screen -->
+        <div class="form-container completion-screen" id="completionScreen">
+            <h2>✓ Debrief Saved</h2>
+            <p>Your post-ride insights have been recorded. These reflections are the building blocks of your growth as a rider.</p>
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <button class="btn-primary" id="newDebriefBtn">New Debrief</button>
+                <button class="btn-secondary" id="viewFromCompletion">View All Debriefs</button>
+            </div>
+        </div>
+
+        <!-- Debrief Library -->
+        <div class="form-container debrief-library" id="debriefLibrary">
+            <div class="section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
+                    <h2 class="section-title" style="margin: 0;">Your Debrief History</h2>
+                    <button class="btn-secondary" id="backToFormBtn">New Debrief</button>
+                </div>
+
+                <div style="margin-bottom: 25px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn-primary" id="copyDebriefBtn">Copy to Clipboard</button>
+                    <button class="btn-secondary" id="clearDebriefs" style="margin-left: auto;">Clear All</button>
+                </div>
+
+                <div id="statsContainer"></div>
+
+                <div class="filter-bar">
+                    <button class="filter-btn active" data-filter="all">All Rides</button>
+                    <button class="filter-btn" data-filter="lesson">Lessons</button>
+                    <button class="filter-btn" data-filter="schooling">Schooling</button>
+                    <button class="filter-btn" data-filter="conditioning">Conditioning</button>
+                </div>
+
+                <div id="debriefsList"></div>
+
+                <div id="noDebriefs" style="text-align: center; padding: 60px 20px; color: var(--color-text-light); display: none;">
+                    <p style="font-size: 1.2em; margin-bottom: 15px;">No debriefs yet</p>
+                    <p>Complete your first post-ride debrief to start tracking your progress.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize
+        let currentFilter = 'all';
+        
+        // Set today's date as default
+        document.getElementById('rideDate').valueAsDate = new Date();
+
+        // Default intentions
+        const DEFAULT_INTENTIONS = [
+            "Did you ride with gratitude and joy?",
+            "Did you work to gain and maintain the horse's best balance?",
+            "Did you adjust your position to maximize your effectiveness and the comfort of the horse?",
+            "Did you recover quickly from challenges or loss of focus?"
+        ];
+
+        // Load or initialize intentions
+        function loadIntentions() {
+            let intentions = JSON.parse(localStorage.getItem('ridingIntentions') || 'null');
+            if (!intentions || intentions.length === 0) {
+                intentions = DEFAULT_INTENTIONS;
+                localStorage.setItem('ridingIntentions', JSON.stringify(intentions));
+            }
+            return intentions;
+        }
+
+        // Render intentions grid
+        function renderIntentionsGrid() {
+            const intentions = loadIntentions();
+            const grid = document.getElementById('intentionsGrid');
+            
+            let html = `
+                <div class="grid-header">
+                    <div>Intention</div>
+                    <div>1<br><span style="font-size: 0.75em; font-weight: 400;">Not at all</span></div>
+                    <div>2</div>
+                    <div>3</div>
+                    <div>4</div>
+                    <div>5<br><span style="font-size: 0.75em; font-weight: 400;">Absolutely</span></div>
+                </div>
+            `;
+            
+            intentions.forEach((intention, index) => {
+                html += `
+                    <div class="grid-row">
+                        <div class="grid-question">${intention}</div>
+                        ${[1, 2, 3, 4, 5].map(value => `
+                            <div class="grid-option">
+                                <input type="radio" name="intention_${index}" value="${value}" id="intention_${index}_${value}">
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            });
+            
+            grid.innerHTML = html;
+        }
+
+        // Render intention edit panel
+        function renderIntentionEditList() {
+            const intentions = loadIntentions();
+            const list = document.getElementById('intentionEditList');
+            
+            let html = '';
+            intentions.forEach((intention, index) => {
+                html += `
+                    <div class="intention-edit-item">
+                        <input type="text" value="${intention}" id="editIntention_${index}" placeholder="Enter intention...">
+                        <button onclick="removeIntention(${index})">Remove</button>
+                    </div>
+                `;
+            });
+            
+            list.innerHTML = html;
+        }
+
+        // Manage intentions panel toggle
+        document.getElementById('manageIntentionsBtn').addEventListener('click', function() {
+            const panel = document.getElementById('manageIntentionsPanel');
+            if (panel.classList.contains('active')) {
+                panel.classList.remove('active');
+            } else {
+                panel.classList.add('active');
+                renderIntentionEditList();
+            }
+        });
+
+        // Add intention
+        document.getElementById('addIntentionBtn').addEventListener('click', function() {
+            const intentions = loadIntentions();
+            if (intentions.length >= 10) {
+                alert('Maximum 10 intentions allowed.');
+                return;
+            }
+            intentions.push('');
+            localStorage.setItem('ridingIntentions', JSON.stringify(intentions));
+            renderIntentionEditList();
+        });
+
+        // Remove intention
+        function removeIntention(index) {
+            const intentions = loadIntentions();
+            if (intentions.length <= 1) {
+                alert('You must have at least one intention.');
+                return;
+            }
+            intentions.splice(index, 1);
+            localStorage.setItem('ridingIntentions', JSON.stringify(intentions));
+            renderIntentionEditList();
+        }
+
+        // Save intentions
+        document.getElementById('saveIntentionsBtn').addEventListener('click', function() {
+            const intentions = loadIntentions();
+            const newIntentions = [];
+            
+            intentions.forEach((_, index) => {
+                const value = document.getElementById(`editIntention_${index}`).value.trim();
+                if (value) {
+                    newIntentions.push(value);
+                }
+            });
+            
+            if (newIntentions.length === 0) {
+                alert('You must have at least one intention.');
+                return;
+            }
+            
+            localStorage.setItem('ridingIntentions', JSON.stringify(newIntentions));
+            renderIntentionsGrid();
+            document.getElementById('manageIntentionsPanel').classList.remove('active');
+            alert('Intentions saved successfully!');
+        });
+
+        // Initialize intentions grid
+        renderIntentionsGrid();
+
+        // Detect iOS/iPad
+        function isIOSDevice() {
+            return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        }
+
+        // Check if file is opened via file:// protocol
+        function isFileProtocol() {
+            return window.location.protocol === 'file:';
+        }
+
+        // Check localStorage availability
+        function isLocalStorageAvailable() {
+            try {
+                const test = '__localStorage_test__';
+                localStorage.setItem(test, test);
+                localStorage.removeItem(test);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // Show appropriate warnings
+        const isIOS = isIOSDevice();
+        const isFile = isFileProtocol();
+        const hasStorage = isLocalStorageAvailable();
+
+        if (!hasStorage || isFile) {
+            document.getElementById('safariWarning').style.display = 'block';
+            
+            if (isFile) {
+                alert('⚠️ IMPORTANT: This file is opened from your device storage.\n\n' +
+                      'Data will NOT be saved properly.\n\n' +
+                      'Please access this through a web server or use "Copy to Clipboard" after each session.');
+            } else {
+                alert('⚠️ Storage not available.\n\nThis may happen in Private Browsing mode.\n\n' +
+                      'Please disable Private Browsing to save your debriefs.');
+            }
+        } else if (isIOS) {
+            // Show iOS backup reminder
+            document.getElementById('iosBackupReminder').style.display = 'block';
+        }
+
+        // Radio button visual feedback
+        document.querySelectorAll('.radio-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                const groupName = radio.name;
+                
+                // Remove selected class from all options in this group
+                document.querySelectorAll(`input[name="${groupName}"]`).forEach(r => {
+                    r.closest('.radio-option').classList.remove('selected');
+                });
+                
+                // Add selected class to clicked option
+                this.classList.add('selected');
+                radio.checked = true;
+            });
+        });
+
+        // Range slider value display
+        const qualitySlider = document.getElementById('overallQuality');
+        const qualityValue = document.getElementById('qualityValue');
+        
+        qualitySlider.addEventListener('input', function() {
+            qualityValue.textContent = this.value;
+        });
+
+        // Confidence slider
+        const confidenceSlider = document.getElementById('confidenceLevel');
+        const confidenceValue = document.getElementById('confidenceValue');
+        confidenceSlider.addEventListener('input', function() {
+            confidenceValue.textContent = this.value;
+        });
+
+        // Rider Effort slider
+        const riderEffortSlider = document.getElementById('riderEffort');
+        const riderEffortValue = document.getElementById('riderEffortValue');
+        riderEffortSlider.addEventListener('input', function() {
+            riderEffortValue.textContent = this.value;
+        });
+
+        // Horse Effort slider
+        const horseEffortSlider = document.getElementById('horseEffort');
+        const horseEffortValue = document.getElementById('horseEffortValue');
+        horseEffortSlider.addEventListener('input', function() {
+            horseEffortValue.textContent = this.value;
+        });
+
+        // Movement tag click handlers
+        document.querySelectorAll('.movement-tag').forEach(tag => {
+            tag.addEventListener('click', function() {
+                const checkbox = this.querySelector('input[type="checkbox"]');
+                checkbox.checked = !checkbox.checked;
+                this.classList.toggle('selected', checkbox.checked);
+            });
+        });
+
+        // Load horse names from previous debriefs
+        function loadHorseNames() {
+            const debriefs = JSON.parse(localStorage.getItem('postRideDebriefs') || '[]');
+            const horses = [...new Set(debriefs.map(d => d.horseName))];
+            const datalist = document.getElementById('horseList');
+            
+            horses.forEach(horse => {
+                const option = document.createElement('option');
+                option.value = horse;
+                datalist.appendChild(option);
+            });
+        }
+
+        loadHorseNames();
+
+        // Show/hide view debriefs button
+        function updateViewButton() {
+            const debriefs = JSON.parse(localStorage.getItem('postRideDebriefs') || '[]');
+            const btn = document.getElementById('viewDebriefs');
+            btn.style.display = debriefs.length > 0 ? 'inline-block' : 'none';
+        }
+
+        updateViewButton();
+
+        // Save debrief
+        function saveDebrief(isDraft = false) {
+            // Validate required fields
+            const requiredFields = {
+                rideDate: document.getElementById('rideDate'),
+                horseName: document.getElementById('horseName'),
+                sessionType: document.querySelector('input[name="sessionType"]:checked'),
+                overallQuality: document.getElementById('overallQuality'),
+                riderEnergy: document.querySelector('input[name="riderEnergy"]:checked'),
+                horseEnergy: document.querySelector('input[name="horseEnergy"]:checked'),
+                mentalState: document.querySelector('input[name="mentalState"]:checked')
+            };
+
+            if (!isDraft) {
+                for (let [key, field] of Object.entries(requiredFields)) {
+                    if (!field || (field.tagName === 'INPUT' && field.type === 'text' && !field.value.trim())) {
+                        alert('Please fill in all required fields.');
+                        field.focus();
+                        return false;
+                    }
+                }
+            }
+
+            // Collect intention ratings
+            const intentions = loadIntentions();
+            const intentionRatings = {};
+            intentions.forEach((intention, index) => {
+                const rating = document.querySelector(`input[name="intention_${index}"]:checked`);
+                intentionRatings[intention] = rating ? rating.value : null;
+            });
+
+            const debrief = {
+                rideDate: document.getElementById('rideDate').value,
+                horseName: document.getElementById('horseName').value,
+                sessionType: document.querySelector('input[name="sessionType"]:checked')?.value || '',
+                overallQuality: document.getElementById('overallQuality').value,
+                confidenceLevel: document.getElementById('confidenceLevel').value,
+                riderEnergy: document.querySelector('input[name="riderEnergy"]:checked')?.value || '',
+                horseEnergy: document.querySelector('input[name="horseEnergy"]:checked')?.value || '',
+                riderEffort: document.getElementById('riderEffort').value,
+                horseEffort: document.getElementById('horseEffort').value,
+                mentalState: document.querySelector('input[name="mentalState"]:checked')?.value || '',
+                intentionRatings: intentionRatings,
+                movements: Array.from(document.querySelectorAll('input[name="movements"]:checked')).map(cb => cb.value),
+                wins: document.getElementById('wins').value,
+                ahaRealization: document.getElementById('ahaRealization').value,
+                horseNotices: document.getElementById('horseNotices').value,
+                challenges: document.getElementById('challenges').value,
+                workFocus: document.getElementById('workFocus').value,
+                isDraft: isDraft,
+                timestamp: new Date().toISOString()
+            };
+
+            const debriefs = JSON.parse(localStorage.getItem('postRideDebriefs') || '[]');
+            debriefs.push(debrief);
+            localStorage.setItem('postRideDebriefs', JSON.stringify(debriefs));
+
+            return true;
+        }
+
+        // Submit handlers
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            if (saveDebrief(false)) {
+                document.getElementById('mainForm').style.display = 'none';
+                document.getElementById('completionScreen').classList.add('active');
+                updateViewButton();
+            }
+        });
+
+        document.getElementById('saveDraftBtn').addEventListener('click', function() {
+            if (saveDebrief(true)) {
+                alert('Draft saved successfully!');
+                resetForm();
+            }
+        });
+
+        // Reset form
+        function resetForm() {
+            // Clear all textareas
+            document.querySelectorAll('#mainForm textarea').forEach(textarea => {
+                textarea.value = '';
+            });
+            
+            // Clear text inputs (except date)
+            document.querySelectorAll('#mainForm input[type="text"]').forEach(input => {
+                input.value = '';
+            });
+            
+            // Reset date to today
+            document.getElementById('rideDate').valueAsDate = new Date();
+            
+            // Clear all radio selections
+            document.querySelectorAll('#mainForm input[type="radio"]').forEach(radio => {
+                radio.checked = false;
+            });
+            
+            // Remove visual selection from radio options
+            document.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('selected'));
+            
+            // Reset quality slider
+            const qualitySlider = document.getElementById('overallQuality');
+            if (qualitySlider) {
+                qualitySlider.value = 5;
+            }
+            document.getElementById('qualityValue').textContent = '5';
+            
+            // Reset confidence slider
+            const confSlider = document.getElementById('confidenceLevel');
+            if (confSlider) confSlider.value = 5;
+            document.getElementById('confidenceValue').textContent = '5';
+            
+            // Reset effort sliders
+            const rEffort = document.getElementById('riderEffort');
+            if (rEffort) rEffort.value = 5;
+            document.getElementById('riderEffortValue').textContent = '5';
+            
+            const hEffort = document.getElementById('horseEffort');
+            if (hEffort) hEffort.value = 5;
+            document.getElementById('horseEffortValue').textContent = '5';
+            
+            // Reset movement tags
+            document.querySelectorAll('input[name="movements"]').forEach(cb => {
+                cb.checked = false;
+            });
+            document.querySelectorAll('.movement-tag').forEach(tag => {
+                tag.classList.remove('selected');
+            });
+            
+            // Show main form, hide other screens
+            document.getElementById('mainForm').style.display = 'block';
+            document.getElementById('completionScreen').classList.remove('active');
+            document.getElementById('debriefLibrary').classList.remove('active');
+            
+            // Scroll to top to show the form
+            window.scrollTo(0, 0);
+        }
+
+        document.getElementById('newDebriefBtn').addEventListener('click', resetForm);
+
+        // View debriefs
+        document.getElementById('viewDebriefs').addEventListener('click', showDebriefs);
+        document.getElementById('viewFromCompletion').addEventListener('click', showDebriefs);
+
+        function showDebriefs() {
+            document.getElementById('mainForm').style.display = 'none';
+            document.getElementById('completionScreen').classList.remove('active');
+            document.getElementById('debriefLibrary').classList.add('active');
+            renderDebriefs();
+        }
+
+        document.getElementById('backToFormBtn').addEventListener('click', resetForm);
+
+        // Filter functionality
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.filter;
+                renderDebriefs(currentFilter);
+            });
+        });
+
+        // Render debriefs
+        function renderDebriefs(filter = 'all') {
+            const debriefs = JSON.parse(localStorage.getItem('postRideDebriefs') || '[]');
+            const container = document.getElementById('debriefsList');
+            const noDebriefs = document.getElementById('noDebriefs');
+            
+            if (debriefs.length === 0) {
+                container.innerHTML = '';
+                noDebriefs.style.display = 'block';
+                document.getElementById('statsContainer').innerHTML = '';
+                return;
+            }
+            
+            noDebriefs.style.display = 'none';
+            
+            // Filter
+            const filtered = filter === 'all' 
+                ? debriefs 
+                : debriefs.filter(d => d.sessionType === filter);
+            
+            // Calculate stats
+            const totalRides = debriefs.length;
+            const avgQuality = (debriefs.reduce((sum, d) => sum + parseInt(d.overallQuality), 0) / totalRides).toFixed(1);
+            const lessonCount = debriefs.filter(d => d.sessionType === 'lesson').length;
+            const uniqueHorses = [...new Set(debriefs.map(d => d.horseName))].length;
+            
+            document.getElementById('statsContainer').innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">${totalRides}</div>
+                        <div class="stat-label">Total Rides</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${avgQuality}</div>
+                        <div class="stat-label">Avg Quality</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${lessonCount}</div>
+                        <div class="stat-label">Lessons</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${uniqueHorses}</div>
+                        <div class="stat-label">Horse${uniqueHorses !== 1 ? 's' : ''}</div>
+                    </div>
+                </div>
+            `;
+            
+            let html = '';
+            
+            const sessionLabels = {
+                lesson: 'Lesson',
+                schooling: 'Schooling/Practice',
+                conditioning: 'Conditioning/Hacking',
+                clinic: 'Clinic',
+                'show-schooling': 'Show Schooling',
+                'show-test': 'Show Test',
+                other: 'Other'
+            };
+            
+            filtered.reverse().forEach((debrief, index) => {
+                const date = new Date(debrief.rideDate);
+                const formattedDate = date.toLocaleDateString('en-US', { 
+                    weekday: 'long',
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric'
+                });
+                
+                // Build intentions display
+                let intentionsHtml = '';
+                if (debrief.intentionRatings && Object.keys(debrief.intentionRatings).length > 0) {
+                    intentionsHtml = '<div class="intentions-summary">';
+                    for (let [question, rating] of Object.entries(debrief.intentionRatings)) {
+                        if (rating) {
+                            const shortQuestion = question.length > 50 ? question.substring(0, 47) + '...' : question;
+                            intentionsHtml += `
+                                <div class="intention-score">
+                                    <div class="intention-score-value">${rating}/5</div>
+                                    <div class="intention-score-label">${shortQuestion}</div>
+                                </div>
+                            `;
+                        }
+                    }
+                    intentionsHtml += '</div>';
+                }
+                
+                html += `
+                    <div class="debrief-card">
+                        <div class="debrief-header">
+                            <div class="debrief-meta">
+                                <div class="debrief-date">${formattedDate}</div>
+                                <div class="debrief-horse">${debrief.horseName} • ${sessionLabels[debrief.sessionType]}</div>
+                            </div>
+                            <div class="debrief-rating">
+                                <div class="rating-number">${debrief.overallQuality}</div>
+                                <div class="rating-label">Overall Quality</div>
+                            </div>
+                        </div>
+                        ${debrief.confidenceLevel ? `
+                            <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--color-bg-secondary);">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.2em; font-weight: 600; color: var(--color-primary);">${debrief.confidenceLevel}/10</div>
+                                    <div style="font-size: 0.8em; color: var(--color-text-light);">Confidence</div>
+                                </div>
+                                ${debrief.riderEffort ? `
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.2em; font-weight: 600; color: var(--color-primary);">${debrief.riderEffort}/10</div>
+                                    <div style="font-size: 0.8em; color: var(--color-text-light);">Rider Effort</div>
+                                </div>` : ''}
+                                ${debrief.horseEffort ? `
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.2em; font-weight: 600; color: var(--color-primary);">${debrief.horseEffort}/10</div>
+                                    <div style="font-size: 0.8em; color: var(--color-text-light);">Horse Effort</div>
+                                </div>` : ''}
+                            </div>
+                        ` : ''}
+                        ${debrief.movements && debrief.movements.length > 0 ? `
+                            <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--color-bg-secondary);">
+                                <div style="font-size: 0.85em; font-weight: 600; color: var(--color-primary); margin-bottom: 8px;">EXERCISES & MOVEMENTS</div>
+                                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                    ${debrief.movements.map(m => `<span style="padding: 4px 10px; background: rgba(139, 115, 85, 0.08); border-radius: 12px; font-size: 0.85em; color: var(--color-text);">${m.replace(/-/g, ' ')}</span>`).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                        ${intentionsHtml}
+                        <div class="debrief-content">
+                            ${debrief.wins ? `
+                                <div class="content-row">
+                                    <div class="content-label"><span style="color: #4A90E2;">■</span><span style="color: #7ED321;">■</span> Milestones & Validation</div>
+                                    <div class="content-value">${debrief.wins}</div>
+                                </div>
+                            ` : ''}
+                            ${debrief.ahaRealization ? `
+                                <div class="content-row">
+                                    <div class="content-label"><span style="color: #F5A623;">■</span> Aha Moment</div>
+                                    <div class="content-value">${debrief.ahaRealization}</div>
+                                </div>
+                            ` : ''}
+                            ${debrief.horseNotices ? `
+                                <div class="content-row">
+                                    <div class="content-label"><span style="color: #8B5CF6;">■</span><span style="color: #FF8C42;">■</span> Connection & Feel</div>
+                                    <div class="content-value">${debrief.horseNotices}</div>
+                                </div>
+                            ` : ''}
+                            ${debrief.challenges ? `
+                                <div class="content-row">
+                                    <div class="content-label"><span style="color: #D0021B;">■</span> Obstacle</div>
+                                    <div class="content-value">${debrief.challenges}</div>
+                                </div>
+                            ` : ''}
+                            ${debrief.workFocus ? `
+                                <div class="content-row">
+                                    <div class="content-label">Focus Areas</div>
+                                    <div class="content-value">${debrief.workFocus}</div>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--color-border); display: flex; gap: 10px;">
+                            <button class="btn-secondary" style="padding: 8px 16px; font-size: 0.9em;" onclick="deleteDebrief(${debriefs.length - 1 - index})">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // Delete debrief
+        function deleteDebrief(index) {
+            if (confirm('Are you sure you want to delete this debrief?')) {
+                const debriefs = JSON.parse(localStorage.getItem('postRideDebriefs') || '[]');
+                debriefs.splice(index, 1);
+                localStorage.setItem('postRideDebriefs', JSON.stringify(debriefs));
+                renderDebriefs(currentFilter);
+                updateViewButton();
+            }
+        }
+
+        // Copy to Clipboard
+        document.getElementById('copyDebriefBtn').addEventListener('click', function() {
+            const debriefs = JSON.parse(localStorage.getItem('postRideDebriefs') || '[]');
+            
+            if (debriefs.length === 0) {
+                alert('No debriefs to copy.');
+                return;
+            }
+            
+            let textContent = 'POST-RIDE DEBRIEF HISTORY\n\n';
+            
+            const sessionLabels = {
+                lesson: 'Lesson',
+                schooling: 'Schooling/Practice',
+                conditioning: 'Conditioning/Hacking',
+                clinic: 'Clinic',
+                'show-schooling': 'Show Schooling',
+                'show-test': 'Show Test',
+                other: 'Other'
+            };
+            
+            debriefs.slice().reverse().forEach((debrief, index) => {
+                const date = new Date(debrief.rideDate).toLocaleDateString('en-US', { 
+                    weekday: 'long',
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric'
+                });
+                
+                textContent += `\n========== Debrief ${index + 1} ==========\n`;
+                textContent += `Date: ${date}\n`;
+                textContent += `Horse: ${debrief.horseName}\n`;
+                textContent += `Type: ${sessionLabels[debrief.sessionType]}\n`;
+                textContent += `Overall Quality: ${debrief.overallQuality}/10\n`;
+                if (debrief.confidenceLevel) {
+                    textContent += `Confidence Level: ${debrief.confidenceLevel}/10\n`;
+                }
+                textContent += `Rider Energy: ${debrief.riderEnergy}\n`;
+                textContent += `Horse Energy: ${debrief.horseEnergy}\n`;
+                if (debrief.riderEffort) {
+                    textContent += `Rider Effort: ${debrief.riderEffort}/10\n`;
+                }
+                if (debrief.horseEffort) {
+                    textContent += `Horse Effort: ${debrief.horseEffort}/10\n`;
+                }
+                textContent += `Mental/Emotional State: ${debrief.mentalState}\n\n`;
+                
+                // Add movements
+                if (debrief.movements && debrief.movements.length > 0) {
+                    textContent += `EXERCISES & MOVEMENTS:\n`;
+                    textContent += debrief.movements.map(m => `- ${m.replace(/-/g, ' ')}`).join('\n') + '\n\n';
+                }
+                
+                // Add intentions
+                if (debrief.intentionRatings && Object.keys(debrief.intentionRatings).length > 0) {
+                    textContent += `INTENTIONS:\n`;
+                    for (let [question, rating] of Object.entries(debrief.intentionRatings)) {
+                        if (rating) {
+                            textContent += `- ${question}: ${rating}/5\n`;
+                        }
+                    }
+                    textContent += '\n';
+                }
+                
+                if (debrief.wins) {
+                    textContent += `WINS & BREAKTHROUGHS:\n${debrief.wins}\n\n`;
+                }
+                
+                if (debrief.ahaRealization) {
+                    textContent += `AHA MOMENT:\n${debrief.ahaRealization}\n\n`;
+                }
+                
+                if (debrief.horseNotices) {
+                    textContent += `CONNECTION & FEEL:\n${debrief.horseNotices}\n\n`;
+                }
+                
+                if (debrief.challenges) {
+                    textContent += `OBSTACLES:\n${debrief.challenges}\n\n`;
+                }
+                
+                if (debrief.workFocus) {
+                    textContent += `FOCUS AREAS:\n${debrief.workFocus}\n\n`;
+                }
+            });
+            
+            // Use textarea method for clipboard
+            const textArea = document.createElement('textarea');
+            textArea.value = textContent;
+            textArea.style.position = 'fixed';
+            textArea.style.top = '0';
+            textArea.style.left = '0';
+            textArea.style.width = '2em';
+            textArea.style.height = '2em';
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    alert('✓ Debriefs copied to clipboard!\n\nYou can now paste them into an email or document.');
+                } else {
+                    alert('Copy failed. Please try again.');
+                }
+            } catch (err) {
+                console.error('Copy error:', err);
+                alert('Unable to copy.');
+            } finally {
+                document.body.removeChild(textArea);
+            }
+        });
+
+        // Clear all debriefs
+        document.getElementById('clearDebriefs').addEventListener('click', function() {
+            if (confirm('Are you sure you want to delete ALL debriefs? This cannot be undone.')) {
+                if (confirm('This will permanently delete all your ride debriefs. Are you absolutely sure?')) {
+                    localStorage.removeItem('postRideDebriefs');
+                    renderDebriefs();
+                    updateViewButton();
+                }
+            }
+        });
+
+        // Voice Input Functionality
+        let recognition = null;
+        let currentVoiceTarget = null;
+        let voiceInputAvailable = false;
+
+        // Check for secure context (HTTPS or localhost required for microphone access)
+        function checkVoiceInputAvailability() {
+            const isSecureContext = window.isSecureContext || window.location.protocol === 'https:' || 
+                                   window.location.hostname === 'localhost' || 
+                                   window.location.hostname === '127.0.0.1';
+            
+            const hasSpeechRecognition = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+            
+            voiceInputAvailable = isSecureContext && hasSpeechRecognition;
+            
+            if (!voiceInputAvailable) {
+                // Hide all voice input buttons
+                document.querySelectorAll('.voice-btn').forEach(btn => {
+                    btn.style.display = 'none';
+                });
+                
+                // Show warning if it's a browser support issue or security context issue
+                if (!isSecureContext && hasSpeechRecognition) {
+                    document.getElementById('voiceInputWarning').style.display = 'block';
+                } else if (!hasSpeechRecognition) {
+                    // Browser doesn't support speech recognition at all
+                    console.log('Browser does not support Web Speech API');
+                }
+            }
+            
+            return voiceInputAvailable;
+        }
+
+        // Check availability on page load
+        checkVoiceInputAvailability();
+
+        // Check for Web Speech API support
+        if (voiceInputAvailable) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+            
+            let finalTranscript = '';
+            
+            recognition.onstart = function() {
+                console.log('Voice recognition started');
+            };
+            
+            recognition.onresult = function(event) {
+                let interimTranscript = '';
+                
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript + ' ';
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+                
+                if (currentVoiceTarget) {
+                    const textarea = document.getElementById(currentVoiceTarget);
+                    const currentText = textarea.value;
+                    const existingText = currentText.substring(0, currentText.length - interimTranscript.length);
+                    textarea.value = existingText + finalTranscript + interimTranscript;
+                }
+            };
+            
+            recognition.onerror = function(event) {
+                console.error('Voice recognition error:', event.error);
+                stopVoiceInput();
+                
+                if (event.error === 'not-allowed') {
+                    alert('Microphone access denied. Please enable microphone permissions in your browser settings.\n\nNote: Voice input requires HTTPS or localhost access.');
+                } else if (event.error === 'no-speech') {
+                    // Don't alert for no-speech, just stop
+                    console.log('No speech detected');
+                } else {
+                    alert('Voice recognition error: ' + event.error);
+                }
+            };
+            
+            recognition.onend = function() {
+                if (currentVoiceTarget) {
+                    const textarea = document.getElementById(currentVoiceTarget);
+                    // Clean up the final text
+                    textarea.value = (textarea.value || '').trim();
+                    if (textarea.value && !textarea.value.endsWith('.') && !textarea.value.endsWith('!') && !textarea.value.endsWith('?')) {
+                        textarea.value += '. ';
+                    }
+                }
+                stopVoiceInput();
+            };
+        }
+
+        // Voice button click handlers
+        document.querySelectorAll('.voice-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('data-target');
+                
+                if (!voiceInputAvailable) {
+                    alert('Voice input requires HTTPS or localhost access.\n\nPlease host this file on a web server to use voice input.');
+                    return;
+                }
+                
+                if (!recognition) {
+                    alert('Voice input is not supported in your browser. Please try Chrome, Edge, or Safari.');
+                    return;
+                }
+                
+                if (currentVoiceTarget === targetId) {
+                    // Stop if already recording this field
+                    stopVoiceInput();
+                } else {
+                    // Start recording
+                    startVoiceInput(targetId);
+                }
+            });
+        });
+
+        function startVoiceInput(targetId) {
+            // Stop any existing recording
+            if (currentVoiceTarget) {
+                stopVoiceInput();
+            }
+            
+            currentVoiceTarget = targetId;
+            
+            // Update UI
+            const btn = document.querySelector(`.voice-btn[data-target="${targetId}"]`);
+            const status = document.getElementById(`${targetId}-status`);
+            
+            btn.classList.add('recording');
+            if (status) {
+                status.classList.add('active');
+            }
+            
+            // Start recognition
+            try {
+                recognition.start();
+            } catch (e) {
+                console.error('Error starting recognition:', e);
+                stopVoiceInput();
+            }
+        }
+
+        function stopVoiceInput() {
+            if (currentVoiceTarget) {
+                const btn = document.querySelector(`.voice-btn[data-target="${currentVoiceTarget}"]`);
+                const status = document.getElementById(`${currentVoiceTarget}-status`);
+                
+                if (btn) btn.classList.remove('recording');
+                if (status) status.classList.remove('active');
+                
+                currentVoiceTarget = null;
+            }
+            
+            if (recognition) {
+                try {
+                    recognition.stop();
+                } catch (e) {
+                    console.log('Recognition already stopped');
+                }
+            }
+        }
+
+        // Stop voice input when navigating away from form
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            stopVoiceInput();
+        });
+        
+        document.getElementById('saveDraftBtn').addEventListener('click', function() {
+            stopVoiceInput();
+        });
+    </script>
+</body>
+</html>

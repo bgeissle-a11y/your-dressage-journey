@@ -1,0 +1,553 @@
+{
+  "database_metadata": {
+    "name": "Comprehensive Dressage Test Database",
+    "version": "2023-2026",
+    "created": "2026-02-09",
+    "description": "Complete database of USDF and FEI dressage tests including standard tests, freestyle tests, and movement requirements",
+    "organizations": ["USDF", "USEF", "FEI"],
+    "effective_dates": "December 1, 2022 - November 30, 2026",
+    "test_count": {
+      "usdf_standard": 18,
+      "usdf_freestyle": 5,
+      "fei": 5,
+      "total": 28
+    },
+    "levels_included": {
+      "usdf": ["Introductory", "Training", "First", "Second", "Third", "Fourth"],
+      "fei": ["Prix St. Georges", "Intermediate I", "Intermediate II", "Grand Prix", "Grand Prix Special"]
+    }
+  },
+
+  "test_categories": {
+    "usdf_standard_tests": {
+      "description": "Standard USDF/USEF dressage tests with prescribed movements",
+      "test_ids": [
+        "2023_intro_a",
+        "2023_intro_b", 
+        "2023_intro_c",
+        "2023_training_1",
+        "2023_training_2",
+        "2023_training_3",
+        "2023_first_1",
+        "2023_first_2",
+        "2023_first_3",
+        "2023_second_1",
+        "2023_second_2",
+        "2023_second_3",
+        "2023_third_1",
+        "2023_third_2",
+        "2023_third_3",
+        "2023_fourth_1",
+        "2023_fourth_2",
+        "2023_fourth_3"
+      ]
+    },
+    "usdf_freestyle_tests": {
+      "description": "USDF freestyle tests with compulsory elements and artistic scoring",
+      "test_ids": [
+        "2023_training_freestyle",
+        "2023_first_freestyle",
+        "2023_second_freestyle",
+        "2023_third_freestyle",
+        "2023_fourth_freestyle"
+      ]
+    },
+    "fei_tests": {
+      "description": "FEI international level tests",
+      "test_ids": [
+        "prix_st_georges",
+        "intermediate_1",
+        "intermediate_2",
+        "grand_prix",
+        "grand_prix_special"
+      ]
+    }
+  },
+
+  "external_files": {
+    "note": "Due to file size constraints, detailed test data is organized in separate files",
+    "files": [
+      {
+        "filename": "usdf_intro_training_tests.json",
+        "description": "Introductory and Training Level tests (Tests A, B, C, and Training 1-3)",
+        "test_count": 6,
+        "levels": ["Introductory", "Training"]
+      },
+      {
+        "filename": "usdf_first_level_tests.json",
+        "description": "First Level tests (Tests 1, 2, 3)",
+        "test_count": 3,
+        "levels": ["First"]
+      },
+      {
+        "filename": "usdf_second_third_fourth_tests.json",
+        "description": "Second, Third, and Fourth Level tests (9 tests total)",
+        "test_count": 9,
+        "levels": ["Second", "Third", "Fourth"]
+      },
+      {
+        "filename": "usdf_freestyle_tests.json",
+        "description": "Freestyle tests from Training through Fourth Level",
+        "test_count": 5,
+        "levels": ["Training", "First", "Second", "Third", "Fourth"]
+      },
+      {
+        "filename": "fei_test_database_complete.json",
+        "description": "FEI international level tests",
+        "test_count": 5,
+        "levels": ["Prix St. Georges", "Intermediate I", "Intermediate II", "Grand Prix", "Grand Prix Special"]
+      }
+    ]
+  },
+
+  "level_progression": {
+    "introductory": {
+      "level_number": 0,
+      "description": "Introduction to dressage sport",
+      "gaits": ["Walk", "Trot", "Canter (Test C only)"],
+      "arena_sizes": ["Small (20m x 40m)", "Large (20m x 60m)"],
+      "key_movements": [
+        "Free walk",
+        "Medium walk",
+        "Working trot rising",
+        "20 meter circles",
+        "Halt through walk",
+        "Working canter (Test C)"
+      ],
+      "tests": ["Test A", "Test B", "Test C"],
+      "purpose": "Introduce rider and/or horse to dressage, confirming understanding of correct basics"
+    },
+
+    "training": {
+      "level_number": 1,
+      "description": "Confirming correct basics with suppleness and rhythm",
+      "gaits": ["Walk", "Trot", "Canter"],
+      "arena_sizes": ["Standard (20m x 60m)", "Small (20m x 40m)"],
+      "key_movements": [
+        "Free walk",
+        "Medium walk",
+        "Working trot",
+        "Working canter",
+        "20m circles in trot and canter",
+        "Stretch circle in trot (Test 2)",
+        "Shallow loops (Test 3)",
+        "Developing canter from trot"
+      ],
+      "tests": ["Test 1", "Test 2", "Test 3", "Freestyle"],
+      "introduces": {
+        "test_1": "20m circles, developing canter, counter canter basics",
+        "test_2": "Stretch circle in trot",
+        "test_3": "Shallow loops with change of bend, canter-trot transition on diagonal"
+      },
+      "purpose": "Confirm correct basics with suppleness, moving freely forward in clear rhythm with steady tempo"
+    },
+
+    "first": {
+      "level_number": 2,
+      "description": "Development of pushing power and lengthening stride",
+      "gaits": ["Walk", "Trot", "Canter"],
+      "arena_size": "Standard (20m x 60m)",
+      "key_movements": [
+        "Free walk",
+        "Medium walk",
+        "Working trot",
+        "Lengthening stride in trot",
+        "Working canter",
+        "Lengthening stride in canter",
+        "10m circles in trot",
+        "15m circles in canter",
+        "Leg-yield",
+        "Change of lead through trot"
+      ],
+      "tests": ["Test 1", "Test 2", "Test 3", "Freestyle"],
+      "introduces": {
+        "test_1": "Leg-yield, 10m trot circles, lengthening stride, change of lead through trot",
+        "test_2": "15m canter circles",
+        "test_3": "More complex combinations"
+      },
+      "purpose": "Develop pushing power and lengthening of stride; thrust from hindquarters"
+    },
+
+    "second": {
+      "level_number": 3,
+      "description": "Development of collection and medium gaits",
+      "gaits": ["Walk", "Trot", "Canter"],
+      "arena_size": "Standard (20m x 60m)",
+      "key_movements": [
+        "Medium walk",
+        "Free walk",
+        "Collected trot",
+        "Medium trot",
+        "Shoulder-in",
+        "Travers (Test 2+)",
+        "10m circles at canter",
+        "Collected canter",
+        "Medium canter",
+        "Counter canter",
+        "Simple changes (Test 2+)",
+        "Half turn on haunches (Test 2+)",
+        "Rein back"
+      ],
+      "tests": ["Test 1", "Test 2", "Test 3", "Freestyle"],
+      "introduces": {
+        "test_1": "Collected/medium gaits, shoulder-in, 10m canter circles, rein back",
+        "test_2": "Travers, half turn on haunches, simple changes",
+        "test_3": "Counter canter in serpentine"
+      },
+      "purpose": "Horse accepts more weight on hindquarters as collected and medium gaits develop; greater straightness, suppleness, throughness"
+    },
+
+    "third": {
+      "level_number": 4,
+      "description": "Development of extension and flying changes",
+      "gaits": ["Walk", "Trot", "Canter"],
+      "arena_size": "Standard (20m x 60m)",
+      "key_movements": [
+        "Medium walk",
+        "Extended walk",
+        "Half turn on haunches",
+        "Collected trot",
+        "Medium trot",
+        "Extended trot",
+        "Shoulder-in",
+        "Travers",
+        "Half-pass at trot",
+        "Collected canter",
+        "Medium canter",
+        "Extended canter",
+        "Half-pass at canter",
+        "Single flying changes",
+        "Renvers (Test 2+)",
+        "8m circles at trot"
+      ],
+      "tests": ["Test 1", "Test 2", "Test 3", "Freestyle"],
+      "introduces": {
+        "test_1": "Extended gaits, half-pass (trot and canter), single flying changes",
+        "test_2": "Renvers, release of reins at canter",
+        "test_3": "Rein back to trot, more complex patterns"
+      },
+      "purpose": "Development of extension with increased impulsion; introduction to flying changes and half-pass"
+    },
+
+    "fourth": {
+      "level_number": 5,
+      "description": "Development of pirouettes and tempi changes",
+      "gaits": ["Walk", "Trot", "Canter"],
+      "arena_size": "Standard (20m x 60m)",
+      "key_movements": [
+        "Collected walk",
+        "Extended walk",
+        "Walk pirouettes (half pirouettes)",
+        "Collected trot",
+        "Medium trot",
+        "Extended trot",
+        "Shoulder-in",
+        "Travers",
+        "Half-pass at trot",
+        "Very collected canter",
+        "Medium canter",
+        "Extended canter",
+        "Half-pass at canter",
+        "Single flying changes (multiple on diagonal)",
+        "Tempi changes every 4th stride (Test 2+)",
+        "Tempi changes every 3rd stride (Test 3)",
+        "Working pirouettes in canter (Test 2)",
+        "Working half-pirouettes in canter (Test 3)"
+      ],
+      "tests": ["Test 1", "Test 2", "Test 3", "Freestyle"],
+      "introduces": {
+        "test_1": "Collected walk, very collected canter, walk half-pirouettes, multiple single changes",
+        "test_2": "Counter change of hand, 4-tempis, working pirouettes",
+        "test_3": "3-tempis, working half-pirouettes"
+      },
+      "purpose": "Highest level of collection and balance; preparation for FEI levels; pirouette work and tempi changes",
+      "bridge_to_fei": "Fourth Level prepares directly for Prix St. Georges with similar movement requirements"
+    },
+
+    "prix_st_georges": {
+      "level_number": 6,
+      "organization": "FEI",
+      "description": "Entry level FEI competition",
+      "arena_size": "Standard (20m x 60m)",
+      "min_horse_age": 7,
+      "duration": "5:50",
+      "key_movements": [
+        "Collected walk",
+        "Extended walk",
+        "Half pirouettes in walk",
+        "Collected trot",
+        "Medium trot",
+        "Extended trot",
+        "Shoulder-in",
+        "Half-pass",
+        "8m volte",
+        "Collected canter",
+        "Extended canter",
+        "Half-pass in canter with flying changes",
+        "Single flying changes",
+        "4-tempis (5 times)",
+        "3-tempis (5 times)",
+        "Half pirouettes in canter (3-4 strides)",
+        "Counter canter"
+      ],
+      "introduces": "Half pirouettes in canter (3-4 strides), increased frequency of tempi changes, half pirouettes in walk"
+    },
+
+    "intermediate_1": {
+      "level_number": 7,
+      "organization": "FEI",
+      "description": "Introduction to full pirouettes and 2-tempis",
+      "arena_size": "Standard (20m x 60m)",
+      "min_horse_age": 7,
+      "duration": "5:30",
+      "key_movements": [
+        "Collected walk",
+        "Extended walk",
+        "Collected trot",
+        "Medium trot",
+        "Extended trot",
+        "Shoulder-in",
+        "Half-pass",
+        "8m volte",
+        "Collected canter",
+        "Extended canter",
+        "Zigzag: 3 half-passes 5m each side with flying changes",
+        "Single flying changes",
+        "3-tempis (5 times)",
+        "2-tempis (7 times)",
+        "Full pirouettes (6-8 strides)",
+        "Rein back 5 steps"
+      ],
+      "introduces": "FULL pirouettes (6-8 strides), 2-tempis, zigzag pattern. No more half pirouettes in walk"
+    },
+
+    "intermediate_2": {
+      "level_number": 8,
+      "organization": "FEI",
+      "description": "Introduction to passage and piaffe",
+      "arena_size": "Standard (20m x 60m)",
+      "min_horse_age": 8,
+      "duration": "5:25",
+      "key_movements": [
+        "Collected walk",
+        "Extended walk",
+        "Collected trot",
+        "Extended trot",
+        "Zigzag: 3 half-passes 5m each side in trot",
+        "PASSAGE",
+        "PIAFFE (8-10 steps, 1m forward permitted)",
+        "Transitions passage-piaffe-passage",
+        "Collected canter",
+        "Medium canter",
+        "Extended canter",
+        "Half-pass in canter",
+        "Single flying changes",
+        "2-tempis (7 times)",
+        "1-tempis (11 times)",
+        "Pirouettes (6-8 strides)"
+      ],
+      "introduces": "PASSAGE and PIAFFE, 1-tempis (every stride changes), medium canter, trot zigzag"
+    },
+
+    "grand_prix": {
+      "level_number": 9,
+      "organization": "FEI",
+      "description": "Olympic and championship level",
+      "arena_size": "Standard (20m x 60m)",
+      "min_horse_age": 8,
+      "duration": "6:30",
+      "key_movements": [
+        "Collected walk",
+        "Extended walk",
+        "Transitions walk-passage",
+        "Collected trot",
+        "Extended trot",
+        "Half-pass",
+        "PASSAGE (multiple sections)",
+        "PIAFFE (12-15 steps, 3 times)",
+        "Transitions passage-piaffe-passage (multiple times)",
+        "Collected canter",
+        "Extended canter",
+        "Half-pass in canter",
+        "Zigzag: 5 half-passes with changes",
+        "Single flying changes",
+        "2-tempis (9 times)",
+        "1-tempis (15 times)",
+        "Pirouettes (6-8 strides)",
+        "Rein back 5 steps"
+      ],
+      "introduces": "Multiple piaffe sections (12-15 steps), extensive passage work, longer change sequences, complex zigzag, walk to passage transitions"
+    },
+
+    "grand_prix_special": {
+      "level_number": 10,
+      "organization": "FEI",
+      "description": "Most demanding test - Olympic individual medals",
+      "arena_size": "Standard (20m x 60m)",
+      "min_horse_age": 8,
+      "duration": "6:40",
+      "key_movements": [
+        "Collected walk",
+        "Extended walk",
+        "Transitions walk-piaffe-passage",
+        "Collected trot",
+        "Extended trot",
+        "Half-pass",
+        "PASSAGE (extensive - multiple long sections)",
+        "PIAFFE (12-15 steps, 3 times)",
+        "Transitions passage-piaffe-passage (multiple times)",
+        "Transitions passage-extended trot-passage",
+        "Collected canter",
+        "Extended canter",
+        "Half-pass in canter with flying changes",
+        "Single flying changes",
+        "2-tempis (9 times)",
+        "1-tempis (24 times total - 15 on diagonal, 9 on centerline)",
+        "Pirouettes on centerline (6-8 strides)"
+      ],
+      "introduces": "Most extensive passage work of all tests, 24 total 1-tempis, walk directly to piaffe transitions, pirouettes on centerline"
+    }
+  },
+
+  "movement_glossary": {
+    "walk": {
+      "free_walk": "A pace of relaxation where the horse is allowed complete freedom to lower and stretch out the head and neck",
+      "medium_walk": "A clear, regular, and unconstrained walk with moderate lengthening of stride and frame",
+      "collected_walk": "The horse remains 'on the bit' with raised neck, shortened stride, and increased engagement",
+      "extended_walk": "The horse covers as much ground as possible with lengthened stride while maintaining calmness and regularity"
+    },
+    "trot": {
+      "working_trot": "A pace between collected and medium trot with active, elastic steps and good hock action",
+      "collected_trot": "The horse remains 'on the bit' with raised neck, engaged hindquarters, shortened stride, and increased cadence",
+      "medium_trot": "A pace between working and extended trot with moderate lengthening of stride and frame",
+      "extended_trot": "The horse covers maximum ground with lengthened stride while maintaining balance and rhythm"
+    },
+    "canter": {
+      "working_canter": "A pace between collected and medium canter with natural balance and steady tempo",
+      "collected_canter": "The horse remains 'on the bit' with engaged hindquarters, elevated forehand, and shortened stride",
+      "medium_canter": "A pace between working and extended canter with moderate lengthening of stride and frame",
+      "extended_canter": "The horse covers maximum ground with lengthened stride while maintaining balance",
+      "counter_canter": "A suppling movement where horse canters on outside lead",
+      "very_collected_canter": "Highest degree of collection with maximum engagement, required for pirouettes (Fourth Level+)"
+    },
+    "lateral_movements": {
+      "leg_yield": "Horse moves forward and sideways with body straight and slight flexion away from direction of movement",
+      "shoulder_in": "Horse bent around inside leg, moving on 3 tracks with forehand brought to inside",
+      "travers": "Haunches-in; horse bent around inside leg with hindquarters moving on inside track",
+      "renvers": "Haunches-out; opposite of travers with hindquarters moving on outside track",
+      "half_pass": "Horse moves forward and sideways with body nearly parallel to long side, bent toward direction of movement"
+    },
+    "special_movements": {
+      "rein_back": "Backward movement in two-time diagonal pairs with straight movement",
+      "turn_on_haunches": "Forehand describes a circle around hindquarters with inside hind leg as pivot",
+      "half_pirouette_walk": "180-degree turn on haunches in walk",
+      "half_pirouette_canter": "180-degree turn on haunches in canter (3-4 strides at PSG, smaller at higher levels)",
+      "working_pirouette_canter": "360-degree pirouette in collected canter (Fourth Level)",
+      "pirouette_canter": "360-degree turn on haunches in canter with inside hind as pivot (6-8 strides at FEI)",
+      "flying_change": "Change of lead at canter performed in moment of suspension",
+      "tempi_changes": "Flying changes at regular intervals (every 4th, 3rd, 2nd, or every stride)",
+      "piaffe": "Highly collected trot on the spot or with minimal forward movement",
+      "passage": "Measured, very collected, elevated trot with prolonged suspension"
+    }
+  },
+
+  "scoring_systems": {
+    "standard_tests": {
+      "mark_range": "0-10",
+      "mark_increments": "0.5 points (half marks)",
+      "mark_meanings": {
+        "10": "Excellent",
+        "9": "Very good",
+        "8": "Good",
+        "7": "Fairly good",
+        "6": "Satisfactory",
+        "5": "Sufficient",
+        "4": "Insufficient",
+        "3": "Fairly bad",
+        "2": "Bad",
+        "1": "Very bad",
+        "0": "Not executed"
+      },
+      "coefficients": "Selected movements receive coefficient of 2, multiplying their score",
+      "collective_marks": "Marks for overall impression in categories like gaits, impulsion, submission, rider position, rider aids",
+      "errors": {
+        "first_error": 2,
+        "second_error": 4,
+        "third_error": "Elimination"
+      }
+    },
+    "freestyle_tests": {
+      "technical_execution": {
+        "mark_type": "Half or full points only (no tenths)",
+        "compulsory_elements": "Each element scored 0-10",
+        "omitted_elements": "Receive 0",
+        "forbidden_movements": "4 points deducted from total for each forbidden movement type"
+      },
+      "artistic_impression": {
+        "mark_type": "May be given in tenths",
+        "categories": [
+          "Rhythm, energy, and elasticity",
+          "Harmony between horse and rider",
+          "Choreography",
+          "Degree of difficulty",
+          "Music",
+          "Interpretation"
+        ],
+        "coefficients_vary": "By level - degree of difficulty has higher coefficient at upper levels"
+      },
+      "time_limit": "5 minutes maximum, no minimum",
+      "overtime_penalty": "1 point deducted from Artistic Impression total"
+    }
+  },
+
+  "arena_specifications": {
+    "small_arena": {
+      "dimensions": "20m x 40m",
+      "markers": {
+        "letters_long_sides": ["A", "K", "E", "H", "C", "M", "B", "F"],
+        "letters_centerline": ["D", "X", "G"],
+        "entry_exit": "A"
+      },
+      "used_for": ["Introductory Level", "Training Level (optional)"]
+    },
+    "standard_arena": {
+      "dimensions": "20m x 60m",
+      "markers": {
+        "letters_long_sides": ["A", "K", "V", "E", "S", "H", "C", "M", "R", "B", "P", "F"],
+        "letters_centerline": ["D", "L", "X", "I", "G"],
+        "entry_exit": "A"
+      },
+      "used_for": ["Training Level and above", "All FEI tests"]
+    }
+  },
+
+  "usage_notes": {
+    "for_event_preparation": "Use this database to identify exact requirements for each test level when creating competition preparation plans",
+    "for_training_planning": "Reference movement progressions to understand which skills need development before advancing levels",
+    "for_pattern_analysis": "Compare rider's current training level to test requirements to identify gaps",
+    "coefficient_movements": "Pay special attention to movements with coefficients (x2) as they have double impact on score",
+    "test_selection": "Test 1 of each level introduces core movements; Tests 2-3 add complexity and combinations"
+  },
+
+  "file_organization": {
+    "main_file": "comprehensive_dressage_test_database.json (this file)",
+    "detail_files": {
+      "usdf_intro_training_tests.json": {
+        "content": "Complete movement-by-movement breakdown of Intro Tests A, B, C and Training Tests 1, 2, 3",
+        "includes": ["Movements with directives", "Coefficients", "Collective marks", "Error penalties"]
+      },
+      "usdf_second_third_fourth_tests.json": {
+        "content": "Complete movement-by-movement breakdown of Second, Third, and Fourth Level Tests 1, 2, 3 (9 tests)",
+        "includes": ["Movements with directives", "Coefficients", "Collective marks", "Movement progression notes"]
+      },
+      "usdf_freestyle_tests.json": {
+        "content": "Compulsory elements and artistic criteria for Freestyle tests Training through Fourth Level",
+        "includes": ["Compulsory elements", "Coefficients", "Artistic impression criteria", "Forbidden movements", "Additionally allowed movements"]
+      },
+      "fei_test_database_complete.json": {
+        "content": "FEI test requirements from Prix St. Georges through Grand Prix Special",
+        "includes": ["Required movements by gait", "Coefficient movements", "Key differences between levels", "Minimum horse ages", "Test durations"]
+      }
+    }
+  }
+}
