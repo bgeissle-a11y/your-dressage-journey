@@ -29,6 +29,12 @@ import EventPrepList from './components/EventPrep/EventPrepList';
 import EventPrepForm from './components/EventPrep/EventPrepForm';
 import EventPrepPlan from './components/EventPrep/EventPrepPlan';
 
+// Assessments
+import PhysicalAssessmentList from './components/PhysicalAssessment/PhysicalAssessmentList';
+import PhysicalAssessmentForm from './components/PhysicalAssessment/PhysicalAssessmentForm';
+import RiderAssessmentList from './components/RiderAssessment/RiderAssessmentList';
+import RiderAssessmentForm from './components/RiderAssessment/RiderAssessmentForm';
+
 import './App.css';
 
 function App() {
@@ -77,6 +83,14 @@ function App() {
             <Route path="/event-prep/new" element={<EventPrepForm />} />
             <Route path="/event-prep/:id/edit" element={<EventPrepForm />} />
             <Route path="/event-prep/:id/plan" element={<EventPrepPlan />} />
+
+            {/* Assessments */}
+            <Route path="/physical-assessments" element={<PhysicalAssessmentList />} />
+            <Route path="/physical-assessments/new" element={<PhysicalAssessmentForm />} />
+            <Route path="/physical-assessments/:id/edit" element={<PhysicalAssessmentForm />} />
+            <Route path="/rider-assessments" element={<RiderAssessmentList />} />
+            <Route path="/rider-assessments/new" element={<RiderAssessmentForm />} />
+            <Route path="/rider-assessments/:id/edit" element={<RiderAssessmentForm />} />
           </Route>
 
           {/* Default Route */}

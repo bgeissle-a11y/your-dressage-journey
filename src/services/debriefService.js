@@ -64,6 +64,77 @@ export const MENTAL_STATES = [
   { value: 'mixed', label: 'Mixed/Complex' }
 ];
 
+// Movement/exercise tag categories
+export const MOVEMENT_CATEGORIES = [
+  {
+    label: 'Basics & Gaits',
+    tags: [
+      { value: 'walk-work', label: 'Walk Work' },
+      { value: 'trot-work', label: 'Trot Work' },
+      { value: 'canter-work', label: 'Canter Work' },
+      { value: 'transitions', label: 'Transitions' },
+      { value: 'halt-salute', label: 'Halt/Salute' }
+    ]
+  },
+  {
+    label: 'Figures',
+    tags: [
+      { value: 'circles', label: 'Circles' },
+      { value: 'serpentines', label: 'Serpentines' },
+      { value: 'figure-8', label: 'Figure 8' },
+      { value: 'diagonals', label: 'Diagonals' },
+      { value: 'centerline', label: 'Centerline' }
+    ]
+  },
+  {
+    label: 'Lateral Work',
+    tags: [
+      { value: 'leg-yield', label: 'Leg Yield' },
+      { value: 'shoulder-in', label: 'Shoulder-In' },
+      { value: 'haunches-in', label: 'Haunches-In (Travers)' },
+      { value: 'renvers', label: 'Renvers' },
+      { value: 'half-pass', label: 'Half-Pass' },
+      { value: 'turn-on-forehand', label: 'Turn on Forehand' }
+    ]
+  },
+  {
+    label: 'Advanced Movements',
+    tags: [
+      { value: 'extensions', label: 'Extensions' },
+      { value: 'counter-canter', label: 'Counter Canter' },
+      { value: 'simple-change', label: 'Simple Change' },
+      { value: 'flying-change', label: 'Flying Change' },
+      { value: 'turn-on-haunches', label: 'Turn on Haunches' },
+      { value: 'pirouette', label: 'Pirouette' },
+      { value: 'piaffe', label: 'Piaffe' },
+      { value: 'passage', label: 'Passage' },
+      { value: 'tempi-changes', label: 'Tempi Changes' }
+    ]
+  },
+  {
+    label: 'Horse/Training Focus',
+    tags: [
+      { value: 'rhythm', label: 'Rhythm' },
+      { value: 'balance', label: 'Balance' },
+      { value: 'bend-flexion', label: 'Bend & Flexion' },
+      { value: 'straightness', label: 'Straightness' },
+      { value: 'impulsion', label: 'Impulsion' },
+      { value: 'collection', label: 'Collection' }
+    ]
+  },
+  {
+    label: 'Rider Focus',
+    tags: [
+      { value: 'contact', label: 'Contact/Connection' },
+      { value: 'rider-position', label: 'Rider Position' },
+      { value: 'breathing', label: 'Breathing' },
+      { value: 'concentration-focus', label: 'Concentration/Focus' },
+      { value: 'accuracy', label: 'Accuracy' },
+      { value: 'test-ride-through', label: 'Test Ride-Through' }
+    ]
+  }
+];
+
 /**
  * Create a new post-ride debrief
  */
@@ -73,9 +144,13 @@ export async function createDebrief(userId, debriefData) {
     horseName: debriefData.horseName || '',
     sessionType: debriefData.sessionType || '',
     overallQuality: debriefData.overallQuality || 5,
+    confidenceLevel: debriefData.confidenceLevel || 5,
+    riderEffort: debriefData.riderEffort || 5,
+    horseEffort: debriefData.horseEffort || 5,
     riderEnergy: debriefData.riderEnergy || '',
     horseEnergy: debriefData.horseEnergy || '',
     mentalState: debriefData.mentalState || '',
+    movements: debriefData.movements || [],
     intentionRatings: debriefData.intentionRatings || {},
     wins: debriefData.wins || '',
     ahaRealization: debriefData.ahaRealization || '',

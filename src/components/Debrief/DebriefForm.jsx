@@ -4,7 +4,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import {
   createDebrief, getDebrief, updateDebrief,
   getAllHorseProfiles,
-  SESSION_TYPES, RIDER_ENERGY_LEVELS, HORSE_ENERGY_LEVELS, MENTAL_STATES
+  SESSION_TYPES, RIDER_ENERGY_LEVELS, HORSE_ENERGY_LEVELS, MENTAL_STATES,
+  MOVEMENT_CATEGORIES
 } from '../../services';
 import FormSection from '../Forms/FormSection';
 import FormField from '../Forms/FormField';
@@ -65,9 +66,13 @@ export default function DebriefForm() {
     horseName: '',
     sessionType: '',
     overallQuality: 5,
+    confidenceLevel: 5,
+    riderEffort: 5,
+    horseEffort: 5,
     riderEnergy: '',
     horseEnergy: '',
     mentalState: '',
+    movements: [],
     intentionRatings: {},
     wins: '',
     ahaRealization: '',
@@ -103,9 +108,13 @@ export default function DebriefForm() {
         horseName: d.horseName || '',
         sessionType: d.sessionType || '',
         overallQuality: d.overallQuality || 5,
+        confidenceLevel: d.confidenceLevel || 5,
+        riderEffort: d.riderEffort || 5,
+        horseEffort: d.horseEffort || 5,
         riderEnergy: d.riderEnergy || '',
         horseEnergy: d.horseEnergy || '',
         mentalState: d.mentalState || '',
+        movements: d.movements || [],
         intentionRatings: d.intentionRatings || {},
         wins: d.wins || '',
         ahaRealization: d.ahaRealization || '',
@@ -185,6 +194,15 @@ export default function DebriefForm() {
       });
     }
     setEditingIntention(null);
+  }
+
+  function toggleMovement(value) {
+    setFormData(prev => ({
+      ...prev,
+      movements: prev.movements.includes(value)
+        ? prev.movements.filter(m => m !== value)
+        : [...prev.movements, value]
+    }));
   }
 
   function getNarrativeRef(key) {
@@ -285,6 +303,61 @@ export default function DebriefForm() {
                 <span>Challenging/Frustrating</span><span>Excellent/Breakthrough</span>
               </div>
             </FormField>
+            <FormField label={`Confidence Level: ${formData.confidenceLevel}/10`} optional>
+              <input
+                type="range"
+                name="confidenceLevel"
+                min="1"
+                max="10"
+                value={formData.confidenceLevel}
+                onChange={e => setFormData(prev => ({ ...prev, confidenceLevel: parseInt(e.target.value, 10) }))}
+                disabled={loading}
+                style={{ width: '100%', accentColor: '#8B7355' }}
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#7A7A7A' }}>
+                <span>Very Low</span><span>Very High</span>
+              </div>
+            </FormField>
+            <FormField label="Energy/Effort Level" optional helpText="Rate the physical effort/energy for trend tracking.">
+              <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+                <div style={{ flex: 1, minWidth: '200px' }}>
+                  <label style={{ fontSize: '0.92rem', fontWeight: 500, marginBottom: '0.5rem', display: 'block' }}>
+                    Rider Effort: {formData.riderEffort}/10
+                  </label>
+                  <input
+                    type="range"
+                    name="riderEffort"
+                    min="1"
+                    max="10"
+                    value={formData.riderEffort}
+                    onChange={e => setFormData(prev => ({ ...prev, riderEffort: parseInt(e.target.value, 10) }))}
+                    disabled={loading}
+                    style={{ width: '100%', accentColor: '#8B7355' }}
+                  />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#7A7A7A' }}>
+                    <span>Minimal</span><span>Maximum</span>
+                  </div>
+                </div>
+                <div style={{ flex: 1, minWidth: '200px' }}>
+                  <label style={{ fontSize: '0.92rem', fontWeight: 500, marginBottom: '0.5rem', display: 'block' }}>
+                    Horse Effort: {formData.horseEffort}/10
+                  </label>
+                  <input
+                    type="range"
+                    name="horseEffort"
+                    min="1"
+                    max="10"
+                    value={formData.horseEffort}
+                    onChange={e => setFormData(prev => ({ ...prev, horseEffort: parseInt(e.target.value, 10) }))}
+                    disabled={loading}
+                    style={{ width: '100%', accentColor: '#8B7355' }}
+                  />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#7A7A7A' }}>
+                    <span>Minimal</span><span>Maximum</span>
+                  </div>
+                </div>
+              </div>
+            </FormField>
             <FormField label="Your Energy Level" optional>
               <RadioGroup name="riderEnergy" options={RIDER_ENERGY_LEVELS} value={formData.riderEnergy} onChange={handleChange} disabled={loading} />
             </FormField>
@@ -294,6 +367,30 @@ export default function DebriefForm() {
             <FormField label="Your mental/emotional state" optional>
               <RadioGroup name="mentalState" options={MENTAL_STATES} value={formData.mentalState} onChange={handleChange} disabled={loading} />
             </FormField>
+          </FormSection>
+
+          {/* Section: Movements & Exercises */}
+          <FormSection title="Exercises & Movements" description="Select what you worked on today. Tap to toggle.">
+            {MOVEMENT_CATEGORIES.map(category => (
+              <div key={category.label} style={{ marginBottom: '1.25rem' }}>
+                <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#8B7355', marginBottom: '0.5rem' }}>
+                  {category.label}
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  {category.tags.map(tag => (
+                    <button
+                      key={tag.value}
+                      type="button"
+                      onClick={() => toggleMovement(tag.value)}
+                      disabled={loading}
+                      className={`movement-tag ${formData.movements.includes(tag.value) ? 'selected' : ''}`}
+                    >
+                      {tag.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
           </FormSection>
 
           {/* Section 3: Riding Intentions */}

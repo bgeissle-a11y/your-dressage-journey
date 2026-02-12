@@ -50,7 +50,8 @@ export {
   SESSION_TYPES,
   RIDER_ENERGY_LEVELS,
   HORSE_ENERGY_LEVELS,
-  MENTAL_STATES
+  MENTAL_STATES,
+  MOVEMENT_CATEGORIES
 } from './debriefService';
 
 // Journey events
@@ -98,3 +99,25 @@ export {
   EVENT_PREP_STATUSES,
   DEFAULT_EQUIPMENT
 } from './eventPrepPlannerService';
+
+// Physical self-assessments
+export {
+  createPhysicalAssessment,
+  getPhysicalAssessment,
+  getAllPhysicalAssessments,
+  updatePhysicalAssessment,
+  deletePhysicalAssessment,
+  BODY_PARTS,
+  KINESTHETIC_DESCRIPTIONS
+} from './physicalAssessmentService';
+
+// Rider self-assessments
+export {
+  createRiderAssessment,
+  getRiderAssessment,
+  getAllRiderAssessments,
+  updateRiderAssessment,
+  deleteRiderAssessment,
+  RIDER_ATTRIBUTES,
+  SELF_RATING_SCALES
+} from './riderAssessmentService';
