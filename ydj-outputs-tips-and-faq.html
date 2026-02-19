@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Outputs: Tips & FAQ | Your Dressage Journey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #FAF8F5 0%, #F5F1EB 100%); padding: 20px; line-height: 1.7; color: #3A3A3A; min-height: 100vh; }
+        .container { max-width: 800px; margin: 0 auto; }
+        header { text-align: center; background: white; padding: 50px 30px 40px; border-radius: 20px; margin-bottom: 30px; box-shadow: 0 4px 24px rgba(139, 115, 85, 0.12); border: 1px solid #E0D5C7; }
+        .logo-placeholder { width: 120px; height: 120px; margin: 0 auto 25px; background: #8B7355; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3em; }
+        h1 { font-family: 'Playfair Display', serif; color: #8B7355; font-size: 2.8em; margin-bottom: 12px; font-weight: 700; line-height: 1.2; }
+        .subtitle { color: #7A7A7A; font-size: 1.2em; margin-bottom: 20px; }
+        .tagline-badge { display: inline-block; background: linear-gradient(135deg, #8B7355, #D4A574); color: white; padding: 8px 20px; border-radius: 20px; font-size: 0.9em; font-weight: 600; letter-spacing: 0.5px; }
+        .section { background: white; padding: 40px; margin-bottom: 25px; border-radius: 20px; box-shadow: 0 2px 12px rgba(139, 115, 85, 0.08); border: 1px solid #E0D5C7; }
+        h2 { font-family: 'Playfair Display', serif; color: #8B7355; font-size: 2em; margin-bottom: 20px; font-weight: 600; border-bottom: 3px solid #D4A574; padding-bottom: 12px; }
+        h3 { font-family: 'Playfair Display', serif; color: #8B7355; font-size: 1.4em; margin: 30px 0 15px; font-weight: 600; }
+        h3:first-of-type { margin-top: 10px; }
+        .welcome-text { font-size: 1.1em; line-height: 1.8; margin-bottom: 25px; }
+        .emphasis { background: linear-gradient(135deg, rgba(139, 115, 85, 0.1), rgba(212, 165, 116, 0.1)); padding: 20px; border-radius: 12px; border-left: 4px solid #8B7355; margin: 25px 0; }
+        .emphasis strong { color: #8B7355; }
+        ul.bullets { margin: 15px 0 15px 25px; line-height: 1.8; }
+        ul.bullets li { margin-bottom: 10px; }
+        .tip-box { background: #F5F1EB; padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 4px solid #D4A574; }
+        .tip-box h4 { color: #8B7355; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .toc { margin: 20px 0 0; }
+        .toc a { display: block; color: #8B7355; text-decoration: none; padding: 8px 0; font-size: 1.02em; border-bottom: 1px solid #F0E9DF; transition: padding-left 0.2s ease, color 0.2s ease; }
+        .toc a:last-child { border-bottom: none; }
+        .toc a:hover { padding-left: 8px; color: #D4A574; }
+        .output-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 25px 0; }
+        .output-card { background: white; border: 1px solid #E0D5C7; border-radius: 14px; padding: 22px 20px; transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: default; }
+        .output-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(139, 115, 85, 0.15); }
+        .output-card .card-icon { font-size: 1.6em; margin-bottom: 10px; }
+        .output-card .card-title { font-family: 'Playfair Display', serif; color: #8B7355; font-weight: 600; font-size: 1.05em; margin-bottom: 6px; }
+        .output-card .card-desc { font-size: 0.88em; color: #666; line-height: 1.5; }
+        .output-card .card-freq { display: inline-block; margin-top: 10px; font-size: 0.78em; font-weight: 600; color: #8B7355; background: rgba(139, 115, 85, 0.1); padding: 3px 10px; border-radius: 10px; }
+        .voice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin: 20px 0; }
+        .voice-card { padding: 18px 16px; border-radius: 12px; border-left: 4px solid; }
+        .voice-card .voice-icon { font-size: 1.3em; margin-bottom: 6px; }
+        .voice-card .voice-name { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 1em; margin-bottom: 6px; }
+        .voice-card .voice-desc { font-size: 0.85em; line-height: 1.5; color: #555; }
+        .voice-technical { background: rgba(21, 101, 192, 0.06); border-color: #1565C0; }
+        .voice-technical .voice-name { color: #1565C0; }
+        .voice-empathetic { background: rgba(46, 125, 50, 0.06); border-color: #2E7D32; }
+        .voice-empathetic .voice-name { color: #2E7D32; }
+        .voice-classical { background: rgba(92, 64, 51, 0.06); border-color: #5C4033; }
+        .voice-classical .voice-name { color: #5C4033; }
+        .voice-strategist { background: rgba(230, 81, 0, 0.06); border-color: #E65100; }
+        .voice-strategist .voice-name { color: #E65100; }
+        .faq-item { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #F0E9DF; }
+        .faq-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+        .faq-question { font-weight: 600; color: #8B7355; font-size: 1.05em; margin-bottom: 8px; }
+        .faq-answer { color: #555; line-height: 1.7; }
+        .viz-examples { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 15px 0; }
+        .viz-item { background: #FAFAF8; border: 1px solid #E8E0D5; border-radius: 10px; padding: 14px; font-size: 0.9em; }
+        .viz-item strong { display: block; color: #8B7355; margin-bottom: 4px; font-size: 0.95em; }
+        .viz-item span { color: #666; font-size: 0.88em; }
+        .layer-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+        .layer-box { padding: 20px; border-radius: 12px; border: 1px solid #E0D5C7; }
+        .layer-box h4 { font-family: 'Playfair Display', serif; color: #8B7355; font-weight: 600; margin-bottom: 10px; font-size: 1.05em; }
+        .layer-box p { font-size: 0.92em; color: #555; line-height: 1.6; }
+        .layer-box ul { margin: 10px 0 0 18px; font-size: 0.9em; color: #555; }
+        .layer-box ul li { margin-bottom: 4px; }
+        .layer-1 { background: rgba(139, 115, 85, 0.04); }
+        .layer-2 { background: rgba(212, 165, 116, 0.06); }
+        .contact-box { background: linear-gradient(135deg, #8B7355, #D4A574); color: white; padding: 30px; border-radius: 16px; text-align: center; margin-top: 30px; }
+        .contact-box h3 { color: white; margin-bottom: 15px; }
+        .contact-box a { color: white; text-decoration: underline; font-weight: 600; }
+        .data-flow { background: linear-gradient(135deg, #F9F6F2, #F3EDE5); border: 1px solid #E0D5C7; border-radius: 14px; padding: 24px; margin: 25px 0; text-align: center; }
+        .data-flow .flow-steps { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+        .data-flow .flow-step { background: white; border: 1px solid #D4A574; border-radius: 10px; padding: 10px 16px; font-size: 0.9em; font-weight: 500; color: #8B7355; }
+        .data-flow .flow-arrow { color: #D4A574; font-size: 1.3em; font-weight: 700; }
+
+        /* UX demo mini-mockups */
+        .ux-demo { background: #FAFAF8; border: 1px solid #E8E0D5; border-radius: 12px; padding: 20px; margin: 20px 0; }
+        .ux-demo .demo-label { font-size: 0.78em; font-weight: 600; color: #8B7355; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+        .mock-collapsible { background: #f5ede0; border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-weight: 600; color: #5d4e37; font-size: 0.92em; }
+        .mock-collapsible .mock-arrow { color: #c19a6b; font-size: 0.9em; }
+        .mock-expanded { background: white; border-left: 3px solid #c19a6b; padding: 12px 16px; margin: 0 0 8px 0; font-size: 0.88em; color: #666; line-height: 1.6; }
+        .mock-tab-bar { display: flex; border-bottom: 2px solid #E8D7C3; margin-bottom: 12px; }
+        .mock-tab { padding: 8px 14px; font-size: 0.82em; font-weight: 500; color: #8B7355; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+        .mock-tab.active { font-weight: 600; color: #5d4e37; border-bottom-color: #c19a6b; background: white; }
+        .mock-priority { background: #fff8e7; border: 2px solid #c19a6b; border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; font-size: 0.88em; color: #5d4e37; }
+        .mock-priority strong { color: #8B7355; }
+        .mock-celebration { background: #e8f5e9; border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; font-size: 0.88em; color: #2e7d32; }
+        .mock-metric-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+        .mock-metric { text-align: center; padding: 10px 8px; background: #f5ede0; border-radius: 8px; }
+        .mock-metric .mock-num { font-size: 1.4em; font-weight: 600; color: #c19a6b; }
+        .mock-metric .mock-label { font-size: 0.72em; color: #8B7355; margin-top: 2px; }
+
+        @media (max-width: 640px) {
+            body { padding: 15px; }
+            nav { padding: 12px 15px !important; gap: 8px !important; }
+            nav span { display: block; width: 100%; text-align: center; margin: 0 0 8px 0 !important; }
+            nav a { flex: 1 1 auto; text-align: center; font-size: 0.8em !important; padding: 8px 12px !important; }
+            header { padding: 30px 20px; }
+            h1 { font-size: 2em; }
+            .section { padding: 25px; }
+            h2 { font-size: 1.6em; }
+            .output-cards, .voice-grid, .layer-compare, .viz-examples { grid-template-columns: 1fr; }
+            .data-flow .flow-steps { flex-direction: column; }
+            .data-flow .flow-arrow { transform: rotate(90deg); }
+            .mock-metric-row { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media print {
+            body { background: white; }
+            .section { page-break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Menu -->
+    <nav style="position: sticky; top: 0; background: linear-gradient(135deg, #8B7355, #D4A574); padding: 15px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 1000; display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap;">
+        <span style="color: white; font-weight: 600; font-size: 0.9em; margin-right: 10px;">QUICK ACCESS:</span>
+        <a href="post-ride-debrief.html" style="background: white; color: #8B7355; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.9em; transition: all 0.3s ease; white-space: nowrap;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">&#x1F4DD; Post-Ride Debrief</a>
+        <a href="dressage-reflection-form.html" style="background: rgba(255,255,255,0.85); color: #8B7355; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85em; transition: all 0.3s ease; white-space: nowrap;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">&#x1F4AD; Reflection</a>
+        <a href="journey-event-log.html" style="background: rgba(255,255,255,0.85); color: #8B7355; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85em; transition: all 0.3s ease; white-space: nowrap;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">&#x1F4C5; Event Log</a>
+        <a href="ydj-tips-and-faq.html" style="background: rgba(255,255,255,0.85); color: #8B7355; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85em; transition: all 0.3s ease; white-space: nowrap;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">&#x1F4CB; Forms Tips & FAQ</a>
+    </nav>
+
+    <div class="container">
+        <header>
+            <div class="logo-placeholder">&#x1F3C7;</div>
+            <h1>Your Outputs</h1>
+            <p class="subtitle">What Your Dressage Journey creates for you &mdash; and how to get the most from it</p>
+            <span class="tagline-badge">ILLUMINATE YOUR JOURNEY</span>
+        </header>
+
+        <!-- Table of Contents -->
+        <div class="section">
+            <h2>On This Page</h2>
+            <nav class="toc">
+                <a href="#overview">Your Outputs at a Glance</a>
+                <a href="#how-it-works">How Your Data Becomes Insight</a>
+                <a href="#reading-outputs">Reading Your Outputs: Scan, Then Dive Deep</a>
+                <a href="#journey-map">Journey Map</a>
+                <a href="#multi-voice">Multi-Voice Coaching</a>
+                <a href="#data-viz">Data Visualizations</a>
+                <a href="#grand-prix">Grand Prix Thinking</a>
+                <a href="#physical">Physical Guidance</a>
+                <a href="#event-planner">Event Planner</a>
+                <a href="#self-assessment">Self-Assessment Analysis</a>
+                <a href="#coaching-voices">Meet Your Coaching Team</a>
+                <a href="#maximize">Getting the Most from Your Outputs</a>
+                <a href="#faq">Frequently Asked Questions</a>
+                <a href="#contact">Questions? Problems? Ideas?</a>
+            </nav>
+        </div>
+
+        <!-- SECTION: Overview -->
+        <div class="section" id="overview">
+            <h2>Your Outputs at a Glance</h2>
+            <p class="welcome-text">Every debrief, reflection, event log, and self-assessment you submit feeds into a suite of AI-powered analyses. These aren't generic tips &mdash; they're personalized coaching intelligence drawn from <em>your</em> data, <em>your</em> horses, and <em>your</em> patterns. Here's what the platform creates for you:</p>
+            <div class="output-cards">
+                <div class="output-card"><div class="card-icon">&#x1F5FA;&#xFE0F;</div><div class="card-title">Journey Map</div><div class="card-desc">Your visual and narrative timeline &mdash; milestones, patterns, and progress you might not see yourself.</div><span class="card-freq">Weekly + on demand</span></div>
+                <div class="output-card"><div class="card-icon">&#x1F399;&#xFE0F;</div><div class="card-title">Multi-Voice Coaching</div><div class="card-desc">Four distinct coaching perspectives analyze your same data through different lenses.</div><span class="card-freq">Weekly + on demand</span></div>
+                <div class="output-card"><div class="card-icon">&#x1F4CA;</div><div class="card-title">Data Visualizations</div><div class="card-desc">Charts and graphs that make the invisible visible &mdash; your trends, correlations, and progress over time.</div><span class="card-freq">Weekly</span></div>
+                <div class="output-card"><div class="card-icon">&#x1F9E0;</div><div class="card-title">Grand Prix Thinking</div><div class="card-desc">Mental skills development with daily practices and long-term training trajectory paths.</div><span class="card-freq">On data thresholds</span></div>
+                <div class="output-card"><div class="card-icon">&#x1F3CB;&#xFE0F;</div><div class="card-title">Physical Guidance</div><div class="card-desc">Off-horse exercises and body awareness practices tailored to your documented challenges.</div><span class="card-freq">Bi-weekly</span></div>
+                <div class="output-card"><div class="card-icon">&#x1F3AF;</div><div class="card-title">Event Planner</div><div class="card-desc">Personalized preparation plans for shows, clinics, and competitions &mdash; from readiness analysis to show-day strategy.</div><span class="card-freq">On demand</span></div>
+                <div class="output-card"><div class="card-icon">&#x1F4C8;</div><div class="card-title">Self-Assessment Analysis</div><div class="card-desc">How your self-perception compares to your actual riding patterns &mdash; the "meta-coaching" layer.</div><span class="card-freq">On submission</span></div>
+            </div>
+            <div class="emphasis"><strong>The core insight:</strong> You can't hold all your training context in your head simultaneously. That's not a failing &mdash; that's human. The AI can hold all of it at once, find the patterns, and reflect them back to you with coaching intelligence.</div>
+        </div>
+
+        <!-- SECTION: How It Works -->
+        <div class="section" id="how-it-works">
+            <h2>How Your Data Becomes Insight</h2>
+            <p class="welcome-text">Every output follows the same fundamental pattern. Your data is collected, assembled into context, analyzed through specialized coaching frameworks, and delivered as personalized intelligence.</p>
+            <div class="data-flow">
+                <p style="font-weight: 500; color: #8B7355; margin-bottom: 5px;">The YDJ Pipeline</p>
+                <div class="flow-steps">
+                    <div class="flow-step">&#x1F4DD; Your Forms</div><span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">&#x1F504; Pattern Assembly</div><span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">&#x1F916; AI Analysis</div><span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">&#x1F4CB; Your Coaching Report</div>
+                </div>
+            </div>
+            <p>Your profiles, debriefs, reflections, events, observations, and self-assessments are all combined into a rich picture of your riding. The AI doesn't analyze each form in isolation &mdash; it cross-references everything. A pattern in your debriefs might be explained by an event you logged. A shift in your reflections might correlate with a change in your physical self-assessment. The more data points you provide, the more connections the AI can make.</p>
+            <div class="tip-box"><h4>&#x1F4A1; Why Cross-Referencing Matters</h4><p>When the AI sees that your ride quality consistently dips the week after a farrier visit, or that your confidence peaks when you've done a reflection the same morning &mdash; those are insights no single form could reveal. The magic is in the connections between data types.</p></div>
+        </div>
+
+        <!-- NEW SECTION: Reading Your Outputs -->
+        <div class="section" id="reading-outputs">
+            <h2>Reading Your Outputs: Scan, Then Dive Deep</h2>
+            <p class="welcome-text">Your outputs are designed so you can get value in 30 seconds <em>or</em> 30 minutes. Every output leads with a quick summary so you can scan the highlights first, then expand into the sections that matter most to you today.</p>
+
+            <h3>Quick Insights Come First</h3>
+            <p>Each output opens with the most important information up front &mdash; key numbers, top patterns, your priority this week, and a celebration of what's going well. You'll always see this summary without needing to expand or click anything.</p>
+            <div class="ux-demo">
+                <div class="demo-label">What you'll see first</div>
+                <div class="mock-metric-row">
+                    <div class="mock-metric"><div class="mock-num">24</div><div class="mock-label">Rides Logged</div></div>
+                    <div class="mock-metric"><div class="mock-num">3</div><div class="mock-label">Breakthroughs</div></div>
+                    <div class="mock-metric"><div class="mock-num">5</div><div class="mock-label">Patterns Found</div></div>
+                    <div class="mock-metric"><div class="mock-num">&nearr;</div><div class="mock-label">Trending Up</div></div>
+                </div>
+                <div class="mock-priority"><strong>&#x1F3AF; Your Priority This Week:</strong> Practice 10-meter circles at walk before every trot work session to establish rhythm without tension.</div>
+                <div class="mock-celebration">&#x1F31F; <strong>This Week's Celebration:</strong> You maintained connection through all three downward transitions on Tuesday &mdash; a major breakthrough.</div>
+            </div>
+
+            <h3>Expand What Matters Today</h3>
+            <p>Below the summary, detailed sections are organized in collapsible panels. Tap or click any section header to expand it. Each section stands on its own &mdash; you don't need to read everything to get value from the part that's relevant right now.</p>
+            <div class="ux-demo">
+                <div class="demo-label">Expandable sections &mdash; open what you need</div>
+                <div class="mock-collapsible"><span>&#x1F4C5; Recent Progress (Last 2 Weeks)</span><span class="mock-arrow">&#x25B6;</span></div>
+                <div class="mock-collapsible" style="background: #efe5d4;"><span>&#x1F50D; Pattern Analysis</span><span class="mock-arrow">&#x25BC;</span></div>
+                <div class="mock-expanded"><strong>Success:</strong> Shoulder-in quality improved 65% when you established bend in walk first<br><strong>Challenge:</strong> Rushing tempo appears in 80% of rides &mdash; specifically on corner approaches<br><strong>Progress:</strong> Napoleon shows 40% better relaxation in morning sessions vs. evening</div>
+                <div class="mock-collapsible"><span>&#x1F3C6; Breakthroughs &amp; Celebrations</span><span class="mock-arrow">&#x25B6;</span></div>
+                <div class="mock-collapsible"><span>&#x1F434; Napoleon's Progress</span><span class="mock-arrow">&#x25B6;</span></div>
+            </div>
+
+            <h3>Tabs Let You Compare Perspectives</h3>
+            <p>Where multiple perspectives exist on the same data &mdash; like the four coaching voices or the two Grand Prix Thinking layers &mdash; tabs let you switch between them without losing your place. Each tab contains a complete, self-contained analysis.</p>
+            <div class="ux-demo">
+                <div class="demo-label">Tabbed coaching voices</div>
+                <div class="mock-tab-bar">
+                    <div class="mock-tab active">&#x1F3AF; Classical Master</div>
+                    <div class="mock-tab">&#x2B50; Empathetic Coach</div>
+                    <div class="mock-tab">&#x1F52C; Technical Coach</div>
+                    <div class="mock-tab">&#x1F4CB; Strategist</div>
+                </div>
+                <div style="padding: 8px 0; font-size: 0.88em; color: #666; line-height: 1.6;"><em>Each voice's full analysis appears when you select their tab. Switch between perspectives to see what different lenses reveal about the same rides.</em></div>
+            </div>
+
+            <div class="emphasis"><strong>The key principle:</strong> The AI generates the same depth of analysis it always has. We've organized it so you can scan quickly, find what's relevant, and go deep when you're ready &mdash; without being overwhelmed by the full volume all at once.</div>
+        </div>
+
+        <!-- SECTION: Journey Map -->
+        <div class="section" id="journey-map">
+            <h2>&#x1F5FA;&#xFE0F; Journey Map</h2>
+            <p class="welcome-text">Your Journey Map is a living document &mdash; a visual and narrative timeline that shows where you've been, where you are, and the trajectory of your growth. Think of it as your riding autobiography, written by an AI that's read every debrief and reflection you've ever submitted.</p>
+            <h3>What You'll See</h3>
+            <p>The Journey Map opens with <strong>At-a-Glance Metrics</strong> &mdash; total rides logged, breakthroughs identified, patterns found, and your current focus area. Below that, the detail is organized into expandable sections:</p>
+            <ul class="bullets">
+                <li><strong>Recent Progress:</strong> A dated timeline of your last two weeks &mdash; achievements, challenges, and key moments with brief context for each.</li>
+                <li><strong>Pattern Analysis:</strong> Recurring themes across your rides, each tagged as a Success, Challenge, or In-Progress pattern so you can scan quickly. Includes a "What's Working" summary.</li>
+                <li><strong>Breakthroughs &amp; Celebrations:</strong> Key achievements the AI has identified &mdash; your first successful shoulder-in, a breakthrough in canter transitions, confidence recovery after a setback. Some you'll recognize; others you might not have noticed.</li>
+                <li><strong>Challenges &amp; Learning Edges:</strong> Current challenges with frequency data (how often they appear in your debriefs) and skills under active development.</li>
+                <li><strong>[Horse Name]'s Progress:</strong> A dedicated section for each horse &mdash; physical development, mental/emotional growth, and training response patterns tracked separately.</li>
+                <li><strong>Goal Tracking:</strong> Your progress mapped against your stated goals, with honest assessment of momentum, plateaus, and trajectory.</li>
+            </ul>
+            <div class="tip-box"><h4>&#x1F4A1; Getting the Richest Journey Map</h4><p>The Journey Map draws from <em>everything</em> &mdash; debriefs, reflections, events, observations. The more consistently you record, the more detailed and accurate your map becomes. Five rides show you what happened. Twenty rides reveal why it keeps happening. Fifty rides show you the conditions that create your best work.</p></div>
+            <div class="emphasis"><strong>Generated:</strong> Weekly (triggered by your reflection submission) and available on demand. Each generation incorporates all data submitted to date.</div>
+        </div>
+
+        <!-- SECTION: Multi-Voice Coaching -->
+        <div class="section" id="multi-voice">
+            <h2>&#x1F399;&#xFE0F; Multi-Voice Coaching</h2>
+            <p class="welcome-text">The same riding data, analyzed through four completely different coaching lenses. Each voice sees your data from a distinct perspective and offers insights the others might miss. It's like having a team of coaches around the table, each bringing their expertise to bear on <em>your</em> riding.</p>
+            <h3>Quick Insights First, Voices When You're Ready</h3>
+            <p>Your weekly coaching report opens with a <strong>Quick Insights</strong> summary that's always visible:</p>
+            <ul class="bullets">
+                <li><strong>Top 3 Patterns This Week</strong> &mdash; the most significant, actionable patterns from your recent rides, each in one sentence with data to back it up.</li>
+                <li><strong>Your Priority This Week</strong> &mdash; one clear, achievable focus for the next seven days with specific context from your data. Always visible, never buried.</li>
+                <li><strong>This Week's Celebration</strong> &mdash; one genuine breakthrough or success, connected to your broader progress. Expandable if you want to read more.</li>
+            </ul>
+            <p>Below the Quick Insights, the four coaching voices are presented in <strong>tabs</strong>. Tap any voice to read their full analysis (400&ndash;600 words each). The Technical Coach might focus on a position pattern while the Empathetic Coach notices an emotional shift. The Classical Master might remind you that difficulty is a sign of deepening understanding, while the Practical Strategist maps out next week.</p>
+            <div class="voice-grid">
+                <div class="voice-card voice-technical"><div class="voice-icon">&#x1F52C;</div><div class="voice-name">Technical Coach</div><div class="voice-desc">Biomechanics, position, aids, cause-and-effect analysis.</div></div>
+                <div class="voice-card voice-empathetic"><div class="voice-icon">&#x2B50;</div><div class="voice-name">Empathetic Coach</div><div class="voice-desc">Psychology, confidence, partnership, the whole person.</div></div>
+                <div class="voice-card voice-classical"><div class="voice-icon">&#x1F3AF;</div><div class="voice-name">Classical Master</div><div class="voice-desc">Principles, training scale, long-term development.</div></div>
+                <div class="voice-card voice-strategist"><div class="voice-icon">&#x1F4CB;</div><div class="voice-name">Practical Strategist</div><div class="voice-desc">Goals, planning, timelines, measurable progress.</div></div>
+            </div>
+            <div class="tip-box"><h4>&#x1F4A1; Voice Snippets Everywhere</h4><p>Beyond the full Multi-Voice Coaching report, you'll notice brief coaching voice annotations throughout your other outputs &mdash; a Technical Coach note in your Physical Guidance, a Classical Master reflection in your Journey Map. These are marked with each voice's icon and color so you always know who's speaking. They feel like expert margin notes, not competing headlines.</p></div>
+            <div class="emphasis"><strong>Generated:</strong> Weekly coaching report (triggered by reflection submission). Individual voices can also be triggered on demand.</div>
+        </div>
+
+        <!-- SECTION: Data Visualizations -->
+        <div class="section" id="data-viz">
+            <h2>&#x1F4CA; Data Visualizations</h2>
+            <p class="welcome-text">Making the invisible visible. Your subjective riding experience &mdash; feel, mood, energy, quality &mdash; transformed into trackable visual data that reveals patterns over time. Each visualization includes a clear title, brief context, and a highlighted key insight so you can scan quickly.</p>
+            <div class="viz-examples">
+                <div class="viz-item"><strong>&#x1F4C8; Ride Quality Trend</strong><span>Session-by-session trajectory with rolling average &mdash; see the real direction beneath the daily ups and downs.</span></div>
+                <div class="viz-item"><strong>&#x1F9E0; Mental State Patterns</strong><span>How often you report focused vs. frustrated vs. tense &mdash; and which states correlate with higher ride quality.</span></div>
+                <div class="viz-item"><strong>&#x1F3AF; Training Focus</strong><span>What you've been working on most &mdash; your training distribution over time.</span></div>
+                <div class="viz-item"><strong>&#x1F3C6; Goal Progress</strong><span>Visual progress toward each stated goal with milestone markers along the way.</span></div>
+                <div class="viz-item"><strong>&#x1F4AA; Confidence Trajectory</strong><span>Your emotional arc with annotated events that shifted your trajectory.</span></div>
+                <div class="viz-item"><strong>&#x1F525; Theme Frequency</strong><span>Which topics and challenges appear most often in your debriefs &mdash; what's really on your mind.</span></div>
+            </div>
+            <p>The AI provides a narrative interpretation alongside each chart &mdash; not just the numbers, but what the patterns mean and what they suggest about your training trajectory.</p>
+            <div class="tip-box"><h4>&#x1F4A1; The Quality + Mental State Connection</h4><p>One of the most revealing visualizations cross-references your ride quality ratings with your reported mental state. Over time, this can show you exactly which mindset conditions produce your best riding &mdash; information that feeds directly into your Grand Prix Thinking practices.</p></div>
+            <div class="emphasis"><strong>Generated:</strong> Weekly, alongside your coaching report.</div>
+        </div>
+
+        <!-- SECTION: Grand Prix Thinking -->
+        <div class="section" id="grand-prix">
+            <h2>&#x1F9E0; Grand Prix Thinking</h2>
+            <p class="welcome-text">Mental skills development for dressage riders, built from sport psychology principles and personalized to your specific patterns, horses, and challenges. "Grand Prix" isn't about your competition level &mdash; it's about developing the mental approach that the best riders in the world use, adapted to where <em>you</em> are right now.</p>
+            <h3>Two Layers, One Dashboard</h3>
+            <p>Grand Prix Thinking operates in two layers that appear together. <strong>Tabs</strong> let you switch between "what do I practice today" and "where is all this taking me" without either perspective getting lost.</p>
+            <div class="layer-compare">
+                <div class="layer-box layer-1">
+                    <h4>Layer 1: Mental Performance</h4>
+                    <p>"What do I practice today?"</p>
+                    <p style="margin-top: 8px; font-size: 0.88em; color: #666;">Exactly 3 paths, each with the same parallel structure:</p>
+                    <ul>
+                        <li><strong>The Pattern</strong> &mdash; what's happening now</li>
+                        <li><strong>The Mental Shift</strong> &mdash; the reframe needed</li>
+                        <li><strong>This Week's Practice</strong> &mdash; 3 specific exercises</li>
+                        <li><strong>Success Metric</strong> &mdash; how you'll know it's working</li>
+                    </ul>
+                    <p style="margin-top: 10px; font-size: 0.85em; color: #8B7355;">4-week progressive programs with daily practices</p>
+                </div>
+                <div class="layer-box layer-2">
+                    <h4>Layer 2: Training Trajectory</h4>
+                    <p>"Where is all this taking me?"</p>
+                    <p style="margin-top: 8px; font-size: 0.88em; color: #666;">Exactly 3 trajectories, each with parallel structure:</p>
+                    <ul>
+                        <li><strong>Current Position</strong> &mdash; where you are now</li>
+                        <li><strong>Next Milestones</strong> &mdash; 3&ndash;6 month view</li>
+                        <li><strong>Building Blocks</strong> &mdash; how current work connects</li>
+                        <li><strong>Timeline Projection</strong> &mdash; realistic estimate</li>
+                    </ul>
+                    <p style="margin-top: 10px; font-size: 0.85em; color: #8B7355;">Long-term roadmaps with movement progression</p>
+                </div>
+            </div>
+            <p>Everything in Grand Prix Thinking is personalized. Your affirmations use your own language &mdash; pulled from your reflections and self-assessment. Your self-talk scripts address your actual negative patterns. Horse-specific strategies exist for every horse in your profile. Each path includes a coaching voice annotation from the voice most natural to that path's focus &mdash; the Classical Master for the Steady Builder trajectory, the Practical Strategist for the Ambitious Competitor, and so on.</p>
+            <div class="tip-box"><h4>&#x1F4A1; Unlocking Deeper Personalization</h4><p>Grand Prix Thinking gets significantly more specific as your data grows. With 5+ debriefs, it starts identifying your mental state patterns. With a completed Rider Self-Assessment, it has your self-awareness levels, self-regulation strategies, and performance history. The richest personalization comes when debriefs, reflections, self-assessments, and event data all work together.</p></div>
+            <div class="emphasis"><strong>Generated:</strong> Layer 1 updates when you cross data thresholds (5+ debriefs) or every 30 days. Layer 2 generates at key milestones &mdash; onboarding, Week 4, and Week 8.</div>
+        </div>
+
+        <!-- SECTION: Physical Guidance -->
+        <div class="section" id="physical">
+            <h2>&#x1F3CB;&#xFE0F; Physical Guidance</h2>
+            <p class="welcome-text">Dressage is an athletic pursuit, and your body is your primary tool. Physical Guidance addresses the rider's body with off-horse exercises, stretches, and body awareness practices &mdash; all tailored to what <em>your</em> Physical Self-Assessment and debrief data reveal about your specific challenges.</p>
+            <h3>What You'll See</h3>
+            <ul class="bullets">
+                <li><strong>Position Pattern Analysis:</strong> The AI cross-references your physical self-assessment with what you describe in your debriefs to identify recurring position-related themes.</li>
+                <li><strong>Off-Horse Exercises:</strong> Targeted exercises addressing your documented asymmetries and tension patterns. Each exercise includes a <strong>Technical Coach annotation</strong> &mdash; one sentence explaining the biomechanical cause-and-effect between this exercise and your in-saddle improvement, referencing your actual documented challenges.</li>
+                <li><strong>Classical Framing:</strong> A brief <strong>Classical Master annotation</strong> at the top connecting your physical preparation to classical principles &mdash; why suppleness matters, why the rider's body must be as prepared as the horse's.</li>
+                <li><strong>Pre-Ride Preparation:</strong> Warm-up routines calibrated to your kinesthetic awareness level &mdash; simpler cues if you're building body awareness, more nuanced proprioceptive work if you're already tuned in.</li>
+                <li><strong>Body Awareness Prompts:</strong> In-ride mindfulness cues targeting your specific tension areas from your physical self-assessment.</li>
+            </ul>
+            <p>Physical Guidance complements (but doesn't duplicate) the Pre-Ride path in Grand Prix Thinking. Where Grand Prix Thinking's body scan serves a mental performance goal, Physical Guidance stands alone as dedicated fitness and body awareness support.</p>
+            <div class="tip-box"><h4>&#x1F4A1; The Kinesthetic Awareness Slider</h4><p>Your Physical Self-Assessment includes a 1&ndash;10 kinesthetic awareness rating. This calibrates <em>all</em> physical cues across the platform &mdash; not just in Physical Guidance but in Grand Prix Thinking and coaching voice annotations too. As your awareness grows and you update this rating, the cues you receive become more refined.</p></div>
+            <div class="emphasis"><strong>Generated:</strong> Bi-weekly, plus a fresh analysis whenever you submit a new Physical Self-Assessment. <em>Standard disclaimer: These are general fitness suggestions for riders, not medical advice. Riders with injuries or conditions should consult their healthcare provider.</em></div>
+        </div>
+
+        <!-- SECTION: Event Planner -->
+        <div class="section" id="event-planner">
+            <h2>&#x1F3AF; Event Planner</h2>
+            <p class="welcome-text">When you submit an Event Preparation form for an upcoming show, clinic, or competition, the Event Planner generates a comprehensive, personalized preparation plan &mdash; from readiness analysis against specific dressage test requirements all the way through show-day strategy.</p>
+            <h3>The Four-Part Plan</h3>
+            <ul class="bullets">
+                <li><strong>Test Requirements Assembly:</strong> If you're competing, the planner pulls the complete requirements from the verified dressage test database &mdash; movements, geometry, coefficients, and common errors for your specific test.</li>
+                <li><strong>Readiness Analysis:</strong> Your recent debriefs, profiles, and self-assessments evaluated against the test requirements. Where are you strong? Where are the gaps? What are the risk areas?</li>
+                <li><strong>Preparation Plan:</strong> A personalized week-by-week training plan from now until the event. Each week includes a <strong>coaching voice tip</strong> from the voice most relevant to that week's focus &mdash; Technical Coach for skill-building weeks, Empathetic Coach for confidence weeks, Classical Master for the final week's philosophical grounding.</li>
+                <li><strong>Show-Day Guidance:</strong> A timeline for the day itself &mdash; warm-up strategy, between-rides routine, recovery plan &mdash; connected to your Grand Prix Thinking practices for continuity.</li>
+            </ul>
+            <div class="tip-box"><h4>&#x1F4A1; The Preparation + Follow-Up Loop</h4><p>The Event Planner generates structured post-event debrief questions that feed back into the YDJ system. When you prepare for an event AND log what actually happened afterward, the AI can analyze the gap between intention and outcome &mdash; one of the most revealing patterns in rider development.</p></div>
+            <div class="emphasis"><strong>Generated:</strong> On demand, whenever you submit an Event Preparation form. Works for events within the next six months.</div>
+        </div>
+
+        <!-- SECTION: Self-Assessment Analysis -->
+        <div class="section" id="self-assessment">
+            <h2>&#x1F4C8; Self-Assessment Analysis</h2>
+            <p class="welcome-text">Self-assessments are both input and output. When you complete a self-assessment, the AI doesn't just store it &mdash; it generates an analysis that compares your self-perception against your actual riding patterns from your debriefs. This is the "meta-coaching" layer: coaching you on how you see yourself.</p>
+            <p>The analysis includes a <strong>Growth Narrative</strong> &mdash; a coaching-voice-infused story of how your self-perception is evolving &mdash; with an <strong>Empathetic Coach annotation</strong> reflecting on the emotional journey of your self-awareness and a <strong>Classical Master annotation</strong> connecting it to the broader arc of your development.</p>
+            <p>Over time, as you submit multiple self-assessments (we suggest monthly or quarterly), the analysis becomes longitudinal &mdash; tracking how your self-perception evolves and whether changes in how you see yourself align with changes in your riding data. Are you becoming more accurate in your self-assessment? Are you underestimating your progress? Overestimating a challenge that your debriefs suggest is actually improving?</p>
+            <div class="tip-box"><h4>&#x1F4A1; When to Reassess</h4><p>Take your first self-assessments when you start, then revisit them monthly or quarterly. They're especially valuable after a break from riding, recovering from an injury, changing training intensity, or starting work with a new horse. The comparison between "then" and "now" is where the deepest insights live.</p></div>
+            <div class="emphasis"><strong>Generated:</strong> Automatically when you submit a Rider Self-Assessment or Physical Self-Assessment. Compares against all previous assessments and your accumulated debrief data.</div>
+        </div>
+
+        <!-- SECTION: Meet Your Coaching Team -->
+        <div class="section" id="coaching-voices">
+            <h2>Meet Your Coaching Team</h2>
+            <p class="welcome-text">Four coaching voices appear throughout the platform &mdash; each with a distinct personality, perspective, and communication style. They're most prominent in the Multi-Voice Coaching report (where each voice delivers a full 400&ndash;600 word analysis via tabs), but you'll encounter their brief annotations across nearly every output, marked with their icon and signature color.</p>
+            <div class="voice-card voice-technical" style="margin-bottom: 16px;"><div class="voice-icon">&#x1F52C;</div><div class="voice-name">The Technical Coach</div><div class="voice-desc">Focuses on biomechanics, position, aids, and cause-and-effect. Sees your riding as a puzzle of interconnected physical systems. If the Empathetic Coach asks "how did that make you feel?" the Technical Coach asks "what was your hip angle doing when that happened?" Clear, specific, constructive &mdash; never vague. <strong>Appears in:</strong> Physical Guidance exercise annotations, Grand Prix Thinking practice notes, Event Planner skill-building weeks.</div></div>
+            <div class="voice-card voice-empathetic" style="margin-bottom: 16px;"><div class="voice-icon">&#x2B50;</div><div class="voice-name">The Empathetic Coach</div><div class="voice-desc">Focuses on rider psychology, confidence, fear, and the rider-horse relationship. Sees the whole person, not just the rider. Catches emotional patterns &mdash; the anxiety that shows up at certain movements, the joy that correlates with breakthrough rides. Warm, validating, insightful. <strong>Appears in:</strong> Self-Assessment Growth Narrative, Grand Prix Thinking Curious Explorer path, Event Planner confidence weeks.</div></div>
+            <div class="voice-card voice-classical" style="margin-bottom: 16px;"><div class="voice-icon">&#x1F3AF;</div><div class="voice-name">The Classical Master</div><div class="voice-desc">Focuses on principles, philosophy, and the long view. Evaluates your work through classical dressage principles and the training scale. Reminds you that a "struggle" might actually be a sign you're asking harder questions. Wise, patient, sometimes poetic. <strong>Appears in:</strong> Journey Map narrative reflections, Physical Guidance philosophical framing, Grand Prix Thinking Steady Builder path, Event Planner final-week grounding.</div></div>
+            <div class="voice-card voice-strategist" style="margin-bottom: 16px;"><div class="voice-icon">&#x1F4CB;</div><div class="voice-name">The Practical Strategist</div><div class="voice-desc">Focuses on goals, timelines, and actionable plans. Takes all the data and turns it into "here's what to do next week." Manages your training plan, competition prep, and time constraints with direct, organized efficiency. <strong>Appears in:</strong> Grand Prix Thinking Ambitious Competitor path, Event Planner logistics and strategy, Data Visualization action takeaways.</div></div>
+            <div class="tip-box"><h4>&#x1F4A1; Different Riders, Different Resonance</h4><p>You'll probably find that one or two voices resonate more than the others &mdash; and that's by design. But pay attention to the voices that challenge you, too. The one that makes you slightly uncomfortable might be offering the insight you need most.</p></div>
+        </div>
+
+        <!-- SECTION: Getting the Most -->
+        <div class="section" id="maximize">
+            <h2>Getting the Most from Your Outputs</h2>
+
+            <h3>Start with Quick Insights</h3>
+            <p>Every output leads with the most important takeaways. On a busy day, the Quick Insights summary alone &mdash; your top patterns, this week's priority, and your celebration &mdash; gives you real value in under a minute. You can always come back and expand the detailed sections when you have time.</p>
+
+            <h3>Consistency Beats Intensity</h3>
+            <p>Ten brief debriefs over two weeks reveal more patterns than one detailed essay. The AI finds signal in frequency and repetition. Short, consistent entries after every ride will always produce richer analysis than occasional deep dives.</p>
+
+            <h3>Let All Six Reflection Categories Do Their Work</h3>
+            <p>Each reflection category feeds different aspects of the analysis. Personal Milestones drive your Journey Map trajectory. Obstacles fuel Grand Prix Thinking's resilience path. Feel/Body Awareness powers Physical Guidance calibration. If you only ever reflect on breakthroughs, the AI has blind spots. Aim for variety over time.</p>
+
+            <h3>Keep Profiles and Self-Assessments Current</h3>
+            <p>Your Rider Profile, Horse Profile(s), and self-assessments are the foundation that every output builds on. When your goals shift, your horse's training level advances, or your physical situation changes &mdash; update the relevant profile. Current data means current, relevant analysis.</p>
+
+            <h3>Log the "Small" Events</h3>
+            <p>A farrier visit, a saddle fitting, allergy season, a change in turnout schedule &mdash; these often explain patterns that would otherwise seem mysterious. When your ride quality dips for two weeks and the AI can see that it coincided with a barn change, that's an insight worth having.</p>
+
+            <h3>Use the Event Planner Loop</h3>
+            <p>Submit the Event Preparation form before shows and clinics, then log the event and complete a debrief afterward. The before/after pairing is one of the richest sources of insight the AI can work with.</p>
+
+            <h3>Read What Challenges You</h3>
+            <p>If a coaching voice says something that feels uncomfortable or surprising, sit with it before dismissing it. The AI can see patterns across your entire dataset that are hard to hold in your head simultaneously. Sometimes the most valuable insight is the one that doesn't match your self-narrative.</p>
+
+            <div class="tip-box"><h4>&#x1F4A1; The Data Threshold Effect</h4><p>Your first outputs will be helpful but general. After 10+ debriefs, the patterns start to sharpen. After 20+, the AI starts making connections that genuinely surprise you. After 50, it knows your riding tendencies better than you do. Be patient with the early outputs &mdash; the system gets dramatically better as it learns you.</p></div>
+        </div>
+
+        <!-- SECTION: FAQ -->
+        <div class="section" id="faq">
+            <h2>Frequently Asked Questions</h2>
+
+            <div class="faq-item"><div class="faq-question">How often are my outputs updated?</div><div class="faq-answer">Your Journey Map, Multi-Voice Coaching report, and Data Visualizations regenerate weekly, triggered by your reflection submission. Grand Prix Thinking updates when you cross data thresholds (like submitting your 5th debrief) or every 30 days. Physical Guidance updates bi-weekly. The Event Planner and Self-Assessment Analysis generate on demand when you submit the relevant form. Every generation incorporates all your data to date.</div></div>
+
+            <div class="faq-item"><div class="faq-question">What's the minimum data I need before outputs are useful?</div><div class="faq-answer">You'll start receiving outputs after completing your Rider Profile and submitting your first few debriefs and reflections. The pilot minimum &mdash; 5 debriefs and 6 reflections (one from each category) &mdash; gives the AI enough for meaningful initial analysis. But the outputs get significantly richer with more data. Think of the first few outputs as a foundation that deepens with every entry.</div></div>
+
+            <div class="faq-item"><div class="faq-question">Do I need to read every section of every output?</div><div class="faq-answer">Not at all &mdash; that's exactly why outputs are organized the way they are. The Quick Insights summary at the top gives you the most important takeaways at a glance. Below that, sections are collapsible &mdash; expand only what's relevant to you today. On a busy week you might just read Quick Insights and your priority. On a quieter day you might dive into the full pattern analysis or read all four coaching voices. Both are valid.</div></div>
+
+            <div class="faq-item"><div class="faq-question">Do I need to fill out every form to get useful outputs?</div><div class="faq-answer">No. Post-Ride Debriefs and Reflections are the core data that powers most outputs. Profiles give essential context. Everything else &mdash; events, observations, self-assessments &mdash; adds richness and enables specific features (like the Event Planner, Physical Guidance, and Grand Prix Thinking's deeper personalization). Start with debriefs and reflections, then add the other forms as opportunities arise.</div></div>
+
+            <div class="faq-item"><div class="faq-question">Will the AI give me generic advice?</div><div class="faq-answer">No. Every output is built from your actual data &mdash; your horse names, your self-talk patterns, your documented challenges, your specific goals. If a recommendation could apply to any random rider, it hasn't done its job. The system uses your own words and references your specific situations. If you ever receive something that feels generic, that's valuable feedback for us.</div></div>
+
+            <div class="faq-item"><div class="faq-question">What if I ride multiple horses?</div><div class="faq-answer">Create a Horse Profile for each horse you ride regularly. The AI tracks patterns for each partnership separately &mdash; your ride quality trends with Horse A vs. Horse B, the different challenges each horse presents. Your Journey Map includes a dedicated progress section for each horse. Grand Prix Thinking includes horse-specific mental preparation sequences for every horse in your profile.</div></div>
+
+            <div class="faq-item"><div class="faq-question">How do the tabs work in Multi-Voice Coaching?</div><div class="faq-answer">The Quick Insights summary is always visible at the top. Below that, the four coaching voices appear as tabs &mdash; tap any voice's name to read their full analysis. Each voice provides a complete, independent perspective (400&ndash;600 words), so you can read one or all four. The tab interface means you don't have to scroll past three voices to reach the fourth.</div></div>
+
+            <div class="faq-item"><div class="faq-question">What's the difference between Grand Prix Thinking Layer 1 and Layer 2?</div><div class="faq-answer">Layer 1 is your daily mental performance toolkit &mdash; 3 specific paths addressing your current performance challenges, each with concrete exercises and success metrics. It answers "what do I do today?" Layer 2 maps 3 long-term training trajectories with milestone timelines and movement progressions. It answers "where is all this taking me?" They appear together in one dashboard with tabs, so you can toggle between the immediate and the long-term.</div></div>
+
+            <div class="faq-item"><div class="faq-question">I see coaching voice annotations in outputs other than Multi-Voice Coaching. What are those?</div><div class="faq-answer">Those are brief, embedded snippets (1&ndash;2 sentences) from the coaching voice most relevant to that section. They're marked with the voice's icon and color &mdash; for example, a &#x1F52C; Technical Coach note explaining why a specific exercise connects to your riding position, or a &#x1F3AF; Classical Master reflection on your long-term trajectory. They add perspective without adding volume &mdash; think of them as expert margin notes from your coaching team.</div></div>
+
+            <div class="faq-item"><div class="faq-question">What do the collapsible sections and tags mean?</div><div class="faq-answer">Collapsible sections let you expand only the detail you want &mdash; tap the header to open it, tap again to close. Pattern tags like "Success," "Challenge," and "Progress" help you scan quickly without reading every detail. Quantitative anchors (percentages, ride counts, frequency data) give you concrete numbers so the insights feel grounded in evidence, not just opinion.</div></div>
+
+            <div class="faq-item"><div class="faq-question">Are the physical exercises safe for everyone?</div><div class="faq-answer">Physical Guidance provides general fitness suggestions for riders &mdash; conservative and gentle exercises. They are not medical advice. If you have injuries, chronic conditions, or physical limitations, please consult your healthcare provider before starting any exercise program. If you work with a PT or bodyworker, the Physical Self-Assessment captures their specific cues so the AI can align its recommendations.</div></div>
+
+            <div class="faq-item"><div class="faq-question">How does the Event Planner know about my dressage test?</div><div class="faq-answer">YDJ includes a comprehensive, verified dressage test database covering USDF tests (Introductory through Fourth Level) and FEI tests (Prix St. Georges through Grand Prix Special). When you specify which test you're preparing for, the planner pulls the complete requirements &mdash; movements, geometry, coefficients, and common errors &mdash; and evaluates your readiness against them specifically.</div></div>
+
+            <div class="faq-item"><div class="faq-question">What happens to my data?</div><div class="faq-answer">Your data is yours. It's stored securely and used exclusively to generate your personalized outputs. It's never shared with other riders, and your coaching analysis is completely private. You can export your data at any time.</div></div>
+        </div>
+
+        <!-- Contact Section -->
+        <div class="contact-box" id="contact">
+            <h3>Questions? Problems? Ideas?</h3>
+            <p style="margin-bottom: 15px; font-size: 1.1em;">We'd love to hear from you:</p>
+            <p><a href="mailto:barb@yourdressagejourney.com">barb@yourdressagejourney.com</a></p>
+            <p style="margin-top: 20px; font-size: 0.95em; opacity: 0.9;">Your feedback shapes this platform. No question is too small, no idea is too weird.</p>
+        </div>
+
+        <div style="text-align: center; padding: 40px 20px; color: #7A7A7A;">
+            <p style="font-style: italic; font-size: 1.1em;">"Journaling without analysis is just expensive record-keeping.<br>Your data deserves to work as hard as you do."</p>
+            <p style="margin-top: 15px; font-weight: 500; color: #8B7355;">Illuminate Your Journey</p>
+        </div>
+    </div>
+</body>
+</html>

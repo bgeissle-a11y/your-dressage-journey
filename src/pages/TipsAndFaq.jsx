@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import './TipsAndFaq.css';
+import './OutputsTipsAndFaq.css';
 
 export default function TipsAndFaq() {
   return (
@@ -26,6 +27,9 @@ export default function TipsAndFaq() {
           <a href="#best-tips">Getting the Most Value</a>
           <a href="#contact">Questions? Problems? Ideas?</a>
         </nav>
+        <div className="outputs-cross-link">
+          Looking for help with your <strong>AI coaching outputs</strong>? <Link to="/outputs-tips-and-faq">Outputs Tips &amp; FAQ &rarr;</Link>
+        </div>
       </div>
 
       {/* Your Forms at a Glance */}
@@ -78,12 +82,12 @@ export default function TipsAndFaq() {
             <div className="tips-card-desc">Capture insights from watching clinics, lessons, videos, and other riders.</div>
             <span className="tips-card-freq">When opportunities arise</span>
           </Link>
-          <div className="tips-form-card tips-form-card--static">
+          <Link to="/rider-assessments/new" className="tips-form-card">
             <div className="tips-card-icon">&#x1F4CA;</div>
             <div className="tips-card-title">Self-Assessments</div>
             <div className="tips-card-desc">Periodic check-ins on your riding skills and physical readiness.</div>
             <span className="tips-card-freq">Monthly / Quarterly</span>
-          </div>
+          </Link>
         </div>
 
         <div className="tips-emphasis">

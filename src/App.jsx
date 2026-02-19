@@ -6,7 +6,9 @@ import SignUp from './components/Auth/SignUp';
 import SignIn from './components/Auth/SignIn';
 import ForgotPassword from './components/Auth/ForgotPassword';
 import Dashboard from './pages/Dashboard';
+import Insights from './pages/Insights';
 import TipsAndFaq from './pages/TipsAndFaq';
+import OutputsTipsAndFaq from './pages/OutputsTipsAndFaq';
 import Home from './pages/Home';
 
 // Profile
@@ -50,7 +52,9 @@ function App() {
           {/* Protected Routes - wrapped in AppLayout */}
           <Route element={<PrivateRoute><AppLayout /></PrivateRoute>}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/insights" element={<Insights />} />
             <Route path="/tips-and-faq" element={<TipsAndFaq />} />
+            <Route path="/outputs-tips-and-faq" element={<OutputsTipsAndFaq />} />
 
             {/* Profile */}
             <Route path="/profile/rider" element={<RiderProfileForm />} />
