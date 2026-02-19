@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import useCacheWarmth from '../../hooks/useCacheWarmth';
 import './AppLayout.css';
 
 export default function AppLayout() {
   const { currentUser, logout } = useAuth();
+  useCacheWarmth();
   const navigate = useNavigate();
   const location = useLocation();
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -65,6 +67,13 @@ export default function AppLayout() {
               className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}
             >
               Dashboard
+            </Link>
+
+            <Link
+              to="/insights"
+              className={`nav-link ${location.pathname === '/insights' ? 'active' : ''}`}
+            >
+              Insights
             </Link>
 
             {/* Record Dropdown */}

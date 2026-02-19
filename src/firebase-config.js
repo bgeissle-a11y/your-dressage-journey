@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
+import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
 
 // Firebase configuration using environment variables
 // These values come from the .env file (see .env.example for setup instructions)
@@ -38,5 +39,13 @@ export const db = getFirestore(app);
 
 // Initialize Firebase Authentication
 export const auth = getAuth(app);
+
+// Initialize Cloud Functions
+export const functions = getFunctions(app);
+
+// Connect to emulator in development
+if (import.meta.env.DEV && import.meta.env.VITE_USE_FUNCTIONS_EMULATOR === 'true') {
+  connectFunctionsEmulator(functions, 'localhost', 5001);
+}
 
 export default app;

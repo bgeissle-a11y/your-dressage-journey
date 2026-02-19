@@ -1,0 +1,1126 @@
+{
+  "metadata": {
+    "organization": "United States Dressage Federation (USDF)",
+    "copyright": "©2022 United States Dressage Federation",
+    "effective_dates": "December 1, 2022 - November 30, 2026",
+    "parsed_date": "2026-02-09",
+    "levels_included": ["Introductory", "Training"]
+  },
+  
+  "tests": [
+    {
+      "test_id": "2023_intro_a",
+      "name": "2023 USDF Introductory Level – Test A",
+      "level": "Introductory",
+      "sublevel": "A",
+      "year": 2023,
+      
+      "test_info": {
+        "gaits": ["Walk-Trot"],
+        "max_points": 160,
+        "arena_sizes": ["Small (20m x 40m)", "Standard (20m x 60m)"],
+        "suggested_ride_time": {
+          "standard": "5:00",
+          "small": "4:00",
+          "note": "Suggested to add at least 2 min. for scheduling purposes"
+        }
+      },
+      
+      "purpose": "To introduce the rider and/or horse to the sport of dressage, confirming that they are beginning to develop an understanding of correct dressage basics. The horse should be ridden freely forward in a steady tempo and clear rhythm, accepting contact with the bit. An understanding of test accuracy and geometry should be demonstrated.",
+      
+      "requirements": [
+        "Free walk",
+        "Medium walk",
+        "Working trot rising",
+        "20 meter circle",
+        "Halt through walk"
+      ],
+      
+      "instructions": {
+        "all_trot": "All trot work to be ridden rising",
+        "transitions": "Transitions from walk to trot and trot to walk should be performed through medium walk with the objective of performing a smooth, progressive transition",
+        "turns": "Turns from centerline to the track or from the track to centerline should be ridden as quarter circles touching the track at a point halfway between the centerline and the corner, and should be ridden smoothly"
+      },
+      
+      "comment": "Horses should be ridden with steady, elastic contact, with the exception of the free walk where the horse is allowed complete freedom to stretch the neck forward and downward",
+      
+      "movements": [
+        {
+          "number": 1,
+          "marker": "A",
+          "location": "Between X & C",
+          "description": "Enter, working trot rising. Medium walk",
+          "directives": "Regularity, quality of trot; straightness, willing, calm transition. Regularity, quality, of walk",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 2,
+          "marker": "M",
+          "location": null,
+          "description": "Track right. Working trot rising",
+          "directives": "Bend and balance; willing, calm transition",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 3,
+          "marker": "C",
+          "location": null,
+          "description": "Circle right 20 meters, working trot rising",
+          "directives": "Regularity; shape and size of circle; bend; balance",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 4,
+          "marker": "K-X-M",
+          "location": null,
+          "description": "Change rein, working trot rising",
+          "directives": "Regularity of trot; straightness; bend and balance in corner",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 5,
+          "marker": "C",
+          "location": null,
+          "description": "Circle left 20 meters, working trot rising",
+          "directives": "Regularity; shape and size of circle; bend; balance",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 6,
+          "marker": "Between C & H",
+          "location": null,
+          "description": "Medium walk",
+          "directives": "Willing, calm transition; regularity, quality",
+          "coefficient": 2,
+          "remarks": ""
+        },
+        {
+          "number": 7,
+          "marker": "H-X-F",
+          "location": null,
+          "description": "Free walk",
+          "directives": "Regularity, reach and ground cover with over track of free walk allowing complete freedom to stretch the neck forward and downward",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 8,
+          "marker": "F-A",
+          "location": null,
+          "description": "Medium walk. Down centerline",
+          "directives": "Regularity, quality, willing, calm transition, bend and balance in turn. Straightness on centerline.",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 9,
+          "marker": "X",
+          "location": null,
+          "description": "Halt and salute",
+          "directives": "Straightness; attentiveness; immobility (min. 3 seconds)",
+          "coefficient": null,
+          "remarks": "Leave arena in free walk. Exit at A."
+        }
+      ],
+      
+      "collective_marks": [
+        {
+          "category": "Gaits",
+          "description": "freedom and regularity",
+          "coefficient": null
+        },
+        {
+          "category": "Impulsion",
+          "description": "desire to move forward with suppleness of the back and steady tempo",
+          "coefficient": null
+        },
+        {
+          "category": "Submission",
+          "description": "acceptance of steady contact, attention, and confidence",
+          "coefficient": 2
+        },
+        {
+          "category": "Rider's position",
+          "description": "keeping in balance with horse",
+          "coefficient": null
+        },
+        {
+          "category": "Rider's effectiveness of aids",
+          "description": "correct bend and preparation of transitions",
+          "coefficient": null
+        },
+        {
+          "category": "Geometry and accuracy",
+          "description": "correct size and shape of circles and turns",
+          "coefficient": null
+        }
+      ],
+      
+      "errors": {
+        "first_error": 2,
+        "second_error": 4,
+        "third_error": "Elimination"
+      }
+    },
+    
+    {
+      "test_id": "2023_intro_b",
+      "name": "2023 USDF Introductory Level – Test B",
+      "level": "Introductory",
+      "sublevel": "B",
+      "year": 2023,
+      
+      "test_info": {
+        "gaits": ["Walk-Trot"],
+        "max_points": 160,
+        "arena_sizes": ["Small (20m x 40m)", "Standard (20m x 60m)"],
+        "suggested_ride_time": {
+          "standard": "5:00",
+          "small": "4:00",
+          "note": "Suggested to add at least 2 min. for scheduling purposes"
+        }
+      },
+      
+      "purpose": "To introduce the rider and/or horse to the sport of dressage, confirming that they are beginning to develop an understanding of correct dressage basics. The horse should be ridden freely forward in a steady tempo and clear rhythm, accepting contact with the bit. An understanding of test accuracy and geometry should be demonstrated.",
+      
+      "requirements": [
+        "Free walk",
+        "Medium walk",
+        "Working trot rising",
+        "20 meter circle",
+        "Halt through walk"
+      ],
+      
+      "instructions": {
+        "all_trot": "All trot work to be ridden rising",
+        "transitions": "Transitions from walk to trot and trot to walk should be performed through medium walk with the objective of performing a smooth, progressive transition",
+        "turns": "Turns from centerline to the track or from the track to centerline should be ridden as quarter circles touching the track at a point halfway between the centerline and the corner, and should be ridden smoothly"
+      },
+      
+      "comment": "Horses should be ridden with steady, elastic contact, with the exception of the free walk where the horse is allowed complete freedom to stretch the neck forward and downward",
+      
+      "movements": [
+        {
+          "number": 1,
+          "marker": "A",
+          "location": "X",
+          "description": "Enter working trot rising. Halt through medium walk. Salute - Proceed working trot rising",
+          "directives": "Regularity, quality of trot; willing, calm transitions; straightness; attentiveness; immobility (min. 3 seconds)",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 2,
+          "marker": "A",
+          "location": null,
+          "description": "Track left, working trot rising",
+          "directives": "Regularity; bend and balance in turn and corner",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 3,
+          "marker": "C",
+          "location": null,
+          "description": "Circle left 20 meters, working trot rising",
+          "directives": "Regularity; shape and size of circle; bend; balance",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 4,
+          "marker": "E",
+          "location": null,
+          "description": "Medium walk",
+          "directives": "Willing, calm transition; regularity, quality",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 5,
+          "marker": "Between K & A",
+          "location": null,
+          "description": "Free walk",
+          "directives": "Regularity, reach, and ground cover with overtrack of free walk allowing complete freedom to stretch the neck forward and downward",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 6,
+          "marker": "A",
+          "location": null,
+          "description": "Medium walk",
+          "directives": "Willing, calm transition; regularity, quality, overtrack",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 7,
+          "marker": "Between H & C",
+          "location": null,
+          "description": "Working trot rising",
+          "directives": "Willing, calm transition; regularity of trot; bend and balance in corner",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 8,
+          "marker": "F-E",
+          "location": null,
+          "description": "Circle right 20 meters, working trot rising",
+          "directives": "Regularity; shape and size of circle; bend; balance",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 9,
+          "marker": "E-H",
+          "location": null,
+          "description": "Down centerline. Halt through medium walk, Salute",
+          "directives": "Bend and balance in turn; straightness; regularity of trot; willing, calm transition; straightness; attentiveness; immobility (min. 3 seconds)",
+          "coefficient": null,
+          "remarks": "Leave arena in free walk. Exit at A."
+        }
+      ],
+      
+      "collective_marks": [
+        {
+          "category": "Gaits",
+          "description": "freedom and regularity",
+          "coefficient": null
+        },
+        {
+          "category": "Impulsion",
+          "description": "desire to move forward with suppleness of the back and steady tempo",
+          "coefficient": null
+        },
+        {
+          "category": "Submission",
+          "description": "acceptance of steady contact, attention, and confidence",
+          "coefficient": 2
+        },
+        {
+          "category": "Rider's position",
+          "description": "keeping in balance with horse",
+          "coefficient": null
+        },
+        {
+          "category": "Rider's effectiveness of aids",
+          "description": "correct bend and preparation of transitions",
+          "coefficient": null
+        },
+        {
+          "category": "Geometry and accuracy",
+          "description": "correct size and shape of circles and turns",
+          "coefficient": null
+        }
+      ],
+      
+      "errors": {
+        "first_error": 2,
+        "second_error": 4,
+        "third_error": "Elimination"
+      }
+    },
+    
+    {
+      "test_id": "2023_intro_c",
+      "name": "2023 USDF Introductory Level – Test C",
+      "level": "Introductory",
+      "sublevel": "C",
+      "year": 2023,
+      
+      "test_info": {
+        "gaits": ["Walk-Trot-Canter"],
+        "max_points": 200,
+        "arena_sizes": ["Small (20m x 40m)", "Standard (20m x 60m)"],
+        "suggested_ride_time": {
+          "standard": "6:00",
+          "small": "5:00",
+          "note": "Possibly longer for small arena (6:30)"
+        }
+      },
+      
+      "purpose": "To introduce the rider and/or horse to the sport of dressage, confirming that they are beginning to develop an understanding of correct dressage basics. The horse should be ridden freely forward in a steady tempo and clear rhythm, accepting contact with the bit. An understanding of test accuracy and geometry should be demonstrated.",
+      
+      "requirements": [
+        "Free walk",
+        "Medium walk",
+        "Working trot rising",
+        "Working canter",
+        "20 meter circle",
+        "Halt through walk"
+      ],
+      
+      "instructions": {
+        "all_trot": "All trot work to be ridden rising",
+        "transitions": "Transitions from walk to trot and trot to walk should be performed through medium walk with the objective of performing a smooth, progressive transition",
+        "turns": "Turns from centerline to the track or from the track to centerline should be ridden as quarter circles touching the track at a point halfway between the centerline and the corner, and should be ridden smoothly"
+      },
+      
+      "comment": "Horses should be ridden with steady, elastic contact, with the exception of the free walk where the horse is allowed complete freedom to stretch the neck forward and downward",
+      
+      "movements": [
+        {
+          "number": 1,
+          "marker": "A",
+          "location": "X",
+          "description": "Enter working trot rising. Halt through medium walk. Salute - Proceed working trot rising",
+          "directives": "Regularity; quality of trot; willing, calm transitions; straightness; attentiveness; immobility (min. 3 seconds)",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 2,
+          "marker": "C",
+          "location": null,
+          "description": "Track right, working trot rising",
+          "directives": "Regularity; bend and balance in turn and corner",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 3,
+          "marker": "B",
+          "location": null,
+          "description": "Circle right 20 meters, working trot rising",
+          "directives": "Regularity; shape and size of circle; bend; balance",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 4,
+          "marker": "Before A",
+          "location": null,
+          "description": "Circle right 20 meters developing working canter in first quarter of the circle, right lead",
+          "directives": "Regularity of gaits; shape and size of circle; bend; balance",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 5,
+          "marker": "A",
+          "location": null,
+          "description": "Working trot rising",
+          "directives": "Willing and calm transitions (in & out of canter)",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 6,
+          "marker": "K-X-M",
+          "location": null,
+          "description": "Change rein, working trot rising",
+          "directives": "Regularity of trot; straightness; bend and balance in corners",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 7,
+          "marker": "E",
+          "location": null,
+          "description": "Circle left 20 meters, working trot rising",
+          "directives": "Regularity; shape and size of circle; bend; balance",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 8,
+          "marker": "Before A",
+          "location": null,
+          "description": "Circle left 20 meters developing working canter in first quarter of the circle, left lead",
+          "directives": "Regularity and quality of gaits; shape and size of circle; bend; balance",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 9,
+          "marker": "A",
+          "location": null,
+          "description": "Working trot rising",
+          "directives": "Willing and calm transitions (in & out of canter)",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 10,
+          "marker": "Between F & B",
+          "location": null,
+          "description": "Medium walk",
+          "directives": "Willing, calm transition; regularity, quality, overtrack",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 11,
+          "marker": "B-H",
+          "location": null,
+          "description": "Free walk. Medium walk",
+          "directives": "Regularity and quality of walks; reach and ground cover with overtrack; allowing complete freedom to stretch the neck forward and downward; straightness; Willing, calm transitions",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 12,
+          "marker": "Between C & M",
+          "location": null,
+          "description": "Working trot rising to A",
+          "directives": "Willing, calm transition; regularity of trot; bend and balance in corner; straightness",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 13,
+          "marker": "A",
+          "location": "X",
+          "description": "Down centerline. Halt through medium walk. Salute",
+          "directives": "Bend and balance in turn; regularity of trot; willing, calm transition; straightness; attentiveness; immobility (min. 3 seconds)",
+          "coefficient": null,
+          "remarks": "Leave arena in free walk. Exit at A."
+        }
+      ],
+      
+      "collective_marks": [
+        {
+          "category": "Gaits",
+          "description": "freedom and regularity",
+          "coefficient": null
+        },
+        {
+          "category": "Impulsion",
+          "description": "desire to move forward with suppleness of the back and steady tempo",
+          "coefficient": null
+        },
+        {
+          "category": "Submission",
+          "description": "acceptance of steady contact, attention, and confidence",
+          "coefficient": 2
+        },
+        {
+          "category": "Rider's position",
+          "description": "keeping in balance with horse",
+          "coefficient": null
+        },
+        {
+          "category": "Rider's effectiveness of aids",
+          "description": "correct bend and preparation of transitions",
+          "coefficient": null
+        },
+        {
+          "category": "Geometry and accuracy",
+          "description": "correct size and shape of circles and turns",
+          "coefficient": null
+        }
+      ],
+      
+      "errors": {
+        "first_error": 2,
+        "second_error": 4,
+        "third_error": "Elimination"
+      }
+    },
+    
+    {
+      "test_id": "2023_training_1",
+      "name": "2023 USEF Training Level Test 1",
+      "level": "Training",
+      "sublevel": "1",
+      "year": 2023,
+      
+      "test_info": {
+        "gaits": ["Working trot", "Working canter", "Medium walk", "Free walk", "20m circles in trot and canter"],
+        "max_points": 260,
+        "arena_sizes": ["Standard", "Small"],
+        "suggested_ride_time": {
+          "standard": "5:00",
+          "small": "4:00",
+          "note": "from entry at A to final halt. Suggested to add at least 2 min. for scheduling purposes"
+        }
+      },
+      
+      "purpose": "To confirm that the horse demonstrates correct basics, by showing suppleness both laterally and longitudinally, moving freely forward in a clear rhythm with a steady tempo, and readily accepting contact with the bit. Correct geometry and lines of travel should be shown.",
+      
+      "requirements": [
+        "Working trot",
+        "Working canter",
+        "Medium walk",
+        "Free walk",
+        "20m circles in trot and canter"
+      ],
+      
+      "instructions": {
+        "all_trot": "All trot work may be ridden sitting or rising, unless otherwise stated",
+        "halts": "Halts may be through the walk"
+      },
+      
+      "movements": [
+        {
+          "number": 1,
+          "marker": "A",
+          "location": "X",
+          "description": "Enter working trot. Halt, salute. Proceed working trot",
+          "directives": "Regularity and quality of trot; willing, calm transitions; straightness; attentiveness; immobility (min. 3 seconds)",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 2,
+          "marker": "C",
+          "location": "E",
+          "description": "Track left. Circle left 20m",
+          "directives": "Regularity and quality of trot; shape and size of circle; bend; balance",
+          "coefficient": 2,
+          "remarks": ""
+        },
+        {
+          "number": 3,
+          "marker": "A",
+          "location": null,
+          "description": "Circle left 20m developing left lead canter in first quarter of circle",
+          "directives": "Willing, calm transition; regularity and quality of gaits; shape and size of circle; bend; balance",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 4,
+          "marker": "A-F-B",
+          "location": null,
+          "description": "Working canter",
+          "directives": "Regularity and quality of canter; bend and balance in corner; straightness",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 5,
+          "marker": "Between B & M",
+          "location": null,
+          "description": "Working trot",
+          "directives": "Willing, calm transition; regularity and quality of gaits; straightness; bend and balance in corner",
+          "coefficient": 2,
+          "remarks": ""
+        },
+        {
+          "number": 6,
+          "marker": "Between C & H",
+          "location": null,
+          "description": "Medium walk",
+          "directives": "Willing, calm transition; regularity, quality, bend and balance in corner",
+          "coefficient": 2,
+          "remarks": ""
+        },
+        {
+          "number": 7,
+          "marker": "E-F",
+          "location": "F",
+          "description": "Change rein, free walk. Medium walk",
+          "directives": "Regularity and quality of walks; reach, overtrack, and ground cover of free walk allowing complete freedom to stretch the neck forward and downward; straightness; willing, calm transitions",
+          "coefficient": 2,
+          "remarks": ""
+        },
+        {
+          "number": 8,
+          "marker": "A",
+          "location": null,
+          "description": "Working trot",
+          "directives": "Willing, calm transition; regularity and quality of trot; bend and balance in corner; straightness",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 9,
+          "marker": "E",
+          "location": null,
+          "description": "Circle right 20m",
+          "directives": "Regularity and quality of trot; shape and size of circle; bend; balance",
+          "coefficient": 2,
+          "remarks": ""
+        },
+        {
+          "number": 10,
+          "marker": "C",
+          "location": null,
+          "description": "Circle right 20m developing right lead canter in first quarter of circle",
+          "directives": "Willing, calm transition; regularity and quality of gaits; shape and size of circle; bend; balance",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 11,
+          "marker": "C-M-B",
+          "location": null,
+          "description": "Working canter",
+          "directives": "Regularity and quality of canter; bend and balance in corner; straightness",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 12,
+          "marker": "Between B & F",
+          "location": null,
+          "description": "Working trot",
+          "directives": "Willing, calm transition; regularity and quality of gaits; straightness; bend and balance in corner",
+          "coefficient": 2,
+          "remarks": ""
+        },
+        {
+          "number": 13,
+          "marker": "A",
+          "location": "X",
+          "description": "Down centerline. Halt, salute",
+          "directives": "Bend and balance in turn; regularity and quality of trot; willing, calm transition; straightness; attentiveness; immobility (min. 3 seconds)",
+          "coefficient": null,
+          "remarks": "Leave arena at A in free walk."
+        }
+      ],
+      
+      "collective_marks": [
+        {
+          "category": "Gaits",
+          "description": "Freedom and regularity",
+          "coefficient": 1
+        },
+        {
+          "category": "Impulsion",
+          "description": "Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters",
+          "coefficient": 2
+        },
+        {
+          "category": "Submission",
+          "description": "Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements",
+          "coefficient": 2
+        },
+        {
+          "category": "Rider's position and seat",
+          "description": "Alignment; posture; stability; weight placement; following mechanics of the gaits",
+          "coefficient": 1
+        },
+        {
+          "category": "Rider's correct and effective use of aids",
+          "description": "Clarity; subtlety; independence; accuracy of test",
+          "coefficient": 1
+        }
+      ],
+      
+      "errors": {
+        "first_error": 2,
+        "second_error": 4,
+        "third_error": "Elimination"
+      }
+    },
+    
+    {
+      "test_id": "2023_training_2",
+      "name": "2023 USEF Training Level Test 2",
+      "level": "Training",
+      "sublevel": "2",
+      "year": 2023,
+      
+      "test_info": {
+        "gaits": ["Stretch circle in trot"],
+        "max_points": 290,
+        "arena_sizes": ["Standard", "Small"],
+        "suggested_ride_time": {
+          "standard": "5:30",
+          "small": "4:30",
+          "note": "from entry at A to final halt. Suggested to add at least 2 min. for scheduling purposes"
+        },
+        "introduces": "Stretch circle in trot"
+      },
+      
+      "purpose": "To confirm that the horse demonstrates correct basics, by showing suppleness both laterally and longitudinally, moving freely forward in a clear rhythm with a steady tempo, and readily accepting contact with the bit. Correct geometry and lines of travel should be shown.",
+      
+      "requirements": [
+        "Working trot",
+        "Working canter",
+        "Medium walk",
+        "Free walk",
+        "20m circles in trot and canter",
+        "Stretch circle in trot"
+      ],
+      
+      "instructions": {
+        "all_trot": "All trot work may be ridden sitting or rising, unless otherwise stated",
+        "halts": "Halts may be through the walk"
+      },
+      
+      "movements": [
+        {
+          "number": 1,
+          "marker": "A",
+          "location": "X",
+          "description": "Enter working trot. Halt, salute. Proceed working trot",
+          "directives": "Regularity and quality of trot; willing, calm transitions; straightness; attentiveness; immobility (min. 3 seconds)",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 2,
+          "marker": "C",
+          "location": "B",
+          "description": "Track right. Circle right 20m",
+          "directives": "Regularity and quality of trot; shape and size of circle; bend and balance",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 3,
+          "marker": "K-X-M",
+          "location": null,
+          "description": "Change rein",
+          "directives": "Regularity and quality of trot; straightness; bend and balance in corner",
+          "coefficient": 2,
+          "remarks": ""
+        },
+        {
+          "number": 4,
+          "marker": "Between C & H",
+          "location": null,
+          "description": "Working canter left lead",
+          "directives": "Willing, calm transition; regularity and quality of gaits; bend and balance in corner; straightness",
+          "coefficient": 2,
+          "remarks": ""
+        },
+        {
+          "number": 5,
+          "marker": "E",
+          "location": null,
+          "description": "Circle left 20m",
+          "directives": "Regularity and quality of canter; shape and size of circle; bend; balance",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 6,
+          "marker": "Between E & K",
+          "location": null,
+          "description": "Working trot",
+          "directives": "Willing, calm transition; regularity and quality of gaits; straightness; bend and balance in corner",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 7,
+          "marker": "A",
+          "location": "Before A",
+          "location2": "A",
+          "description": "Circle left 20m rising trot, allowing the horse to stretch forward and downward while maintaining contact. Shorten the reins. Working trot",
+          "directives": "Forward and downward stretch over the back into a light contact, maintaining balance and quality of trot; bend; shape and size of circle; willing, calm transitions",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 8,
+          "marker": "F",
+          "location": "F-E",
+          "description": "Medium walk. Change rein, medium walk",
+          "directives": "Willing, calm transition; regularity, overtrack, and quality of walk",
+          "coefficient": 2,
+          "remarks": ""
+        },
+        {
+          "number": 9,
+          "marker": "E-M",
+          "location": "M",
+          "description": "Change rein, free walk. Medium walk",
+          "directives": "Regularity and quality of walks; reach, overtrack, and ground cover of free walk allowing complete freedom to stretch the neck forward and downward; straightness; willing, calm transitions",
+          "coefficient": 2,
+          "remarks": ""
+        },
+        {
+          "number": 10,
+          "marker": "C",
+          "location": null,
+          "description": "Working trot",
+          "directives": "Willing, calm transition; regularity and quality of trot; bend and balance in corner; straightness",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 11,
+          "marker": "E",
+          "location": null,
+          "description": "Circle left 20m",
+          "directives": "Regularity and quality of trot; shape and size of circle; bend; balance",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 12,
+          "marker": "F-X-H",
+          "location": null,
+          "description": "Change rein",
+          "directives": "Regularity and quality of trot; straightness; bend and balance in corner",
+          "coefficient": 2,
+          "remarks": ""
+        },
+        {
+          "number": 13,
+          "marker": "Between C & M",
+          "location": null,
+          "description": "Working canter right lead",
+          "directives": "Willing, calm transition; regularity and quality of gaits; bend and balance in corner; straightness",
+          "coefficient": 2,
+          "remarks": ""
+        },
+        {
+          "number": 14,
+          "marker": "B",
+          "location": null,
+          "description": "Circle right 20m",
+          "directives": "Regularity and quality of canter; shape and size of circle; bend; balance",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 15,
+          "marker": "Between B & F",
+          "location": null,
+          "description": "Working trot",
+          "directives": "Willing, calm transition; regularity and quality of gaits, straightness; bend and balance in corner",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 16,
+          "marker": "A",
+          "location": "X",
+          "description": "Down centerline. Halt, salute",
+          "directives": "Bend and balance in turn; regularity and quality of trot; willing, calm transition; straightness; attentiveness; immobility (min. 3 seconds)",
+          "coefficient": null,
+          "remarks": "Leave arena at A in free walk."
+        }
+      ],
+      
+      "collective_marks": [
+        {
+          "category": "Gaits",
+          "description": "Freedom and regularity",
+          "coefficient": 1
+        },
+        {
+          "category": "Impulsion",
+          "description": "Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters",
+          "coefficient": 2
+        },
+        {
+          "category": "Submission",
+          "description": "Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements",
+          "coefficient": 2
+        },
+        {
+          "category": "Rider's position and seat",
+          "description": "Alignment; posture; stability; weight placement; following mechanics of the gaits",
+          "coefficient": 1
+        },
+        {
+          "category": "Rider's correct and effective use of aids",
+          "description": "Clarity; subtlety; independence; accuracy of test",
+          "coefficient": 1
+        }
+      ],
+      
+      "errors": {
+        "first_error": 2,
+        "second_error": 4,
+        "third_error": "Elimination"
+      }
+    },
+    
+    {
+      "test_id": "2023_training_3",
+      "name": "2023 USEF Training Level Test 3",
+      "level": "Training",
+      "sublevel": "3",
+      "year": 2023,
+      
+      "test_info": {
+        "gaits": ["Changing of bend on a shallow loop", "Canter-trot transition on diagonal"],
+        "max_points": 250,
+        "arena_sizes": ["Standard", "Small"],
+        "suggested_ride_time": {
+          "standard": "5:30",
+          "small": "4:30",
+          "note": "from entry at A to final halt. Suggested to add at least 2 min. for scheduling purposes"
+        },
+        "introduces": ["Changing of bend on a shallow loop", "Canter-trot transition on diagonal"]
+      },
+      
+      "purpose": "To confirm that the horse demonstrates correct basics, by showing suppleness both laterally and longitudinally, moving freely forward in a clear rhythm with a steady tempo, and readily accepting contact with the bit. Correct geometry and lines of travel should be shown.",
+      
+      "requirements": [
+        "Working trot",
+        "Working canter",
+        "Medium walk",
+        "Free walk",
+        "20m circles in trot and canter",
+        "Shallow loops",
+        "Stretch circle in trot"
+      ],
+      
+      "instructions": {
+        "all_trot": "All trot work may be ridden sitting or rising, unless otherwise stated",
+        "halts": "Halts may be through the walk"
+      },
+      
+      "movements": [
+        {
+          "number": 1,
+          "marker": "A",
+          "location": "X",
+          "description": "Enter working trot. Halt, salute. Proceed working trot",
+          "directives": "Regularity and quality of trot; willing, calm transitions; straightness; attentiveness; immobility (min. 3 seconds)",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 2,
+          "marker": "C",
+          "location": "H-X-K",
+          "description": "Track left. Slightly after H begin a single loop to X returning to the track slightly before K",
+          "directives": "Regularity and quality of trot; bend and balance in turns; shape and size of loop; changes of bend; balance",
+          "coefficient": 2,
+          "remarks": ""
+        },
+        {
+          "number": 3,
+          "marker": "Between A & F",
+          "location": null,
+          "description": "Working canter left lead",
+          "directives": "Willing, calm transition; regularity and quality of gaits; bend in corner; straightness",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 4,
+          "marker": "B",
+          "location": null,
+          "description": "Circle left 20m",
+          "directives": "Regularity and quality of canter; shape and size of circle; bend; balance",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 5,
+          "marker": "H-X-F",
+          "location": "X",
+          "description": "Change rein. Working trot",
+          "directives": "Regularity and quality of gaits; willing, calm transition; straightness; bend in corner",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 6,
+          "marker": "A",
+          "location": null,
+          "description": "Medium walk",
+          "directives": "Willing, calm transition; regularity, quality",
+          "coefficient": 2,
+          "remarks": ""
+        },
+        {
+          "number": 7,
+          "marker": "K-X-H",
+          "location": "H",
+          "description": "Free walk. Medium walk",
+          "directives": "Regularity and quality of walks; reach, overtrack, and ground cover of free walk allowing complete freedom to stretch the neck forward and downward; straightness; willing, calm transitions",
+          "coefficient": 2,
+          "remarks": ""
+        },
+        {
+          "number": 8,
+          "marker": "C",
+          "location": "M-X-F",
+          "description": "Working Trot. Slightly after M begin a single loop to X returning to the track slightly before F",
+          "directives": "Regularity and quality of trot; shape and size of loop; changes of bend and balance",
+          "coefficient": 2,
+          "remarks": ""
+        },
+        {
+          "number": 9,
+          "marker": "Between A & K",
+          "location": null,
+          "description": "Working canter right lead",
+          "directives": "Willing, calm transition; regularity and quality of gaits; bend and balance in corner; straightness",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 10,
+          "marker": "E",
+          "location": null,
+          "description": "Circle right 20m",
+          "directives": "Regularity and quality of canter; shape and size of circle; bend; balance",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 11,
+          "marker": "C",
+          "location": null,
+          "description": "Working trot",
+          "directives": "Willing, calm transition; regularity and quality of trot",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 12,
+          "marker": "B",
+          "location": "Before B",
+          "location2": "B",
+          "description": "Circle right 20m in rising trot allowing the horse to stretch forward and downward. Shorten the reins. Working trot",
+          "directives": "Forward and downward stretch over the back into a light contact, maintaining balance and quality of trot; bend; shape and size of circle; willing, calm transitions",
+          "coefficient": 2,
+          "remarks": ""
+        },
+        {
+          "number": 13,
+          "marker": "A",
+          "location": "X",
+          "description": "Down centerline. Halt, salute",
+          "directives": "Bend and balance in turn; regularity and quality of trot; willing, calm transition; straight, attentive halt; immobile (min. 3 seconds)",
+          "coefficient": null,
+          "remarks": "Leave arena at A in free walk."
+        }
+      ],
+      
+      "collective_marks": [
+        {
+          "category": "Gaits",
+          "description": "Freedom and regularity",
+          "coefficient": 1
+        },
+        {
+          "category": "Impulsion",
+          "description": "Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters",
+          "coefficient": 2
+        },
+        {
+          "category": "Submission",
+          "description": "Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements",
+          "coefficient": 2
+        },
+        {
+          "category": "Rider's position and seat",
+          "description": "Alignment; posture; stability; weight placement; following mechanics of the gaits",
+          "coefficient": 1
+        },
+        {
+          "category": "Rider's correct and effective use of aids",
+          "description": "Clarity; subtlety; independence; accuracy of test",
+          "coefficient": 1
+        }
+      ],
+      
+      "errors": {
+        "first_error": 2,
+        "second_error": 4,
+        "third_error": "Elimination"
+      }
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "name": "ydj-functions",
+  "description": "Cloud Functions for Your Dressage Journey",
+  "private": true,
+  "main": "index.js",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "firebase-admin": "^13.6.1",
+    "firebase-functions": "^6.3.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0"
+  }
+}

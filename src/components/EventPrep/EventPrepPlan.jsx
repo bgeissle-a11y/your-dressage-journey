@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
@@ -6,7 +6,10 @@ import {
   EVENT_PREP_TYPES, EXPERIENCE_LEVELS, RIDING_FREQUENCIES,
   COACH_ACCESS_OPTIONS, AVAILABLE_RESOURCES, COACHING_VOICES, EVENT_PREP_STATUSES
 } from '../../services';
+import { getEventPlannerStep } from '../../services/aiService';
+import EventPlannerOutput from './EventPlannerOutput';
 import '../Forms/Forms.css';
+import '../../pages/Insights.css';
 
 const TYPE_LABELS = Object.fromEntries(EVENT_PREP_TYPES.map(t => [t.value, t.label]));
 const EXP_LABELS = Object.fromEntries(EXPERIENCE_LEVELS.map(e => [e.value, e.label]));
@@ -24,6 +27,14 @@ const EQUIPMENT_CATEGORIES = {
   documents: 'Documents'
 };
 
+const STEP_LABELS = [
+  '',
+  'Analyzing test requirements...',
+  'Evaluating readiness...',
+  'Building preparation plan...',
+  'Creating show-day guidance...',
+];
+
 export default function EventPrepPlan() {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
@@ -32,9 +43,30 @@ export default function EventPrepPlan() {
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // AI Event Planner state — progressive sections
+  const [aiSections, setAiSections] = useState({
+    testRequirements: null,
+    readinessAnalysis: null,
+    preparationPlan: null,
+    showDayGuidance: null,
+  });
+  const [aiMeta, setAiMeta] = useState({ generatedAt: null, fromCache: false });
+  const [aiStep, setAiStep] = useState(0); // 0=idle, 1-4=in-progress, 5=complete
+  const [aiError, setAiError] = useState(null);
+  const [failedStep, setFailedStep] = useState(null);
+  const cacheLoaded = useRef(false);
+
   useEffect(() => {
     loadPlan();
   }, [id]);
+
+  // Auto-load cached plan when plan data arrives
+  useEffect(() => {
+    if (plan?.generatedPlan?.generatedAt && !cacheLoaded.current && aiStep === 0 && !aiSections.testRequirements) {
+      cacheLoaded.current = true;
+      loadCachedPlan();
+    }
+  }, [plan]);
 
   async function loadPlan() {
     if (!id) return;
@@ -44,6 +76,109 @@ export default function EventPrepPlan() {
       setPlan(result.data);
     }
     setLoading(false);
+  }
+
+  async function loadCachedPlan() {
+    setAiStep(1);
+    setAiError(null);
+    try {
+      const result = await getEventPlannerStep({ eventPrepPlanId: id, step: 1 });
+      if (result.success && result.allSections && result.fromCache) {
+        setAiSections({
+          testRequirements: result.testRequirements,
+          readinessAnalysis: result.readinessAnalysis,
+          preparationPlan: result.preparationPlan,
+          showDayGuidance: result.showDayGuidance,
+        });
+        setAiMeta({ generatedAt: result.generatedAt, fromCache: true });
+        setAiStep(5);
+      } else {
+        // No cache available — return to idle
+        setAiStep(0);
+      }
+    } catch (err) {
+      console.warn('No cached event plan:', err.message);
+      setAiStep(0);
+    }
+  }
+
+  async function generatePlan(forceRefresh = false, startFromStep = 1) {
+    setAiError(null);
+    setFailedStep(null);
+
+    // Accumulate results across steps
+    let accumulated = startFromStep === 1
+      ? { testRequirements: null, readinessAnalysis: null, preparationPlan: null, showDayGuidance: null }
+      : { ...aiSections };
+
+    if (startFromStep === 1) {
+      setAiSections(accumulated);
+    }
+
+    for (let step = startFromStep; step <= 4; step++) {
+      setAiStep(step);
+
+      try {
+        const payload = { eventPrepPlanId: id, step };
+
+        if (step === 1) {
+          payload.forceRefresh = forceRefresh;
+        }
+        if (step >= 2) {
+          payload.priorResults = {};
+          payload.priorResults.testRequirements = accumulated.testRequirements;
+          if (step >= 3) payload.priorResults.readinessAnalysis = accumulated.readinessAnalysis;
+          if (step >= 4) payload.priorResults.preparationPlan = accumulated.preparationPlan;
+        }
+
+        const result = await getEventPlannerStep(payload);
+
+        if (!result.success) {
+          if (result.error === 'insufficient_data') {
+            setAiError(result.message || 'Not enough data to generate an event plan.');
+            setAiStep(0);
+            return;
+          }
+          throw new Error(result.message || `Step ${step} failed.`);
+        }
+
+        // Cache hit on step 1 — all sections returned at once
+        if (result.allSections && result.fromCache) {
+          setAiSections({
+            testRequirements: result.testRequirements,
+            readinessAnalysis: result.readinessAnalysis,
+            preparationPlan: result.preparationPlan,
+            showDayGuidance: result.showDayGuidance,
+          });
+          setAiMeta({ generatedAt: result.generatedAt, fromCache: true });
+          setAiStep(5);
+          return;
+        }
+
+        // Update accumulated and displayed state progressively
+        if (step === 1) {
+          accumulated.testRequirements = result.testRequirements;
+          setAiMeta({ generatedAt: null, fromCache: false });
+        } else if (step === 2) {
+          accumulated.readinessAnalysis = result.readinessAnalysis;
+        } else if (step === 3) {
+          accumulated.preparationPlan = result.preparationPlan;
+        } else if (step === 4) {
+          accumulated.showDayGuidance = result.showDayGuidance;
+          setAiMeta(prev => ({ ...prev, generatedAt: result.generatedAt }));
+        }
+
+        setAiSections({ ...accumulated });
+      } catch (err) {
+        console.error(`Event Planner step ${step} error:`, err);
+        setAiError(err.message || `An error occurred at step ${step}.`);
+        setFailedStep(step);
+        setAiStep(0);
+        return;
+      }
+    }
+
+    setAiStep(5);
   }
 
   async function toggleEquipment(index) {
@@ -75,6 +210,10 @@ export default function EventPrepPlan() {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     });
   }
+
+  const hasAnySections = aiSections.testRequirements || aiSections.readinessAnalysis ||
+    aiSections.preparationPlan || aiSections.showDayGuidance;
+  const isGenerating = aiStep >= 1 && aiStep <= 4;
 
   if (loading) {
     return <div className="loading-state">Loading preparation plan...</div>;
@@ -147,10 +286,74 @@ export default function EventPrepPlan() {
               </div>
             )}
           </div>
-          <div style={{ display: 'flex', gap: '12px' }}>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
             <Link to={`/event-prep/${id}/edit`} className="btn btn-secondary" style={{ textDecoration: 'none', fontSize: '0.9rem', padding: '8px 16px' }}>Edit Details</Link>
+            {aiStep === 0 && !hasAnySections && (
+              <button
+                className="btn-generate-plan"
+                onClick={() => generatePlan()}
+              >
+                Generate AI Event Plan
+              </button>
+            )}
+            {aiStep === 5 && (
+              <button
+                className="btn-generate-plan"
+                onClick={() => generatePlan(true)}
+                style={{ background: '#FAF8F5', color: '#8B7355', border: '1.5px solid #E0D5C7' }}
+              >
+                Regenerate Plan
+              </button>
+            )}
           </div>
         </div>
+
+        {/* Step Progress Indicator */}
+        {isGenerating && (
+          <div className="ep-loading">
+            <div className="spinner" />
+            <p>{STEP_LABELS[aiStep]}</p>
+            <p className="ep-loading__detail">Step {aiStep} of 4</p>
+            <div className="ep-step-progress">
+              {[1, 2, 3, 4].map(s => (
+                <div
+                  key={s}
+                  className={`ep-step-dot${s < aiStep ? ' ep-step-dot--done' : ''}${s === aiStep ? ' ep-step-dot--active' : ''}`}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Error with Retry */}
+        {aiError && aiStep === 0 && (
+          <div className="ep-error">
+            <p>{aiError}</p>
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+              {failedStep && failedStep > 1 && (
+                <button onClick={() => generatePlan(false, failedStep)} className="btn-retry">
+                  Retry Step {failedStep}
+                </button>
+              )}
+              <button onClick={() => generatePlan(true)} className="btn-retry">
+                {failedStep && failedStep > 1 ? 'Start Over' : 'Try Again'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Progressive AI Event Planner Output */}
+        {hasAnySections && (
+          <EventPlannerOutput
+            data={{
+              ...aiSections,
+              generatedAt: aiMeta.generatedAt,
+              fromCache: aiMeta.fromCache,
+            }}
+            isGenerating={isGenerating}
+            currentStep={aiStep}
+          />
+        )}
 
         {/* Context */}
         {(plan.targetLevel || plan.currentChallenges || plan.recentProgress) && (

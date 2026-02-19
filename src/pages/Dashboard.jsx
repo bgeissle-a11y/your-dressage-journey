@@ -193,6 +193,15 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* AI Insights Banner */}
+      <Link to="/insights" className="dashboard-insights-banner">
+        <div className="insights-banner-content">
+          <strong>AI Coaching Insights</strong>
+          <span>Get personalized coaching from 4 expert perspectives, explore your journey map, and build your mental performance system.</span>
+        </div>
+        <span className="insights-banner-arrow">&rarr;</span>
+      </Link>
+
       {/* Section Cards */}
       <div className="dashboard-sections">
         {sections.map(section => (

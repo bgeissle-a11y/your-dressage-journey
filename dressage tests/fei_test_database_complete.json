@@ -1,0 +1,264 @@
+{
+  "metadata": {
+    "organization": "Fédération Equestre Internationale (FEI)",
+    "effective_dates": "2009-2026",
+    "parsed_date": "2026-02-09",
+    "levels_included": ["Prix St. Georges", "Intermediate I", "Intermediate II", "Grand Prix", "Grand Prix Special"],
+    "total_tests": 5
+  },
+
+  "tests": [
+    {
+      "test_id": "prix_st_georges",
+      "name": "Prix St. Georges",
+      "test_code": "D-PSG-2009-2026",
+      "organization": "FEI",
+      "level": "Prix St. Georges",
+      "duration": "5:50",
+      "min_horse_age": 7,
+      "arena_size": "Standard (20m x 60m)",
+      "max_points": 340,
+      "base_points": 320,
+      "required_movements": {
+        "trot": [
+          "Collected trot",
+          "Medium trot",
+          "Extended trot",
+          "Shoulder-in",
+          "Half-pass",
+          "8m volte"
+        ],
+        "walk": [
+          "Collected walk",
+          "Extended walk",
+          "Half pirouette in walk (left and right)"
+        ],
+        "canter": [
+          "Collected canter",
+          "Extended canter",
+          "Half-pass in canter with flying changes",
+          "Single flying changes",
+          "Flying changes every 4th stride (4-tempis) - 5 times",
+          "Flying changes every 3rd stride (3-tempis) - 5 times",
+          "Half pirouettes in canter (3-4 strides, left and right)",
+          "Counter canter"
+        ],
+        "other": [
+          "Halt - immobility"
+        ]
+      },
+      "coefficient_movements": [
+        5,
+        10,
+        13,
+        14,
+        18,
+        20
+      ],
+      "key_differences": "Introduction of half pirouettes in canter (3-4 strides), 3-tempis and 4-tempis, half pirouettes in walk"
+    },
+    {
+      "test_id": "intermediate_1",
+      "name": "Intermediate I",
+      "test_code": "D-INTI-2009-2026",
+      "organization": "FEI",
+      "level": "Intermediate I",
+      "duration": "5:30",
+      "min_horse_age": 7,
+      "arena_size": "Standard (20m x 60m)",
+      "max_points": 340,
+      "base_points": 320,
+      "required_movements": {
+        "trot": [
+          "Collected trot",
+          "Medium trot",
+          "Extended trot",
+          "Shoulder-in",
+          "Half-pass",
+          "8m volte"
+        ],
+        "walk": [
+          "Collected walk",
+          "Extended walk"
+        ],
+        "canter": [
+          "Collected canter",
+          "Extended canter",
+          "Zigzag: 3 half-passes 5m each side with flying changes",
+          "Single flying changes",
+          "Flying changes every 3rd stride (3-tempis) - 5 times",
+          "Flying changes every 2nd stride (2-tempis) - 7 times",
+          "Pirouettes (6-8 strides, left and right)"
+        ],
+        "other": [
+          "Halt - immobility",
+          "Rein back 5 steps"
+        ]
+      },
+      "coefficient_movements": [
+        5,
+        7,
+        11,
+        12,
+        14,
+        18,
+        20
+      ],
+      "key_differences": "Introduction of FULL pirouettes (6-8 strides), 2-tempis, zigzag pattern. NO MORE half pirouettes in walk."
+    },
+    {
+      "test_id": "intermediate_2",
+      "name": "Intermediate II",
+      "test_code": "D-INT II-2009-2026",
+      "organization": "FEI",
+      "level": "Intermediate II",
+      "duration": "5:25",
+      "min_horse_age": 8,
+      "arena_size": "Standard (20m x 60m)",
+      "max_points": 340,
+      "base_points": 320,
+      "required_movements": {
+        "trot": [
+          "Collected trot",
+          "Extended trot",
+          "Zigzag: 3 half-passes 5m each side in trot",
+          "PASSAGE",
+          "PIAFFE (8-10 steps, 1m forward permitted)",
+          "Transitions passage-piaffe-passage"
+        ],
+        "walk": [
+          "Collected walk",
+          "Extended walk"
+        ],
+        "canter": [
+          "Collected canter",
+          "Medium canter",
+          "Extended canter",
+          "Half-pass in canter",
+          "Single flying changes",
+          "Flying changes every 2nd stride (2-tempis) - 7 times",
+          "Flying changes every stride (1-tempis) - 11 times",
+          "Pirouettes (6-8 strides, left and right)"
+        ],
+        "other": [
+          "Halt - immobility"
+        ]
+      },
+      "coefficient_movements": [
+        3,
+        12,
+        13,
+        17,
+        21
+      ],
+      "key_differences": "Introduction of PASSAGE and PIAFFE! Also 1-tempis (11 changes). Medium canter added. Trot zigzag pattern."
+    },
+    {
+      "test_id": "grand_prix",
+      "name": "Grand Prix",
+      "test_code": "D-GP-2009-2014-2026",
+      "organization": "FEI",
+      "level": "Grand Prix",
+      "duration": "6:30",
+      "min_horse_age": 8,
+      "arena_size": "Standard (20m x 60m)",
+      "max_points": 460,
+      "base_points": 440,
+      "required_movements": {
+        "trot": [
+          "Collected trot",
+          "Extended trot",
+          "Half-pass",
+          "PASSAGE (multiple sections)",
+          "PIAFFE (12-15 steps, 3 times in test)",
+          "Transitions passage-piaffe-passage (multiple times)"
+        ],
+        "walk": [
+          "Collected walk",
+          "Extended walk",
+          "Transitions walk-passage"
+        ],
+        "canter": [
+          "Collected canter",
+          "Extended canter",
+          "Half-pass in canter",
+          "Zigzag: 5 half-passes with changes (first/last 3 strides, others 6 strides)",
+          "Single flying changes",
+          "Flying changes every 2nd stride (2-tempis) - 9 times",
+          "Flying changes every stride (1-tempis) - 15 times",
+          "Pirouettes (6-8 strides, left and right)"
+        ],
+        "other": [
+          "Halt - immobility",
+          "Rein back 5 steps"
+        ]
+      },
+      "coefficient_movements": [
+        3,
+        4,
+        8,
+        11,
+        12,
+        15,
+        22,
+        23,
+        24,
+        26,
+        30
+      ],
+      "key_differences": "Multiple piaffe sections (12-15 steps), extensive passage work, longer change sequences, complex zigzag, transitions from walk to passage"
+    },
+    {
+      "test_id": "grand_prix_special",
+      "name": "Grand Prix Special",
+      "test_code": "D-GPS-2009-2014-2026",
+      "organization": "FEI",
+      "level": "Grand Prix Special",
+      "duration": "6:40",
+      "min_horse_age": 8,
+      "arena_size": "Standard (20m x 60m)",
+      "max_points": 470,
+      "base_points": 450,
+      "required_movements": {
+        "trot": [
+          "Collected trot",
+          "Extended trot",
+          "Half-pass",
+          "PASSAGE (extensive - multiple long sections)",
+          "PIAFFE (12-15 steps, 3 times in test)",
+          "Transitions passage-piaffe-passage (multiple times)",
+          "Transitions passage-extended trot-passage"
+        ],
+        "walk": [
+          "Collected walk",
+          "Extended walk",
+          "Transitions walk-piaffe-passage"
+        ],
+        "canter": [
+          "Collected canter",
+          "Extended canter",
+          "Half-pass in canter with flying changes",
+          "Single flying changes",
+          "Flying changes every 2nd stride (2-tempis) - 9 times",
+          "Flying changes every stride (1-tempis) - 24 times total (15 on one diagonal, 9 on center line)",
+          "Pirouettes (6-8 strides, left and right on centerline)"
+        ],
+        "other": [
+          "Halt - immobility"
+        ]
+      },
+      "coefficient_movements": [
+        3,
+        8,
+        13,
+        14,
+        15,
+        18,
+        27,
+        29,
+        33
+      ],
+      "key_differences": "Most extensive passage work of all tests, 24 total 1-tempis, transitions from walk directly to piaffe, pirouettes on centerline"
+    }
+  ]
+}

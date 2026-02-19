@@ -1,0 +1,949 @@
+{
+  "metadata": {
+    "organization": "United States Dressage Federation (USDF) and United States Equestrian Federation (USEF)",
+    "copyright": "©2022 United States Dressage Federation (USDF) and United States Equestrian Federation (USEF)",
+    "effective_dates": "December 1, 2022 - November 30, 2026",
+    "parsed_date": "2026-02-09",
+    "levels_included": ["Second", "Third", "Fourth"],
+    "total_tests": 9
+  },
+
+  "tests": [
+    {
+      "test_id": "2023_second_1",
+      "name": "2023 USEF Second Level Test 1",
+      "level": "Second",
+      "sublevel": "1",
+      "year": 2023,
+
+      "test_info": {
+        "max_points": 350,
+        "base_points": 330,
+        "collective_points": 20,
+        "arena_size": "Standard (20m x 60m)",
+        "average_ride_time": "5:20",
+        "trot_sitting_requirement": "All trot work must be done sitting"
+      },
+
+      "purpose": "To confirm that the horse demonstrates correct basics, and now begins to accept more weight on the hindquarters as the collected and medium gaits develop. A greater degree of straightness, suppleness, throughness, and balance are required to perform the movements with ease and self-carriage.",
+
+      "introduces": "Walk-canter transitions; collected and medium trot and canter; 10m circle at canter; shoulder-in; rein back",
+
+      "movements_by_gait": {
+        "trot": [
+          "Collected trot",
+          "Medium trot",
+          "Shoulder-in right",
+          "Shoulder-in left",
+          "10m circles",
+          "Rein back 3-4 steps"
+        ],
+        "walk": [
+          "Medium walk",
+          "Free walk"
+        ],
+        "canter": [
+          "Collected canter",
+          "Medium canter",
+          "10m circles",
+          "Counter canter"
+        ]
+      },
+
+      "movements": [
+        {"number": 1, "marker": "A-X", "movement": "Enter collected trot, Halt, salute, Proceed collected trot", "directive": "Engagement, uphill balance and quality of trot; clear, balanced transitions; straightness; attentiveness; immobility (min. 3 seconds)", "coefficient": null},
+        {"number": 2, "marker": "C, H-P, P", "movement": "Track left, Change rein medium trot, Collected trot", "directive": "Bend and balance in turns; moderate lengthening of frame and stride with engagement, elasticity, suspension, straightness and uphill balance", "coefficient": null},
+        {"number": 3, "marker": "P-F-A-K", "movement": "Transitions H and P, Collected trot", "directive": "Clear, balanced transitions; consistent tempo; quality of trot", "coefficient": null},
+        {"number": 4, "marker": "K-E, E", "movement": "Shoulder-in right, Turn right", "directive": "Angle, bend and balance; engagement and quality of trot", "coefficient": 2},
+        {"number": 5, "marker": "B, B-M", "movement": "Turn left, Shoulder-in left", "directive": "Angle, bend and balance; engagement and quality of trot", "coefficient": 2},
+        {"number": 6, "marker": "C", "movement": "Halt, rein back 3 to 4 steps, Proceed medium walk", "directive": "Immobility; willing steps back with correct rhythm and count; straightness; clear transitions", "coefficient": 2},
+        {"number": 7, "marker": "C-S", "movement": "Medium walk", "directive": "Regularity, quality, overtrack", "coefficient": 2},
+        {"number": 8, "marker": "S-F, F", "movement": "Change rein free walk, Medium walk", "directive": "Regularity, overtrack, and quality of walks; reach and ground cover of free walk allowing complete freedom to stretch the neck forward and downward; straightness; clear, balanced transitions", "coefficient": 2},
+        {"number": 9, "marker": "A", "movement": "Collected canter right lead", "directive": "Clear, balanced straight transition; regularity and quality of canter", "coefficient": null},
+        {"number": 10, "marker": "K-S, S", "movement": "Medium canter, Collected canter", "directive": "Moderate lengthening of frame and stride with engagement, elasticity, suspension, straightness and uphill balance; consistent tempo; clear balanced transitions", "coefficient": null},
+        {"number": 11, "marker": "C", "movement": "Circle right 10m", "directive": "Regularity and quality of canter; shape and size of circle; bend; balance", "coefficient": null},
+        {"number": 12, "marker": "M-E, E-V", "movement": "Change rein, Counter canter", "directive": "Regularity, quality and balance of canter; straightness", "coefficient": 2},
+        {"number": 13, "marker": "V, K", "movement": "Collected trot, Medium walk", "directive": "Regularity and quality of gaits; clear, balanced transitions", "coefficient": null},
+        {"number": 14, "marker": "A", "movement": "Collected canter left lead", "directive": "Clear, balanced straight transition; regularity and quality of gaits", "coefficient": null},
+        {"number": 15, "marker": "F-R, R", "movement": "Medium canter, Collected canter", "directive": "Moderate lengthening of frame and stride with engagement, elasticity, suspension, straightness and uphill balance; consistent tempo; clear balanced transitions", "coefficient": null},
+        {"number": 16, "marker": "C", "movement": "Circle left 10m", "directive": "Regularity and quality of canter; shape and size of circle; bend; balance", "coefficient": null},
+        {"number": 17, "marker": "H-B, B-P", "movement": "Change rein, Counter canter", "directive": "Regularity, quality and balance of canter; straightness", "coefficient": 2},
+        {"number": 18, "marker": "P", "movement": "Collected trot", "directive": "Regularity and quality of gaits; clear, balanced transition", "coefficient": null},
+        {"number": 19, "marker": "K-R, R", "movement": "Medium trot, Collected trot", "directive": "Moderate lengthening of frame and stride with engagement, elasticity, suspension, straightness and uphill balance", "coefficient": null},
+        {"number": 20, "marker": "R-M-C-H-S", "movement": "Transitions K and R, Collected trot", "directive": "Clear, balanced transitions; consistent tempo", "coefficient": null},
+        {"number": 21, "marker": "S, I, G", "movement": "Turn left, Turn left, Halt, salute", "directive": "Bend and balance in turns; engagement, uphill balance and quality of trot; clear, balanced transition; straightness; attentiveness; immobility (min. 3 seconds)", "coefficient": null}
+      ],
+
+      "coefficient_movements": [
+        "Shoulder-in right (movement 4)",
+        "Shoulder-in left (movement 5)",
+        "Rein back 3-4 steps (movement 6)",
+        "Medium walk (movement 7)",
+        "Free walk (movement 8)",
+        "Counter canter from M-E-V (movement 12)",
+        "Counter canter from H-B-P (movement 17)"
+      ],
+
+      "collective_marks": [
+        {"category": "Gaits", "description": "Freedom and regularity", "coefficient": 1},
+        {"category": "Impulsion", "description": "Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters", "coefficient": 2},
+        {"category": "Submission", "description": "Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements", "coefficient": 2},
+        {"category": "Rider's Position and Seat", "description": "Alignment; posture; stability; weight placement; following mechanics of the gaits", "coefficient": 1},
+        {"category": "Rider's Use of Aids", "description": "Clarity; subtlety; independence; accuracy of test", "coefficient": 1}
+      ]
+    },
+
+    {
+      "test_id": "2023_second_2",
+      "name": "2023 USEF Second Level Test 2",
+      "level": "Second",
+      "sublevel": "2",
+      "year": 2023,
+
+      "test_info": {
+        "max_points": 390,
+        "base_points": 370,
+        "collective_points": 20,
+        "arena_size": "Standard (20m x 60m)",
+        "average_ride_time": "6:00",
+        "trot_sitting_requirement": "All trot work must be done sitting"
+      },
+
+      "purpose": "To confirm that the horse demonstrates correct basics, and now begins to accept more weight on the hindquarters as the collected and medium gaits develop. A greater degree of straightness, suppleness, throughness, and balance are required to perform the movements with ease and self-carriage.",
+
+      "introduces": "Travers; Half turn on haunches; Simple changes",
+
+      "movements_by_gait": {
+        "trot": [
+          "Collected trot",
+          "Medium trot",
+          "Shoulder-in right",
+          "Shoulder-in left",
+          "Travers right",
+          "Travers left",
+          "10m half circles"
+        ],
+        "walk": [
+          "Medium walk",
+          "Free walk",
+          "Half turn on haunches left",
+          "Half turn on haunches right"
+        ],
+        "canter": [
+          "Collected canter",
+          "Medium canter",
+          "15m circles",
+          "Counter canter",
+          "Simple changes"
+        ]
+      },
+
+      "movements": [
+        {"number": 1, "marker": "A-X", "movement": "Enter collected trot, Halt, salute, Proceed collected trot", "directive": "Engagement, uphill balance and quality of trot; clear, balanced transitions; straightness; attentiveness; immobility (min. 3 seconds)", "coefficient": null},
+        {"number": 2, "marker": "C, M-V, V", "movement": "Track right, Medium trot, Collected trot", "directive": "Moderate lengthening of frame and stride with engagement, elasticity, suspension, straightness", "coefficient": null},
+        {"number": 3, "marker": "V-K-A-F", "movement": "Transitions M and V, Collected trot", "directive": "Clear, balanced straight transitions; quality of trot; consistent tempo", "coefficient": null},
+        {"number": 4, "marker": "F-B, B-X", "movement": "Shoulder-in left, Half circle left 10m", "directive": "Angle, bend and balance; shape and size of half circle; engagement and quality of trot", "coefficient": null},
+        {"number": 5, "marker": "X-E, E-H", "movement": "Half circle right 10m, Shoulder-in right", "directive": "Shape and size of half circle; angle, bend and balance; engagement and quality of trot", "coefficient": null},
+        {"number": 6, "marker": "M-P", "movement": "Medium trot", "directive": "Moderate lengthening of frame and stride with engagement, elasticity, suspension, straightness and uphill balance", "coefficient": null},
+        {"number": 7, "marker": "P-F-A-K", "movement": "Transitions M and P, Collected trot", "directive": "Clear, balanced straight transitions; quality of trot", "coefficient": 2},
+        {"number": 8, "marker": "K-E, E-X", "movement": "Travers right, Half circle right 10m", "directive": "Angle, bend and balance; shape and size of half circle; engagement and quality of trot", "coefficient": 2},
+        {"number": 9, "marker": "X-B, B-M", "movement": "Half circle left 10m, Travers left", "directive": "Shape and size of half circle angle, bend and balance; engagement and quality of trot", "coefficient": 2},
+        {"number": 10, "marker": "C, H, Between G & M", "movement": "Medium walk, Turn left, Collect and half turn on haunches left, Proceed medium walk", "directive": "Clear transition; Activity and quality of the preparation and execution, bend, balance, tempo, regularity, and fluency", "coefficient": null},
+        {"number": 11, "marker": "Between G & H", "movement": "Collect and half turn on haunches right, Proceed medium walk", "directive": "Activity and quality of the preparation and execution, bend, balance, tempo, regularity, and fluency", "coefficient": null},
+        {"number": 12, "marker": "CMG(H)G(M)GMR", "movement": "Medium walk", "directive": "Regularity, quality, overtrack", "coefficient": 2},
+        {"number": 13, "marker": "M, R-K, K-A", "movement": "Turn right, Free walk, Medium walk", "directive": "Regularity; suppleness of back; activity; overtrack; freedom of shoulder; stretching to the bit; well-defined transitions", "coefficient": 2},
+        {"number": 14, "marker": "A", "movement": "Collected canter left lead", "directive": "Clear, balanced straight transition; regularity and quality of gait", "coefficient": null},
+        {"number": 15, "marker": "F-R, R", "movement": "Medium canter, Collected canter", "directive": "Moderate lengthening of frame and stride with engagement; elasticity; suspension; straightness and uphill balance; consistent tempo; well defined transitions", "coefficient": null},
+        {"number": 16, "marker": "R-M-C", "movement": "Transitions F and R, Collected canter", "directive": "Balanced straight transitions; quality of canter; consistent tempo", "coefficient": null},
+        {"number": 17, "marker": "C-A", "movement": "Serpentine 3 equal loops, width of arena, simple changes of lead over centerline", "directive": null, "coefficient": null},
+        {"number": 18, "marker": null, "movement": "Score for first simple change", "directive": "Clear, balanced straight transitions; regularity and quality of gaits", "coefficient": null},
+        {"number": 19, "marker": null, "movement": "Score for second simple change", "directive": "Clear, balanced straight transitions; regularity and quality of gaits", "coefficient": null},
+        {"number": 20, "marker": null, "movement": "Score for quality of serpentine", "directive": "Regularity and quality of gaits; positioning; geometry", "coefficient": null},
+        {"number": 21, "marker": "F-E, E-H", "movement": "Change rein, Counter canter", "directive": "Regularity, quality and balance of canter; straightness", "coefficient": 2},
+        {"number": 22, "marker": "H, Before C", "movement": "Medium walk, Collected canter right lead", "directive": "Clear, balanced straight transitions; regularity and quality of gaits", "coefficient": null},
+        {"number": 23, "marker": "M-P, P", "movement": "Medium canter, Collected canter", "directive": "Moderate lengthening of frame and stride with engagement, elasticity, suspension, straightness and uphill balance; consistent tempo", "coefficient": null},
+        {"number": 24, "marker": "P-F-A-K, E", "movement": "Transitions M and P, Collected canter", "directive": "Regularity, quality and balance of canter; straightness; clear, balanced transitions", "coefficient": null},
+        {"number": 25, "marker": "K-B, B-M", "movement": "Change rein, Counter canter", "directive": "Regularity, quality and balance of canter; straightness", "coefficient": 2},
+        {"number": 26, "marker": "M", "movement": "Collected trot", "directive": "Clear, balanced, straight transition; regularity and quality of trot", "coefficient": null},
+        {"number": 27, "marker": "E, X, G", "movement": "Turn left, Turn left, Halt, salute", "directive": "Engagement, uphill balance and quality of trot; clear balanced transition; straightness; attentiveness; immobility (min. 3 seconds)", "coefficient": null}
+      ],
+
+      "coefficient_movements": [
+        "Collected trot transitions at M and P (movement 7)",
+        "Travers right (movement 8)",
+        "Travers left (movement 9)",
+        "Medium walk (movement 12)",
+        "Free walk (movement 13)",
+        "Counter canter F-E-H (movement 21)",
+        "Counter canter K-B-M (movement 25)"
+      ],
+
+      "collective_marks": [
+        {"category": "Gaits", "description": "Freedom and regularity", "coefficient": 1},
+        {"category": "Impulsion", "description": "Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters", "coefficient": 2},
+        {"category": "Submission", "description": "Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements", "coefficient": 2},
+        {"category": "Rider's Position and Seat", "description": "Alignment; posture; stability; weight placement; following mechanics of the gaits", "coefficient": 1},
+        {"category": "Rider's Use of Aids", "description": "Clarity; subtlety; independence; accuracy of test", "coefficient": 1}
+      ]
+    },
+
+    {
+      "test_id": "2023_second_3",
+      "name": "2023 USEF Second Level Test 3",
+      "level": "Second",
+      "sublevel": "3",
+      "year": 2023,
+
+      "test_info": {
+        "max_points": 420,
+        "base_points": 400,
+        "collective_points": 20,
+        "arena_size": "Standard (20m x 60m)",
+        "average_ride_time": "6:00",
+        "trot_sitting_requirement": "All trot work must be done sitting"
+      },
+
+      "purpose": "To confirm that the horse demonstrates correct basics, and now begins to accept more weight on the hindquarters as the collected and medium gaits develop. A greater degree of straightness, suppleness, throughness, and balance are required to perform the movements with ease and self-carriage.",
+
+      "introduces": "Counter canter in serpentine",
+
+      "movements_by_gait": {
+        "trot": [
+          "Collected trot",
+          "Medium trot",
+          "Shoulder-in right",
+          "Shoulder-in left",
+          "Travers right",
+          "Travers left",
+          "10m circles",
+          "Rein back 3-4 steps"
+        ],
+        "walk": [
+          "Medium walk",
+          "Free walk",
+          "Half turn on haunches left",
+          "Half turn on haunches right"
+        ],
+        "canter": [
+          "Collected canter",
+          "Medium canter",
+          "Serpentine 3 loops (no change of lead)",
+          "Simple changes"
+        ]
+      },
+
+      "movements": [
+        {"number": 1, "marker": "A-X", "movement": "Enter collected trot, Halt, salute, Proceed collected trot", "directive": "Engagement, uphill balance and quality of trot; clear, balanced transitions; straightness; attentiveness; immobility (min. 3 seconds)", "coefficient": null},
+        {"number": 2, "marker": "C, H-X-F, F", "movement": "Track left, Change rein medium trot, Collected trot", "directive": "Bend and balance in turns; moderate lengthening of frame and stride with engagement, elasticity, suspension, straightness and uphill balance", "coefficient": null},
+        {"number": 3, "marker": "F-A-K", "movement": "Transitions H and F, Collected trot", "directive": "Clear, balanced transitions; regularity and quality of gait; consistent tempo", "coefficient": 2},
+        {"number": 4, "marker": "K-E", "movement": "Shoulder-in right", "directive": "Angle, bend and balance; engagement and quality of trot", "coefficient": null},
+        {"number": 5, "marker": "E", "movement": "Circle right 10m", "directive": "Regularity and quality of trot; shape and size of circle; bend; balance", "coefficient": null},
+        {"number": 6, "marker": "E-H", "movement": "Travers right", "directive": "Angle, bend and balance; engagement and quality of trot", "coefficient": null},
+        {"number": 7, "marker": "M-X-K, K", "movement": "Change rein medium trot, Collected trot", "directive": "Moderate lengthening of frame and stride with engagement, elasticity, suspension, straightness and uphill balance", "coefficient": null},
+        {"number": 8, "marker": "K-A-F", "movement": "Transitions M and K, Collected trot", "directive": "Clear, balanced transitions; regularity and quality of trot; consistent tempo", "coefficient": 2},
+        {"number": 9, "marker": "F-B", "movement": "Shoulder-in left", "directive": "Angle, bend and balance; engagement and quality of trot", "coefficient": null},
+        {"number": 10, "marker": "B", "movement": "Circle left 10m", "directive": "Regularity and quality of trot; shape and size of circle; bend; balance", "coefficient": null},
+        {"number": 11, "marker": "B-M", "movement": "Travers left", "directive": "Angle, bend and balance; engagement and quality of trot", "coefficient": null},
+        {"number": 12, "marker": "C", "movement": "Halt, rein back 3 to 4 steps, Proceed medium walk", "directive": "Immobility; willing steps back with correct rhythm and count; straightness; clear transitions", "coefficient": 2},
+        {"number": 13, "marker": "H, Between G & M", "movement": "Turn left, Collect and half turn on haunches left, Proceed medium walk", "directive": "Activity and quality of the preparation and execution, bend, balance, tempo, regularity, and fluency", "coefficient": 2},
+        {"number": 14, "marker": "Between G & H, M", "movement": "Collect and half turn on haunches right, Proceed medium walk, Turn right", "directive": "Activity and quality of the preparation and execution, bend, balance, tempo, regularity, and fluency", "coefficient": 2},
+        {"number": 15, "marker": "CHG(M)G(H)GMR", "movement": "Medium walk", "directive": "Regularity, quality, overtrack", "coefficient": null},
+        {"number": 16, "marker": "R-V, V", "movement": "Change rein, free walk, Medium walk", "directive": "Regularity and quality of walks; reach, overtrack, and ground cover of free walk allowing complete freedom to stretch the neck forward and downward; straightness; clear, balanced transitions", "coefficient": 2},
+        {"number": 17, "marker": "K", "movement": "Collected canter left lead", "directive": "Clear, balanced straight transition; regularity and quality of gait", "coefficient": null},
+        {"number": 18, "marker": "F-M, M", "movement": "Medium canter, Collected canter", "directive": "Moderate lengthening of frame and stride with engagement, elasticity, suspension, straightness and uphill balance", "coefficient": null},
+        {"number": 19, "marker": "M-C", "movement": "Transitions F and M, Collected canter", "directive": "Clear, balanced straight transitions; regularity and quality of canter; consistent tempo", "coefficient": null},
+        {"number": 20, "marker": "C-A", "movement": "Serpentine 3 equal loops, width of the arena, no change of lead", "directive": "Regularity, quality and balance of canter; positioning; geometry", "coefficient": null},
+        {"number": 21, "marker": "F-E, L, E-H-C-M", "movement": "Change rein, Simple change, Collected canter", "directive": "Clear, balanced, straight transitions; regularity and quality of gaits", "coefficient": 2},
+        {"number": 22, "marker": "M-F, F", "movement": "Medium canter, Collected canter", "directive": "Moderate lengthening of frame and stride with engagement, elasticity, suspension, straightness and uphill balance", "coefficient": null},
+        {"number": 23, "marker": "F-A", "movement": "Transitions at M and F, Collected canter", "directive": "Clear, balanced, straight transitions; regularity and quality of canter; consistent tempo", "coefficient": null},
+        {"number": 24, "marker": "A-C", "movement": "Serpentine 3 equal loops, width of the arena, no change of lead", "directive": "Regularity, quality and balance of canter; positioning; geometry", "coefficient": null},
+        {"number": 25, "marker": "M-E, I, E-K", "movement": "Change rein, Simple change, Collected canter", "directive": "Clear, balanced, straight transitions; regularity and quality of gaits", "coefficient": 2},
+        {"number": 26, "marker": "K", "movement": "Collected trot", "directive": "Clear, balanced straight transition; regularity and quality of trot; consistent tempo", "coefficient": null},
+        {"number": 27, "marker": "A, X", "movement": "Down centerline, Halt, salute", "directive": "Bend and balance in turn; engagement, uphill balance and quality of trot; clear balanced transition; straightness; attentiveness; immobility (min. 3 seconds)", "coefficient": null}
+      ],
+
+      "coefficient_movements": [
+        "Collected trot transitions at H and F (movement 3)",
+        "Collected trot transitions at M and K (movement 8)",
+        "Rein back 3-4 steps (movement 12)",
+        "Half turn on haunches left (movement 13)",
+        "Half turn on haunches right (movement 14)",
+        "Free walk (movement 16)",
+        "Simple change F-E-L-E-H-C-M (movement 21)",
+        "Simple change M-E-I-E-K (movement 25)"
+      ],
+
+      "collective_marks": [
+        {"category": "Gaits", "description": "Freedom and regularity", "coefficient": 1},
+        {"category": "Impulsion", "description": "Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters", "coefficient": 2},
+        {"category": "Submission", "description": "Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements", "coefficient": 2},
+        {"category": "Rider's Position and Seat", "description": "Alignment; posture; stability; weight placement; following mechanics of the gaits", "coefficient": 1},
+        {"category": "Rider's Use of Aids", "description": "Clarity; subtlety; independence; accuracy of test", "coefficient": 1}
+      ]
+    },
+
+    {
+      "test_id": "2023_third_1",
+      "name": "2023 USEF Third Level Test 1",
+      "level": "Third",
+      "sublevel": "1",
+      "year": 2023,
+
+      "test_info": {
+        "max_points": 370,
+        "base_points": 350,
+        "collective_points": 20,
+        "arena_size": "Standard (20m x 60m)",
+        "average_ride_time": "6:00",
+        "trot_sitting_requirement": "All trot work must be done sitting",
+        "double_bridle": "Optional"
+      },
+
+      "purpose": "To confirm that the horse demonstrates correct basics, while maintaining consistent uphill balance and self-carriage. Increased engagement facilitates clear differences in collected, medium, and extended gaits with well-defined, balanced transitions. Movements should be accomplished with harmony and ease due to the increased balance and collection. The horse must demonstrate a greater degree of throughness, suppleness, straightness and bending.",
+
+      "introduces": "Extended gaits; half pass at trot; single flying change",
+
+      "movements_by_gait": {
+        "trot": [
+          "Collected trot",
+          "Medium trot",
+          "Extended trot",
+          "Shoulder-in left",
+          "Shoulder-in right",
+          "Half pass left (with half circle 10m)",
+          "Half pass right (with half circle 10m)",
+          "10m half circles",
+          "Rein back 4 steps"
+        ],
+        "walk": [
+          "Medium walk",
+          "Extended walk",
+          "Half turn on haunches left",
+          "Half turn on haunches right"
+        ],
+        "canter": [
+          "Collected canter",
+          "Medium canter",
+          "Extended canter",
+          "Half pass left (with half circle 10m)",
+          "Half pass right (with half circle 10m)",
+          "10m half circles",
+          "Single flying changes"
+        ]
+      },
+
+      "movements": [
+        {"number": 1, "marker": "A-X", "movement": "Enter collected trot, Halt, salute, Proceed collected trot", "directive": "Engagement, self-carriage and quality of trot; well defined transitions; straightness; attentiveness; immobility (min. 3 seconds)", "coefficient": null},
+        {"number": 2, "marker": "C, S-V", "movement": "Track left, Shoulder-in left", "directive": "Angle, bend and balance; engagement and self-carriage", "coefficient": null},
+        {"number": 3, "marker": "V-L, L-H", "movement": "Half circle left 10m, Half pass left", "directive": "Shape and size of half circle; alignment, bend, fluency and crossing of legs; engagement and self-carriage", "coefficient": 2},
+        {"number": 4, "marker": "R-P", "movement": "Shoulder-in right", "directive": "Angle, bend and balance; engagement and self-carriage", "coefficient": null},
+        {"number": 5, "marker": "P-L, L-M", "movement": "Half circle right 10m, Half pass right", "directive": "Shape and size of half circle; alignment, bend, fluency and crossing of legs; engagement and self-carriage", "coefficient": 2},
+        {"number": 6, "marker": "H-X-F, F", "movement": "Medium trot, Collected trot", "directive": "Moderate lengthening of frame and stride with engagement, elasticity, suspension, straightness and uphill balance; consistent tempo; well defined transitions", "coefficient": null},
+        {"number": 7, "marker": "A", "movement": "Halt, rein back 4 steps, Proceed medium walk", "directive": "Immobility, willing steps back with correct rhythm and count; straightness; clear transitions", "coefficient": 2},
+        {"number": 8, "marker": "K-R, R", "movement": "Change rein, extended walk, Medium walk", "directive": "Regularity; suppleness of back; activity; overtrack; freedom of shoulder; stretching to the bit; clear transitions", "coefficient": 2},
+        {"number": 9, "marker": "M, Between G & H", "movement": "Turn left, Collect and half turn on haunches left, Proceed medium walk", "directive": "Activity and quality of the preparation and execution, bend, balance, tempo, regularity, and fluency", "coefficient": null},
+        {"number": 10, "marker": "Between G & M, H", "movement": "Collect and half turn on haunches right, Proceed medium walk, Track right", "directive": "Activity and quality of the preparation and execution, bend, balance, tempo, regularity, and fluency", "coefficient": null},
+        {"number": 11, "marker": "RMG(H)G(M)GHC", "movement": "Medium walk", "directive": "Regularity, quality, overtrack", "coefficient": 2},
+        {"number": 12, "marker": "C", "movement": "Collected canter right lead", "directive": "Well defined transition; regularity and self-carriage; engagement and quality of canter", "coefficient": null},
+        {"number": 13, "marker": "M-F, F", "movement": "Medium canter, Collected canter", "directive": "Moderate lengthening of frame and stride with engagement, elasticity, suspension, straightness and uphill balance; consistent tempo; well defined transitions", "coefficient": null},
+        {"number": 14, "marker": "A, D-R", "movement": "Down centerline, Half pass right", "directive": "Alignment and bend while moving fluently forward and sideways; engagement and self-carriage", "coefficient": 2},
+        {"number": 15, "marker": "V-R", "movement": "Change rein, flying change of lead between centerline and R", "directive": "Clear, balanced, fluent, straight flying change; engagement and self-carriage", "coefficient": 2},
+        {"number": 16, "marker": "H-K, K", "movement": "Extended canter, Collected canter", "directive": "Utmost ground cover with lengthening of frame; elasticity; engagement; suspension; straightness and uphill balance", "coefficient": null},
+        {"number": 17, "marker": "K-A-P", "movement": "Transitions H and K, Collected canter", "directive": "Well defined maintaining tempo and balance", "coefficient": null},
+        {"number": 18, "marker": "P", "movement": "Circle left 10m", "directive": "Shape and size of circle; bend; engagement and self-carriage", "coefficient": null},
+        {"number": 19, "marker": "P-S", "movement": "Change rein, flying change of lead between centerline and S", "directive": "Clear, balanced, fluent, straight flying change; engagement and self-carriage", "coefficient": 2},
+        {"number": 20, "marker": "C", "movement": "Collected trot", "directive": "Well defined, balanced transition; engagement and collection", "coefficient": null},
+        {"number": 21, "marker": "M-X-K, K", "movement": "Extended trot, Collected trot", "directive": "Utmost ground cover with lengthening of frame; elasticity; engagement; suspension; straightness and uphill balance", "coefficient": null},
+        {"number": 22, "marker": "K-A", "movement": "Transitions M and K, Collected trot", "directive": "Well defined maintaining tempo and balance", "coefficient": null},
+        {"number": 23, "marker": "A, X", "movement": "Down centerline, Halt, salute", "directive": "Bend and balance in turn; engagement, self-carriage and quality of trot; well defined transition; straightness; attentiveness; immobility (min. 3 seconds)", "coefficient": null}
+      ],
+
+      "coefficient_movements": [
+        "Half pass left (movement 3)",
+        "Half pass right (movement 5)",
+        "Rein back 4 steps (movement 7)",
+        "Extended walk (movement 8)",
+        "Medium walk (movement 11)",
+        "Half pass right in canter (movement 14)",
+        "Flying change between centerline and R (movement 15)",
+        "Flying change between centerline and S (movement 19)"
+      ],
+
+      "collective_marks": [
+        {"category": "Gaits", "description": "Freedom and regularity", "coefficient": 1},
+        {"category": "Impulsion", "description": "Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters", "coefficient": 2},
+        {"category": "Submission", "description": "Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements", "coefficient": 2},
+        {"category": "Rider's Position and Seat", "description": "Alignment; posture; stability; weight placement; following mechanics of the gaits", "coefficient": 1},
+        {"category": "Rider's Use of Aids", "description": "Clarity; subtlety; independence; accuracy of test", "coefficient": 1}
+      ]
+    },
+
+    {
+      "test_id": "2023_third_2",
+      "name": "2023 USEF Third Level Test 2",
+      "level": "Third",
+      "sublevel": "2",
+      "year": 2023,
+
+      "test_info": {
+        "max_points": 380,
+        "base_points": 360,
+        "collective_points": 20,
+        "arena_size": "Standard (20m x 60m)",
+        "average_ride_time": "5:35",
+        "trot_sitting_requirement": "All trot work must be done sitting",
+        "double_bridle": "Optional"
+      },
+
+      "purpose": "To confirm that the horse demonstrates correct basics, while maintaining consistent uphill balance and self-carriage. Increased engagement facilitates clear differences in collected, medium, and extended gaits with well-defined, balanced transitions. Movements should be accomplished with harmony and ease due to the increased balance and collection. The horse must demonstrate a greater degree of throughness, suppleness, straightness and bending.",
+
+      "introduces": "Renvers; release of reins at canter; half pass at canter",
+
+      "movements_by_gait": {
+        "trot": [
+          "Collected trot",
+          "Medium trot",
+          "Extended trot",
+          "Shoulder-in left",
+          "Shoulder-in right",
+          "Renvers left",
+          "Renvers right"
+        ],
+        "walk": [
+          "Medium walk",
+          "Extended walk",
+          "Half turn on haunches left",
+          "Half turn on haunches right"
+        ],
+        "canter": [
+          "Collected canter",
+          "Medium canter",
+          "Extended canter",
+          "Half pass left",
+          "Half pass right",
+          "Single flying changes",
+          "20m circle with release of reins"
+        ]
+      },
+
+      "movements": [
+        {"number": 1, "marker": "A-X", "movement": "Enter collected trot, Halt, salute, Proceed collected trot", "directive": "Engagement, self-carriage and quality of trot; well defined transitions; straightness; attentiveness; immobility (min. 3 seconds)", "coefficient": null},
+        {"number": 2, "marker": "C, M-X-K, K", "movement": "Track right, Change rein medium trot, Collected trot", "directive": "Moderate lengthening of frame and stride with engagement, elasticity, suspension, straightness and uphill balance; consistent tempo; well defined transitions", "coefficient": null},
+        {"number": 3, "marker": "F-B", "movement": "Shoulder-in left", "directive": "Angle, bend and balance; engagement and self-carriage", "coefficient": null},
+        {"number": 4, "marker": "B-M", "movement": "Renvers right", "directive": "Angle, bend and balance; engagement and self-carriage", "coefficient": 2},
+        {"number": 5, "marker": "H-X-F, F", "movement": "Change rein extended trot, Collected trot", "directive": "Utmost ground cover with lengthening of frame; elasticity; engagement; suspension; straightness and uphill balance", "coefficient": 2},
+        {"number": 6, "marker": "F-A-K", "movement": "Transitions H and F, Collected trot", "directive": "Well defined maintaining tempo and balance", "coefficient": null},
+        {"number": 7, "marker": "K-E", "movement": "Shoulder-in right", "directive": "Angle, bend and balance; engagement and self-carriage", "coefficient": null},
+        {"number": 8, "marker": "E-H", "movement": "Renvers left", "directive": "Angle, bend and balance; engagement and self-carriage", "coefficient": 2},
+        {"number": 9, "marker": "C, M, Between G & H", "movement": "Medium walk, Turn right, Collect and half turn on haunches right, Proceed medium walk", "directive": "Activity and quality of the preparation and execution, bend, balance, tempo, regularity, and fluency", "coefficient": null},
+        {"number": 10, "marker": "Between G & M, H", "movement": "Collect and half turn on haunches left, Proceed medium walk, Turn left", "directive": "Activity and quality of the preparation and execution, bend, balance, tempo, regularity, and fluency", "coefficient": null},
+        {"number": 11, "marker": "CMG(H)G(M)GHS", "movement": "Medium walk", "directive": "Regularity, quality, overtrack", "coefficient": 2},
+        {"number": 12, "marker": "S-P, P", "movement": "Change rein extended walk, Medium walk", "directive": "Regularity; suppleness of back; activity; overtrack; freedom of shoulder; stretching to the bit; well-defined transitions", "coefficient": 2},
+        {"number": 13, "marker": "F", "movement": "Collected canter right lead", "directive": "Well defined transition; regularity and self-carriage; engagement and quality of gait", "coefficient": null},
+        {"number": 14, "marker": "A, D-R", "movement": "Down centerline, Half pass right", "directive": "Alignment and bend while moving fluently forward and sideways; engagement and self-carriage", "coefficient": null},
+        {"number": 15, "marker": "Between R & M", "movement": "Flying change of lead", "directive": "Clear, balanced, fluent, straight flying change; engagement and self-carriage", "coefficient": 2},
+        {"number": 16, "marker": "H-K, K", "movement": "Medium canter, Collected canter", "directive": "Moderate lengthening of frame and stride with engagement; elasticity; suspension; straightness and uphill balance; consistent tempo; well defined transitions", "coefficient": null},
+        {"number": 17, "marker": "A, D-S", "movement": "Down centerline, Half pass left", "directive": "Alignment and bend while moving fluently forward and sideways; engagement and self-carriage", "coefficient": null},
+        {"number": 18, "marker": "Between S & H", "movement": "Flying change of lead", "directive": "Clear, balanced, fluent, straight flying change; engagement and self-carriage", "coefficient": 2},
+        {"number": 19, "marker": "C", "movement": "Circle right 20m, showing a clear release of both reins for 4-5 strides over centerline", "directive": "Clear release of reins maintaining self-carriage; engagement and collection; size of circle and bend", "coefficient": 2},
+        {"number": 20, "marker": "M-F, F", "movement": "Extended canter, Collected canter", "directive": "Utmost ground cover with lengthening of frame; elasticity; engagement; suspension; straightness and uphill balance", "coefficient": 2},
+        {"number": 21, "marker": "F-A", "movement": "Transitions M and F, Collected canter", "directive": "Well defined maintaining tempo and balance", "coefficient": null},
+        {"number": 22, "marker": "A, L, I", "movement": "Down centerline, Collected trot, Halt, salute", "directive": "Bend and balance in turn; engagement, self-carriage and quality of trot; Straightness; attentiveness; immobility (min. 3 seconds)", "coefficient": null}
+      ],
+
+      "coefficient_movements": [
+        "Renvers right (movement 4)",
+        "Extended trot (movement 5)",
+        "Renvers left (movement 8)",
+        "Medium walk (movement 11)",
+        "Extended walk (movement 12)",
+        "Flying change between R & M (movement 15)",
+        "Flying change between S & H (movement 18)",
+        "Release of reins at canter (movement 19)",
+        "Extended canter (movement 20)"
+      ],
+
+      "collective_marks": [
+        {"category": "Gaits", "description": "Freedom and regularity", "coefficient": 1},
+        {"category": "Impulsion", "description": "Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters", "coefficient": 2},
+        {"category": "Submission", "description": "Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements", "coefficient": 2},
+        {"category": "Rider's Position and Seat", "description": "Alignment; posture; stability; weight placement; following mechanics of the gaits", "coefficient": 1},
+        {"category": "Rider's Use of Aids", "description": "Clarity; subtlety; independence; accuracy of test", "coefficient": 1}
+      ]
+    },
+
+    {
+      "test_id": "2023_third_3",
+      "name": "2023 USEF Third Level Test 3",
+      "level": "Third",
+      "sublevel": "3",
+      "year": 2023,
+
+      "test_info": {
+        "max_points": 400,
+        "base_points": 380,
+        "collective_points": 20,
+        "arena_size": "Standard (20m x 60m)",
+        "average_ride_time": "6:00",
+        "trot_sitting_requirement": "All trot work must be done sitting",
+        "double_bridle": "Optional"
+      },
+
+      "purpose": "To confirm that the horse demonstrates correct basics, while maintaining consistent uphill balance and self-carriage. Increased engagement facilitates clear differences in collected, medium, and extended gaits with well-defined, balanced transitions. Movements should be accomplished with harmony and ease due to the increased balance and collection. The horse must demonstrate a greater degree of throughness, suppleness, straightness and bending.",
+
+      "introduces": "Rein back to trot",
+
+      "movements_by_gait": {
+        "trot": [
+          "Collected trot",
+          "Medium trot",
+          "Extended trot",
+          "Shoulder-in left",
+          "Shoulder-in right",
+          "Half pass left",
+          "Half pass right",
+          "10m half circles",
+          "Rein back 4 steps to trot"
+        ],
+        "walk": [
+          "Medium walk",
+          "Extended walk",
+          "Half turn on haunches left",
+          "Half turn on haunches right"
+        ],
+        "canter": [
+          "Collected canter",
+          "Medium canter",
+          "Extended canter",
+          "Half pass left (with half circle 10m)",
+          "Half pass right (with half circle 10m)",
+          "10m half circles",
+          "Single flying changes"
+        ]
+      },
+
+      "movements": [
+        {"number": 1, "marker": "A-X", "movement": "Enter collected trot, Halt, salute, Proceed collected trot", "directive": "Engagement, self-carriage and quality of trot; well defined transitions; straightness; attentiveness; immobility (min. 3 seconds)", "coefficient": null},
+        {"number": 2, "marker": "C, H-X-F, F", "movement": "Track left, Change rein medium trot, Collected trot", "directive": "Moderate lengthening of frame and stride with engagement, elasticity, suspension, straightness and uphill balance; consistent tempo; well defined transitions", "coefficient": null},
+        {"number": 3, "marker": "K-E", "movement": "Shoulder-in right", "directive": "Angle, bend and balance; engagement and self-carriage", "coefficient": null},
+        {"number": 4, "marker": "E-X, X-B", "movement": "Half circle right 10m, Half circle left 10m", "directive": "Shape and size of half circles; supple change of bend on centerline; engagement and self-carriage", "coefficient": null},
+        {"number": 5, "marker": "B-G, C", "movement": "Half pass left, Track right", "directive": "Alignment, bend, fluency and crossing of legs; engagement and self-carriage", "coefficient": 2},
+        {"number": 6, "marker": "M-X-K, K", "movement": "Change rein extended trot, Collected trot", "directive": "Utmost ground cover with lengthening of frame; elasticity; engagement; suspension; straightness and uphill balance", "coefficient": null},
+        {"number": 7, "marker": "K-A", "movement": "Transitions M and K, Collected trot", "directive": "Well defined maintaining tempo and balance", "coefficient": null},
+        {"number": 8, "marker": "A", "movement": "Halt, rein back 4 steps, Proceed collected trot", "directive": "Immobility, willing steps back with correct rhythm and count; straightness; well defined transitions", "coefficient": 2},
+        {"number": 9, "marker": "F-B", "movement": "Shoulder-in left", "directive": "Angle, bend and balance; engagement and self-carriage", "coefficient": null},
+        {"number": 10, "marker": "B-X, X-E", "movement": "Half circle left 10m, Half circle right 10m", "directive": "Shape and size of half circles; supple change of bend on centerline; engagement and self-carriage", "coefficient": null},
+        {"number": 11, "marker": "E-G, C", "movement": "Half pass right, Track left", "directive": "Alignment, bend, fluency and crossing of legs; engagement and self-carriage", "coefficient": 2},
+        {"number": 12, "marker": "Between C & H, H, Between G & M", "movement": "Medium walk, Turn left, Collect and half turn on haunches left, Proceed medium walk", "directive": "Activity and quality of the preparation and execution, bend, balance, tempo, regularity, and fluency", "coefficient": null},
+        {"number": 13, "marker": "Between G & H, M", "movement": "Collect and half turn on haunches right, Proceed medium walk, Turn right", "directive": "Activity and quality of the preparation and execution, bend, balance, tempo, regularity, and fluency", "coefficient": null},
+        {"number": 14, "marker": "CHG(M)G(H)CMR", "movement": "Medium walk", "directive": "Regularity, quality, overtrack", "coefficient": 2},
+        {"number": 15, "marker": "R-V, V", "movement": "Change rein extended walk, Medium walk", "directive": "Regularity; suppleness of back; activity; overtrack; freedom of shoulders; stretching to the bit; well defined transitions", "coefficient": 2},
+        {"number": 16, "marker": "K", "movement": "Collected canter left lead", "directive": "Well defined transition; regularity and self-carriage; engagement and quality of canter", "coefficient": null},
+        {"number": 17, "marker": "F-X, X-I", "movement": "Half pass left, Collected canter", "directive": "Alignment and bend while moving fluently forward and sideways; engagement and self-carriage", "coefficient": 2},
+        {"number": 18, "marker": "I-S, S-F", "movement": "Half circle left 10m, Change rein flying change of lead near centerline", "directive": "Shape and size of half circle; bend; clear, balanced, fluent, straight flying change; engagement and self-carriage", "coefficient": 2},
+        {"number": 19, "marker": "K-X, X-I", "movement": "Half pass right, Collected canter", "directive": "Alignment and bend while moving fluently forward and sideways; engagement and self-carriage", "coefficient": 2},
+        {"number": 20, "marker": "I-R, R-K", "movement": "Half circle right 10m, Change rein flying change of lead near centerline", "directive": "Shape and size of half circle; bend; clear, balanced, fluent, straight flying change; engagement and self-carriage", "coefficient": 2},
+        {"number": 21, "marker": "F-M, M", "movement": "Extended canter, Collected canter", "directive": "Utmost ground cover with lengthening of frame; elasticity; engagement; suspension; straightness and uphill balance", "coefficient": null},
+        {"number": 22, "marker": "M-C-H", "movement": "Transitions F and M, Collected Canter", "directive": "Well defined maintaining tempo and balance", "coefficient": null},
+        {"number": 23, "marker": "H", "movement": "Collected trot", "directive": "Well defined, balanced transition; engagement and collection", "coefficient": null},
+        {"number": 24, "marker": "E, X, G", "movement": "Turn left, Turn left, Halt, salute", "directive": "Bend and balance in turns; engagement, self-carriage and quality of trot; well defined transition; straightness; attentiveness; immobility (min. 3 seconds)", "coefficient": null}
+      ],
+
+      "coefficient_movements": [
+        "Half pass left (movement 5)",
+        "Rein back 4 steps to trot (movement 8)",
+        "Half pass right (movement 11)",
+        "Medium walk (movement 14)",
+        "Extended walk (movement 15)",
+        "Half pass left in canter (movement 17)",
+        "Flying change with half circle (movement 18)",
+        "Half pass right in canter (movement 19)",
+        "Flying change with half circle (movement 20)"
+      ],
+
+      "collective_marks": [
+        {"category": "Gaits", "description": "Freedom and regularity", "coefficient": 1},
+        {"category": "Impulsion", "description": "Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters", "coefficient": 2},
+        {"category": "Submission", "description": "Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements", "coefficient": 2},
+        {"category": "Rider's Position and Seat", "description": "Alignment; posture; stability; weight placement; following mechanics of the gaits", "coefficient": 1},
+        {"category": "Rider's Use of Aids", "description": "Clarity; subtlety; independence; accuracy of test", "coefficient": 1}
+      ]
+    },
+
+    {
+      "test_id": "2023_fourth_1",
+      "name": "2023 USEF Fourth Level Test 1",
+      "level": "Fourth",
+      "sublevel": "1",
+      "year": 2023,
+
+      "test_info": {
+        "max_points": 380,
+        "base_points": 360,
+        "collective_points": 20,
+        "arena_size": "Standard (20m x 60m)",
+        "average_ride_time": "6:00",
+        "trot_sitting_requirement": "All trot work must be done sitting",
+        "double_bridle": "Optional"
+      },
+
+      "purpose": "To confirm that the horse demonstrates correct basics, and has developed sufficient throughness, suppleness, balance, and impulsion to perform with ease the exercises at this medium level of difficulty. The horse has established consistent self-carriage and lightness through improved connection, engagement, and collection. The movements and transitions are performed with greater straightness, impulsion, and cadence.",
+
+      "introduces": "Collected walk; very collected canter; walk pirouettes; multiple flying changes on diagonal",
+
+      "movements_by_gait": {
+        "trot": [
+          "Collected trot",
+          "Medium trot (6-7 steps before transition)",
+          "Extended trot",
+          "Shoulder-in left",
+          "Shoulder-in right",
+          "Half pass left",
+          "Half pass right",
+          "10m half circles"
+        ],
+        "walk": [
+          "Collected walk",
+          "Medium walk",
+          "Extended walk",
+          "Half pirouette left",
+          "Half pirouette right"
+        ],
+        "canter": [
+          "Collected canter",
+          "Very collected canter",
+          "Medium canter",
+          "Extended canter",
+          "Half pass left",
+          "Half pass right",
+          "20m circle with very collected canter",
+          "Multiple single flying changes on diagonal (3 changes)"
+        ]
+      },
+
+      "movements": [
+        {"number": 1, "marker": "A-X", "movement": "Enter collected trot, Halt, salute, Proceed collected trot", "directive": "Engagement, self-carriage and quality of trot; well defined transitions; straightness; attentiveness; immobility (min. 3 seconds)", "coefficient": null},
+        {"number": 2, "marker": "C, H-X-F, Over X, F", "movement": "Track left, Change rein medium trot, 6-7 steps collected trot, Collected trot", "directive": "Moderate lengthening of frame and stride with engagement, elasticity, suspension, straightness and uphill balance; regularity and activity in collected steps; consistent tempo; well defined transitions", "coefficient": 2},
+        {"number": 3, "marker": "K-X", "movement": "Half pass right", "directive": "Alignment, bend, fluency and crossing of legs; engagement and collection", "coefficient": 2},
+        {"number": 4, "marker": "X-H", "movement": "Half pass left", "directive": "Alignment, bend, fluency and crossing of legs; engagement and collection", "coefficient": 2},
+        {"number": 5, "marker": "M-X-K, K", "movement": "Change rein extended trot, Collected trot", "directive": "Utmost ground cover with lengthening of frame; engagement; elasticity; suspension; straightness and uphill balance", "coefficient": null},
+        {"number": 6, "marker": "K-A-F", "movement": "Transitions M and K, Collected trot", "directive": "Well defined transitions maintaining tempo and balance", "coefficient": null},
+        {"number": 7, "marker": "F-B, B", "movement": "Shoulder-in left, Turn left", "directive": "Angle, bend and balance; engagement and collection", "coefficient": null},
+        {"number": 8, "marker": "E, E-H", "movement": "Turn right, Shoulder-in right", "directive": "Angle, bend and balance; engagement and collection", "coefficient": null},
+        {"number": 9, "marker": "C, M, Between G & H", "movement": "Collected walk, Turn right, Half pirouette right proceed collected walk", "directive": "Quality of transition; Regularity; suppleness of back; activity; collection; self-carriage, regularity; activity of hind legs; bend; fluency; size; self-carriage", "coefficient": null},
+        {"number": 10, "marker": "Between G & M, H", "movement": "Half pirouette left, proceed collected walk, Turn left", "directive": "Regularity; activity of hind legs; bend; fluency; size; self-carriage", "coefficient": 2},
+        {"number": 11, "marker": "CMG(H)G(M)GHS", "movement": "Collected walk", "directive": "Regularity; suppleness of back; activity; collection; self-carriage", "coefficient": 2},
+        {"number": 12, "marker": "S-P, P", "movement": "Extended walk, Collected walk", "directive": "Regularity; suppleness of back; activity; overtrack; freedom of shoulders; stretching to the bit; well defined transitions", "coefficient": null},
+        {"number": 13, "marker": "F", "movement": "Collected canter right lead", "directive": "Precise, fluent transition; engagement; collection and quality of canter", "coefficient": null},
+        {"number": 14, "marker": "A, D-B", "movement": "Down centerline, Half pass right", "directive": "Alignment and bend while moving fluently forward and sideways; engagement and collection", "coefficient": 2},
+        {"number": 15, "marker": "B-M, M", "movement": "Counter canter, Flying change of lead", "directive": "Straightness, engagement and collection; clear, balanced, fluent flying change", "coefficient": null},
+        {"number": 16, "marker": "C", "movement": "Circle left 20m, 5-6 strides of very collected canter between quarterlines", "directive": "Well defined transitions; engagement and collection throughout; size of circle and bend", "coefficient": 2},
+        {"number": 17, "marker": "H-K, K", "movement": "Medium canter, Collected canter", "directive": "Moderate lengthening of frame; elasticity; engagement; suspension; straightness and uphill balance; consistent tempo; well defined transitions", "coefficient": null},
+        {"number": 18, "marker": "A, D-E", "movement": "Down centerline, Half pass left", "directive": "Alignment and bend while moving fluently forward and sideways; engagement and collection", "coefficient": null},
+        {"number": 19, "marker": "E-H, H", "movement": "Counter canter, Flying change of lead", "directive": "Straightness, engagement and collection; clear, balanced, fluent flying change", "coefficient": null},
+        {"number": 20, "marker": "M-F, F", "movement": "Extended canter, Collected canter", "directive": "Utmost ground cover with lengthening of frame; engagement; elasticity; suspension; straightness and uphill balance; maintaining tempo and balance", "coefficient": null},
+        {"number": 21, "marker": "F-A-K", "movement": "Transitions M and F, Collected canter", "directive": "Well defined transitions maintaining tempo and balance", "coefficient": null},
+        {"number": 22, "marker": "K-X-M", "movement": "Change rein, 3 single flying changes of lead, near first quarterline, near X, and near last quarterline", "directive": "Quality of canter; clear, balanced, fluent, straight flying changes; engagement", "coefficient": 2},
+        {"number": 23, "marker": "H", "movement": "Collected trot", "directive": "Well defined transition maintaining tempo and balance", "coefficient": 2},
+        {"number": 24, "marker": "E, X, G", "movement": "Turn left, Turn left, Halt, salute", "directive": "Bend and balance in turns; engagement, self-carriage and quality of trot; well defined transition; straightness; attentiveness; immobility (min. 3 seconds)", "coefficient": null}
+      ],
+
+      "coefficient_movements": [
+        "Medium trot with collected steps (movement 2)",
+        "Half pass right (movement 3)",
+        "Half pass left (movement 4)",
+        "Half pirouette right (movement 10)",
+        "Collected walk (movement 11)",
+        "Half pass right in canter (movement 14)",
+        "Very collected canter in circle (movement 16)",
+        "Three single flying changes (movement 22)",
+        "Canter to trot transition (movement 23)"
+      ],
+
+      "collective_marks": [
+        {"category": "Gaits", "description": "Freedom and regularity", "coefficient": 1},
+        {"category": "Impulsion", "description": "Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters", "coefficient": 2},
+        {"category": "Submission", "description": "Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements", "coefficient": 2},
+        {"category": "Rider's Position and Seat", "description": "Alignment; posture; stability; weight placement; following mechanics of the gaits", "coefficient": 1},
+        {"category": "Rider's Use of Aids", "description": "Clarity; subtlety; independence; accuracy of test", "coefficient": 1}
+      ]
+    },
+
+    {
+      "test_id": "2023_fourth_2",
+      "name": "2023 USEF Fourth Level Test 2",
+      "level": "Fourth",
+      "sublevel": "2",
+      "year": 2023,
+
+      "test_info": {
+        "max_points": 380,
+        "base_points": 360,
+        "collective_points": 20,
+        "arena_size": "Standard (20m x 60m)",
+        "average_ride_time": "6:00",
+        "trot_sitting_requirement": "All trot work must be done sitting",
+        "double_bridle": "Optional"
+      },
+
+      "purpose": "To confirm that the horse demonstrates correct basics, and has developed sufficient throughness, suppleness, balance, and impulsion to perform with ease the exercises at this medium level of difficulty. The horse has established consistent self-carriage and lightness through improved connection, engagement, and collection. The movements and transitions are performed with greater straightness, impulsion, and cadence.",
+
+      "introduces": "Counter change of hand in trot and canter; tempi changes every fourth stride; working partial pirouettes in canter",
+
+      "movements_by_gait": {
+        "trot": [
+          "Collected trot",
+          "Medium trot",
+          "Extended trot",
+          "Shoulder-in right",
+          "Shoulder-in left",
+          "Half pass left",
+          "Half pass right (counter change of hand)",
+          "10m half circles"
+        ],
+        "walk": [
+          "Collected walk",
+          "Extended walk",
+          "Half pirouette left",
+          "Half pirouette right"
+        ],
+        "canter": [
+          "Collected canter",
+          "Very collected canter",
+          "Medium canter",
+          "Extended canter",
+          "Half pass left",
+          "Half pass right",
+          "Working pirouette right (toward F)",
+          "Working pirouette left (toward M)",
+          "Tempi changes every 4th stride (3 changes)"
+        ]
+      },
+
+      "movements": [
+        {"number": 1, "marker": "A-X", "movement": "Enter collected trot, Halt, salute, Proceed collected trot", "directive": "Engagement, collection and quality of gaits; well defined transitions; straightness; attentiveness; immobility (min. 3 seconds)", "coefficient": null},
+        {"number": 2, "marker": "C, M-B", "movement": "Track right, Shoulder-in right", "directive": "Angle, bend and balance; engagement and collection", "coefficient": null},
+        {"number": 3, "marker": "B-K, K", "movement": "Change rein, medium trot, Collected trot", "directive": "Moderate lengthening of frame and stride with engagement, elasticity, suspension, straightness and uphill balance; consistent tempo; well defined transitions", "coefficient": null},
+        {"number": 4, "marker": "A, D-E", "movement": "Down centerline, Half pass left", "directive": "Alignment, bend, fluency and crossing of legs; engagement and collection", "coefficient": 2},
+        {"number": 5, "marker": "E-G, C", "movement": "Half pass right, Track left", "directive": "Supple change of bend; alignment, fluency and crossing of legs; engagement and collection", "coefficient": 2},
+        {"number": 6, "marker": "H-E", "movement": "Shoulder-in left", "directive": "Angle, bend and balance; engagement and collection", "coefficient": null},
+        {"number": 7, "marker": "E-F, F", "movement": "Change rein, medium trot, Collected trot", "directive": "Moderate lengthening of frame and stride with engagement, elasticity, suspension, straightness and uphill balance; consistent tempo; well defined transitions", "coefficient": null},
+        {"number": 8, "marker": "A, K-R", "movement": "Collected walk, Change rein, extended walk", "directive": "Quality of transition; Regularity; suppleness of back; activity; collection; self-carriage; Regularity; suppleness of back; activity; overtrack; freedom of shoulder; stretching to the bit; well defined transitions", "coefficient": 2},
+        {"number": 9, "marker": "R, M, Between G & H", "movement": "Collected walk, Turn left, Half pirouette left, Proceed collected walk", "directive": "Regularity; activity of hind legs; bend; fluency; size; self-carriage", "coefficient": 2},
+        {"number": 10, "marker": "Between G & M, H", "movement": "Half pirouette right, Proceed collected walk, Turn right", "directive": "Regularity; activity of hind legs; bend; fluency; size; self-carriage", "coefficient": 2},
+        {"number": 11, "marker": "AK/RMG(H)G(M)GHC", "movement": "Collected walk", "directive": "Regularity; suppleness of the back; activity; collection; self-carriage", "coefficient": null},
+        {"number": 12, "marker": "C", "movement": "Collected canter right lead", "directive": "Precise, fluent transition; engagement, collection and quality of canter", "coefficient": null},
+        {"number": 13, "marker": "M-F, F", "movement": "Medium canter, Collected canter", "directive": "Moderate lengthening of frame and stride with engagement, elasticity, suspension, straightness and uphill balance; consistent tempo; well defined transitions", "coefficient": null},
+        {"number": 14, "marker": "A, D-B", "movement": "Down centerline, Half pass right", "directive": "Alignment and bend while moving fluently forward and sideways; engagement and collection", "coefficient": 2},
+        {"number": 15, "marker": "B", "movement": "Flying change of lead", "directive": "Clear, balanced, fluent, straight flying change", "coefficient": null},
+        {"number": 16, "marker": "B-G, C", "movement": "Half pass left, Track left", "directive": "Alignment and bend while moving fluently forward and sideways; engagement and collection", "coefficient": 2},
+        {"number": 17, "marker": "H-X-F, F", "movement": "Change rein extended canter, Collected canter and flying change of lead", "directive": "Utmost ground cover with lengthening of frame, engagement, elasticity, suspension, straightness and uphill balance; well defined transitions; clear balanced, fluent, straight flying change on diagonal", "coefficient": null},
+        {"number": 18, "marker": "K-X, Approaching X, Toward F", "movement": "On diagonal develop very collected canter, Working pirouette right toward the letter F, Proceed collected canter", "directive": "Bend and balance of working pirouette; straightness, regularity, engagement and collection of canter", "coefficient": 2},
+        {"number": 19, "marker": "K-X-M", "movement": "Change rein, three flying changes of lead every fourth stride", "directive": "Clear, balanced, fluent, straight flying changes; engagement and quality of canter", "coefficient": 2},
+        {"number": 20, "marker": "H-X, Approaching X, Toward M", "movement": "On diagonal develop very collected canter, Working pirouette left toward the letter M, Proceed collected canter", "directive": "Bend and balance of working pirouette; straightness, regularity, engagement and collection of canter", "coefficient": 2},
+        {"number": 21, "marker": "H", "movement": "Collected trot", "directive": "Well defined, balanced transition; engagement and collection", "coefficient": null},
+        {"number": 22, "marker": "S-F, F", "movement": "Change rein, extended trot, Collected trot", "directive": "Utmost ground cover with lengthening of frame, engagement, elasticity, suspension, straightness; well defined transitions maintaining tempo and balance", "coefficient": null},
+        {"number": 23, "marker": "A, X", "movement": "Down centerline, Halt, salute", "directive": "Bend and balance in turn; engagement, collection and quality of trot; well defined transition; straightness; attentiveness; immobility (min. 3 seconds)", "coefficient": null}
+      ],
+
+      "coefficient_movements": [
+        "Half pass left (counter change) (movement 4)",
+        "Half pass right (counter change) (movement 5)",
+        "Extended walk (movement 8)",
+        "Half pirouette left (movement 9)",
+        "Half pirouette right (movement 10)",
+        "Half pass right in canter (movement 14)",
+        "Half pass left in canter (movement 16)",
+        "Working pirouette right (movement 18)",
+        "Tempi changes every 4th stride (movement 19)",
+        "Working pirouette left (movement 20)"
+      ],
+
+      "collective_marks": [
+        {"category": "Gaits", "description": "Freedom and regularity", "coefficient": 1},
+        {"category": "Impulsion", "description": "Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters", "coefficient": 2},
+        {"category": "Submission", "description": "Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements", "coefficient": 2},
+        {"category": "Rider's Position and Seat", "description": "Alignment; posture; stability; weight placement; following mechanics of the gaits", "coefficient": 1},
+        {"category": "Rider's Use of Aids", "description": "Clarity; subtlety; independence; accuracy of test", "coefficient": 1}
+      ]
+    },
+
+    {
+      "test_id": "2023_fourth_3",
+      "name": "2023 USEF Fourth Level Test 3",
+      "level": "Fourth",
+      "sublevel": "3",
+      "year": 2023,
+
+      "test_info": {
+        "max_points": 360,
+        "base_points": 340,
+        "collective_points": 20,
+        "arena_size": "Standard (20m x 60m)",
+        "average_ride_time": "6:00",
+        "trot_sitting_requirement": "All trot work must be done sitting",
+        "double_bridle": "Optional"
+      },
+
+      "purpose": "To confirm that the horse demonstrates correct basics, and has developed sufficient throughness, suppleness, balance, and impulsion to perform with ease the exercises at this medium level of difficulty. The horse has established consistent self-carriage and lightness through improved connection, engagement, and collection. The movements and transitions are performed with greater straightness, impulsion, and cadence.",
+
+      "introduces": "Tempi changes every third stride; working half-pirouettes in canter",
+
+      "movements_by_gait": {
+        "trot": [
+          "Collected trot",
+          "Medium trot",
+          "Extended trot",
+          "Shoulder-in right",
+          "Shoulder-in left",
+          "Half pass left",
+          "Half pass right",
+          "10m half circles",
+          "Rein back 4 steps"
+        ],
+        "walk": [
+          "Collected walk",
+          "Extended walk"
+        ],
+        "canter": [
+          "Collected canter",
+          "Medium canter",
+          "Extended canter",
+          "Half pass left (with half 10m circle)",
+          "Half pass right (with half 10m circle)",
+          "Working half-pirouette left (approximately 3m diameter)",
+          "Working half-pirouette right (approximately 3m diameter)",
+          "Single flying changes",
+          "Tempi changes every 3rd stride (3 changes)"
+        ]
+      },
+
+      "movements": [
+        {"number": 1, "marker": "A-X", "movement": "Enter collected canter, Halt, salute, Proceed collected trot", "directive": "Engagement, collection and quality of gaits; well defined transitions; straightness; attentiveness; immobility (min. 3 seconds)", "coefficient": null},
+        {"number": 2, "marker": "C, H-X-F, F", "movement": "Track left, Change rein, medium trot, Collected trot", "directive": "Moderate lengthening of frame and stride with engagement, elasticity, suspension, straightness and uphill balance; consistent tempo; well defined transitions", "coefficient": null},
+        {"number": 3, "marker": "K-E", "movement": "Shoulder-in right", "directive": "Angle, bend and balance; engagement and collection", "coefficient": null},
+        {"number": 4, "marker": "E-G, C", "movement": "Half pass right, Track right", "directive": "Alignment, bend, fluency and crossing of legs; engagement and collection", "coefficient": null},
+        {"number": 5, "marker": "M-X-K, K", "movement": "Extended trot, Collected trot", "directive": "Utmost ground cover with lengthening of frame, engagement, elasticity, suspension, straightness and uphill balance", "coefficient": null},
+        {"number": 6, "marker": "K-A", "movement": "Transitions M and K, Collected trot", "directive": "Well defined maintaining tempo and balance", "coefficient": 2},
+        {"number": 7, "marker": "A", "movement": "Halt, rein back 4 steps and proceed collected trot", "directive": "Immobility, willing steps back with correct rhythm and count; straightness; well defined transitions", "coefficient": 2},
+        {"number": 8, "marker": "F-B", "movement": "Shoulder-in left", "directive": "Angle, bend and balance; engagement and collection", "coefficient": 2},
+        {"number": 9, "marker": "B-G, C", "movement": "Half pass left, Track left", "directive": "Alignment, bend, fluency and crossing of legs; engagement and collection", "coefficient": null},
+        {"number": 10, "marker": "H", "movement": "Collected walk", "directive": "Quality of transition; Regularity, suppleness of back, activity; collection; self-carriage", "coefficient": 2},
+        {"number": 11, "marker": "S-R, R-M-C", "movement": "Half circle 20m Extended walk, Collected walk", "directive": "Regularity; suppleness of back; activity; overtrack; freedom of shoulder; stretching to the bit; well defined transitions", "coefficient": 2},
+        {"number": 12, "marker": "C", "movement": "Collected canter left lead", "directive": "Precise, fluent transition; engagement; collection and quality of canter", "coefficient": null},
+        {"number": 13, "marker": "H-K, K-F", "movement": "Medium canter, Collected canter", "directive": "Moderate lengthening of frame and stride with engagement, elasticity, suspension, straightness and uphill balance; consistent tempo; well defined transitions", "coefficient": null},
+        {"number": 14, "marker": "F-X, I-S", "movement": "Half pass left, Half 10m circle", "directive": "Alignment and bend while moving fluently forward and sideways; engagement and self-carriage; shape and size of half circle; positioning; self-carriage", "coefficient": null},
+        {"number": 15, "marker": "S-P, Between centerline and P", "movement": "Change rein, Working half-pirouette left approximately 3m in diameter, Proceed collected canter", "directive": "Size, bend and balance of working pirouette; straightness, regularity, engagement and collection of canter", "coefficient": 2},
+        {"number": 16, "marker": "Before S", "movement": "Flying change of lead", "directive": "Clear, balanced, fluent, straight flying change", "coefficient": null},
+        {"number": 17, "marker": "M-X, L-V", "movement": "Half pass right, Half 10m circle", "directive": "Alignment and bend while moving fluently forward and sideways; engagement and self-carriage; shape and size of half circles; positioning; self-carriage", "coefficient": 2},
+        {"number": 18, "marker": "V-R, Between centerline and R", "movement": "Change rein, Working half-pirouette right approximately 3m in diameter, Proceed collected canter", "directive": "Size, bend and balance of working pirouette; straightness, regularity, engagement and collection of canter", "coefficient": 2},
+        {"number": 19, "marker": "Before V", "movement": "Flying change of lead", "directive": "Clear, balanced, fluent, straight flying change", "coefficient": 2},
+        {"number": 20, "marker": "F-X-H, H", "movement": "Extended canter, Collected canter and flying change of lead", "directive": "Utmost ground cover with lengthening of frame, engagement, elasticity, suspension, straightness and uphill balance; well defined transitions; clear balanced, fluent, straight flying change on diagonal", "coefficient": null},
+        {"number": 21, "marker": "M-X-K", "movement": "Three flying changes of lead every third stride", "directive": "Clear, balanced, fluent, straight flying changes; engagement and quality of canter", "coefficient": 2},
+        {"number": 22, "marker": "A, X", "movement": "Down centerline, Halt, salute", "directive": "Bend and balance in turn; engagement, collection and quality of canter; well defined transition; straightness; attentiveness; immobility (min. 3 seconds)", "coefficient": null}
+      ],
+
+      "coefficient_movements": [
+        "Collected trot transitions (movement 6)",
+        "Rein back 4 steps (movement 7)",
+        "Shoulder-in left (movement 8)",
+        "Collected walk (movement 10)",
+        "Extended walk (movement 11)",
+        "Working half-pirouette left (movement 15)",
+        "Half pass right with half circle (movement 17)",
+        "Working half-pirouette right (movement 18)",
+        "Flying change before V (movement 19)",
+        "Tempi changes every 3rd stride (movement 21)"
+      ],
+
+      "collective_marks": [
+        {"category": "Gaits", "description": "Freedom and regularity", "coefficient": 1},
+        {"category": "Impulsion", "description": "Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters", "coefficient": 2},
+        {"category": "Submission", "description": "Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements", "coefficient": 2},
+        {"category": "Rider's Position and Seat", "description": "Alignment; posture; stability; weight placement; following mechanics of the gaits", "coefficient": 1},
+        {"category": "Rider's Use of Aids", "description": "Clarity; subtlety; independence; accuracy of test", "coefficient": 1}
+      ]
+    }
+  ],
+
+  "movement_progression": {
+    "second_level": {
+      "introduced_movements": [
+        "Collected gaits (trot, walk, canter)",
+        "Medium gaits (trot, canter)",
+        "Shoulder-in",
+        "Travers (Test 2)",
+        "10m circles at canter",
+        "Counter canter",
+        "Simple changes (Test 2)",
+        "Half turn on haunches (Test 2)",
+        "Rein back to walk"
+      ],
+      "test_progression": {
+        "test_1": "Introduces collected/medium gaits, shoulder-in, 10m circles at canter, counter canter",
+        "test_2": "Adds travers, half turn on haunches, simple changes",
+        "test_3": "Adds counter canter in serpentine (no change of lead)"
+      }
+    },
+
+    "third_level": {
+      "introduced_movements": [
+        "Extended gaits (trot, walk, canter)",
+        "Half pass at trot",
+        "Half pass at canter",
+        "Single flying changes",
+        "Renvers (Test 2)",
+        "Release of reins at canter (Test 2)",
+        "Rein back to trot (Test 3)"
+      ],
+      "test_progression": {
+        "test_1": "Introduces extended gaits, half pass at trot, half pass at canter, single flying changes",
+        "test_2": "Adds renvers, release of reins at canter",
+        "test_3": "Adds rein back to trot"
+      }
+    },
+
+    "fourth_level": {
+      "introduced_movements": [
+        "Collected walk",
+        "Very collected canter",
+        "Walk pirouettes (half pirouettes)",
+        "Multiple single flying changes on diagonal",
+        "Counter change of hand in trot and canter (Test 2)",
+        "Tempi changes every 4th stride (Test 2)",
+        "Working pirouettes in canter (Test 2)",
+        "Tempi changes every 3rd stride (Test 3)",
+        "Working half-pirouettes in canter (Test 3)"
+      ],
+      "test_progression": {
+        "test_1": "Introduces collected walk, very collected canter, walk pirouettes, multiple single changes (3 changes on diagonal)",
+        "test_2": "Adds counter change of hand, 4-tempis, working pirouettes in canter",
+        "test_3": "Adds 3-tempis, working half-pirouettes in canter"
+      }
+    }
+  },
+
+  "key_differences_by_level": {
+    "second_level": {
+      "focus": "Development of collected and medium gaits; beginning lateral work",
+      "new_concepts": "Collection, shoulder-in, travers, counter canter, simple changes, half turn on haunches",
+      "walk_requirements": "Medium walk, free walk, half turn on haunches (introduced Test 2)",
+      "canter_requirements": "Collected and medium canter, 10m circles, counter canter, simple changes (introduced Test 2)"
+    },
+
+    "third_level": {
+      "focus": "Extension and increased collection; half pass; flying changes",
+      "new_concepts": "Extended gaits, half pass at trot and canter, single flying changes, renvers (Test 2), release of reins (Test 2)",
+      "walk_requirements": "Medium walk, extended walk, half turn on haunches",
+      "canter_requirements": "Collected, medium, extended canter; half pass; single flying changes"
+    },
+
+    "fourth_level": {
+      "focus": "Pirouettes, tempi changes, very high collection",
+      "new_concepts": "Collected walk, very collected canter, walk pirouettes, tempi changes (4s and 3s), working pirouettes in canter",
+      "walk_requirements": "Collected walk, extended walk, half pirouettes",
+      "canter_requirements": "Very collected canter, working pirouettes, tempi changes every 4th stride (Test 2), tempi changes every 3rd stride (Test 3)",
+      "bridge_to_fei": "Fourth Level serves as direct preparation for FEI Prix St. Georges, which requires 4-tempis, 3-tempis, and half pirouettes in canter"
+    }
+  }
+}

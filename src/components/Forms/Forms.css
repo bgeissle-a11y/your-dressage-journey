@@ -857,6 +857,348 @@
   color: #8B7355;
 }
 
+/* ============================================
+   Pelvic Clock Section (Physical Self-Assessment)
+   ============================================ */
+
+/* Trigger Banner */
+.pelvic-clock-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, rgba(198, 123, 92, 0.08) 0%, rgba(212, 165, 116, 0.08) 100%);
+  border: 2px solid rgba(198, 123, 92, 0.25);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.pelvic-clock-trigger:hover {
+  border-color: #C67B5C;
+  background: linear-gradient(135deg, rgba(198, 123, 92, 0.12) 0%, rgba(212, 165, 116, 0.12) 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(198, 123, 92, 0.15);
+}
+
+.pelvic-clock-trigger:focus-visible {
+  outline: 2px solid #C67B5C;
+  outline-offset: 2px;
+}
+
+.pelvic-trigger-text {
+  flex: 1;
+}
+
+.pelvic-trigger-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15em;
+  font-weight: 600;
+  color: #C67B5C;
+  margin-bottom: 0.25rem;
+}
+
+.pelvic-trigger-subtitle {
+  font-size: 0.9rem;
+  color: #7A7A7A;
+  line-height: 1.5;
+}
+
+.pelvic-trigger-arrow {
+  font-size: 1.4em;
+  color: #C67B5C;
+  transition: transform 0.3s ease;
+  margin-left: 1rem;
+  flex-shrink: 0;
+}
+
+.pelvic-clock-trigger.expanded .pelvic-trigger-arrow {
+  transform: rotate(90deg);
+}
+
+/* Expanded Content */
+.pelvic-clock-content {
+  margin-top: 1.25rem;
+  padding: 1.75rem;
+  background: rgba(198, 123, 92, 0.04);
+  border: 1px solid rgba(198, 123, 92, 0.15);
+  border-radius: 12px;
+  animation: pelvicFadeIn 0.3s ease-out;
+}
+
+@keyframes pelvicFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Badge */
+.pelvic-clock-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: rgba(198, 123, 92, 0.12);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #C67B5C;
+  margin-bottom: 1rem;
+}
+
+/* Protocol Box */
+.protocol-box {
+  background: white;
+  border: 1px solid #E0D5C7;
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.protocol-box h4 {
+  font-family: 'Playfair Display', serif;
+  color: #8B7355;
+  font-size: 1.05em;
+  margin-bottom: 0.75rem;
+}
+
+.protocol-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  counter-reset: protocol-step;
+}
+
+.protocol-steps li {
+  padding: 0.5rem 0 0.5rem 2rem;
+  position: relative;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #3A3A3A;
+  counter-increment: protocol-step;
+}
+
+.protocol-steps li::before {
+  content: counter(protocol-step);
+  position: absolute;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  background: #C67B5C;
+  color: white;
+  border-radius: 50%;
+  font-size: 0.7em;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 0.65rem;
+}
+
+/* Clock Diagram */
+.pelvic-clock-diagram {
+  text-align: center;
+  margin: 1.25rem 0;
+  padding: 1.25rem;
+  background: white;
+  border-radius: 10px;
+  border: 1px solid #E0D5C7;
+}
+
+.pelvic-clock-diagram-label {
+  font-size: 0.85rem;
+  color: #7A7A7A;
+  margin-bottom: 0.75rem;
+}
+
+.clock-visual {
+  display: inline-block;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  border: 3px solid #D4A574;
+  position: relative;
+  margin: 0.5rem auto;
+}
+
+.clock-dot {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #C67B5C;
+}
+
+.clock-dot.top { top: -6px; left: 50%; transform: translateX(-50%); }
+.clock-dot.bottom { bottom: -6px; left: 50%; transform: translateX(-50%); }
+.clock-dot.left { left: -6px; top: 50%; transform: translateY(-50%); }
+.clock-dot.right { right: -6px; top: 50%; transform: translateY(-50%); }
+
+.clock-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #8B7355;
+}
+
+.clock-label {
+  position: absolute;
+  font-size: 0.8em;
+  font-weight: 600;
+  color: #8B7355;
+  white-space: nowrap;
+}
+
+.clock-label.top { top: -24px; left: 50%; transform: translateX(-50%); }
+.clock-label.bottom { bottom: -24px; left: 50%; transform: translateX(-50%); }
+.clock-label.left { left: -50px; top: 50%; transform: translateY(-50%); }
+.clock-label.right { right: -50px; top: 50%; transform: translateY(-50%); }
+
+/* Pelvic Select Fields */
+.pelvic-select-group {
+  margin-bottom: 1.25rem;
+}
+
+.pelvic-select-group:last-child {
+  margin-bottom: 0;
+}
+
+.pelvic-select-group > label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  color: #8B7355;
+  line-height: 1.5;
+}
+
+.pelvic-select {
+  width: 100%;
+  padding: 0.75rem 2.5rem 0.75rem 1rem;
+  border: 2px solid #E0D5C7;
+  border-radius: 10px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.95rem;
+  background: white;
+  color: #3A3A3A;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238B7355' stroke-width='2' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+}
+
+.pelvic-select:focus {
+  outline: none;
+  border-color: #8B7355;
+  box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+}
+
+/* Chip Multi-Select */
+.pelvic-multi-select {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  margin-top: 0.5rem;
+}
+
+.pelvic-chip {
+  display: flex;
+  align-items: center;
+  padding: 0.625rem 1.125rem;
+  border: 2px solid #E0D5C7;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+  font-size: 0.95rem;
+  user-select: none;
+}
+
+.pelvic-chip:hover {
+  border-color: #D4A574;
+  background: rgba(212, 165, 116, 0.05);
+}
+
+.pelvic-chip.selected {
+  border-color: #C67B5C;
+  background: rgba(198, 123, 92, 0.1);
+  color: #C67B5C;
+  font-weight: 500;
+}
+
+.pelvic-chip input[type="checkbox"] {
+  display: none;
+}
+
+.pelvic-chip .chip-icon {
+  margin-right: 0.375rem;
+  font-size: 1.1em;
+}
+
+/* Saddle Insight Panel */
+.saddle-insight {
+  margin-top: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, rgba(107, 142, 95, 0.08) 0%, rgba(139, 115, 85, 0.06) 100%);
+  border: 1px solid rgba(107, 142, 95, 0.25);
+  border-radius: 12px;
+  animation: pelvicFadeIn 0.4s ease-out;
+}
+
+.saddle-insight-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #6B8E5F;
+  font-size: 0.95rem;
+  margin-bottom: 0.625rem;
+}
+
+.saddle-insight-text {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #3A3A3A;
+  font-style: italic;
+}
+
+/* Skip/Clear Link */
+.pelvic-skip-link {
+  display: inline-block;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #7A7A7A;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: 'Work Sans', sans-serif;
+}
+
+.pelvic-skip-link:hover {
+  color: #3A3A3A;
+}
+
+/* Teaser Box */
+.pelvic-teaser {
+  margin-top: 1.25rem;
+  padding: 1rem 1.25rem;
+  background: rgba(139, 115, 85, 0.05);
+  border-radius: 10px;
+  border: 1px dashed #E0D5C7;
+  font-size: 0.9rem;
+  color: #7A7A7A;
+  line-height: 1.6;
+}
+
 /* Mobile Responsive */
 @media (max-width: 640px) {
   .form-section {
@@ -912,5 +1254,39 @@
 
   .body-parts-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* Pelvic Clock mobile */
+  .pelvic-clock-trigger {
+    padding: 1rem 1.125rem;
+  }
+
+  .pelvic-trigger-title {
+    font-size: 1.05em;
+  }
+
+  .pelvic-clock-content {
+    padding: 1.25rem;
+  }
+
+  .clock-visual {
+    width: 140px;
+    height: 140px;
+  }
+
+  .clock-label {
+    font-size: 0.7em;
+  }
+
+  .clock-label.left { left: -42px; }
+  .clock-label.right { right: -42px; }
+
+  .pelvic-multi-select {
+    gap: 0.5rem;
+  }
+
+  .pelvic-chip {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.9rem;
   }
 }

@@ -1,0 +1,220 @@
+{
+  "metadata": {
+    "organization": "United States Dressage Federation (USDF) and United States Equestrian Federation (USEF)",
+    "copyright": "©2022 United States Dressage Federation (USDF) and United States Equestrian Federation (USEF)",
+    "effective_dates": "December 1, 2022 - November 30, 2026",
+    "parsed_date": "2026-02-09",
+    "level": "First Level",
+    "total_tests": 3
+  },
+  
+  "tests": [
+    {
+      "test_id": "2023_first_1",
+      "name": "2023 USEF First Level Test 1",
+      "level": "First",
+      "sublevel": "1",
+      "year": 2023,
+      
+      "test_info": {
+        "max_points": 270,
+        "base_points": 250,
+        "collective_points": 20,
+        "arena_size": "Standard (20m x 60m)",
+        "average_ride_time": "5:30 (from entry at A to final halt)",
+        "scheduling_note": "Suggested to add at least 2 min. for scheduling purposes",
+        "trot_sitting_requirement": "All trot work may be ridden sitting or rising, unless otherwise stated"
+      },
+      
+      "purpose": "To confirm that the horse demonstrates correct basics, and in addition to the requirements of Training Level, has developed improved balance, lateral suppleness and throughness, as well as the thrust to perform lengthenings of stride. The horse should be on the bit.",
+      
+      "introduces": [
+        "10m half circle at trot",
+        "15m circle in canter",
+        "Lengthening of stride in trot"
+      ],
+      
+      "movements_by_gait": {
+        "trot": [
+          "Working trot",
+          "Lengthen stride in trot",
+          "10m half circles",
+          "20m circle with stretch",
+          "Stretch forward and downward"
+        ],
+        "walk": [
+          "Medium walk",
+          "Free walk"
+        ],
+        "canter": [
+          "Working canter",
+          "15m circles"
+        ]
+      },
+      
+      "movements": [
+        {"number": 1, "marker": "A-X", "movement": "Enter working trot, Halt, salute, Proceed working trot", "directive": "Regularity and quality of trot; willing, clear transitions; straightness; attentiveness; immobility (min. 3 seconds)", "coefficient": null},
+        {"number": 2, "marker": "C, E-X", "movement": "Track left, Half circle left 10m returning to track at H", "directive": "Regularity and quality of trot; shape and size of half circle; bend; balance; straightness", "coefficient": null},
+        {"number": 3, "marker": "B-X", "movement": "Half circle right 10m returning to track at M", "directive": "Regularity and quality of trot; shape and size of half circle; bend; balance; straightness", "coefficient": null},
+        {"number": 4, "marker": "C, Before C, C", "movement": "Circle left 20m in rising trot allowing horse to stretch forward and downward, Shorten reins, Working trot", "directive": "Forward and downward stretch over the back into light contact, maintaining balance and quality of trot; bend; shape and size of circle; willing, clear transitions", "coefficient": 2},
+        {"number": 5, "marker": "H-P, P", "movement": "Change rein lengthen stride in trot, Working trot", "directive": "Moderate lengthening of frame and stride; regularity and quality of trot; straightness; consistent tempo; willing, clear transitions; bend and balance in corner", "coefficient": null},
+        {"number": 6, "marker": "A", "movement": "Medium walk", "directive": "Willing, clear transition; regularity, quality, overtrack; bend and balance in corner; straightness", "coefficient": 2},
+        {"number": 7, "marker": "V-R, R", "movement": "Change rein free walk, Medium walk", "directive": "Regularity and quality of walks; reach and ground cover with overtrack of free walk allowing complete freedom to stretch neck forward and downward; straightness; willing, clear transitions", "coefficient": 2},
+        {"number": 8, "marker": "M, C", "movement": "Working trot, Working canter left lead", "directive": "Willing, clear transitions; regularity and quality of gaits; bend and balance in corners", "coefficient": 2},
+        {"number": 9, "marker": "E", "movement": "Circle left 15m", "directive": "Regularity and quality of canter; shape and size of circle; bend; balance", "coefficient": null},
+        {"number": 10, "marker": "F-X-H, X", "movement": "Change rein, Working trot", "directive": "Willing, clear transition; regularity and quality of gaits; straightness; bend and balance in corner", "coefficient": null},
+        {"number": 11, "marker": "C", "movement": "Working canter right lead", "directive": "Willing, clear transition; regularity and quality of canter; bend and balance in corner", "coefficient": 2},
+        {"number": 12, "marker": "B", "movement": "Circle right 15m", "directive": "Regularity and quality of canter; shape and size of circle; bend; balance", "coefficient": null},
+        {"number": 13, "marker": "A", "movement": "Working trot", "directive": "Willing, clear transition; regularity and quality of trot; straightness; bend and balance in corner", "coefficient": null},
+        {"number": 14, "marker": "K-R, R", "movement": "Change rein lengthen stride in trot, Working trot", "directive": "Moderate lengthening of frame and stride; regularity and quality of trot; straightness; consistent tempo; willing, clear transitions; bend and balance in corners", "coefficient": null},
+        {"number": 15, "marker": "E, X, G", "movement": "Half circle left 10m, Down centerline, Halt salute", "directive": "Bend and balance in half circle; regularity and quality of trot; willing, clear transition; straightness; attentiveness; immobility (min. 3 seconds)", "coefficient": null}
+      ],
+      
+      "coefficient_movements": ["Stretch circle (4)", "Medium walk (6)", "Free walk (7)", "Trot-canter transitions (8)", "Canter right (11)"],
+      
+      "collective_marks": [
+        {"category": "Gaits", "description": "Freedom and regularity", "coefficient": 1},
+        {"category": "Impulsion", "description": "Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters", "coefficient": 2},
+        {"category": "Submission", "description": "Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements", "coefficient": 2},
+        {"category": "Rider's Position and Seat", "description": "Alignment; posture; stability; weight placement; following mechanics of the gaits", "coefficient": 1},
+        {"category": "Rider's Correct and Effective Use of Aids", "description": "Clarity; subtlety; independence; accuracy of test", "coefficient": 1}
+      ]
+    },
+    
+    {
+      "test_id": "2023_first_2",
+      "name": "2023 USEF First Level Test 2",
+      "level": "First",
+      "sublevel": "2",
+      "year": 2023,
+      
+      "test_info": {
+        "max_points": 330,
+        "base_points": 310,
+        "collective_points": 20,
+        "arena_size": "Standard (20m x 60m)",
+        "average_ride_time": "5:30 (from entry at A to final halt)",
+        "scheduling_note": "Suggested to add at least 2 min. for scheduling purposes",
+        "trot_sitting_requirement": "All trot work may be ridden sitting or rising, unless otherwise stated"
+      },
+      
+      "purpose": "To confirm that the horse demonstrates correct basics, and in addition to the requirements of Training Level, has developed improved balance, lateral suppleness and throughness, as well as the thrust to perform lengthenings of strides. The horse should be on the bit.",
+      
+      "introduces": ["Leg yield", "Lengthen stride in canter"],
+      
+      "movements_by_gait": {
+        "trot": ["Working trot", "Lengthen stride in trot", "Leg-yield right", "Leg-yield left", "20m circle with stretch"],
+        "walk": ["Medium walk", "Free walk"],
+        "canter": ["Working canter", "Lengthen stride in canter", "Develop working canter", "15m circles"]
+      },
+      
+      "movements": [
+        {"number": 1, "marker": "A-X", "movement": "Enter working trot, Halt, salute, Proceed working trot", "directive": "Regularity and quality of trot; willing, clear transitions; straightness; attentiveness; immobility (min. 3 seconds)", "coefficient": null},
+        {"number": 2, "marker": "C, M-V, V", "movement": "Track right, Change rein lengthen stride in trot, Working trot", "directive": "Bend and balance in turns; moderate lengthening of frame and stride; regularity and quality of trot; willing, clear transitions; straightness; consistent tempo", "coefficient": null},
+        {"number": 3, "marker": "A, L-M", "movement": "Turn down centerline, Leg yield right", "directive": "Regularity and quality of trot; straightness on centerline; consistent tempo; alignment; balance and flow", "coefficient": 2},
+        {"number": 4, "marker": "H-P, P", "movement": "Change rein lengthen stride in trot, Working trot", "directive": "Moderate lengthening of frame and stride; regularity and quality of trot; willing, clear transitions; straightness; consistent tempo", "coefficient": 2},
+        {"number": 5, "marker": "A, L-H", "movement": "Turn down centerline, Leg yield left", "directive": "Regularity and quality of trot; straightness on centerline; consistent tempo; alignment; balance and flow", "coefficient": 2},
+        {"number": 6, "marker": "C", "movement": "Medium walk", "directive": "Willing, clear transition; regularity, quality, overtrack; bend and balance in corner", "coefficient": 2},
+        {"number": 7, "marker": "M-V, V", "movement": "Change rein free walk, Medium walk", "directive": "Regularity and quality of walks; reach and ground cover with overtrack of free walk allowing complete freedom to stretch neck forward and downward; straightness; willing, clear transitions", "coefficient": 2},
+        {"number": 8, "marker": "K, A", "movement": "Working trot, Working canter left lead", "directive": "Willing, clear transitions; regularity and quality of gaits; bend and balance in corners", "coefficient": null},
+        {"number": 9, "marker": "P", "movement": "Circle left 15m", "directive": "Regularity and quality of canter; shape and size of circle; bend; balance", "coefficient": null},
+        {"number": 10, "marker": "P-M", "movement": "Lengthen stride in canter", "directive": "Willing, clear transition; moderate lengthening of frame and stride; regularity and quality of canter; straightness; consistent tempo", "coefficient": 2},
+        {"number": 11, "marker": "Between M-C", "movement": "Develop working canter", "directive": "Willing, clear transition; regularity and quality of canter; bend and balance in corners", "coefficient": null},
+        {"number": 12, "marker": "H-X-F, X", "movement": "Change rein, Working trot", "directive": "Willing, clear transition; regularity and quality of gaits; straightness", "coefficient": null},
+        {"number": 13, "marker": "F", "movement": "Working canter right lead", "directive": "Willing, clear transition; regularity and quality of canter; bend and balance in corners", "coefficient": null},
+        {"number": 14, "marker": "V", "movement": "Circle right 15m", "directive": "Regularity and quality of canter; shape and size of circle; bend; balance", "coefficient": null},
+        {"number": 15, "marker": "V-H", "movement": "Lengthen stride in canter", "directive": "Willing, clear transition; moderate lengthening of frame and stride; regularity and quality of canter; straightness; consistent tempo", "coefficient": 2},
+        {"number": 16, "marker": "Between H-C", "movement": "Develop working canter", "directive": "Willing, clear transition; regularity and quality of canter; bend and balance in corners", "coefficient": null},
+        {"number": 17, "marker": "M", "movement": "Working trot", "directive": "Willing, clear transition; regularity and quality of trot; straightness", "coefficient": null},
+        {"number": 18, "marker": "B, Before B, B", "movement": "Circle right 20m rising trot allowing horse to stretch forward and downward, Shorten reins, Working trot", "directive": "Forward and downward stretch over the back into light contact, maintaining balance and quality of trot; bend; shape and size of circle; willing, clear transitions", "coefficient": 2},
+        {"number": 19, "marker": "A, X", "movement": "Down centerline, Halt, salute", "directive": "Bend and balance in turn; regularity and quality of trot; willing, clear transition; straightness; attentiveness; immobility (min. 3 seconds)", "coefficient": null}
+      ],
+      
+      "coefficient_movements": ["Leg yield right (3)", "Lengthen trot H-P (4)", "Leg yield left (5)", "Medium walk (6)", "Free walk (7)", "Lengthen canter P-M (10)", "Lengthen canter V-H (15)", "Stretch circle (18)"],
+      
+      "collective_marks": [
+        {"category": "Gaits", "description": "Freedom and regularity", "coefficient": 1},
+        {"category": "Impulsion", "description": "Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters", "coefficient": 2},
+        {"category": "Submission", "description": "Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements", "coefficient": 2},
+        {"category": "Rider's Position and Seat", "description": "Alignment; posture; stability; weight placement; following mechanics of the gaits", "coefficient": 1},
+        {"category": "Rider's Correct and Effective Use of Aids", "description": "Clarity; subtlety; independence; accuracy of test", "coefficient": 1}
+      ]
+    },
+    
+    {
+      "test_id": "2023_first_3",
+      "name": "2023 USEF First Level Test 3",
+      "level": "First",
+      "sublevel": "3",
+      "year": 2023,
+      
+      "test_info": {
+        "max_points": 360,
+        "base_points": 340,
+        "collective_points": 20,
+        "arena_size": "Standard (20m x 60m)",
+        "average_ride_time": "6:00 (from entry at A to final halt)",
+        "scheduling_note": "Suggested to add at least 2 min. for scheduling purposes",
+        "trot_sitting_requirement": "All trot work may be ridden sitting or rising, unless otherwise stated"
+      },
+      
+      "purpose": "To confirm that the horse demonstrates correct basics, and in addition to the requirements of Training Level, has developed improved balance, lateral suppleness and throughness, as well as the thrust to perform lengthenings of strides. The horse should be on the bit.",
+      
+      "introduces": ["10m circle at trot", "Change of lead through trot", "Shallow loops at canter"],
+      
+      "movements_by_gait": {
+        "trot": ["Working trot", "Lengthen stride in trot", "10m circles", "20m circle with stretch", "Leg-yield right", "Leg-yield left"],
+        "walk": ["Medium walk", "Free walk"],
+        "canter": ["Working canter", "Lengthen stride in canter", "15m circles", "Shallow loops", "Change of lead through trot"]
+      },
+      
+      "movements": [
+        {"number": 1, "marker": "A-X", "movement": "Enter working trot, Halt, salute, Proceed working trot", "directive": "Regularity and quality of trot; willing, clear transitions; straightness; attentiveness; immobility (min. 3 seconds)", "coefficient": null},
+        {"number": 2, "marker": "C, H-X-F, F", "movement": "Track left, Change rein lengthen stride in trot, Working trot", "directive": "Bend and balance in turn; moderate lengthening of frame and stride; regularity and quality of trot; willing, clear transitions; straightness; consistent tempo", "coefficient": null},
+        {"number": 3, "marker": "V-I", "movement": "Leg yield right", "directive": "Regularity and quality of trot; consistent tempo; alignment; balance and flow", "coefficient": 2},
+        {"number": 4, "marker": "I, I, C", "movement": "Circle left 10m, Straight ahead, Track right", "directive": "Regularity and quality of trot; shape and size of circle; bend; balance; straightness on centerline", "coefficient": null},
+        {"number": 5, "marker": "B, Before B", "movement": "Circle right 20m rising trot allowing horse to stretch forward and downward, Shorten reins", "directive": "Forward and downward stretch over the back into light contact, maintaining balance and quality of trot; bend; shape and size of circle; willing, clear transitions", "coefficient": 2},
+        {"number": 6, "marker": "A", "movement": "Working canter right lead", "directive": "Willing, clear transition; regularity and quality of canter; bend and balance in corner", "coefficient": null},
+        {"number": 7, "marker": "K-X-H", "movement": "Slightly after K begin single loop to X returning to track slightly before H, maintaining lead", "directive": "Regularity and quality of canter; shape and size of loop; positioning; balance", "coefficient": 2},
+        {"number": 8, "marker": "C", "movement": "Circle right 15m", "directive": "Regularity and quality of canter; shape and size of circle; bend; balance", "coefficient": null},
+        {"number": 9, "marker": "M-F, F", "movement": "Lengthen stride in canter, Working canter", "directive": "Moderate lengthening of frame and stride; regularity and quality of canter; willing, clear transitions; straightness; consistent tempo", "coefficient": 2},
+        {"number": 10, "marker": "K-X-M, X", "movement": "Change rein, Working trot", "directive": "Willing, calm transition; regularity and quality of gaits; bend and balance in corner", "coefficient": null},
+        {"number": 11, "marker": "C", "movement": "Medium walk", "directive": "Willing, clear transition; regularity, quality, overtrack", "coefficient": 2},
+        {"number": 12, "marker": "H-X-K, K", "movement": "Free walk, Medium walk", "directive": "Regularity and quality of walks; reach and ground cover with overtrack of free walk allowing complete freedom to stretch neck forward and downward; straightness; willing, clear transitions", "coefficient": 2},
+        {"number": 13, "marker": "A", "movement": "Working trot", "directive": "Willing, calm transition; bend and balance in corner", "coefficient": null},
+        {"number": 14, "marker": "P-I", "movement": "Leg yield left", "directive": "Regularity and quality of trot; consistent tempo; alignment; balance and flow", "coefficient": 2},
+        {"number": 15, "marker": "I, C", "movement": "Circle right 10m, Straight ahead, Track right", "directive": "Regularity and quality of trot; shape and size of circle; bend; balance", "coefficient": null},
+        {"number": 16, "marker": "M-X-K, K", "movement": "Lengthen stride in trot, Working trot", "directive": "Moderate lengthening of frame and stride; regularity and quality of trot; willing, clear transitions; straightness; consistent tempo", "coefficient": 2},
+        {"number": 17, "marker": "A", "movement": "Working canter left lead", "directive": "Willing, calm transition; regularity and quality of gait; bend and balance in corner", "coefficient": null},
+        {"number": 18, "marker": "F-X-M", "movement": "Slightly after F begin single loop to X returning to track slightly before M, maintaining lead", "directive": "Regularity and quality of canter; shape and size of loop; positioning; balance", "coefficient": 2},
+        {"number": 19, "marker": "C", "movement": "Circle left 15m", "directive": "Regularity and quality of canter; shape and size of circle; bend; balance", "coefficient": null},
+        {"number": 20, "marker": "H-K, K", "movement": "Lengthen stride in canter, Working canter", "directive": "Moderate lengthening of frame and stride; regularity and quality of canter; willing, clear transitions; straightness; consistent tempo", "coefficient": null},
+        {"number": 21, "marker": "F-X-H, X", "movement": "Change rein, Change of lead through trot", "directive": "Willing, clear transitions; regularity and quality of gaits; straightness", "coefficient": null},
+        {"number": 22, "marker": "C, B, X, G", "movement": "Working trot, Half circle right 10m, Down centerline, Halt, salute", "directive": "Bend and balance in corner and half circle; regularity and quality of trot; willing, clear transition; straightness; attentiveness; immobility (min. 3 seconds)", "coefficient": null}
+      ],
+      
+      "coefficient_movements": ["Leg yield right (3)", "Stretch circle (5)", "Shallow loop right (7)", "Lengthen canter M-F (9)", "Medium walk (11)", "Free walk (12)", "Leg yield left (14)", "Lengthen trot M-X-K (16)", "Shallow loop left (18)"],
+      
+      "collective_marks": [
+        {"category": "Gaits", "description": "Freedom and regularity", "coefficient": 1},
+        {"category": "Impulsion", "description": "Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters", "coefficient": 2},
+        {"category": "Submission", "description": "Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements", "coefficient": 2},
+        {"category": "Rider's Position and Seat", "description": "Alignment; posture; stability; weight placement; following mechanics of the gaits", "coefficient": 1},
+        {"category": "Rider's Correct and Effective Use of Aids", "description": "Clarity; subtlety; independence; accuracy of test", "coefficient": 1}
+      ]
+    }
+  ],
+  
+  "movement_progression": {
+    "test_1_introduces": ["10m half circles at trot", "15m circles in canter", "Lengthening stride in trot"],
+    "test_2_adds": ["Leg-yield", "Lengthening stride in canter", "Develop working canter transitions"],
+    "test_3_adds": ["10m full circles at trot", "Shallow loops at canter", "Change of lead through trot"]
+  },
+  
+  "key_requirements": {
+    "purpose": "Development of thrust from hindquarters; lengthening of stride; improved balance, lateral suppleness and throughness",
+    "horse_should_be": "On the bit",
+    "new_from_training": ["Leg-yield", "Lengthening stride in trot and canter", "10m circles/half circles at trot", "15m circles in canter", "Shallow loops", "Change of lead through trot"],
+    "bridge_to_second": "First Level develops pushing power and lengthening that becomes collection and medium gaits at Second Level"
+  }
+}

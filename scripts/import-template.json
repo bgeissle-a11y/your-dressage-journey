@@ -1,0 +1,88 @@
+[
+  {
+    "collection": "debriefs",
+    "rideDate": "2025-01-15",
+    "horseName": "Bella",
+    "sessionType": "lesson",
+    "overallQuality": 7,
+    "confidenceLevel": 6,
+    "riderEffort": 8,
+    "horseEffort": 7,
+    "riderEnergy": "moderate",
+    "horseEnergy": "high",
+    "mentalState": "focused",
+    "movements": ["trot-work", "circles", "leg-yield"],
+    "wins": "Really nailed the leg yield today, felt balanced throughout",
+    "ahaRealization": "When I breathe out on the transition, Bella responds much softer",
+    "horseNotices": "She was forward but listening, ears flicking back to me",
+    "challenges": "Counter-canter still falls apart in the corners",
+    "workFocus": "Lateral work and canter transitions"
+  },
+  {
+    "collection": "debriefs",
+    "rideDate": "2025-01-10",
+    "horseName": "Bella",
+    "sessionType": "schooling",
+    "overallQuality": 5,
+    "mentalState": "frustrated",
+    "wins": "At least we ended on a good note with a nice stretchy trot",
+    "challenges": "Could not get the right lead canter, kept picking up the wrong lead",
+    "workFocus": "Canter departs"
+  },
+  {
+    "collection": "reflections",
+    "category": "aha",
+    "mainReflection": "I realized that my tension in the shoulders directly transfers to the horse's jaw. When I consciously drop my shoulders, the contact immediately improves.",
+    "feeling": "Empowered and more aware of my body",
+    "influence": "Going to do a shoulder check before every transition"
+  },
+  {
+    "collection": "reflections",
+    "category": "obstacle",
+    "mainReflection": "I keep getting nervous before lessons and it makes me ride defensively",
+    "obstacleStrategy": "Arrive 10 minutes early to do breathing exercises and groom calmly",
+    "feeling": "Hopeful that I can work through this",
+    "influence": "Will build a pre-ride routine to settle my nerves"
+  },
+  {
+    "collection": "journeyEvents",
+    "category": "Changed barns",
+    "type": "environment",
+    "date": "2025-01-01",
+    "description": "Moved Bella to Green Meadows Equestrian, better arena and closer to home",
+    "magnitude": "major",
+    "duration": "ongoing",
+    "status": "active"
+  },
+  {
+    "collection": "observations",
+    "date": "2025-01-08",
+    "contextType": "clinic",
+    "clinicianName": "Janet Foy",
+    "pairObserved": "Sarah and her Hanoverian, Dante",
+    "observations": [
+      {
+        "milestone": "Janet emphasized riding every corner as a half-halt opportunity",
+        "aha": "The idea that geometry IS the training, not just a pattern",
+        "connection": "Dante visibly relaxed when Sarah stopped micromanaging",
+        "validation": "Confirmed that less is more with sensitive horses",
+        "obstacle": "",
+        "notes": "Janet said 'ride the horse you have today, not the one you had yesterday'"
+      }
+    ]
+  },
+  {
+    "collection": "horseProfiles",
+    "riderName": "Beth",
+    "horseName": "Bella",
+    "age": 12,
+    "breed": "Hanoverian",
+    "sex": "mare",
+    "partnership": "3 years",
+    "horseLevel": "second",
+    "arrangement": "own",
+    "strengths": "Naturally uphill, lovely trot, very willing",
+    "soundness": "sound",
+    "important": "Sensitive to leg, needs warm-up time. Best after 15 min of walk work."
+  }
+]

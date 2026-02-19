@@ -1,0 +1,692 @@
+{
+  "metadata": {
+    "organization": "United States Dressage Federation (USDF)",
+    "copyright": "©2022 United States Dressage Federation (USDF) and United States Equestrian Federation (USEF)",
+    "effective_dates": "December 1, 2022 - November 30, 2026",
+    "parsed_date": "2026-02-09",
+    "levels_included": ["Training", "First", "Second", "Third", "Fourth"],
+    "test_type": "Freestyle"
+  },
+  
+  "freestyle_general_rules": {
+    "time_limit": "5 minutes maximum, no minimum time",
+    "suggested_schedule_time": "9 minutes per ride",
+    "entry_requirement": "Rider must enter arena within 30 seconds of music starting (under penalty of elimination)",
+    "music_timing": "Music must cease at final salute",
+    "time_measurement": "Time begins when horse moves forward after initial halt, ends with final halt and salute",
+    "overtime_penalty": "1 point deducted from Total Artistic Impression for exceeding time limit",
+    "movements_after_time": "Movements executed after 5 minute limit are not scored",
+    "judging_requirement": "All judges must judge both artistic and technical parts",
+    "error_penalties": "2 points deducted for each error, not cumulative, will not result in elimination",
+    "errors_definition": "Failure to salute in halt or rising at trot (Second Level and above)",
+    "bell_for_errors": "Bell is NOT rung for errors in Freestyle tests",
+    "forbidden_movement_penalty": "4 points from Total Technical Execution for each forbidden movement (not each recurrence)",
+    "tie_breaker": "Higher total for Artistic Impression breaks tie",
+    "compulsory_halts": "Halt with salute at beginning and end is compulsory",
+    "omitted_elements": "Omitted compulsory elements receive a score of 0"
+  },
+  
+  "technical_execution_scoring": {
+    "marks_type": "Half or full points only (no tenths)",
+    "possible_per_element": 10
+  },
+  
+  "artistic_impression_scoring": {
+    "marks_type": "May be given in tenths",
+    "possible_per_element": 10,
+    "categories": [
+      {
+        "name": "Rhythm, energy, and elasticity",
+        "coefficient_training": 4,
+        "coefficient_first": 4,
+        "coefficient_second": 4,
+        "coefficient_third": 4,
+        "coefficient_fourth": 4
+      },
+      {
+        "name": "Harmony between horse and rider",
+        "coefficient_training": 4,
+        "coefficient_first": 4,
+        "coefficient_second": 4,
+        "coefficient_third": 4,
+        "coefficient_fourth": 4
+      },
+      {
+        "name": "Choreography (design cohesiveness, use of arena, balance, creativity)",
+        "coefficient_training": 4,
+        "coefficient_first": 4,
+        "coefficient_second": 4,
+        "coefficient_third": 4,
+        "coefficient_fourth": 4
+      },
+      {
+        "name": "Degree of difficulty",
+        "coefficient_training": 1,
+        "coefficient_first": 2,
+        "coefficient_second": 3,
+        "coefficient_third": 4,
+        "coefficient_fourth": 4
+      },
+      {
+        "name": "Music (suitability, cohesiveness, seamlessness)",
+        "coefficient_training": 2,
+        "coefficient_first": 2,
+        "coefficient_second": 2,
+        "coefficient_third": 2,
+        "coefficient_fourth": 2
+      },
+      {
+        "name": "Interpretation (music expresses gaits, use of phrasing and dynamics)",
+        "coefficient_training": 2,
+        "coefficient_first": 2,
+        "coefficient_second": 2,
+        "coefficient_third": 2,
+        "coefficient_fourth": 2
+      }
+    ]
+  },
+  
+  "tests": [
+    {
+      "test_id": "2023_training_freestyle",
+      "name": "2023 USDF Training Level Freestyle",
+      "level": "Training",
+      "sublevel": "Freestyle",
+      "year": 2023,
+      
+      "test_info": {
+        "max_technical_points": 170,
+        "max_artistic_points": 170,
+        "max_total_points": 340,
+        "time_limit": "5 minutes maximum, no minimum",
+        "trot_sitting_requirement": "Trot work may be done sitting or rising"
+      },
+      
+      "forbidden_movements": "Any movement or transition found only in tests above the level",
+      
+      "additionally_allowed": [
+        "Trot-halt-trot",
+        "Trot-walk-trot",
+        "Canter-trot-canter (12m minimum of trot)"
+      ],
+      
+      "compulsory_elements": [
+        {
+          "number": 1,
+          "description": "Medium walk (20m continuous)",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "20m continuous"
+        },
+        {
+          "number": 2,
+          "description": "Free walk (20m continuous)",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "20m continuous"
+        },
+        {
+          "number": 3,
+          "description": "20-meter circle RIGHT in working trot",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "20m circle"
+        },
+        {
+          "number": 4,
+          "description": "20-meter circle LEFT in working trot",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "20m circle"
+        },
+        {
+          "number": 5,
+          "description": "Serpentine in working trot two or more changes of direction with loops no smaller than 15 meters",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "2+ changes of direction, loops ≥15m"
+        },
+        {
+          "number": 6,
+          "description": "Stretch forward & downward on a 20-meter trot circle in rising trot",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "20m circle, rising trot"
+        },
+        {
+          "number": 7,
+          "description": "20-meter circle RIGHT in working canter",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "20m circle"
+        },
+        {
+          "number": 8,
+          "description": "20-meter circle LEFT in working canter",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "20m circle"
+        },
+        {
+          "number": 9,
+          "description": "All transitions between gaits (Halts not included)",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "All gait transitions"
+        },
+        {
+          "number": 10,
+          "description": "Halt with salute on centerline facing C, first and final",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "On centerline, facing C, first and final"
+        }
+      ]
+    },
+    
+    {
+      "test_id": "2023_first_freestyle",
+      "name": "2023 USDF 1st Level Freestyle",
+      "level": "First",
+      "sublevel": "Freestyle",
+      "year": 2023,
+      
+      "test_info": {
+        "max_technical_points": 180,
+        "max_artistic_points": 180,
+        "max_total_points": 360,
+        "time_limit": "5 minutes maximum, no minimum",
+        "trot_sitting_requirement": "Trot work may be done sitting or rising"
+      },
+      
+      "forbidden_movements": "Any movement or transition found only in tests above the level",
+      
+      "additionally_allowed": [
+        "Lengthen trot and/or canter on a curved line",
+        "Canter serpentine",
+        "Counter-canter"
+      ],
+      
+      "compulsory_elements": [
+        {
+          "number": 1,
+          "description": "Medium walk (20m continuous)",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "20m continuous"
+        },
+        {
+          "number": 2,
+          "description": "Free walk (20m continuous)",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "20m continuous"
+        },
+        {
+          "number": 3,
+          "description": "10-meter circle RIGHT in working trot",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "10m circle"
+        },
+        {
+          "number": 4,
+          "description": "10-meter circle LEFT in working trot",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "10m circle"
+        },
+        {
+          "number": 5,
+          "description": "Leg-yield RIGHT in working trot",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "Leg-yield right"
+        },
+        {
+          "number": 6,
+          "description": "Leg-yield LEFT in working trot",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "Leg-yield left"
+        },
+        {
+          "number": 7,
+          "description": "Lengthen stride in trot on a straight line",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "On straight line"
+        },
+        {
+          "number": 8,
+          "description": "15-meter circle RIGHT in working canter",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "15m circle"
+        },
+        {
+          "number": 9,
+          "description": "15-meter circle LEFT in working canter",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "15m circle"
+        },
+        {
+          "number": 10,
+          "description": "Change of lead through trot RIGHT",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "Through trot"
+        },
+        {
+          "number": 11,
+          "description": "Change of lead through trot LEFT",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "Through trot"
+        },
+        {
+          "number": 12,
+          "description": "Lengthen stride in canter on a straight line",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "On straight line"
+        },
+        {
+          "number": 13,
+          "description": "Halt with salute on centerline, first and final",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "On centerline, first and final"
+        }
+      ]
+    },
+    
+    {
+      "test_id": "2023_second_freestyle",
+      "name": "2023 USDF 2nd Level Freestyle",
+      "level": "Second",
+      "sublevel": "Freestyle",
+      "year": 2023,
+      
+      "test_info": {
+        "max_technical_points": 190,
+        "max_artistic_points": 190,
+        "max_total_points": 380,
+        "time_limit": "5 minutes maximum, no minimum",
+        "trot_sitting_requirement": "Trot work must be done sitting"
+      },
+      
+      "forbidden_movements": "Any movement or transition found only in tests above the level",
+      
+      "additionally_allowed": [
+        "Half turn on haunches (no more than 180 degrees)",
+        "Renvers",
+        "Medium trot and/or canter on a curved line"
+      ],
+      
+      "compulsory_elements": [
+        {
+          "number": 1,
+          "description": "Medium walk (20m continuous)",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "20m continuous"
+        },
+        {
+          "number": 2,
+          "description": "Free walk (20m continuous)",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "20m continuous"
+        },
+        {
+          "number": 3,
+          "description": "Shoulder-in RIGHT in collected trot (12m min)",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "12m minimum"
+        },
+        {
+          "number": 4,
+          "description": "Shoulder-in LEFT in collected trot (12m min)",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "12m minimum"
+        },
+        {
+          "number": 5,
+          "description": "Travers RIGHT in collected trot (12m min)",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "12m minimum"
+        },
+        {
+          "number": 6,
+          "description": "Travers LEFT in collected trot (12m min)",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "12m minimum"
+        },
+        {
+          "number": 7,
+          "description": "Medium trot on straight line",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "On straight line"
+        },
+        {
+          "number": 8,
+          "description": "Transitions in and out of medium trot",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "Transitions in and out"
+        },
+        {
+          "number": 9,
+          "description": "Simple change of lead RIGHT",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "Simple change"
+        },
+        {
+          "number": 10,
+          "description": "Simple change of lead LEFT",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "Simple change"
+        },
+        {
+          "number": 11,
+          "description": "Counter-canter in collected canter RIGHT",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "Counter-canter"
+        },
+        {
+          "number": 12,
+          "description": "Counter-canter in collected canter LEFT",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "Counter-canter"
+        },
+        {
+          "number": 13,
+          "description": "Medium canter on straight line",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "On straight line"
+        },
+        {
+          "number": 14,
+          "description": "Transitions in and out of the medium canter",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "Transitions in and out"
+        },
+        {
+          "number": 15,
+          "description": "Halt with salute on centerline, first and final",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "On centerline, first and final"
+        }
+      ]
+    },
+    
+    {
+      "test_id": "2023_third_freestyle",
+      "name": "2023 USDF 3rd Level Freestyle",
+      "level": "Third",
+      "sublevel": "Freestyle",
+      "year": 2023,
+      
+      "test_info": {
+        "max_technical_points": 200,
+        "max_artistic_points": 200,
+        "max_total_points": 400,
+        "time_limit": "5 minutes maximum, no minimum",
+        "trot_sitting_requirement": "All trot work must be done sitting"
+      },
+      
+      "forbidden_movements": "Any movement or transition found only in tests above the level",
+      
+      "additionally_allowed": [
+        "Walk half-pirouette (no more than 180 degrees)",
+        "Half-pass zig-zag in trot",
+        "Canter to halt",
+        "Counter-change of hand in canter (only one change of direction)",
+        "Medium trot and/or canter on a curved line",
+        "Flying changes shown in sequence of every five strides or more"
+      ],
+      
+      "compulsory_elements": [
+        {
+          "number": 1,
+          "description": "Medium walk (20m continuous)",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "20m continuous"
+        },
+        {
+          "number": 2,
+          "description": "Extended walk (20m continuous)",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "20m continuous"
+        },
+        {
+          "number": 3,
+          "description": "Shoulder-in RIGHT in collected trot (12m min.)",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "12m minimum"
+        },
+        {
+          "number": 4,
+          "description": "Shoulder-in LEFT in collected trot (12m min.)",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "12m minimum"
+        },
+        {
+          "number": 5,
+          "description": "Trot half-pass RIGHT in collected trot",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "Half-pass"
+        },
+        {
+          "number": 6,
+          "description": "Trot half-pass LEFT in collected trot",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "Half-pass"
+        },
+        {
+          "number": 7,
+          "description": "Extended trot on straight line",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "On straight line"
+        },
+        {
+          "number": 8,
+          "description": "Canter half-pass RIGHT in collected canter",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "Half-pass"
+        },
+        {
+          "number": 9,
+          "description": "Canter half-pass LEFT in collected canter",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "Half-pass"
+        },
+        {
+          "number": 10,
+          "description": "Flying change of lead RIGHT",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "Flying change"
+        },
+        {
+          "number": 11,
+          "description": "Flying change of lead LEFT",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "Flying change"
+        },
+        {
+          "number": 12,
+          "description": "Extended canter on straight line",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "On straight line"
+        },
+        {
+          "number": 13,
+          "description": "Halt with salute on centerline, first and final",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "On centerline, first and final"
+        }
+      ]
+    },
+    
+    {
+      "test_id": "2023_fourth_freestyle",
+      "name": "2023 USDF 4th Level Freestyle",
+      "level": "Fourth",
+      "sublevel": "Freestyle",
+      "year": 2023,
+      
+      "test_info": {
+        "max_technical_points": 200,
+        "max_artistic_points": 200,
+        "max_total_points": 400,
+        "time_limit": "5 minutes maximum, no minimum",
+        "trot_sitting_requirement": "All trot work must be done sitting"
+      },
+      
+      "forbidden_movements": "Any movement or transition found only in tests above the level",
+      
+      "additionally_allowed": [
+        "Half-pirouettes in canter",
+        "Half-pass zig-zag in trot",
+        "Counter-change of hand in canter (only one change of direction)",
+        "Halt to canter",
+        "Medium trot and/or canter on a curved line"
+      ],
+      
+      "compulsory_elements": [
+        {
+          "number": 1,
+          "description": "Collected walk (20m continuous)",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "20m continuous"
+        },
+        {
+          "number": 2,
+          "description": "Extended walk (20m continuous)",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "20m continuous"
+        },
+        {
+          "number": 3,
+          "description": "Shoulder-in RIGHT in collected trot (12m min.)",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "12m minimum"
+        },
+        {
+          "number": 4,
+          "description": "Shoulder-in LEFT in collected trot (12m min.)",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "12m minimum"
+        },
+        {
+          "number": 5,
+          "description": "Trot half-pass RIGHT in collected trot",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "Half-pass"
+        },
+        {
+          "number": 6,
+          "description": "Trot half-pass LEFT in collected trot",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "Half-pass"
+        },
+        {
+          "number": 7,
+          "description": "Extended trot on straight line",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "On straight line"
+        },
+        {
+          "number": 8,
+          "description": "Canter half-pass RIGHT in collected canter",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "Half-pass"
+        },
+        {
+          "number": 9,
+          "description": "Canter half-pass LEFT in collected canter",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "Half-pass"
+        },
+        {
+          "number": 10,
+          "description": "Flying changes of lead, every 4th stride (min. 3)",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "Minimum 3 changes, every 4th stride"
+        },
+        {
+          "number": 11,
+          "description": "Flying changes of lead, every 3rd stride (min. 3)",
+          "possible_points": 10,
+          "coefficient": null,
+          "minimum_requirement": "Minimum 3 changes, every 3rd stride"
+        },
+        {
+          "number": 12,
+          "description": "Canter working half-pirouette RIGHT",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "Working half-pirouette"
+        },
+        {
+          "number": 13,
+          "description": "Canter working half-pirouette LEFT",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "Working half-pirouette"
+        },
+        {
+          "number": 14,
+          "description": "Extended canter on straight line",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "On straight line"
+        },
+        {
+          "number": 15,
+          "description": "Halt with salute on centerline, first and final",
+          "possible_points": 10,
+          "coefficient": 2,
+          "minimum_requirement": "On centerline, first and final"
+        }
+      ]
+    }
+  ]
+}

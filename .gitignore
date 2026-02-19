@@ -37,7 +37,17 @@ firebase-debug.log
 firestore-debug.log
 ui-debug.log
 .firebaserc
+scripts/serviceAccountKey.json
+scripts/*-import*.json
+scripts/event-planner-output-*.json
 
 # OS
 Thumbs.db
 Desktop.ini
+nul
+
+# Scratch/reference files
+next steps as of 21326.txt
+coaching-output-chunked.jsx
+ydj-chunked-outputs.html
+physical-self-assessment_v2.html

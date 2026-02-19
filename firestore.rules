@@ -63,5 +63,11 @@ service cloud.firestore {
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
       allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
+
+    // Generation status — written by Cloud Functions (admin SDK bypasses rules),
+    // read-only by the authenticated user for real-time progress tracking
+    match /generationStatus/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+    }
   }
 }

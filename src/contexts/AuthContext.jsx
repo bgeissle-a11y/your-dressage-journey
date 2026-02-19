@@ -8,7 +8,8 @@ import {
   onAuthStateChanged,
   updateProfile
 } from 'firebase/auth';
-import { auth } from '../firebase-config';
+import { auth, db } from '../firebase-config';
+import { doc, setDoc } from 'firebase/firestore';
 
 // Create the Auth Context
 const AuthContext = createContext({});
@@ -160,6 +161,13 @@ export function AuthProvider({ children }) {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
       setLoading(false);
+
+      // Update lastActivity timestamp for cache warming scheduler
+      if (user) {
+        setDoc(doc(db, 'users', user.uid), {
+          lastActivity: new Date().toISOString(),
+        }, { merge: true }).catch(() => {});
+      }
     });
 
     // Cleanup subscription on unmount
