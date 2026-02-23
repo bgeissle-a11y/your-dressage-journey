@@ -5,6 +5,7 @@ import { createObservation, getObservation, updateObservation, CONTEXT_TYPES } f
 import FormSection from '../Forms/FormSection';
 import FormField from '../Forms/FormField';
 import VoiceInput from '../Forms/VoiceInput';
+import GuidingQuestions from '../Forms/GuidingQuestions';
 import '../Forms/Forms.css';
 
 const OBSERVATION_FIELDS = [
@@ -221,12 +222,12 @@ export default function ObservationForm() {
               )}
               {OBSERVATION_FIELDS.map(field => (
                 <FormField key={field.key} label={field.label} optional>
+                  <GuidingQuestions text={field.placeholder} />
                   <textarea
                     ref={el => { getRef(index, field.key).current = el; }}
                     value={obs[field.key]}
                     onChange={e => handleObsChange(index, field.key, e.target.value)}
                     disabled={loading}
-                    placeholder={field.placeholder}
                     style={{ borderLeft: `3px solid ${field.color}` }}
                   />
                   <VoiceInput

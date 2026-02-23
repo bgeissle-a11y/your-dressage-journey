@@ -1290,3 +1290,55 @@
     font-size: 0.9rem;
   }
 }
+
+/* ============================================
+   Guiding Questions Panel
+   ============================================ */
+.guiding-questions {
+  background: #F5F1EB;
+  border: 1px solid #E0D5C7;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  font-size: 0.9em;
+  color: #7A7A7A;
+  line-height: 1.5;
+}
+
+.guiding-questions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.guiding-questions-label {
+  font-weight: 500;
+  color: #8B7355;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.guiding-questions-toggle {
+  background: none;
+  border: none;
+  color: #D4A574;
+  cursor: pointer;
+  font-size: 0.85em;
+  font-weight: 500;
+  padding: 2px 8px;
+  font-family: 'Work Sans', sans-serif;
+}
+
+.guiding-questions-toggle:hover {
+  color: #8B7355;
+}
+
+.guiding-questions.collapsed .guiding-questions-content {
+  display: none;
+}
+
+.guiding-questions.collapsed .guiding-questions-header {
+  margin-bottom: 0;
+}

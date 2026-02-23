@@ -11,6 +11,7 @@ import FormSection from '../Forms/FormSection';
 import FormField from '../Forms/FormField';
 import RadioGroup from '../Forms/RadioGroup';
 import VoiceInput from '../Forms/VoiceInput';
+import GuidingQuestions from '../Forms/GuidingQuestions';
 import '../Forms/Forms.css';
 
 const NARRATIVE_FIELDS = [
@@ -491,13 +492,13 @@ export default function DebriefForm() {
           <FormSection title="What Happened" description="The heart of your reflection -- what stands out from this ride?">
             {NARRATIVE_FIELDS.map(field => (
               <FormField key={field.key} label={field.label} optional>
+                <GuidingQuestions text={field.placeholder} />
                 <textarea
                   ref={el => { getNarrativeRef(field.key).current = el; }}
                   name={field.key}
                   value={formData[field.key]}
                   onChange={handleChange}
                   disabled={loading}
-                  placeholder={field.placeholder}
                   style={{ borderLeft: `3px solid ${field.color}` }}
                 />
                 <VoiceInput

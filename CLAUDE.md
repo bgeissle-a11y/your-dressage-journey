@@ -331,6 +331,13 @@ Reference `YDJ_Platform_Outputs_Definition_v2.docx` for the current architecture
 ### Working with the dressage test database
 The database is in `comprehensive_dressage_test_database.json`. It covers all USDF levels (Introductory through Grand Prix) plus freestyle tests. Verification process is documented in the Platform Outputs Definition.
 
+### Adding a persistent prompt box to a textarea field
+Use the `.prompt-box` / `.prompt-box-content` pattern established in
+post-ride-debrief-with-intentions.html. The CSS lives in the <style> block
+of each file. Call togglePrompt(fieldId) for the hide/show toggle.
+Placeholder text should be simplified to "Start typing…" when a prompt
+box is present.
+
 ---
 
 ## Important Conventions
