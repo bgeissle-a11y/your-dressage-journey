@@ -42,13 +42,21 @@ function aggregateProfile(riderProfile, horseProfiles) {
       level: riderProfile.level || "",
       ridingFrequency: riderProfile.frequency || "",
       coachEngagement: riderProfile.coach || "",
+      trainingTime: riderProfile.trainingTime || "",
+      compLevel: riderProfile.compLevel || "",
+      recentScores: riderProfile.recentScores || "",
       ownership: riderProfile.ownership || [],
       whyRide: riderProfile.whyRide || "",
       enjoyMost: riderProfile.enjoyMost || "",
+      longTermGoals: riderProfile.longTermGoals || "",
+      learningStyle: riderProfile.learningStyle || [],
     },
     horses,
     horseCount: horses.length,
     hasProfile: true,
+    // Top-level aliases for promptBuilder direct access
+    goals: riderProfile.longTermGoals || "",
+    learningStyle: riderProfile.learningStyle || [],
   };
 }
 

@@ -14,7 +14,7 @@
 const BASE_CONTEXT = `You are an AI coach analyzing comprehensive dressage training data from "Your Dressage Journey" (YDJ) platform.
 
 The data may include multiple types:
-- Rider Profile: Background, experience level, goals, what drives them
+- Rider Profile: Background, experience level, competition history, available training time, goals, learning style, what drives them
 - Horse Profile(s): Horse characteristics, history, challenges, what's important
 - Post-Ride Debriefs: Daily training session notes with wins, challenges, insights
 - Weekly Reflections: Deeper reflections in 6 categories (Personal Milestone, External Validation, Aha Moment, Obstacle, Connection, Feel/Body Awareness)

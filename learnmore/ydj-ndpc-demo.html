@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Dressage Journey — Live Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brown: #5C3D2E;
+    --brown-light: #7A5240;
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --cream: #FDF8F2;
+    --cream-dark: #F0E8DB;
+    --text: #2C1810;
+    --text-muted: #7A6055;
+    --white: #FFFFFF;
+
+    --technical: #3B7DD8;
+    --empathetic: #C9784C;
+    --classical: #5C7A4A;
+    --strategist: #8B5C9E;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Work Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: var(--brown);
+    color: var(--cream);
+    padding: 60px 24px 50px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 50%, rgba(201,168,76,0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 20%, rgba(201,168,76,0.08) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 6vw, 58px);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 8px;
+    color: var(--cream);
+  }
+  .hero h1 em {
+    color: var(--gold-light);
+    font-style: italic;
+  }
+  .hero-sub {
+    font-size: clamp(14px, 2.5vw, 18px);
+    color: rgba(253,248,242,0.75);
+    font-weight: 300;
+    margin-bottom: 36px;
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .hero-divider {
+    width: 60px;
+    height: 2px;
+    background: var(--gold);
+    margin: 0 auto 36px;
+  }
+
+  /* ── WHAT IS YDJ ── */
+  .intro-section {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 56px 24px 0;
+    text-align: center;
+  }
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+  .intro-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 4vw, 36px);
+    font-weight: 600;
+    color: var(--brown);
+    margin-bottom: 20px;
+    line-height: 1.2;
+  }
+  .intro-section p {
+    font-size: 17px;
+    color: var(--text-muted);
+    max-width: 660px;
+    margin: 0 auto 16px;
+    font-weight: 300;
+    line-height: 1.75;
+  }
+  .intro-section p strong {
+    color: var(--brown);
+    font-weight: 500;
+  }
+
+  /* ── RIDER CARD ── */
+  .rider-section {
+    max-width: 860px;
+    margin: 48px auto 0;
+    padding: 0 24px;
+  }
+  .rider-card {
+    background: var(--brown);
+    color: var(--cream);
+    border-radius: 16px;
+    padding: 32px 36px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-wrap: wrap;
+    position: relative;
+    overflow: hidden;
+  }
+  .rider-card::after {
+    content: '';
+    position: absolute;
+    right: -40px; top: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(201,168,76,0.1);
+    pointer-events: none;
+  }
+  .rider-avatar {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+    flex-shrink: 0;
+  }
+  .rider-info { flex: 1; min-width: 180px; }
+  .rider-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .rider-meta {
+    font-size: 13px;
+    color: rgba(253,248,242,0.7);
+    font-weight: 300;
+    line-height: 1.6;
+  }
+  .rider-stats {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .stat {
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--gold-light);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    color: rgba(253,248,242,0.6);
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+
+  /* ── QUICK INSIGHTS ── */
+  .insights-section {
+    max-width: 860px;
+    margin: 40px auto 0;
+    padding: 0 24px;
+  }
+  .insights-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .insights-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--brown);
+  }
+  .insight-tag {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    background: rgba(201,168,76,0.12);
+    padding: 3px 10px;
+    border-radius: 10px;
+  }
+  .insight-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .insight-card {
+    background: var(--white);
+    border: 1px solid var(--cream-dark);
+    border-radius: 12px;
+    padding: 20px;
+    border-left: 4px solid var(--gold);
+  }
+  .insight-card-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .insight-card p {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.55;
+    font-weight: 400;
+  }
+
+  .celebrate-box {
+    background: linear-gradient(135deg, #FDF3E7, #FDF8F2);
+    border: 1px solid var(--gold-light);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
+  }
+  .celebrate-box .celebrate-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .celebrate-box p {
+    font-size: 15px;
+    color: var(--brown);
+    font-style: italic;
+    font-family: 'Playfair Display', serif;
+    line-height: 1.6;
+  }
+
+  /* ── FOUR VOICES ── */
+  .voices-section {
+    max-width: 860px;
+    margin: 48px auto 0;
+    padding: 0 24px;
+  }
+  .voices-intro {
+    margin-bottom: 24px;
+  }
+  .voices-intro h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--brown);
+    margin-bottom: 8px;
+  }
+  .voices-intro p {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 300;
+    max-width: 580px;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--cream-dark);
+    margin-bottom: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    background: none;
+    border: none;
+    padding: 12px 20px;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .tab-btn .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .tab-btn[data-voice="technical"] .dot { background: var(--technical); }
+  .tab-btn[data-voice="empathetic"] .dot { background: var(--empathetic); }
+  .tab-btn[data-voice="classical"] .dot { background: var(--classical); }
+  .tab-btn[data-voice="strategist"] .dot { background: var(--strategist); }
+
+  .tab-btn.active { color: var(--brown); font-weight: 600; }
+  .tab-btn[data-voice="technical"].active { border-bottom-color: var(--technical); }
+  .tab-btn[data-voice="empathetic"].active { border-bottom-color: var(--empathetic); }
+  .tab-btn[data-voice="classical"].active { border-bottom-color: var(--classical); }
+  .tab-btn[data-voice="strategist"].active { border-bottom-color: var(--strategist); }
+
+  .voice-panel {
+    display: none;
+    background: var(--white);
+    border: 1px solid var(--cream-dark);
+    border-top: none;
+    border-radius: 0 0 16px 16px;
+    padding: 32px;
+    animation: fadeIn 0.25s ease;
+  }
+  .voice-panel.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .voice-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--cream-dark);
+  }
+  .voice-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .voice-icon.technical { background: rgba(59,125,216,0.1); }
+  .voice-icon.empathetic { background: rgba(201,120,76,0.1); }
+  .voice-icon.classical { background: rgba(92,122,74,0.1); }
+  .voice-icon.strategist { background: rgba(139,92,158,0.1); }
+
+  .voice-title { flex: 1; }
+  .voice-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--brown);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .voice-tagline {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+  .voice-catchphrase {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 5px 12px;
+    border-radius: 20px;
+  }
+  .technical .voice-catchphrase { background: rgba(59,125,216,0.1); color: var(--technical); }
+  .empathetic .voice-catchphrase { background: rgba(201,120,76,0.1); color: var(--empathetic); }
+  .classical .voice-catchphrase { background: rgba(92,122,74,0.1); color: var(--classical); }
+  .strategist .voice-catchphrase { background: rgba(139,92,158,0.1); color: var(--strategist); }
+
+  .voice-body { font-size: 15px; color: var(--text); line-height: 1.8; }
+  .voice-body p { margin-bottom: 16px; }
+  .voice-body p:last-child { margin-bottom: 0; }
+  .voice-body strong { color: var(--brown); font-weight: 600; }
+
+  .voice-focus {
+    margin-top: 24px;
+    padding: 18px 20px;
+    border-radius: 10px;
+    border-left: 4px solid;
+  }
+  .voice-focus.technical { background: rgba(59,125,216,0.06); border-color: var(--technical); }
+  .voice-focus.empathetic { background: rgba(201,120,76,0.06); border-color: var(--empathetic); }
+  .voice-focus.classical { background: rgba(92,122,74,0.06); border-color: var(--classical); }
+  .voice-focus.strategist { background: rgba(139,92,158,0.06); border-color: var(--strategist); }
+
+  .voice-focus-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .technical .voice-focus-label { color: var(--technical); }
+  .empathetic .voice-focus-label { color: var(--empathetic); }
+  .classical .voice-focus-label { color: var(--classical); }
+  .strategist .voice-focus-label { color: var(--strategist); }
+
+  .voice-focus ul {
+    list-style: none;
+    padding: 0;
+  }
+  .voice-focus ul li {
+    font-size: 14px;
+    color: var(--text);
+    padding: 4px 0;
+    display: flex;
+    gap: 8px;
+  }
+  .voice-focus ul li::before { content: '→'; color: var(--text-muted); flex-shrink: 0; }
+
+  /* ── CTA ── */
+  .cta-section {
+    max-width: 860px;
+    margin: 48px auto 0;
+    padding: 0 24px 72px;
+  }
+  .cta-box {
+    background: var(--brown);
+    color: var(--cream);
+    border-radius: 20px;
+    padding: 48px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.2) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .cta-box h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    margin-bottom: 12px;
+    color: var(--cream);
+  }
+  .cta-box p {
+    font-size: 15px;
+    color: rgba(253,248,242,0.75);
+    margin-bottom: 28px;
+    font-weight: 300;
+    max-width: 440px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .cta-btn {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--brown);
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    padding: 14px 36px;
+    border-radius: 100px;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .cta-btn:hover {
+    background: var(--gold-light);
+    transform: translateY(-1px);
+  }
+  .cta-note {
+    margin-top: 16px;
+    font-size: 12px;
+    color: rgba(253,248,242,0.45);
+  }
+
+  /* ── DISCLAIMER ── */
+  .disclaimer {
+    background: var(--cream-dark);
+    text-align: center;
+    padding: 16px 24px;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  @media (max-width: 600px) {
+    .rider-card { flex-direction: column; text-align: center; }
+    .rider-stats { justify-content: center; }
+    .voice-header { flex-wrap: wrap; }
+    .cta-box { padding: 36px 24px; }
+    .voice-panel { padding: 24px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">✦ Your Dressage Journey</div>
+  <h1>Your Dressage Journey<br><em>illuminated</em></h1>
+  <p class="hero-sub">What if your rides, reflections, and breakthroughs could be analyzed by four expert coaching voices — revealing patterns you can't see alone?</p>
+  <div class="hero-divider"></div>
+</div>
+
+<!-- WHAT IS YDJ -->
+<div class="intro-section">
+  <div class="section-label">What is YDJ?</div>
+  <h2>Journaling alone isn't enough.<br>Analysis is where progress lives.</h2>
+  <p>Your Dressage Journey is an <strong>AI-powered coaching platform</strong> for adult amateur dressage riders. You record brief notes after each ride — what happened, how you felt, what clicked or didn't. YDJ transforms those notes into <strong>systematic pattern analysis</strong> across four expert coaching perspectives.</p>
+  <p>Below is a sample analysis for a fictional adult amateur rider. This is exactly what the platform produces — personalized to your data, your horse, your goals.</p>
+</div>
+
+<!-- RIDER PROFILE CARD -->
+<div class="rider-section">
+  <div class="rider-card">
+    <div class="rider-avatar">🐴</div>
+    <div class="rider-info">
+      <div class="rider-name">Margaret S. &amp; Copperfield</div>
+      <div class="rider-meta">
+        Adult Amateur · Training–First Level<br>
+        Welsh/Thoroughbred cross, 14.2 hh · Age 9<br>
+        Competing at NDPC for the third year
+      </div>
+    </div>
+    <div class="rider-stats">
+      <div class="stat">
+        <div class="stat-num">24</div>
+        <div class="stat-label">Rides logged</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">8</div>
+        <div class="stat-label">Reflections</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">6</div>
+        <div class="stat-label">Patterns found</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUICK INSIGHTS -->
+<div class="insights-section">
+  <div class="insights-header">
+    <h3>🎯 Quick Insights</h3>
+    <span class="insight-tag">Last 3 weeks</span>
+  </div>
+
+  <div class="insight-cards">
+    <div class="insight-card">
+      <div class="insight-card-label">Pattern 1</div>
+      <p>Copperfield's tension spikes in 78% of rides that begin with trot work — a consistent warm-up sequence issue that walk work resolves within 8 minutes.</p>
+    </div>
+    <div class="insight-card">
+      <div class="insight-card-label">Pattern 2</div>
+      <p>Margaret's best scores appear when she names a single intention before mounting. Rides with a declared focus score 0.6–0.9 points higher on her self-assessment.</p>
+    </div>
+    <div class="insight-card">
+      <div class="insight-card-label">Pattern 3</div>
+      <p>Left-rein leg yield has improved 40% since the Feb 3rd clinic — but only in morning sessions. Evening rides show almost no carry-over from the correction.</p>
+    </div>
+  </div>
+
+  <div class="celebrate-box">
+    <div class="celebrate-label">🏆 This Week's Celebration</div>
+    <p>"For the first time in three years of competing, Margaret rode her centerline halt with genuine stillness — she described it as 'finally trusting both of us to just arrive.' This is not a small thing."</p>
+  </div>
+</div>
+
+<!-- FOUR COACHING VOICES -->
+<div class="voices-section">
+  <div class="voices-intro">
+    <h3>🎙️ Four Coaching Voices · One Rider's Data</h3>
+    <p>The same 24 rides and 8 reflections — analyzed through four completely different expert lenses. Select a voice to read their analysis.</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-voice="technical" onclick="showVoice('technical', this)">
+      <span class="dot"></span> Technical Coach
+    </button>
+    <button class="tab-btn" data-voice="empathetic" onclick="showVoice('empathetic', this)">
+      <span class="dot"></span> Empathetic Coach
+    </button>
+    <button class="tab-btn" data-voice="classical" onclick="showVoice('classical', this)">
+      <span class="dot"></span> Classical Master
+    </button>
+    <button class="tab-btn" data-voice="strategist" onclick="showVoice('strategist', this)">
+      <span class="dot"></span> Practical Strategist
+    </button>
+  </div>
+
+  <!-- TECHNICAL COACH -->
+  <div class="voice-panel active technical" id="panel-technical">
+    <div class="voice-header">
+      <div class="voice-icon technical">🔬</div>
+      <div class="voice-title">
+        <div class="voice-name">The Technical Coach</div>
+        <div class="voice-tagline">Biomechanics · Position · Aids · Timing</div>
+      </div>
+      <span class="voice-catchphrase">"Did you feel that?"</span>
+    </div>
+    <div class="voice-body">
+      <p>Margaret, your data reveals a clear biomechanical story on the left rein that we need to address before NDPC. Across 18 of your 24 logged rides, you describe feeling your left hip "grip" during downward transitions — and in every one of those rides, Copperfield's response to the half-halt degrades within the following 60 seconds. <strong>The grip is causing the loss of throughness, not the other way around.</strong></p>
+      <p>The February 3rd clinic breakthrough — where you found "letting the hip follow" — shows up as a measurable shift. <strong>Did you feel that?</strong> Your debrief scores for connection jumped from an average of 5.8 to 7.4 in the five rides immediately following the clinic. That's real, and it tells us exactly what to practice.</p>
+      <p>The morning-versus-evening split on your leg yield improvement is a fatigue issue, not a training regression. By late afternoon, your core stabilizers are fatiguing, and your left hip defaults to the old grip pattern. This is solvable with targeted off-horse work — your seat will hold the correction longer as that endurance builds.</p>
+    </div>
+    <div class="voice-focus technical">
+      <div class="voice-focus-label">Priority Exercises This Week</div>
+      <ul>
+        <li>10 minutes of walk-only work to open each ride — no exceptions before NDPC</li>
+        <li>Hip-release exercise: 3 sets of 12 reps on left side before every morning ride</li>
+        <li>Shoulder-in at walk, both reins, to establish left-rein connection before trot</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- EMPATHETIC COACH -->
+  <div class="voice-panel empathetic" id="panel-empathetic">
+    <div class="voice-header">
+      <div class="voice-icon empathetic">⭐</div>
+      <div class="voice-title">
+        <div class="voice-name">The Empathetic Coach</div>
+        <div class="voice-tagline">Psychology · Partnership · Confidence · Resilience</div>
+      </div>
+      <span class="voice-catchphrase">"You've got this"</span>
+    </div>
+    <div class="voice-body">
+      <p>Something significant happened in your reflections between January and March. In January, you described Copperfield most often as "unpredictable" and "hard to read." By March, your language shifted: "I think he was telling me he needed more time." That shift — from <strong>unpredictable horse</strong> to <strong>horse with a message</strong> — is the partnership breakthrough underneath the technical one. And it took you three years of competing together to get here.</p>
+      <p>The centerline halt you described in your Week 8 reflection moved me. "Finally trusting both of us to just arrive." That sentence carries everything. It tells me your nervous system no longer needs to control the outcome — it trusts the preparation. <strong>You've got this.</strong> That's not a pep talk. That's what your data says.</p>
+      <p>I want to name one pattern that your data shows but that you haven't named yourself: your self-assessment scores are consistently lower on days when you had any conflict or stress before arriving at the barn. On those days, you tend to push harder, which activates Copperfield's tension response — and then you interpret that as "a bad ride" rather than a predictable pattern you can manage. This is worth knowing before a show weekend.</p>
+    </div>
+    <div class="voice-focus empathetic">
+      <div class="voice-focus-label">Mental Game Prep for NDPC</div>
+      <ul>
+        <li>Write your "at my best" rider statement — one sentence you believe, not aspire to</li>
+        <li>Plan a 10-minute decompression buffer between arriving and tacking up</li>
+        <li>After your test, celebrate the halt first — before you review anything else</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- CLASSICAL MASTER -->
+  <div class="voice-panel classical" id="panel-classical">
+    <div class="voice-header">
+      <div class="voice-icon classical">🎯</div>
+      <div class="voice-title">
+        <div class="voice-name">The Classical Master</div>
+        <div class="voice-tagline">Training Scale · Principles · Philosophy · Horse Welfare</div>
+      </div>
+      <span class="voice-catchphrase">"Why not the first time?"</span>
+    </div>
+    <div class="voice-body">
+      <p>The old masters spoke of the horse as mirror and teacher, and Copperfield has been doing precisely this. His morning tension — that consistent need for eight minutes of patient walk before the trot work can begin — is not resistance. It is <strong>honest communication about the conditions he requires to offer his best work</strong>. That Margaret has learned to hear this, and honor it rather than fight it, is a development of greater importance than any single score.</p>
+      <p>I look at twenty-four rides and I see the Training Scale working as it should, though slowly, as it always must when done properly. Rhythm is establishing itself. Suppleness — particularly through the back — is beginning to carry into the work, not just appear at the start of favorable rides. Throughness remains the next horizon, and it cannot be forced. <strong>Why not the first time?</strong> Because the first time must be offered, not taken.</p>
+      <p>The leg yield improvement is real, but I counsel patience. Classical development proceeds in spirals, not straight lines. The morning-evening discrepancy is not failure — it is the horse showing us honestly how much has been consolidated and how much is still being learned. Trust the process. The work you are doing is correct.</p>
+    </div>
+    <div class="voice-focus classical">
+      <div class="voice-focus-label">Philosophical Focus for NDPC</div>
+      <ul>
+        <li>Enter the arena with one goal: to show the horse you brought, not the horse you wish for</li>
+        <li>The warm-up is the work — do not abbreviate it for convenience</li>
+        <li>After the test, assess the quality of the partnership, not only the marks</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- PRACTICAL STRATEGIST -->
+  <div class="voice-panel strategist" id="panel-strategist">
+    <div class="voice-header">
+      <div class="voice-icon strategist">📋</div>
+      <div class="voice-title">
+        <div class="voice-name">The Practical Strategist</div>
+        <div class="voice-tagline">Goals · Planning · Competition Prep · Measurable Progress</div>
+      </div>
+      <span class="voice-catchphrase">"Be accurate!"</span>
+    </div>
+    <div class="voice-body">
+      <p>Margaret, you have six weeks until NDPC. Here is what the data tells us is achievable and what is not. Your Training Level Test 2 scores have averaged 62.4% over your last four outings. Based on the patterns in your ride data, a realistic NDPC target is <strong>64–66%</strong>, achievable if you resolve the warm-up sequence issue and maintain the left hip correction you established in February. Those two variables account for most of your point variance.</p>
+      <p>Your strength going in: the halt. Your data is unambiguous — you have cracked something real there. <strong>Be accurate!</strong> Ride your centerlines with intention. That's a free half point per centerline if you execute what you've clearly learned. Two centerlines per test is meaningful.</p>
+      <p>Your risk going in: the warm-up. At a show, warm-up arenas are chaotic, timing is compressed, and your data shows that Copperfield needs a minimum of eight minutes of walk. Build this into your show schedule non-negotiably. Plan your warm-up time accordingly.</p>
+    </div>
+    <div class="voice-focus strategist">
+      <div class="voice-focus-label">6-Week NDPC Action Plan</div>
+      <ul>
+        <li>Weeks 1–2: Solidify walk warm-up protocol at home — time it to exactly 8 minutes</li>
+        <li>Weeks 3–4: School full tests twice per week; debrief immediately after each</li>
+        <li>Week 5: One mock show day — full schedule, trailering, show clothes, timing</li>
+        <li>Week 6: Light maintenance only. Trust your preparation. Arrive rested.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section">
+  <div class="cta-box">
+    <h3>This could be your data.</h3>
+    <p>Your Dressage Journey analyzes your rides, your horse, your patterns — and delivers insights like these, personalized to you, every week.</p>
+    <a href="https://yourdressagejourney.com" class="cta-btn">Learn More at yourdressagejourney.com</a>
+    <div class="cta-note">Built for adult amateur dressage riders at every level.</div>
+  </div>
+</div>
+
+<div class="disclaimer">
+  ✦ Margaret and Copperfield are fictional. All ride data, patterns, and insights above are illustrative samples of what Your Dressage Journey produces from real rider data.
+</div>
+
+<script>
+  function showVoice(voice, btn) {
+    document.querySelectorAll('.voice-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-' + voice).classList.add('active');
+    btn.classList.add('active');
+  }
+</script>
+</body>
+</html>

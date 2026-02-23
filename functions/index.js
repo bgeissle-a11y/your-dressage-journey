@@ -9,6 +9,9 @@
  * the client uses httpsCallable() from the Firebase client SDK.
  */
 
+// Sentry must be initialized before any other imports
+require("./lib/sentry");
+
 const { onCall } = require("firebase-functions/v2/https");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
@@ -98,17 +101,19 @@ exports.checkCacheStaleness = onCall(
   cacheWarmth.checkHandler
 );
 
-// Scheduled background cache warming (every 6 hours)
-// Regenerates stale caches for active users with cost guards
-exports.warmStaleCache = onSchedule(
-  {
-    schedule: "every 6 hours",
-    secrets: [anthropicKey],
-    timeoutSeconds: 540,
-    memory: "512MiB",
-  },
-  cacheWarmth.warmHandler
-);
+// Scheduled background cache warming — DISABLED during pilot to control API costs.
+// Was running every 6 hours and regenerating all outputs for all active users (~2.2M tokens/week).
+// Re-enable post-pilot when budget supports it.
+//
+// exports.warmStaleCache = onSchedule(
+//   {
+//     schedule: "every 6 hours",
+//     secrets: [anthropicKey],
+//     timeoutSeconds: 540,
+//     memory: "512MiB",
+//   },
+//   cacheWarmth.warmHandler
+// );
 
 // --- Data-Triggered Background Regeneration ---
 

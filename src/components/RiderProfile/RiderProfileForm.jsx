@@ -3,14 +3,13 @@ import { useAuth } from '../../contexts/AuthContext';
 import { createRiderProfile, getRiderProfile, updateRiderProfile } from '../../services';
 import FormSection from '../Forms/FormSection';
 import FormField from '../Forms/FormField';
-import RadioGroup from '../Forms/RadioGroup';
 import CheckboxGroup from '../Forms/CheckboxGroup';
 import '../Forms/Forms.css';
 
 const LEVEL_OPTIONS = [
   { value: 'beginning', label: 'Just beginning' },
   { value: 'while', label: "I've been at this a while" },
-  { value: 'block', label: "I've been around the block a time or two" }
+  { value: 'block', label: 'Seemingly forever' }
 ];
 
 const FREQUENCY_OPTIONS = [
@@ -27,6 +26,28 @@ const COACH_OPTIONS = [
   { value: 'independent', label: 'Independent (no regular lessons)' }
 ];
 
+const TRAINING_TIME_OPTIONS = [
+  { value: '1-3', label: '1\u20133 hours' },
+  { value: '4-6', label: '4\u20136 hours' },
+  { value: '7-10', label: '7\u201310 hours' },
+  { value: '11-15', label: '11\u201315 hours' },
+  { value: '16+', label: '16+ hours' }
+];
+
+const COMP_LEVEL_OPTIONS = [
+  { value: 'none', label: "I haven't competed yet" },
+  { value: 'intro', label: 'Introductory Level' },
+  { value: 'training', label: 'Training Level' },
+  { value: 'first', label: 'First Level' },
+  { value: 'second', label: 'Second Level' },
+  { value: 'third', label: 'Third Level' },
+  { value: 'fourth', label: 'Fourth Level' },
+  { value: 'prix-st-georges', label: 'Prix St. Georges' },
+  { value: 'intermediaire-1', label: 'Intermediaire I' },
+  { value: 'intermediaire-2', label: 'Intermediaire II' },
+  { value: 'grand-prix', label: 'Grand Prix' }
+];
+
 const OWNERSHIP_OPTIONS = [
   { value: 'own', label: 'I own my horse(s)' },
   { value: 'lease', label: 'I lease a horse' },
@@ -34,17 +55,11 @@ const OWNERSHIP_OPTIONS = [
   { value: 'training', label: 'I ride horses professionally' }
 ];
 
-const DEVICE_OPTIONS = [
-  { value: 'mobile', label: 'Mobile phone' },
-  { value: 'tablet', label: 'Tablet' },
-  { value: 'desktop', label: 'Desktop/Laptop' }
-];
-
-const MOBILE_OPTIONS = [
-  { value: 'apple', label: 'Apple' },
-  { value: 'android', label: 'Android' },
-  { value: 'both', label: 'Both' },
-  { value: 'neither', label: 'Neither' }
+const LEARNING_STYLE_OPTIONS = [
+  { value: 'visual', label: 'Visual (diagrams, images, videos)' },
+  { value: 'verbal', label: 'Verbal (listening, discussion, audio)' },
+  { value: 'kinesthetic', label: 'Kinesthetic (feel it in my body, physical practice)' },
+  { value: 'reading', label: 'Reading/Writing (articles, notes, written explanations)' }
 ];
 
 export default function RiderProfileForm() {
@@ -52,16 +67,18 @@ export default function RiderProfileForm() {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    phone: '',
     level: '',
     frequency: '',
     coach: '',
+    trainingTime: '',
+    compLevel: '',
+    recentScores: '',
     ownership: [],
     numHorses: 1,
     whyRide: '',
     enjoyMost: '',
-    devices: [],
-    mobileType: '',
+    longTermGoals: '',
+    learningStyle: [],
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -82,16 +99,18 @@ export default function RiderProfileForm() {
       setFormData({
         fullName: result.data.fullName || currentUser.displayName || '',
         email: result.data.email || currentUser.email || '',
-        phone: result.data.phone || '',
         level: result.data.level || '',
         frequency: result.data.frequency || '',
         coach: result.data.coach || '',
+        trainingTime: result.data.trainingTime || '',
+        compLevel: result.data.compLevel || '',
+        recentScores: result.data.recentScores || '',
         ownership: result.data.ownership || [],
         numHorses: result.data.numHorses || 1,
         whyRide: result.data.whyRide || '',
         enjoyMost: result.data.enjoyMost || '',
-        devices: result.data.devices || [],
-        mobileType: result.data.mobileType || '',
+        longTermGoals: result.data.longTermGoals || '',
+        learningStyle: result.data.learningStyle || [],
       });
     } else {
       setFormData(prev => ({
@@ -112,6 +131,7 @@ export default function RiderProfileForm() {
   function handleNumberChange(e) {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: parseInt(value, 10) || 1 }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   }
 
   function validateForm() {
@@ -121,10 +141,12 @@ export default function RiderProfileForm() {
     if (!formData.level) newErrors.level = 'Please select your experience level';
     if (!formData.frequency) newErrors.frequency = 'Please select riding frequency';
     if (!formData.coach) newErrors.coach = 'Please select lesson frequency';
+    if (!formData.trainingTime) newErrors.trainingTime = 'Please select available training time';
+    if (!formData.compLevel) newErrors.compLevel = 'Please select competition history';
     if (formData.ownership.length === 0) newErrors.ownership = 'Please select at least one';
+    if (!formData.numHorses || formData.numHorses < 1) newErrors.numHorses = 'Please enter number of horses';
     if (!formData.whyRide.trim()) newErrors.whyRide = 'Please share why you ride';
-    if (formData.devices.length === 0) newErrors.devices = 'Please select at least one device';
-    if (!formData.mobileType) newErrors.mobileType = 'Please select your mobile type';
+    if (!formData.longTermGoals.trim()) newErrors.longTermGoals = 'Please share your long-term goals';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
@@ -173,25 +195,44 @@ export default function RiderProfileForm() {
             <FormField label="Full Name" error={errors.fullName}>
               <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} disabled={loading} className={errors.fullName ? 'error' : ''} />
             </FormField>
-            <div className="form-row">
-              <FormField label="Email Address" error={errors.email}>
-                <input type="email" name="email" value={formData.email} onChange={handleChange} disabled={loading} className={errors.email ? 'error' : ''} />
-              </FormField>
-              <FormField label="Phone Number" optional>
-                <input type="tel" name="phone" value={formData.phone} onChange={handleChange} disabled={loading} />
-              </FormField>
-            </div>
+            <FormField label="Email Address" error={errors.email}>
+              <input type="email" name="email" value={formData.email} onChange={handleChange} disabled={loading} className={errors.email ? 'error' : ''} />
+            </FormField>
           </FormSection>
 
           <FormSection title="Experience & Training" description="Your riding background">
             <FormField label="My experience level" error={errors.level}>
-              <RadioGroup name="level" options={LEVEL_OPTIONS} value={formData.level} onChange={handleChange} disabled={loading} />
+              <select name="level" value={formData.level} onChange={handleChange} disabled={loading} className={errors.level ? 'error' : ''}>
+                <option value="">Select...</option>
+                {LEVEL_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
             </FormField>
             <FormField label="Riding Frequency" error={errors.frequency}>
-              <RadioGroup name="frequency" options={FREQUENCY_OPTIONS} value={formData.frequency} onChange={handleChange} disabled={loading} />
+              <select name="frequency" value={formData.frequency} onChange={handleChange} disabled={loading} className={errors.frequency ? 'error' : ''}>
+                <option value="">Select...</option>
+                {FREQUENCY_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
             </FormField>
             <FormField label="Lesson Frequency" error={errors.coach}>
-              <RadioGroup name="coach" options={COACH_OPTIONS} value={formData.coach} onChange={handleChange} disabled={loading} />
+              <select name="coach" value={formData.coach} onChange={handleChange} disabled={loading} className={errors.coach ? 'error' : ''}>
+                <option value="">Select...</option>
+                {COACH_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </FormField>
+            <FormField label="Available Training Time Per Week" error={errors.trainingTime} helpText="Total time for riding, groundwork, and training activities">
+              <select name="trainingTime" value={formData.trainingTime} onChange={handleChange} disabled={loading} className={errors.trainingTime ? 'error' : ''}>
+                <option value="">Select...</option>
+                {TRAINING_TIME_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </FormField>
+            <FormField label="Competition History" error={errors.compLevel}>
+              <select name="compLevel" value={formData.compLevel} onChange={handleChange} disabled={loading} className={errors.compLevel ? 'error' : ''}>
+                <option value="">Select highest level shown...</option>
+                {COMP_LEVEL_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </FormField>
+            <FormField label="Most Recent Competition Scores" optional helpText="Share any recent test scores you remember - approximate is fine!">
+              <textarea name="recentScores" value={formData.recentScores} onChange={handleChange} disabled={loading} placeholder="e.g., Training Level Test 2: 65.5% (June 2025), First Level Test 1: 62.3% (Sept 2025)" />
             </FormField>
           </FormSection>
 
@@ -208,8 +249,8 @@ export default function RiderProfileForm() {
                 disabled={loading}
               />
             </FormField>
-            <FormField label="Number of Horses You Ride">
-              <input type="number" name="numHorses" min="1" max="20" value={formData.numHorses} onChange={handleNumberChange} disabled={loading} style={{ maxWidth: '120px' }} />
+            <FormField label="Number of Horses You Ride" error={errors.numHorses}>
+              <input type="number" name="numHorses" min="1" max="20" value={formData.numHorses} onChange={handleNumberChange} disabled={loading} className={errors.numHorses ? 'error' : ''} style={{ maxWidth: '120px' }} />
             </FormField>
           </FormSection>
 
@@ -220,23 +261,19 @@ export default function RiderProfileForm() {
             <FormField label="What do you enjoy most about dressage?" optional helpText="Optional, but helps us understand your journey">
               <textarea name="enjoyMost" value={formData.enjoyMost} onChange={handleChange} disabled={loading} placeholder="What aspects of dressage bring you the most joy?" />
             </FormField>
-          </FormSection>
-
-          <FormSection title="Technology & Commitment" description="Help us optimize your experience">
-            <FormField label="Devices You Use" error={errors.devices} helpText="Check all that apply">
+            <FormField label="Long-term Dressage Goals" error={errors.longTermGoals} helpText="Where do you want your dressage journey to take you? Think 1-5 years out.">
+              <textarea name="longTermGoals" value={formData.longTermGoals} onChange={handleChange} disabled={loading} className={errors.longTermGoals ? 'error' : ''} placeholder="e.g., Compete at Second Level by 2027, improve connection and throughness, earn my USDF Bronze Medal..." />
+            </FormField>
+            <FormField label="How Do You Learn Best?" optional helpText="Select all that apply - this helps us tailor how coaching insights are delivered to you">
               <CheckboxGroup
-                name="devices"
-                options={DEVICE_OPTIONS}
-                values={formData.devices}
+                name="learningStyle"
+                options={LEARNING_STYLE_OPTIONS}
+                values={formData.learningStyle}
                 onChange={v => {
-                  setFormData(prev => ({ ...prev, devices: v }));
-                  if (errors.devices) setErrors(prev => ({ ...prev, devices: '' }));
+                  setFormData(prev => ({ ...prev, learningStyle: v }));
                 }}
                 disabled={loading}
               />
-            </FormField>
-            <FormField label="Mobile Device Type" error={errors.mobileType}>
-              <RadioGroup name="mobileType" options={MOBILE_OPTIONS} value={formData.mobileType} onChange={handleChange} disabled={loading} />
             </FormField>
           </FormSection>
 

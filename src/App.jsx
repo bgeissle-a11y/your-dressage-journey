@@ -1,7 +1,9 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import { AuthProvider } from './contexts/AuthContext';
 import PrivateRoute from './components/Auth/PrivateRoute';
 import AppLayout from './components/Layout/AppLayout';
+import { initGA4, trackPageView } from './analytics';
 import SignUp from './components/Auth/SignUp';
 import SignIn from './components/Auth/SignIn';
 import ForgotPassword from './components/Auth/ForgotPassword';
@@ -39,9 +41,22 @@ import RiderAssessmentForm from './components/RiderAssessment/RiderAssessmentFor
 
 import './App.css';
 
+// Initialize GA4 once on app load
+initGA4()
+
+// Sends page_view on every route change (SPA-aware)
+function RouteTracker() {
+  const location = useLocation()
+  useEffect(() => {
+    trackPageView(location.pathname, document.title)
+  }, [location])
+  return null
+}
+
 function App() {
   return (
     <Router>
+      <RouteTracker />
       <AuthProvider>
         <Routes>
           {/* Public Routes */}

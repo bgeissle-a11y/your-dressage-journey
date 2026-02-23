@@ -10,6 +10,7 @@
 
 const { HttpsError } = require("firebase-functions/v2/https");
 const { ZodError } = require("zod");
+const Sentry = require("@sentry/node");
 
 /**
  * Classify an error into a category for frontend error display.
@@ -132,6 +133,8 @@ function wrapError(error, context = "Cloud Function") {
 
   const { category, retryable, userMessage } = classifyError(error);
   console.error(`[${context}] ${category} error:`, error);
+
+  Sentry.captureException(error, { tags: { context, category } });
 
   return new HttpsError("internal", userMessage, { category, retryable });
 }

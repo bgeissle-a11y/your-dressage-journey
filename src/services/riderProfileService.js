@@ -8,22 +8,23 @@ const base = createBaseService(COLLECTION);
 /**
  * Rider Profile Service
  *
- * Data model (from rider-profile.html):
+ * Data model (from rider-profilev2.html):
  * {
- *   userId:       string   - Firebase Auth UID
- *   fullName:     string   - required
- *   email:        string   - required
- *   phone:        string   - optional
- *   level:        string   - "beginning" | "while" | "block"
- *   frequency:    string   - "1-2" | "3-4" | "5-6" | "7+"
- *   coach:        string   - "weekly" | "biweekly" | "occasional" | "independent"
- *   ownership:    string[] - ["own", "lease", "schoolHorse", "training"]
- *   numHorses:    number   - 1-20
- *   whyRide:      string   - required
- *   enjoyMost:    string   - optional
- *   devices:      string[] - ["mobile", "tablet", "desktop"]
- *   mobileType:   string   - "apple" | "android" | "both" | "neither"
- *   consent:      string[] - ["age", "commitment", "survey", "understand"]
+ *   userId:         string   - Firebase Auth UID
+ *   fullName:       string   - required
+ *   email:          string   - required
+ *   level:          string   - "beginning" | "while" | "block"
+ *   frequency:      string   - "1-2" | "3-4" | "5-6" | "7+"
+ *   coach:          string   - "weekly" | "biweekly" | "occasional" | "independent"
+ *   trainingTime:   string   - "1-3" | "4-6" | "7-10" | "11-15" | "16+"
+ *   compLevel:      string   - "none" | "intro" | "training" | ... | "grand-prix"
+ *   recentScores:   string   - optional, free text
+ *   ownership:      string[] - ["own", "lease", "schoolHorse", "training"]
+ *   numHorses:      number   - 1-20, required
+ *   whyRide:        string   - required
+ *   enjoyMost:      string   - optional
+ *   longTermGoals:  string   - required
+ *   learningStyle:  string[] - ["visual", "verbal", "kinesthetic", "reading"]
  * }
  */
 
@@ -41,17 +42,18 @@ export async function createRiderProfile(userId, profileData) {
   return base.create(userId, {
     fullName: profileData.fullName || '',
     email: profileData.email || '',
-    phone: profileData.phone || '',
     level: profileData.level || '',
     frequency: profileData.frequency || '',
     coach: profileData.coach || '',
+    trainingTime: profileData.trainingTime || '',
+    compLevel: profileData.compLevel || '',
+    recentScores: profileData.recentScores || '',
     ownership: profileData.ownership || [],
     numHorses: profileData.numHorses || 1,
     whyRide: profileData.whyRide || '',
     enjoyMost: profileData.enjoyMost || '',
-    devices: profileData.devices || [],
-    mobileType: profileData.mobileType || '',
-    consent: profileData.consent || []
+    longTermGoals: profileData.longTermGoals || '',
+    learningStyle: profileData.learningStyle || []
   });
 }
 
