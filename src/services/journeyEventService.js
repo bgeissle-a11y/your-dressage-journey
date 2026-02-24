@@ -9,9 +9,10 @@ const base = createBaseService(COLLECTION);
  * Data model (from journey-event-log.html):
  * {
  *   userId:         string - Firebase Auth UID
+ *   entryMode:      string - "planned" | "unplanned"
  *   category:       string - required, brief event summary text
- *   type:           string - "rider" | "horse" | "environment" | "equipment" |
- *                            "competition" | "financial" | "other"
+ *   type:           string - "competition" | "clinic" | "evaluation" | "rider" |
+ *                            "horse" | "environment" | "equipment" | "financial" | "other"
  *   date:           string - required, ISO date of event
  *   description:    string - required, detailed event description
  *   magnitude:      string - "minor" | "moderate" | "major"
@@ -19,16 +20,20 @@ const base = createBaseService(COLLECTION);
  *                            "3-6-months" | "6-plus-months" | "ongoing"
  *   status:         string - "active" | "ongoing" | "resolved"
  *   resolutionDate: string | null - optional, ISO date (when status is "resolved")
+ *   reflection:     object | null - post-event reflection (planned events only):
+ *     { realityVsExpectation, lessonsLearned, unexpectedOutcomes, futureApproach }
  * }
  */
 
-// Event type options
+// Event type options (aligned with journey-event-log.html)
 export const EVENT_TYPES = [
+  { value: 'competition', label: 'Competition/Show' },
+  { value: 'clinic', label: 'Clinic/Educational' },
+  { value: 'evaluation', label: 'Evaluation/Audit' },
   { value: 'rider', label: 'Rider Health/Physical' },
-  { value: 'horse', label: 'Horse Change' },
+  { value: 'horse', label: 'Horse Health/Horse Change' },
   { value: 'environment', label: 'Environment/Support System' },
   { value: 'equipment', label: 'Equipment/Tack' },
-  { value: 'competition', label: 'Competition/Goals' },
   { value: 'financial', label: 'Financial' },
   { value: 'other', label: 'Other' }
 ];
@@ -62,6 +67,7 @@ export const EVENT_STATUSES = [
  */
 export async function createJourneyEvent(userId, eventData) {
   return base.create(userId, {
+    entryMode: eventData.entryMode || 'unplanned',
     category: eventData.category || '',
     type: eventData.type || '',
     date: eventData.date || '',
@@ -69,7 +75,8 @@ export async function createJourneyEvent(userId, eventData) {
     magnitude: eventData.magnitude || '',
     duration: eventData.duration || '',
     status: eventData.status || 'active',
-    resolutionDate: eventData.resolutionDate || null
+    resolutionDate: eventData.resolutionDate || null,
+    reflection: eventData.reflection || null
   });
 }
 

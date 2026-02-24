@@ -16,8 +16,13 @@ export default function JourneyEventForm() {
   const { id } = useParams();
   const isEdit = Boolean(id);
   const descriptionRef = useRef(null);
+  const realityRef = useRef(null);
+  const lessonsRef = useRef(null);
+  const unexpectedRef = useRef(null);
+  const futureRef = useRef(null);
 
   const [formData, setFormData] = useState({
+    entryMode: 'unplanned',
     category: '',
     type: '',
     date: new Date().toISOString().split('T')[0],
@@ -25,7 +30,11 @@ export default function JourneyEventForm() {
     magnitude: '',
     duration: '',
     status: 'active',
-    resolutionDate: ''
+    resolutionDate: '',
+    realityVsExpectation: '',
+    lessonsLearned: '',
+    unexpectedOutcomes: '',
+    futureApproach: ''
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -39,7 +48,9 @@ export default function JourneyEventForm() {
     setLoadingData(true);
     const result = await getJourneyEvent(id);
     if (result.success) {
+      const reflection = result.data.reflection || {};
       setFormData({
+        entryMode: result.data.entryMode || 'unplanned',
         category: result.data.category || '',
         type: result.data.type || '',
         date: result.data.date || '',
@@ -47,7 +58,11 @@ export default function JourneyEventForm() {
         magnitude: result.data.magnitude || '',
         duration: result.data.duration || '',
         status: result.data.status || 'active',
-        resolutionDate: result.data.resolutionDate || ''
+        resolutionDate: result.data.resolutionDate || '',
+        realityVsExpectation: reflection.realityVsExpectation || '',
+        lessonsLearned: reflection.lessonsLearned || '',
+        unexpectedOutcomes: reflection.unexpectedOutcomes || '',
+        futureApproach: reflection.futureApproach || ''
       });
     }
     setLoadingData(false);
@@ -82,9 +97,24 @@ export default function JourneyEventForm() {
     if (!validateForm()) return;
 
     setLoading(true);
+    const reflection = formData.entryMode === 'planned' ? {
+      realityVsExpectation: formData.realityVsExpectation,
+      lessonsLearned: formData.lessonsLearned,
+      unexpectedOutcomes: formData.unexpectedOutcomes,
+      futureApproach: formData.futureApproach
+    } : null;
+
     const data = {
-      ...formData,
-      resolutionDate: formData.status === 'resolved' ? formData.resolutionDate : null
+      entryMode: formData.entryMode,
+      category: formData.category,
+      type: formData.type,
+      date: formData.date,
+      description: formData.description,
+      magnitude: formData.magnitude,
+      duration: formData.duration,
+      status: formData.status,
+      resolutionDate: formData.status === 'resolved' ? formData.resolutionDate : null,
+      reflection
     };
 
     let result;
@@ -119,8 +149,14 @@ export default function JourneyEventForm() {
           {errors.submit && <div className="form-section"><div className="form-alert form-alert-error">{errors.submit}</div></div>}
 
           <FormSection title="Event Details" description="Capture the who, what, when of this significant event.">
-            <FormField label="Brief Event Summary" error={errors.category} helpText="e.g., Started new horse, Moved to new barn, Shoulder injury">
-              <input type="text" name="category" value={formData.category} onChange={handleChange} disabled={loading} className={errors.category ? 'error' : ''} placeholder="What happened?" />
+            <FormField label="Was this event:">
+              <select name="entryMode" value={formData.entryMode} onChange={handleChange} disabled={loading}>
+                <option value="unplanned">Unplanned — Injury, barn move, equipment change, etc.</option>
+                <option value="planned">Planned — Show, clinic, audit, lesson</option>
+              </select>
+            </FormField>
+            <FormField label="Brief Event Summary" error={errors.category} helpText={formData.entryMode === 'planned' ? 'Event name (e.g., Spring Championship Show, Jane Smith Clinic)' : 'What happened? (e.g., Started new horse, Moved to new barn, Shoulder injury)'}>
+              <input type="text" name="category" value={formData.category} onChange={handleChange} disabled={loading} className={errors.category ? 'error' : ''} placeholder={formData.entryMode === 'planned' ? 'Event name...' : 'What happened?'} />
             </FormField>
             <div className="form-row">
               <FormField label="Event Type" error={errors.type}>
@@ -166,6 +202,27 @@ export default function JourneyEventForm() {
               </FormField>
             )}
           </FormSection>
+
+          {formData.entryMode === 'planned' && (
+            <FormSection title="Post-Event Reflection" description="Compare what you planned with what actually happened.">
+              <FormField label="How did reality compare to your expectations?" optional>
+                <textarea ref={realityRef} name="realityVsExpectation" value={formData.realityVsExpectation} onChange={handleChange} disabled={loading} placeholder="What went as planned? What surprised you?" />
+                <VoiceInput textareaRef={realityRef} onTranscript={text => setFormData(prev => ({ ...prev, realityVsExpectation: text }))} />
+              </FormField>
+              <FormField label="Key takeaways or lessons learned" optional>
+                <textarea ref={lessonsRef} name="lessonsLearned" value={formData.lessonsLearned} onChange={handleChange} disabled={loading} placeholder="What did you learn from this experience?" />
+                <VoiceInput textareaRef={lessonsRef} onTranscript={text => setFormData(prev => ({ ...prev, lessonsLearned: text }))} />
+              </FormField>
+              <FormField label="Unexpected outcomes (positive or challenging)" optional>
+                <textarea ref={unexpectedRef} name="unexpectedOutcomes" value={formData.unexpectedOutcomes} onChange={handleChange} disabled={loading} placeholder="Anything that caught you off guard?" />
+                <VoiceInput textareaRef={unexpectedRef} onTranscript={text => setFormData(prev => ({ ...prev, unexpectedOutcomes: text }))} />
+              </FormField>
+              <FormField label="Would you approach this differently next time?" optional>
+                <textarea ref={futureRef} name="futureApproach" value={formData.futureApproach} onChange={handleChange} disabled={loading} placeholder="What would you keep the same? What would you change?" />
+                <VoiceInput textareaRef={futureRef} onTranscript={text => setFormData(prev => ({ ...prev, futureApproach: text }))} />
+              </FormField>
+            </FormSection>
+          )}
 
           <div className="form-actions">
             <button type="button" className="btn btn-secondary" onClick={() => navigate('/events')} disabled={loading}>

@@ -22,6 +22,7 @@ const TYPE_LABELS = Object.fromEntries(EVENT_TYPES.map(t => [t.value, t.label]))
 const FILTERS = [
   { value: 'all', label: 'All Events' },
   ...EVENT_TYPES,
+  { value: 'planned-only', label: 'Planned Only' },
   { value: 'active-only', label: 'Active Only' }
 ];
 
@@ -58,6 +59,7 @@ export default function JourneyEventList() {
   const filtered = events.filter(event => {
     if (filter === 'all') return true;
     if (filter === 'active-only') return event.status === 'active';
+    if (filter === 'planned-only') return event.entryMode === 'planned';
     return event.type === filter;
   });
 
@@ -119,6 +121,7 @@ export default function JourneyEventList() {
                   <div className="list-card-meta">
                     <span>{formatDate(event.date)}</span>
                     {event.type && <span>{TYPE_LABELS[event.type] || event.type}</span>}
+                    <span>{event.entryMode === 'planned' ? 'Planned' : 'Unplanned'}</span>
                     {event.magnitude && <span>{MAGNITUDE_LABELS[event.magnitude]}</span>}
                     <span className={`status-badge status-${event.status}`}>
                       {STATUS_LABELS[event.status] || event.status}
