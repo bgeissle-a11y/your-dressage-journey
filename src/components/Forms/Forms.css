@@ -308,6 +308,29 @@
   background-color: #E0D5C7;
 }
 
+/* Packing List Button */
+.packing-list-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #8B7355;
+  background: #FAF8F5;
+  border: 2px solid #E0D5C7;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.packing-list-btn:hover {
+  background: #F5F1EB;
+  border-color: #D4A574;
+  color: #6B5B3E;
+}
+
 /* Alert Messages (reuse from Auth) */
 .form-alert {
   padding: 1rem 1.25rem;

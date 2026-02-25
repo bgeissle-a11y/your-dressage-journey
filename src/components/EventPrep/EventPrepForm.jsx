@@ -498,7 +498,18 @@ export default function EventPrepForm() {
             </FormField>
           </FormSection>
 
-          {/* Section 4: Anything Else? */}
+          {/* Section 4: Logistics */}
+          <FormSection title="Logistics" description="Packing and preparation tools for show day">
+            <button
+              type="button"
+              className="packing-list-btn"
+              onClick={() => window.open('/packing-list.html', '_blank')}
+            >
+              🧳 Open Packing List
+            </button>
+          </FormSection>
+
+          {/* Section 5: Anything Else? */}
           <FormSection title="Anything Else?" description="Share any other context that would help us create your ideal preparation plan">
             <FormField label="Additional Information" optional>
               <textarea name="additionalInfo" value={formData.additionalInfo} onChange={handleChange} disabled={loading} placeholder="Mental game focus areas, past experiences with similar events, specific people you're riding with/against, anxiety triggers, motivation strategies that work for you, etc." style={{ minHeight: '120px' }} />

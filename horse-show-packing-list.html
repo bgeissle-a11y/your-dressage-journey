@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horse Show Packing List | Your Dressage Journey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #8B7355;
+            --color-secondary: #D4A574;
+            --color-accent: #C67B5C;
+            --color-success: #6B8E5F;
+            --color-bg: #FAF8F5;
+            --color-bg-secondary: #F5F1EB;
+            --color-text: #3A3A3A;
+            --color-text-light: #7A7A7A;
+            --color-border: #E0D5C7;
+            --shadow-soft: 0 2px 12px rgba(139, 115, 85, 0.08);
+            --shadow-medium: 0 4px 24px rgba(139, 115, 85, 0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background: linear-gradient(to bottom, var(--color-bg) 0%, var(--color-bg-secondary) 100%);
+            color: var(--color-text);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container { max-width: 860px; margin: 0 auto; }
+
+        header {
+            text-align: center;
+            padding: 36px 20px 28px;
+            margin-bottom: 28px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--color-border);
+        }
+
+        header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2em;
+            color: var(--color-primary);
+            margin-bottom: 6px;
+        }
+
+        header p {
+            color: var(--color-text-light);
+            font-size: 0.95em;
+        }
+
+        /* Progress bar */
+        .progress-bar-wrap {
+            background: white;
+            border-radius: 16px;
+            padding: 20px 28px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .progress-bar-track {
+            flex: 1;
+            height: 8px;
+            background: var(--color-bg-secondary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--color-primary), var(--color-secondary));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        .progress-label {
+            font-size: 0.88em;
+            color: var(--color-text-light);
+            white-space: nowrap;
+            min-width: 90px;
+            text-align: right;
+        }
+        .progress-emoji { font-size: 1.3em; }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+        .btn {
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.85em;
+            font-weight: 500;
+            padding: 9px 18px;
+            border-radius: 10px;
+            border: 1.5px solid var(--color-border);
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+            color: var(--color-primary);
+        }
+        .btn:hover { border-color: var(--color-secondary); background: var(--color-bg-secondary); }
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+        .btn-primary:hover { background: var(--color-accent); border-color: var(--color-accent); }
+        .btn-small {
+            padding: 4px 10px;
+            font-size: 0.78em;
+            border-radius: 6px;
+        }
+
+        /* Category sections */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+        @media (max-width: 620px) {
+            .categories-grid { grid-template-columns: 1fr; }
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-soft);
+            overflow: hidden;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 20px 12px;
+            border-bottom: 1px solid var(--color-border);
+            background: var(--color-bg-secondary);
+            cursor: pointer;
+            user-select: none;
+        }
+        .category-icon { font-size: 1.3em; }
+        .category-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05em;
+            color: var(--color-primary);
+            font-weight: 600;
+            flex: 1;
+        }
+        .category-count {
+            font-size: 0.78em;
+            color: var(--color-text-light);
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: 20px;
+            padding: 2px 9px;
+        }
+        .collapse-icon {
+            color: var(--color-text-light);
+            font-size: 0.8em;
+            transition: transform 0.2s;
+        }
+        .category-card.collapsed .collapse-icon { transform: rotate(-90deg); }
+
+        .category-body {
+            padding: 12px 20px 16px;
+        }
+        .category-card.collapsed .category-body { display: none; }
+
+        /* Checklist items */
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+            border-bottom: 1px solid #f0ece6;
+            transition: opacity 0.2s;
+        }
+        .checklist-item:last-child { border-bottom: none; }
+        .checklist-item.checked { opacity: 0.5; }
+        .checklist-item.checked .item-label { text-decoration: line-through; color: var(--color-text-light); }
+
+        .checklist-item input[type="checkbox"] {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            min-width: 18px;
+            border: 2px solid var(--color-border);
+            border-radius: 5px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.15s;
+        }
+        .checklist-item input[type="checkbox"]:checked {
+            background: var(--color-success);
+            border-color: var(--color-success);
+        }
+        .checklist-item input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            top: -1px;
+            left: 2px;
+        }
+
+        .item-label {
+            flex: 1;
+            font-size: 0.9em;
+            color: var(--color-text);
+            cursor: pointer;
+        }
+
+        .item-notes {
+            font-size: 0.78em;
+            color: var(--color-secondary);
+            font-style: italic;
+        }
+
+        .delete-btn {
+            opacity: 0;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #ccc;
+            font-size: 1em;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: all 0.15s;
+            line-height: 1;
+        }
+        .checklist-item:hover .delete-btn { opacity: 1; }
+        .delete-btn:hover { color: #e57373; background: #fff0f0; }
+
+        /* Add item */
+        .add-item-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--color-border);
+        }
+        .add-item-input {
+            flex: 1;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.85em;
+            padding: 7px 12px;
+            border: 1.5px solid var(--color-border);
+            border-radius: 8px;
+            background: var(--color-bg-secondary);
+            color: var(--color-text);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .add-item-input:focus { border-color: var(--color-secondary); background: white; }
+        .add-item-input::placeholder { color: #bbb; }
+
+        /* Notes section */
+        .notes-section {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-soft);
+            padding: 20px 24px;
+            margin-top: 20px;
+        }
+        .notes-section h3 {
+            font-family: 'Playfair Display', serif;
+            color: var(--color-primary);
+            font-size: 1.05em;
+            margin-bottom: 10px;
+        }
+        .notes-textarea {
+            width: 100%;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.88em;
+            padding: 12px;
+            border: 1.5px solid var(--color-border);
+            border-radius: 10px;
+            color: var(--color-text);
+            background: var(--color-bg-secondary);
+            resize: vertical;
+            min-height: 80px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .notes-textarea:focus { border-color: var(--color-secondary); background: white; }
+
+        /* Integration tip */
+        .integration-tip {
+            background: linear-gradient(135deg, #f9f4ef 0%, #fdf6ee 100%);
+            border: 1.5px solid var(--color-secondary);
+            border-radius: 14px;
+            padding: 18px 22px;
+            margin-top: 20px;
+            font-size: 0.88em;
+            color: var(--color-text);
+        }
+        .integration-tip strong { color: var(--color-accent); }
+
+        /* Print styles */
+        @media print {
+            body { background: white; padding: 0; }
+            .toolbar, .add-item-row, .delete-btn, .integration-tip, .progress-bar-wrap { display: none !important; }
+            .categories-grid { grid-template-columns: 1fr 1fr; }
+            .category-card.collapsed .category-body { display: block !important; }
+            header { box-shadow: none; border: 1px solid #ddd; }
+            .category-card { break-inside: avoid; box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <header>
+        <h1>🏆 Horse Show Packing List</h1>
+        <p>Your customizable checklist for competition day — add, remove, and check off as you pack</p>
+    </header>
+
+    <!-- Progress -->
+    <div class="progress-bar-wrap">
+        <span class="progress-emoji">🧳</span>
+        <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+        <span class="progress-label" id="progressLabel">0 of 0 packed</span>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <button class="btn btn-primary" onclick="window.print()">🖨️ Print List</button>
+        <button class="btn" onclick="uncheckAll()">↩ Uncheck All</button>
+        <button class="btn" onclick="toggleAll(false)">▼ Expand All</button>
+        <button class="btn" onclick="toggleAll(true)">▲ Collapse All</button>
+        <button class="btn" onclick="copyToClipboard()">📋 Copy as Text</button>
+        <button class="btn" onclick="resetToDefault()" style="margin-left:auto; color:#c67b5c;">↺ Reset to Default</button>
+    </div>
+
+    <!-- Categories Grid -->
+    <div class="categories-grid" id="categoriesGrid"></div>
+
+    <!-- Notes -->
+    <div class="notes-section">
+        <h3>📝 Show-Specific Notes</h3>
+        <textarea class="notes-textarea" id="globalNotes" placeholder="Horse name, show location, stall number, farrier appointment, vet check time, ride times..." oninput="saveState()"></textarea>
+    </div>
+
+    <div class="integration-tip">
+        <strong>💡 Event Planner Integration:</strong> Access this list from your Event Preparation form by tapping "Open Packing List" in the logistics section. Your checked items and custom additions are saved automatically between sessions for each event.
+    </div>
+
+</div>
+
+<script>
+const DEFAULT_CATEGORIES = [
+    {
+        id: 'shipping', icon: '🚛', title: 'Shipping',
+        items: [
+            { text: 'Shipping boots' },
+            { text: 'Shipping halter' },
+            { text: 'Leadshank' },
+            { text: 'Chain shank' },
+        ]
+    },
+    {
+        id: 'tack', icon: '🐴', title: 'Tack',
+        items: [
+            { text: 'Tack cleaning supplies' },
+            { text: 'Saddle pads', notes: 'show & schooling' },
+            { text: 'Double bridle' },
+            { text: 'Snaffle bridle' },
+            { text: 'Saddle' },
+            { text: 'Girth' },
+            { text: 'Schooling boots' },
+            { text: 'White polo wraps' },
+            { text: 'Ear bonnet' },
+        ]
+    },
+    {
+        id: 'grooming', icon: '✨', title: 'Grooming Bag',
+        items: [
+            { text: 'Brushes' },
+            { text: 'Grooming mitt' },
+            { text: 'Fly spray' },
+            { text: 'Show Sheen' },
+            { text: 'Bit butter or Vaseline' },
+            { text: 'Sugar cubes' },
+            { text: 'Ear buds / cotton' },
+            { text: 'Zip ties' },
+        ]
+    },
+    {
+        id: 'braiding', icon: '💫', title: 'Braiding',
+        items: [
+            { text: 'Braiding kit', notes: 'elastics, scissors, comb, hair clip, apron' },
+            { text: 'Quick Braid spray' },
+            { text: 'Clippers' },
+        ]
+    },
+    {
+        id: 'bath', icon: '🛁', title: 'Bath Supplies',
+        items: [
+            { text: 'Sponges' },
+            { text: 'Bucket' },
+            { text: 'Shampoo' },
+            { text: 'Sweat scraper' },
+            { text: 'Towels', notes: 'towels, towels, and more towels!' },
+        ]
+    },
+    {
+        id: 'firstaid', icon: '⚕️', title: 'First Aid',
+        items: [
+            { text: 'Thermometer' },
+            { text: 'Electrolytes' },
+            { text: 'Banamine' },
+            { text: 'Hay net' },
+        ]
+    },
+    {
+        id: 'horsekeeping', icon: '🌾', title: 'Horse Keeping',
+        items: [
+            { text: 'Hay' },
+            { text: 'Grain & supplements', notes: 'in labeled plastic bags' },
+            { text: 'Feed buckets' },
+            { text: 'Water buckets' },
+            { text: 'Bucket hangers' },
+            { text: 'Hose' },
+            { text: 'Fan' },
+            { text: 'Extension cords' },
+            { text: 'Manure bucket & fork/shovel' },
+            { text: 'Shavings' },
+            { text: 'Horse info card', notes: 'vet contact, Coggins, health cert' },
+        ]
+    },
+    {
+        id: 'tackstall', icon: '🏠', title: 'Tack Stall',
+        items: [
+            { text: 'Tack cart' },
+            { text: 'Bridle hook' },
+            { text: 'Saddle rack' },
+            { text: 'Multiple hooks & hangers' },
+            { text: 'Chair' },
+            { text: 'Mirror' },
+            { text: 'Carpet' },
+            { text: 'Broom' },
+        ]
+    },
+    {
+        id: 'rider', icon: '🎩', title: 'Rider — Riding & Showing',
+        items: [
+            { text: 'Short coat or shadbelly' },
+            { text: 'Show breeches' },
+            { text: 'Schooling breeches' },
+            { text: 'Show shirts', notes: 'jackets waived and not' },
+            { text: 'Stock tie' },
+            { text: 'Helmet' },
+            { text: 'Tall boots' },
+            { text: 'Belt' },
+            { text: 'Gloves', notes: 'show and schooling' },
+            { text: 'Whip' },
+            { text: 'Spurs' },
+            { text: 'Rain jacket' },
+            { text: 'Rain pants' },
+        ]
+    },
+    {
+        id: 'people', icon: '🥪', title: 'People Food & Drink',
+        items: [
+            { text: 'Water & sports drinks' },
+            { text: 'Snacks & easy meals' },
+            { text: 'Coffee / tea' },
+            { text: 'Cooler & ice' },
+        ]
+    },
+];
+
+let state = { categories: [], notes: '' };
+
+function loadState() {
+    try {
+        const saved = localStorage.getItem('ydj_packinglist_v1');
+        if (saved) {
+            state = JSON.parse(saved);
+        } else {
+            resetToDefault(true);
+        }
+    } catch(e) { resetToDefault(true); }
+}
+
+function saveState() {
+    state.notes = document.getElementById('globalNotes').value;
+    localStorage.setItem('ydj_packinglist_v1', JSON.stringify(state));
+    updateProgress();
+}
+
+function resetToDefault(silent = false) {
+    if (!silent && !confirm('Reset list to default? Your custom items will be removed.')) return;
+    state = {
+        categories: DEFAULT_CATEGORIES.map(cat => ({
+            ...cat,
+            collapsed: false,
+            items: cat.items.map(it => ({ ...it, checked: false, id: crypto.randomUUID() }))
+        })),
+        notes: ''
+    };
+    render();
+    saveState();
+}
+
+function render() {
+    const grid = document.getElementById('categoriesGrid');
+    grid.innerHTML = '';
+    state.categories.forEach((cat, catIdx) => {
+        const card = document.createElement('div');
+        card.className = 'category-card' + (cat.collapsed ? ' collapsed' : '');
+        card.id = `cat-${cat.id}`;
+
+        const checkedCount = cat.items.filter(i => i.checked).length;
+        const total = cat.items.length;
+
+        card.innerHTML = `
+            <div class="category-header" onclick="toggleCategory('${cat.id}')">
+                <span class="category-icon">${cat.icon}</span>
+                <span class="category-title">${cat.title}</span>
+                <span class="category-count">${checkedCount}/${total}</span>
+                <span class="collapse-icon">▼</span>
+            </div>
+            <div class="category-body">
+                <div class="item-list" id="list-${cat.id}">
+                    ${cat.items.map((item, itemIdx) => renderItem(cat.id, item, itemIdx)).join('')}
+                </div>
+                <div class="add-item-row">
+                    <input type="text" class="add-item-input" id="add-${cat.id}" placeholder="Add item…" onkeydown="handleAddKey(event, '${cat.id}')">
+                    <button class="btn btn-small btn-primary" onclick="addItem('${cat.id}')">+ Add</button>
+                </div>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+    document.getElementById('globalNotes').value = state.notes || '';
+    updateProgress();
+}
+
+function renderItem(catId, item, idx) {
+    return `
+        <div class="checklist-item ${item.checked ? 'checked' : ''}" id="item-${item.id}">
+            <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleItem('${catId}', '${item.id}')">
+            <span class="item-label" onclick="toggleItem('${catId}', '${item.id}')">${item.text}${item.notes ? ` <span class="item-notes">— ${item.notes}</span>` : ''}</span>
+            <button class="delete-btn" onclick="deleteItem('${catId}', '${item.id}')" title="Remove">✕</button>
+        </div>
+    `;
+}
+
+function toggleItem(catId, itemId) {
+    const cat = state.categories.find(c => c.id === catId);
+    const item = cat.items.find(i => i.id === itemId);
+    item.checked = !item.checked;
+    // Update DOM without full re-render
+    const el = document.getElementById(`item-${itemId}`);
+    const cb = el.querySelector('input[type=checkbox]');
+    if (item.checked) { el.classList.add('checked'); cb.checked = true; }
+    else { el.classList.remove('checked'); cb.checked = false; }
+    // Update count in header
+    const checkedCount = cat.items.filter(i => i.checked).length;
+    document.querySelector(`#cat-${catId} .category-count`).textContent = `${checkedCount}/${cat.items.length}`;
+    saveState();
+}
+
+function deleteItem(catId, itemId) {
+    const cat = state.categories.find(c => c.id === catId);
+    cat.items = cat.items.filter(i => i.id !== itemId);
+    // Re-render just this category body
+    const listEl = document.getElementById(`list-${catId}`);
+    listEl.innerHTML = cat.items.map((item, idx) => renderItem(catId, item, idx)).join('');
+    const checkedCount = cat.items.filter(i => i.checked).length;
+    document.querySelector(`#cat-${catId} .category-count`).textContent = `${checkedCount}/${cat.items.length}`;
+    saveState();
+}
+
+function handleAddKey(e, catId) {
+    if (e.key === 'Enter') addItem(catId);
+}
+
+function addItem(catId) {
+    const input = document.getElementById(`add-${catId}`);
+    const text = input.value.trim();
+    if (!text) return;
+    const cat = state.categories.find(c => c.id === catId);
+    const newItem = { text, checked: false, id: crypto.randomUUID() };
+    cat.items.push(newItem);
+    const listEl = document.getElementById(`list-${catId}`);
+    const div = document.createElement('div');
+    div.innerHTML = renderItem(catId, newItem, cat.items.length - 1);
+    listEl.appendChild(div.firstElementChild);
+    const checkedCount = cat.items.filter(i => i.checked).length;
+    document.querySelector(`#cat-${catId} .category-count`).textContent = `${checkedCount}/${cat.items.length}`;
+    input.value = '';
+    input.focus();
+    saveState();
+}
+
+function toggleCategory(catId) {
+    const cat = state.categories.find(c => c.id === catId);
+    cat.collapsed = !cat.collapsed;
+    const card = document.getElementById(`cat-${catId}`);
+    cat.collapsed ? card.classList.add('collapsed') : card.classList.remove('collapsed');
+    saveState();
+}
+
+function toggleAll(collapse) {
+    state.categories.forEach(cat => { cat.collapsed = collapse; });
+    document.querySelectorAll('.category-card').forEach(card => {
+        collapse ? card.classList.add('collapsed') : card.classList.remove('collapsed');
+    });
+    saveState();
+}
+
+function uncheckAll() {
+    if (!confirm('Uncheck all items? Use this at the start of a new show.')) return;
+    state.categories.forEach(cat => cat.items.forEach(item => item.checked = false));
+    render();
+    saveState();
+}
+
+function updateProgress() {
+    let total = 0, checked = 0;
+    state.categories.forEach(cat => {
+        total += cat.items.length;
+        checked += cat.items.filter(i => i.checked).length;
+    });
+    const pct = total ? Math.round((checked / total) * 100) : 0;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressLabel').textContent = `${checked} of ${total} packed`;
+}
+
+function copyToClipboard() {
+    let text = '🏆 HORSE SHOW PACKING LIST\n\n';
+    state.categories.forEach(cat => {
+        text += `${cat.icon} ${cat.title.toUpperCase()}\n`;
+        cat.items.forEach(item => {
+            text += `  ${item.checked ? '✓' : '☐'} ${item.text}${item.notes ? ` (${item.notes})` : ''}\n`;
+        });
+        text += '\n';
+    });
+    if (state.notes) text += `NOTES:\n${state.notes}\n`;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = event.target;
+        const orig = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => btn.textContent = orig, 2000);
+    });
+}
+
+loadState();
+render();
+</script>
+</body>
+</html>

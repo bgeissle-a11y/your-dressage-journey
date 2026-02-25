@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { getGrandPrixThinking, VOICE_META } from '../../services/aiService';
 import CollapsibleSection from './CollapsibleSection';
 import ErrorDisplay from './ErrorDisplay';
@@ -40,6 +40,7 @@ export default function GrandPrixPanel({ generationStatus }) {
   const [mentalError, setMentalError] = useState(null);
   const [expandedPath, setExpandedPath] = useState(null);
   const [expandedWeek, setExpandedWeek] = useState(null);
+  const initialExpandDone = useRef(false);
 
   // Trajectory layer state
   const [trajectoryData, setTrajectoryData] = useState(null);
@@ -76,8 +77,9 @@ export default function GrandPrixPanel({ generationStatus }) {
       }
 
       setMentalData(result);
-      if (result.recommendedPath) {
+      if (result.recommendedPath && !initialExpandDone.current) {
         setExpandedPath(result.recommendedPath);
+        initialExpandDone.current = true;
       }
     } catch (err) {
       console.error('Grand Prix Thinking error:', err);
@@ -140,10 +142,12 @@ export default function GrandPrixPanel({ generationStatus }) {
     }
   }, [trajectoryData]);
 
-  // Load mental layer on mount
+  // Load mental layer on mount (guard prevents infinite loop from fetchMental dependency cycle)
   useEffect(() => {
-    fetchMental();
-  }, [fetchMental]);
+    if (!mentalData && !mentalLoading) {
+      fetchMental();
+    }
+  }, [mentalData, mentalLoading, fetchMental]);
 
   // Load trajectory on first tab switch
   useEffect(() => {
