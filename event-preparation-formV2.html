@@ -470,6 +470,28 @@
             font-weight: 500;
         }
 
+        /* Packing list button */
+        .packing-list-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.95em;
+            font-weight: 500;
+            color: var(--color-primary);
+            background: var(--color-bg);
+            border: 2px solid var(--color-border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .packing-list-btn:hover {
+            background: var(--color-bg-secondary);
+            border-color: var(--color-secondary);
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 2em;
@@ -654,6 +676,18 @@
                     <label for="constraints">Time or Resource Constraints <span class="label-optional">(optional)</span></label>
                     <textarea id="constraints" name="constraints" placeholder="Any limitations we should know about (travel schedule, horse soundness issues, weather-dependent arena access, etc.)"></textarea>
                 </div>
+            </div>
+
+            <!-- Logistics Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Logistics</h2>
+                    <p class="section-description">Packing and preparation tools for show day</p>
+                </div>
+
+                <button type="button" class="packing-list-btn" onclick="window.open('packing-list.html', '_blank')">
+                    🧳 Open Packing List
+                </button>
             </div>
 
             <!-- Additional Information Section -->
