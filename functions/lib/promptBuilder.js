@@ -1698,10 +1698,44 @@ function buildEventPlannerPrompt(callIndex, riderData, eventPrepPlan, detailedTe
   let system, userMessage;
 
   const preferredVoice = resolvePreferredVoice(eventPrepPlan.preferredCoach);
-  const horseName = eventPrepPlan.horseName || riderData.horseSummaries?.[0]?.name || "the horse";
+
+  // Support multi-horse (v2) and single-horse (v1) formats
+  const horses = (eventPrepPlan.horses && eventPrepPlan.horses.length > 0)
+    ? eventPrepPlan.horses
+    : [{
+        horseName: eventPrepPlan.horseName || riderData.horseSummaries?.[0]?.name || "the horse",
+        currentLevel: eventPrepPlan.currentLevel || "",
+        targetLevel: eventPrepPlan.targetLevel || "",
+        experience: eventPrepPlan.eventExperience || "",
+        challenges: eventPrepPlan.currentChallenges || "",
+        progress: eventPrepPlan.recentProgress || "",
+        goals: eventPrepPlan.goals || [],
+        concerns: eventPrepPlan.concerns || []
+      }];
+  const primaryHorse = horses[0];
+  const horseName = primaryHorse.horseName || "the horse";
+  const isMultiHorse = horses.length > 1;
+
+  // Format a text block for a single horse entry (used in user messages)
+  function formatHorseBlock(h, idx) {
+    const label = isMultiHorse ? `Horse ${idx + 1}: ${h.horseName || "unnamed"}` : `Horse: ${h.horseName || "unnamed"}`;
+    return `${label}
+Current Level: ${h.currentLevel || "not specified"}
+Target Level: ${h.targetLevel || h.currentLevel || "not specified"}
+Experience: ${h.experience || "not specified"}
+Current Challenges: ${h.challenges || "none noted"}
+Recent Progress: ${h.progress || "none noted"}
+Goals: ${(h.goals || []).filter(Boolean).join("; ") || "none specified"}
+Concerns: ${(h.concerns || []).filter(Boolean).join("; ") || "none specified"}`;
+  }
+
+  const allHorseBlocks = horses.map((h, i) => formatHorseBlock(h, i)).join("\n\n");
+  const allGoals = horses.flatMap(h => h.goals || []).filter(Boolean);
+  const allConcerns = horses.flatMap(h => h.concerns || []).filter(Boolean);
+
   const isFreestyle =
     (eventPrepPlan.eventDescription || "").toLowerCase().includes("freestyle") ||
-    (eventPrepPlan.targetLevel || eventPrepPlan.currentLevel || "").toLowerCase().includes("freestyle");
+    (primaryHorse.targetLevel || primaryHorse.currentLevel || "").toLowerCase().includes("freestyle");
 
   const tierContext = riderData.dataTier === 1
     ? "This rider has limited data (Tier 1). Acknowledge gaps and focus on available data."
@@ -1784,10 +1818,10 @@ For FEI tests without a full movement sequence, structure the movements field fr
 Event: ${eventPrepPlan.eventName}
 Type: ${eventPrepPlan.eventType}
 Date: ${eventPrepPlan.eventDate}
-Current Level: ${eventPrepPlan.currentLevel}
 Target Level: ${detailedTestContext.levelName}
-Horse: ${horseName}
 ${eventPrepPlan.eventDescription ? `Event Details: ${eventPrepPlan.eventDescription}` : ""}
+
+${allHorseBlocks}
 
 ${detailedTestContext.textBlock}
 
@@ -1924,14 +1958,8 @@ ${JSON.stringify(priorResults.testRequirements, null, 2)}
 Here is the rider's event preparation plan:
 Event: ${eventPrepPlan.eventName} on ${eventPrepPlan.eventDate}
 Type: ${eventPrepPlan.eventType}
-Horse: ${horseName}
-Current Level: ${eventPrepPlan.currentLevel}
-Target Level: ${eventPrepPlan.targetLevel || eventPrepPlan.currentLevel}
-Experience: ${eventPrepPlan.eventExperience || "not specified"}
-Current Challenges: ${eventPrepPlan.currentChallenges || "none noted"}
-Recent Progress: ${eventPrepPlan.recentProgress || "none noted"}
-Goals: ${(eventPrepPlan.goals || []).filter(Boolean).join("; ") || "none specified"}
-Concerns: ${(eventPrepPlan.concerns || []).filter(Boolean).join("; ") || "none specified"}
+
+${allHorseBlocks}
 
 Here is the complete rider data:
 
@@ -1939,7 +1967,7 @@ ${buildUserDataMessage(riderData)}
 
 ${tierContext}
 
-Evaluate this rider-horse pair's readiness. Be honest and specific — cite actual data from their debriefs and assessments. Use ${horseName}'s name throughout.`;
+Evaluate this rider's readiness${isMultiHorse ? " with each horse" : ""}. Be honest and specific — cite actual data from their debriefs and assessments. Use ${isMultiHorse ? "each horse's name" : `${horseName}'s name`} throughout.`;
 
   } else if (callIndex === 3) {
     // EP-3: Preparation Plan Generation
@@ -2115,9 +2143,9 @@ ${JSON.stringify(priorResults.readinessAnalysis, null, 2)}
 
 Rider's event preparation details:
 Event: ${eventPrepPlan.eventName} on ${eventPrepPlan.eventDate} (${weeksUntilEvent} weeks away)
-Horse: ${horseName}
-Goals: ${(eventPrepPlan.goals || []).filter(Boolean).join("; ") || "none specified"}
-Concerns: ${(eventPrepPlan.concerns || []).filter(Boolean).join("; ") || "none specified"}
+
+${allHorseBlocks}
+
 Riding Frequency: ${eventPrepPlan.ridingFrequency || "3-4"} days/week
 Coach Access: ${eventPrepPlan.coachAccess || "not specified"}
 Resources: ${(eventPrepPlan.availableResources || []).join(", ") || "standard"}
@@ -2128,7 +2156,7 @@ Rider name: ${riderData.displayName || "Rider"}
 
 ${tierContext}
 
-Create a detailed preparation plan personalized to this rider and ${horseName}. Address the specific gaps identified in the readiness analysis. Make every exercise reference a specific test movement.`;
+Create a detailed preparation plan personalized to this rider and ${isMultiHorse ? "each horse" : horseName}. Address the specific gaps identified in the readiness analysis. Make every exercise reference a specific test movement.`;
 
   } else if (callIndex === 4) {
     // EP-4: Show-Day Guidance
@@ -2137,9 +2165,9 @@ Create a detailed preparation plan personalized to this rider and ${horseName}. 
 You are creating a comprehensive show-day timeline and strategy for a rider's upcoming dressage event.
 
 RIDER CONTEXT:
-- Event Experience: ${eventPrepPlan.eventExperience || "not specified"}
-- Horse: ${horseName}
-- Concerns: ${(eventPrepPlan.concerns || []).filter(Boolean).join("; ") || "none"}
+- Event Experience: ${primaryHorse.experience || eventPrepPlan.eventExperience || "not specified"}
+- ${isMultiHorse ? `Horses: ${horses.map(h => h.horseName).filter(Boolean).join(", ")}` : `Horse: ${horseName}`}
+- Concerns: ${allConcerns.join("; ") || "none"}
 
 VENUE ARRIVAL LANGUAGE:
 - When describing what to do upon arrival at the venue, use "walk the arena" or
@@ -2291,17 +2319,19 @@ Event details:
 Event: ${eventPrepPlan.eventName} on ${eventPrepPlan.eventDate}
 Type: ${eventPrepPlan.eventType}
 Location: ${eventPrepPlan.location || "not specified"}
-Horse: ${horseName}
-Experience Level: ${eventPrepPlan.eventExperience || "not specified"}
-Concerns: ${(eventPrepPlan.concerns || []).filter(Boolean).join("; ") || "none"}
 
-Horse temperament: ${riderData.horseSummaries?.find((h) => h.name === horseName)?.temperament || riderData.horseSummaries?.[0]?.temperament || "not specified"}
+${allHorseBlocks}
+
+${horses.map(h => {
+  const temperament = riderData.horseSummaries?.find((s) => s.name === h.horseName)?.temperament || "not specified";
+  return `${h.horseName} temperament: ${temperament}`;
+}).join("\n")}
 
 Rider: ${riderData.displayName || "Rider"}
 
 ${tierContext}
 
-Create a comprehensive show-day plan personalized to ${riderData.displayName || "this rider"} and ${horseName}. Adapt the detail level to their experience (${eventPrepPlan.eventExperience || "not specified"}). Address their specific concerns.`;
+Create a comprehensive show-day plan personalized to ${riderData.displayName || "this rider"} and ${isMultiHorse ? "each horse" : horseName}. Adapt the detail level to their experience (${primaryHorse.experience || "not specified"}). Address their specific concerns.`;
 
   } else {
     throw new Error(`Invalid Event Planner call index: ${callIndex}`);

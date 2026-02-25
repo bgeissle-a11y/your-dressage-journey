@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { getAllEventPrepPlans, deleteEventPrepPlan, EVENT_PREP_TYPES, EVENT_PREP_STATUSES } from '../../services';
-import { exportToCSV, exportToJSON, EXPORT_COLUMNS } from '../../utils/exportUtils';
+import { exportToCSV, exportToJSON, EXPORT_COLUMNS, flattenEventPrepForExport } from '../../utils/exportUtils';
 import '../Forms/Forms.css';
 
 const TYPE_LABELS = Object.fromEntries(EVENT_PREP_TYPES.map(t => [t.value, t.label]));
@@ -84,7 +84,7 @@ export default function EventPrepList() {
         <div className="list-page-actions">
           {plans.length > 0 && (
             <>
-              <button className="btn-export-sm" onClick={() => exportToCSV(plans, 'event-preps', EXPORT_COLUMNS.eventPrepPlans)}>CSV</button>
+              <button className="btn-export-sm" onClick={() => exportToCSV(flattenEventPrepForExport(plans), 'event-preps', EXPORT_COLUMNS.eventPrepPlans)}>CSV</button>
               <button className="btn-export-sm" onClick={() => exportToJSON(plans, 'event-preps')}>JSON</button>
             </>
           )}
@@ -131,7 +131,9 @@ export default function EventPrepList() {
                     <div className="list-card-meta">
                       <span>{formatDate(plan.eventDate)}</span>
                       {plan.eventType && <span>{eventTypeLabel(plan)}</span>}
-                      {plan.horseName && <span>{plan.horseName}</span>}
+                      {plan.horses && plan.horses.length > 0 && (
+                        <span>{plan.horses.map(h => h.horseName).filter(Boolean).join(', ')}</span>
+                      )}
                       <span className={`status-badge ${statusBadgeClass(plan.status)}`}>
                         {STATUS_LABELS[plan.status] || plan.status}
                       </span>

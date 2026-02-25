@@ -20,6 +20,7 @@ const base = createBaseService(COLLECTION);
  *                            "3-6-months" | "6-plus-months" | "ongoing"
  *   status:         string - "active" | "ongoing" | "resolved"
  *   resolutionDate: string | null - optional, ISO date (when status is "resolved")
+ *   prepReference:  string | null - Firestore doc ID of linked Event Preparation plan (planned events only)
  *   reflection:     object | null - post-event reflection (planned events only):
  *     { realityVsExpectation, lessonsLearned, unexpectedOutcomes, futureApproach }
  * }
@@ -76,6 +77,7 @@ export async function createJourneyEvent(userId, eventData) {
     duration: eventData.duration || '',
     status: eventData.status || 'active',
     resolutionDate: eventData.resolutionDate || null,
+    prepReference: eventData.prepReference || null,
     reflection: eventData.reflection || null
   });
 }

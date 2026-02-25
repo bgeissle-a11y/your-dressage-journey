@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Preparation Planner | Your Dressage Journey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #8B7355;
+            --color-secondary: #D4A574;
+            --color-accent: #C67B5C;
+            --color-success: #6B8E5F;
+            --color-bg: #FAF8F5;
+            --color-bg-secondary: #F5F1EB;
+            --color-text: #3A3A3A;
+            --color-text-light: #7A7A7A;
+            --color-border: #E0D5C7;
+            --color-danger: #C0392B;
+            --shadow-soft: 0 2px 12px rgba(139, 115, 85, 0.08);
+            --shadow-medium: 0 4px 24px rgba(139, 115, 85, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background: linear-gradient(to bottom, var(--color-bg) 0%, var(--color-bg-secondary) 100%);
+            color: var(--color-text);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--color-border);
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5em;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 1.05em;
+            color: var(--color-text-light);
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--color-border);
+            overflow: hidden;
+        }
+
+        .section {
+            padding: 40px;
+            border-bottom: 2px solid var(--color-bg-secondary);
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--color-secondary);
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
+            color: var(--color-primary);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .section-description {
+            color: var(--color-text-light);
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group.half {
+            display: inline-block;
+            width: calc(50% - 10px);
+            margin-right: 20px;
+            vertical-align: top;
+        }
+
+        .form-group.half:nth-child(even) {
+            margin-right: 0;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            color: var(--color-text);
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .label-optional {
+            color: var(--color-text-light);
+            font-weight: 400;
+            font-style: italic;
+            font-size: 0.85em;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="email"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--color-border);
+            border-radius: 10px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.95em;
+            color: var(--color-text);
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        input[type="email"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--color-secondary);
+            box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.1);
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        textarea.tall {
+            min-height: 120px;
+        }
+
+        .goal-concern-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .goal-concern-item input {
+            flex: 1;
+        }
+
+        .goal-concern-item .number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--color-secondary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9em;
+            flex-shrink: 0;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        input[type="checkbox"],
+        input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--color-primary);
+        }
+
+        .info-box {
+            background: var(--color-bg);
+            border-left: 4px solid var(--color-accent);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 0.9em;
+            color: var(--color-text-light);
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            color: var(--color-text);
+        }
+
+        .info-box.warning {
+            border-left-color: var(--color-danger);
+            background: #FDF2F2;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+        }
+
+        button {
+            flex: 1;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button[type="submit"] {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        button[type="submit"]:hover {
+            background: #6F5A43;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        button[type="button"] {
+            background: var(--color-bg-secondary);
+            color: var(--color-text);
+            border: 2px solid var(--color-border);
+        }
+
+        button[type="button"]:hover {
+            background: var(--color-border);
+        }
+
+        .success-message {
+            background: var(--color-success);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+        }
+
+        .character-count {
+            font-size: 0.85em;
+            color: var(--color-text-light);
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        /* Date validation feedback */
+        .date-feedback {
+            font-size: 0.88em;
+            margin-top: 6px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .date-feedback.valid {
+            display: block;
+            color: var(--color-success);
+            background: rgba(107, 142, 95, 0.08);
+        }
+
+        .date-feedback.invalid {
+            display: block;
+            color: var(--color-danger);
+            background: rgba(192, 57, 43, 0.06);
+        }
+
+        /* Horse entries */
+        .horse-entries-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .horse-entry {
+            background: var(--color-bg);
+            border: 2px solid var(--color-border);
+            border-radius: 16px;
+            padding: 30px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .horse-entry:hover {
+            border-color: var(--color-secondary);
+        }
+
+        .horse-entry-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .horse-entry-label {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25em;
+            font-weight: 600;
+            color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .horse-entry-label .horse-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--color-secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1em;
+        }
+
+        .remove-horse-btn {
+            flex: none;
+            padding: 8px 16px;
+            background: transparent;
+            border: 2px solid var(--color-danger);
+            color: var(--color-danger);
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .remove-horse-btn:hover {
+            background: var(--color-danger);
+            color: white;
+        }
+
+        .add-horse-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 18px;
+            background: white;
+            border: 2px dashed var(--color-secondary);
+            border-radius: 14px;
+            color: var(--color-primary);
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-horse-btn:hover {
+            background: var(--color-bg);
+            border-color: var(--color-primary);
+            transform: translateY(-1px);
+        }
+
+        .add-horse-btn .plus-icon {
+            width: 28px;
+            height: 28px;
+            background: var(--color-secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3em;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        /* Horse-specific goals/concerns within the card */
+        .horse-sub-section {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px dashed var(--color-border);
+        }
+
+        .horse-sub-section-title {
+            font-weight: 600;
+            color: var(--color-primary);
+            font-size: 1em;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Collapse/expand for horse details */
+        .horse-details-toggle {
+            display: none;
+        }
+
+        .horse-details-content {
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+
+        /* Count badge for horses */
+        .horse-count-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--color-secondary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+            margin-left: 12px;
+        }
+
+        /* Days until event display */
+        .days-until-event {
+            font-size: 0.88em;
+            color: var(--color-primary);
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .section {
+                padding: 30px 20px;
+            }
+
+            .form-group.half {
+                display: block;
+                width: 100%;
+                margin-right: 0;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .horse-entry {
+                padding: 20px;
+            }
+
+            .horse-entry-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Event Preparation Planner</h1>
+            <p class="subtitle">Let's create your personalized preparation roadmap for success</p>
+        </header>
+
+        <div class="success-message" id="successMessage">
+            &#10004; Your event preparation plan has been saved! Generating your personalized roadmap...
+        </div>
+
+        <form id="eventPrepForm" class="form-container">
+            <!-- Event Details Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Event Details</h2>
+                    <p class="section-description">Tell us about the experience you're preparing for</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventName">Event Name</label>
+                    <input type="text" id="eventName" name="eventName" placeholder="e.g., Spring Championship Show, Jane Smith Clinic, First Lesson with New Trainer" required>
+                </div>
+
+                <div class="form-group half">
+                    <label for="eventDate">Event Date</label>
+                    <input type="date" id="eventDate" name="eventDate" required>
+                    <div class="date-feedback" id="dateFeedback"></div>
+                </div>
+
+                <div class="form-group half">
+                    <label for="eventType">Event Type</label>
+                    <select id="eventType" name="eventType" required>
+                        <option value="">Select type...</option>
+                        <option value="show">Competition/Show</option>
+                        <option value="clinic">Clinic/Workshop</option>
+                        <option value="new-trainer">Lesson with New Trainer</option>
+                        <option value="evaluation">Level Assessment/Evaluation</option>
+                        <option value="demo">Demonstration/Performance</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="otherTypeGroup" style="display: none;">
+                    <label for="eventTypeOther">Please specify</label>
+                    <input type="text" id="eventTypeOther" name="eventTypeOther" placeholder="Describe the event type">
+                </div>
+
+                <div class="form-group">
+                    <label for="eventLocation">Location <span class="label-optional">(optional)</span></label>
+                    <input type="text" id="eventLocation" name="eventLocation" placeholder="Venue name or city">
+                </div>
+
+                <div class="form-group">
+                    <label for="eventDescription">Additional Event Details <span class="label-optional">(optional)</span></label>
+                    <textarea id="eventDescription" name="eventDescription" placeholder="Any other relevant details about this event (multi-day format, specific tests/classes, clinician background, etc.)"></textarea>
+                </div>
+            </div>
+
+            <!-- Horses for This Event Section -->
+            <div class="section" id="horsesSection">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        Horses for This Event
+                        <span class="horse-count-badge" id="horseCountBadge">1 horse</span>
+                    </h2>
+                    <p class="section-description">Add each horse you plan to ride at this event. For each horse, tell us about your current context, goals, and concerns.</p>
+                </div>
+
+                <div class="info-box">
+                    <strong>Riding multiple horses?</strong> Add a separate entry for each horse. Your preparation plan will include horse-specific strategies and a unified timeline so you can coordinate training across all entries.
+                </div>
+
+                <div class="horse-entries-container" id="horseEntriesContainer">
+                    <!-- Horse entries will be inserted here dynamically -->
+                </div>
+
+                <button type="button" class="add-horse-btn" id="addHorseBtn" onclick="addHorseEntry()">
+                    <span class="plus-icon">+</span>
+                    Add Another Horse
+                </button>
+            </div>
+
+            <!-- Resources & Preparation Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Resources & Preparation Time</h2>
+                    <p class="section-description">Help us tailor your plan to your available resources</p>
+                </div>
+
+                <div class="form-group">
+                    <label>How many days per week can you typically ride between now and the event?</label>
+                    <select id="ridingFrequency" name="ridingFrequency" required>
+                        <option value="">Select...</option>
+                        <option value="1-2">1-2 days/week</option>
+                        <option value="3-4">3-4 days/week</option>
+                        <option value="5-6">5-6 days/week</option>
+                        <option value="7">7 days/week</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Do you have regular access to a trainer/coach?</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="coach-weekly" name="coachAccess" value="weekly">
+                            <label for="coach-weekly" style="margin: 0;">Weekly lessons</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="coach-biweekly" name="coachAccess" value="biweekly">
+                            <label for="coach-biweekly" style="margin: 0;">Every 2 weeks</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="coach-monthly" name="coachAccess" value="monthly">
+                            <label for="coach-monthly" style="margin: 0;">Monthly</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="coach-occasional" name="coachAccess" value="occasional">
+                            <label for="coach-occasional" style="margin: 0;">Occasional</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="coach-none" name="coachAccess" value="none">
+                            <label for="coach-none" style="margin: 0;">Self-training</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>What resources do you have available? <span class="label-optional">(check all that apply)</span></label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="res-mirrors" name="resources" value="mirrors">
+                            <label for="res-mirrors" style="margin: 0;">Mirrors in arena</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="res-video" name="resources" value="video">
+                            <label for="res-video" style="margin: 0;">Video capability</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="res-ground" name="resources" value="ground-person">
+                            <label for="res-ground" style="margin: 0;">Ground person/eyes</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="res-facility" name="resources" value="show-facility">
+                            <label for="res-facility" style="margin: 0;">Can school at show venue</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="constraints">Time or Resource Constraints <span class="label-optional">(optional)</span></label>
+                    <textarea id="constraints" name="constraints" placeholder="Any limitations we should know about (travel schedule, horse soundness issues, weather-dependent arena access, etc.)"></textarea>
+                </div>
+            </div>
+
+            <!-- Additional Information Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Anything Else?</h2>
+                    <p class="section-description">Share any other context that would help us create your ideal preparation plan</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="additionalInfo">Additional Information <span class="label-optional">(optional)</span></label>
+                    <textarea id="additionalInfo" name="additionalInfo" class="tall" placeholder="Mental game focus areas, past experiences with similar events, specific people you're riding with/against, anxiety triggers, motivation strategies that work for you, etc."></textarea>
+                    <div class="character-count">
+                        <span id="additionalInfoCount">0</span> characters
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="preferredCoach">Preferred Coaching Voice <span class="label-optional">(optional)</span></label>
+                    <select id="preferredCoach" name="preferredCoach">
+                        <option value="">No preference - surprise me</option>
+                        <option value="klaus">Herr Klaus von Steinberg (Stern European master)</option>
+                        <option value="jordan">Dr. Jordan Hayes (Neutral analyst)</option>
+                        <option value="emma">Coach Emma (Encouraging instructor)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Submit Section -->
+            <div class="section">
+                <div class="button-group">
+                    <button type="button" onclick="saveAsDraft()">Save as Draft</button>
+                    <button type="submit">Generate My Preparation Plan</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // ===================================================
+        // Configuration
+        // ===================================================
+        const MAX_EVENT_MONTHS = 6;
+        const AVAILABLE_HORSES = ['Rocket Star', 'Pony', 'Astrid', 'D'];
+        let horseCount = 0;
+
+        // ===================================================
+        // Initialization
+        // ===================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            setupDateConstraints();
+            setupEventTypeToggle();
+            setupCharacterCounter();
+            setupFormSubmission();
+            addHorseEntry(); // Start with one horse
+            loadDraftIfExists();
+        });
+
+        // ===================================================
+        // Date Validation (6-month limit)
+        // ===================================================
+        function setupDateConstraints() {
+            const dateInput = document.getElementById('eventDate');
+            const today = new Date();
+            const maxDate = new Date();
+            maxDate.setMonth(maxDate.getMonth() + MAX_EVENT_MONTHS);
+
+            // Set min to today
+            dateInput.min = formatDateForInput(today);
+            // Set max to 6 months from today
+            dateInput.max = formatDateForInput(maxDate);
+
+            dateInput.addEventListener('change', validateEventDate);
+        }
+
+        function formatDateForInput(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        function validateEventDate() {
+            const dateInput = document.getElementById('eventDate');
+            const feedback = document.getElementById('dateFeedback');
+            const selectedDate = new Date(dateInput.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const maxDate = new Date();
+            maxDate.setMonth(maxDate.getMonth() + MAX_EVENT_MONTHS);
+            maxDate.setHours(23, 59, 59, 999);
+
+            if (!dateInput.value) {
+                feedback.style.display = 'none';
+                feedback.className = 'date-feedback';
+                return false;
+            }
+
+            if (selectedDate < today) {
+                feedback.textContent = 'Event date must be in the future.';
+                feedback.className = 'date-feedback invalid';
+                dateInput.setCustomValidity('Event date must be in the future.');
+                return false;
+            }
+
+            if (selectedDate > maxDate) {
+                const maxDateStr = maxDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                feedback.textContent = `Events must be within 6 months (by ${maxDateStr}). Planning farther ahead? Focus on building fundamentals first!`;
+                feedback.className = 'date-feedback invalid';
+                dateInput.setCustomValidity('Event must be within 6 months.');
+                return false;
+            }
+
+            // Valid — show days until event
+            const daysUntil = Math.ceil((selectedDate - today) / (1000 * 60 * 60 * 24));
+            const weeks = Math.floor(daysUntil / 7);
+            let timeLabel = '';
+            if (daysUntil === 0) {
+                timeLabel = "That's today!";
+            } else if (daysUntil === 1) {
+                timeLabel = "That's tomorrow — let's focus on final prep!";
+            } else if (weeks < 2) {
+                timeLabel = `${daysUntil} days away — short timeline, let's make every ride count!`;
+            } else if (weeks <= 8) {
+                timeLabel = `${weeks} weeks away (${daysUntil} days) — great lead time for a solid plan.`;
+            } else {
+                timeLabel = `${weeks} weeks away (${daysUntil} days) — plenty of time to build systematically.`;
+            }
+
+            feedback.textContent = timeLabel;
+            feedback.className = 'date-feedback valid';
+            dateInput.setCustomValidity('');
+            return true;
+        }
+
+        // ===================================================
+        // Horse Entry Management
+        // ===================================================
+        function createHorseEntryHTML(index) {
+            const horseNum = index + 1;
+            const id = `horse_${index}`;
+
+            // Build horse select options
+            const horseOptions = AVAILABLE_HORSES.map(h =>
+                `<option value="${h}">${h}</option>`
+            ).join('');
+
+            return `
+            <div class="horse-entry" id="${id}" data-horse-index="${index}">
+                <div class="horse-entry-header">
+                    <div class="horse-entry-label">
+                        <span class="horse-icon">&#127943;</span>
+                        <span class="horse-entry-title">Horse ${horseNum}</span>
+                    </div>
+                    ${index > 0 ? `<button type="button" class="remove-horse-btn" onclick="removeHorseEntry(${index})">Remove</button>` : ''}
+                </div>
+
+                <div class="horse-details-content">
+                    <!-- Horse Selection -->
+                    <div class="form-group">
+                        <label for="${id}_name">Horse</label>
+                        <select id="${id}_name" name="${id}_name" required onchange="updateHorseTitle(${index})">
+                            <option value="">Select horse...</option>
+                            ${horseOptions}
+                        </select>
+                    </div>
+
+                    <!-- Level Context -->
+                    <div class="form-group half">
+                        <label for="${id}_currentLevel">Current Level/Stage</label>
+                        <input type="text" id="${id}_currentLevel" name="${id}_currentLevel" placeholder="e.g., Training Level, 2nd Level, PSG" required>
+                    </div>
+
+                    <div class="form-group half">
+                        <label for="${id}_targetLevel">Level for This Event <span class="label-optional">(if different)</span></label>
+                        <input type="text" id="${id}_targetLevel" name="${id}_targetLevel" placeholder="e.g., Moving up to First Level">
+                    </div>
+
+                    <!-- Experience -->
+                    <div class="form-group">
+                        <label>Experience with this type of event on this horse?</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="radio" id="${id}_exp_first" name="${id}_experience" value="first-time">
+                                <label for="${id}_exp_first" style="margin: 0;">First time</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="radio" id="${id}_exp_some" name="${id}_experience" value="some-experience">
+                                <label for="${id}_exp_some" style="margin: 0;">Some experience</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="radio" id="${id}_exp_regular" name="${id}_experience" value="regular">
+                                <label for="${id}_exp_regular" style="margin: 0;">Regular participant</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Challenges & Progress -->
+                    <div class="form-group">
+                        <label for="${id}_challenges">Current Technical or Physical Challenges <span class="label-optional">(optional)</span></label>
+                        <textarea id="${id}_challenges" name="${id}_challenges" class="tall" placeholder="Specific movements, patterns, or issues you're working through with this horse (e.g., inconsistent tempi changes, horse tension in transitions, recovering from injury)"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="${id}_progress">Recent Progress or Breakthroughs <span class="label-optional">(optional)</span></label>
+                        <textarea id="${id}_progress" name="${id}_progress" placeholder="Recent improvements, aha moments, or wins with this horse to build on"></textarea>
+                    </div>
+
+                    <!-- Horse-specific Goals -->
+                    <div class="horse-sub-section">
+                        <div class="horse-sub-section-title">&#127919; Goals with This Horse</div>
+                        <div class="info-box" style="margin-bottom: 15px;">
+                            <strong>Tip:</strong> Good goals are specific and measurable. Instead of "do well," try "score 62% or higher" or "execute clean lead changes" or "feel confident in warm-up."
+                        </div>
+                        <div class="goal-concern-item">
+                            <div class="number">1</div>
+                            <input type="text" id="${id}_goal1" name="${id}_goal1" placeholder="Primary goal" required>
+                        </div>
+                        <div class="goal-concern-item">
+                            <div class="number">2</div>
+                            <input type="text" id="${id}_goal2" name="${id}_goal2" placeholder="Second goal (optional)">
+                        </div>
+                        <div class="goal-concern-item">
+                            <div class="number">3</div>
+                            <input type="text" id="${id}_goal3" name="${id}_goal3" placeholder="Third goal (optional)">
+                        </div>
+                    </div>
+
+                    <!-- Horse-specific Concerns -->
+                    <div class="horse-sub-section">
+                        <div class="horse-sub-section-title">&#128161; Concerns with This Horse</div>
+                        <div class="info-box" style="margin-bottom: 15px;">
+                            <strong>Why we ask:</strong> Naming your concerns helps us address them directly. Common concerns include nerves, horse behavior at shows, specific technical elements, or venue-related worries.
+                        </div>
+                        <div class="goal-concern-item">
+                            <div class="number">1</div>
+                            <input type="text" id="${id}_concern1" name="${id}_concern1" placeholder="Primary concern">
+                        </div>
+                        <div class="goal-concern-item">
+                            <div class="number">2</div>
+                            <input type="text" id="${id}_concern2" name="${id}_concern2" placeholder="Second concern (optional)">
+                        </div>
+                        <div class="goal-concern-item">
+                            <div class="number">3</div>
+                            <input type="text" id="${id}_concern3" name="${id}_concern3" placeholder="Third concern (optional)">
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function addHorseEntry() {
+            const container = document.getElementById('horseEntriesContainer');
+            const index = horseCount;
+            horseCount++;
+
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = createHorseEntryHTML(index);
+            const entry = wrapper.firstElementChild;
+
+            container.appendChild(entry);
+
+            // Animate entry in
+            entry.style.opacity = '0';
+            entry.style.transform = 'translateY(10px)';
+            requestAnimationFrame(() => {
+                entry.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                entry.style.opacity = '1';
+                entry.style.transform = 'translateY(0)';
+            });
+
+            updateHorseCountBadge();
+            updateRemoveButtons();
+
+            // Scroll to new entry if not the first
+            if (index > 0) {
+                setTimeout(() => {
+                    entry.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+            }
+        }
+
+        function removeHorseEntry(index) {
+            const entry = document.getElementById(`horse_${index}`);
+            if (!entry) return;
+
+            // Confirm if there's data
+            const inputs = entry.querySelectorAll('input[type="text"], textarea, select');
+            const hasData = Array.from(inputs).some(el => el.value && el.value !== '');
+
+            if (hasData && !confirm('Remove this horse entry? Any information entered will be lost.')) {
+                return;
+            }
+
+            entry.style.transition = 'opacity 0.3s ease, transform 0.3s ease, max-height 0.3s ease';
+            entry.style.opacity = '0';
+            entry.style.transform = 'translateY(-10px)';
+            entry.style.maxHeight = '0';
+            entry.style.overflow = 'hidden';
+            entry.style.padding = '0';
+            entry.style.margin = '0';
+            entry.style.borderWidth = '0';
+
+            setTimeout(() => {
+                entry.remove();
+                renumberHorseEntries();
+                updateHorseCountBadge();
+                updateRemoveButtons();
+            }, 300);
+        }
+
+        function renumberHorseEntries() {
+            const entries = document.querySelectorAll('.horse-entry');
+            entries.forEach((entry, i) => {
+                const title = entry.querySelector('.horse-entry-title');
+                const horseName = entry.querySelector('select[id$="_name"]');
+                if (horseName && horseName.value) {
+                    title.textContent = horseName.value;
+                } else {
+                    title.textContent = `Horse ${i + 1}`;
+                }
+            });
+        }
+
+        function updateHorseTitle(index) {
+            const select = document.getElementById(`horse_${index}_name`);
+            const entry = document.getElementById(`horse_${index}`);
+            if (!entry || !select) return;
+
+            const title = entry.querySelector('.horse-entry-title');
+            title.textContent = select.value || `Horse ${index + 1}`;
+        }
+
+        function updateHorseCountBadge() {
+            const badge = document.getElementById('horseCountBadge');
+            const count = document.querySelectorAll('.horse-entry').length;
+            badge.textContent = count === 1 ? '1 horse' : `${count} horses`;
+        }
+
+        function updateRemoveButtons() {
+            const entries = document.querySelectorAll('.horse-entry');
+            entries.forEach((entry, i) => {
+                const removeBtn = entry.querySelector('.remove-horse-btn');
+                if (entries.length <= 1 && removeBtn) {
+                    removeBtn.style.display = 'none';
+                } else if (removeBtn) {
+                    removeBtn.style.display = '';
+                }
+            });
+        }
+
+        // ===================================================
+        // Event Type Toggle
+        // ===================================================
+        function setupEventTypeToggle() {
+            const eventType = document.getElementById('eventType');
+            const otherGroup = document.getElementById('otherTypeGroup');
+
+            eventType.addEventListener('change', function() {
+                if (this.value === 'other') {
+                    otherGroup.style.display = 'block';
+                    document.getElementById('eventTypeOther').required = true;
+                } else {
+                    otherGroup.style.display = 'none';
+                    document.getElementById('eventTypeOther').required = false;
+                }
+            });
+        }
+
+        // ===================================================
+        // Character Counter
+        // ===================================================
+        function setupCharacterCounter() {
+            const textarea = document.getElementById('additionalInfo');
+            const counter = document.getElementById('additionalInfoCount');
+
+            textarea.addEventListener('input', function() {
+                counter.textContent = this.value.length;
+            });
+        }
+
+        // ===================================================
+        // Form Submission
+        // ===================================================
+        function setupFormSubmission() {
+            const form = document.getElementById('eventPrepForm');
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Validate date first
+                if (!validateEventDate()) {
+                    document.getElementById('eventDate').focus();
+                    return;
+                }
+
+                // Validate at least one horse has a name
+                const horseEntries = document.querySelectorAll('.horse-entry');
+                let allValid = true;
+                horseEntries.forEach(entry => {
+                    const select = entry.querySelector('select[id$="_name"]');
+                    if (!select.value) {
+                        allValid = false;
+                        select.focus();
+                    }
+                });
+
+                if (!allValid) return;
+
+                const formData = collectFormData();
+                saveToLocalStorage(formData);
+
+                // Show success message
+                const successMsg = document.getElementById('successMessage');
+                successMsg.style.display = 'block';
+
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                console.log('Event Preparation Data:', JSON.stringify(formData, null, 2));
+
+                setTimeout(() => {
+                    alert('Your personalized preparation plan is ready!');
+                }, 1500);
+            });
+        }
+
+        // ===================================================
+        // Collect Form Data
+        // ===================================================
+        function collectFormData() {
+            const form = document.getElementById('eventPrepForm');
+            const formData = new FormData(form);
+
+            // Gather horse data
+            const horses = [];
+            const horseEntries = document.querySelectorAll('.horse-entry');
+            horseEntries.forEach(entry => {
+                const idx = entry.dataset.horseIndex;
+                const id = `horse_${idx}`;
+
+                // Get experience radio
+                const expRadios = entry.querySelectorAll(`input[name="${id}_experience"]`);
+                let experience = '';
+                expRadios.forEach(r => { if (r.checked) experience = r.value; });
+
+                horses.push({
+                    horse: document.getElementById(`${id}_name`)?.value || '',
+                    currentLevel: document.getElementById(`${id}_currentLevel`)?.value || '',
+                    targetLevel: document.getElementById(`${id}_targetLevel`)?.value || '',
+                    experience: experience,
+                    challenges: document.getElementById(`${id}_challenges`)?.value || '',
+                    progress: document.getElementById(`${id}_progress`)?.value || '',
+                    goals: [
+                        document.getElementById(`${id}_goal1`)?.value,
+                        document.getElementById(`${id}_goal2`)?.value,
+                        document.getElementById(`${id}_goal3`)?.value
+                    ].filter(Boolean),
+                    concerns: [
+                        document.getElementById(`${id}_concern1`)?.value,
+                        document.getElementById(`${id}_concern2`)?.value,
+                        document.getElementById(`${id}_concern3`)?.value
+                    ].filter(Boolean)
+                });
+            });
+
+            const data = {
+                timestamp: new Date().toISOString(),
+                eventDetails: {
+                    name: formData.get('eventName'),
+                    date: formData.get('eventDate'),
+                    type: formData.get('eventType'),
+                    typeOther: formData.get('eventTypeOther'),
+                    location: formData.get('eventLocation'),
+                    description: formData.get('eventDescription')
+                },
+                horses: horses,
+                resources: {
+                    ridingFrequency: formData.get('ridingFrequency'),
+                    coachAccess: formData.get('coachAccess'),
+                    available: formData.getAll('resources'),
+                    constraints: formData.get('constraints')
+                },
+                additional: {
+                    info: formData.get('additionalInfo'),
+                    preferredCoach: formData.get('preferredCoach')
+                }
+            };
+
+            return data;
+        }
+
+        // ===================================================
+        // localStorage
+        // ===================================================
+        function saveToLocalStorage(data) {
+            try {
+                localStorage.setItem('ydj_event_prep_' + data.eventDetails.date, JSON.stringify(data));
+                localStorage.setItem('ydj_event_prep_latest', JSON.stringify(data));
+            } catch (e) {
+                console.error('Could not save to localStorage:', e);
+            }
+        }
+
+        function saveAsDraft() {
+            const formData = collectFormData();
+            saveToLocalStorage(formData);
+            alert('Draft saved! You can return to complete this form later.');
+        }
+
+        function loadDraftIfExists() {
+            try {
+                const draft = localStorage.getItem('ydj_event_prep_latest');
+                if (draft && confirm('We found a saved draft. Would you like to continue where you left off?')) {
+                    const data = JSON.parse(draft);
+                    populateForm(data);
+                }
+            } catch (e) {
+                console.error('Could not load draft:', e);
+            }
+        }
+
+        // ===================================================
+        // Populate Form from Draft
+        // ===================================================
+        function populateForm(data) {
+            // Event Details
+            document.getElementById('eventName').value = data.eventDetails.name || '';
+            document.getElementById('eventDate').value = data.eventDetails.date || '';
+            document.getElementById('eventType').value = data.eventDetails.type || '';
+            document.getElementById('eventLocation').value = data.eventDetails.location || '';
+            document.getElementById('eventDescription').value = data.eventDetails.description || '';
+
+            // Trigger date validation
+            validateEventDate();
+
+            // Handle horse entries
+            if (data.horses && data.horses.length > 0) {
+                // Remove existing horse entries (there's always one from init)
+                const container = document.getElementById('horseEntriesContainer');
+                container.innerHTML = '';
+                horseCount = 0;
+
+                data.horses.forEach((horse, i) => {
+                    addHorseEntry();
+                    const id = `horse_${i}`;
+
+                    const nameSelect = document.getElementById(`${id}_name`);
+                    if (nameSelect) nameSelect.value = horse.horse || '';
+                    updateHorseTitle(i);
+
+                    const currentLevel = document.getElementById(`${id}_currentLevel`);
+                    if (currentLevel) currentLevel.value = horse.currentLevel || '';
+
+                    const targetLevel = document.getElementById(`${id}_targetLevel`);
+                    if (targetLevel) targetLevel.value = horse.targetLevel || '';
+
+                    // Experience radio
+                    if (horse.experience) {
+                        const radio = document.getElementById(`${id}_exp_${horse.experience === 'first-time' ? 'first' : horse.experience === 'some-experience' ? 'some' : 'regular'}`);
+                        if (radio) radio.checked = true;
+                    }
+
+                    const challenges = document.getElementById(`${id}_challenges`);
+                    if (challenges) challenges.value = horse.challenges || '';
+
+                    const progress = document.getElementById(`${id}_progress`);
+                    if (progress) progress.value = horse.progress || '';
+
+                    // Goals
+                    if (horse.goals) {
+                        horse.goals.forEach((goal, gi) => {
+                            const input = document.getElementById(`${id}_goal${gi + 1}`);
+                            if (input) input.value = goal;
+                        });
+                    }
+
+                    // Concerns
+                    if (horse.concerns) {
+                        horse.concerns.forEach((concern, ci) => {
+                            const input = document.getElementById(`${id}_concern${ci + 1}`);
+                            if (input) input.value = concern;
+                        });
+                    }
+                });
+            }
+            // Legacy single-horse data migration
+            else if (data.currentContext) {
+                const id = 'horse_0';
+                const nameSelect = document.getElementById(`${id}_name`);
+                if (nameSelect) nameSelect.value = data.currentContext.horse || '';
+                updateHorseTitle(0);
+
+                document.getElementById(`${id}_currentLevel`).value = data.currentContext.currentLevel || '';
+                document.getElementById(`${id}_targetLevel`).value = data.currentContext.targetLevel || '';
+                document.getElementById(`${id}_challenges`).value = data.currentContext.challenges || '';
+                document.getElementById(`${id}_progress`).value = data.currentContext.progress || '';
+
+                // Legacy goals
+                if (data.goals) {
+                    data.goals.forEach((goal, i) => {
+                        const input = document.getElementById(`${id}_goal${i + 1}`);
+                        if (input) input.value = goal;
+                    });
+                }
+
+                // Legacy concerns
+                if (data.concerns) {
+                    data.concerns.forEach((concern, i) => {
+                        const input = document.getElementById(`${id}_concern${i + 1}`);
+                        if (input) input.value = concern;
+                    });
+                }
+            }
+
+            // Resources
+            document.getElementById('ridingFrequency').value = data.resources?.ridingFrequency || '';
+            document.getElementById('constraints').value = data.resources?.constraints || '';
+
+            // Coach access radio
+            if (data.resources?.coachAccess) {
+                const radio = document.getElementById(`coach-${data.resources.coachAccess}`);
+                if (radio) radio.checked = true;
+            }
+
+            // Resource checkboxes
+            if (data.resources?.available) {
+                data.resources.available.forEach(res => {
+                    const checkbox = document.querySelector(`input[name="resources"][value="${res}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            }
+
+            // Additional
+            document.getElementById('additionalInfo').value = data.additional?.info || '';
+            document.getElementById('preferredCoach').value = data.additional?.preferredCoach || '';
+        }
+    </script>
+</body>
+</html>

@@ -4,7 +4,29 @@
  * Summarizes event preparation plans — upcoming events with full detail,
  * completed event history, and competition experience.
  * Pure function — no Firestore reads.
+ *
+ * Supports both multi-horse (v2) and single-horse (v1) document formats.
  */
+
+/**
+ * Extract horses array from a plan, supporting both old and new formats.
+ */
+function getHorses(p) {
+  if (p.horses && Array.isArray(p.horses) && p.horses.length > 0) {
+    return p.horses;
+  }
+  // Legacy single-horse format
+  return [{
+    horseName: p.horseName || "",
+    currentLevel: p.currentLevel || "",
+    targetLevel: p.targetLevel || "",
+    experience: p.eventExperience || "",
+    challenges: p.currentChallenges || "",
+    progress: p.recentProgress || "",
+    goals: p.goals || [],
+    concerns: p.concerns || [],
+  }];
+}
 
 /**
  * @param {Object[]} eventPrepPlans - Array of eventPrepPlan documents
@@ -31,34 +53,34 @@ function aggregateEventPrep(eventPrepPlans) {
         (p.eventDate || "") >= today
     )
     .sort((a, b) => (a.eventDate || "").localeCompare(b.eventDate || ""))
-    .map((p) => ({
-      eventName: p.eventName || "",
-      eventDate: p.eventDate || "",
-      eventType: p.eventType || "",
-      location: p.location || "",
-      horseName: p.horseName || "",
-      currentLevel: p.currentLevel || "",
-      targetLevel: p.targetLevel || "",
-      eventExperience: p.eventExperience || "",
-      goals: p.goals || [],
-      concerns: p.concerns || [],
-      currentChallenges: p.currentChallenges || "",
-      recentProgress: p.recentProgress || "",
-      status: p.status || "",
-    }));
+    .map((p) => {
+      const horses = getHorses(p);
+      return {
+        eventName: p.eventName || "",
+        eventDate: p.eventDate || "",
+        eventType: p.eventType || "",
+        location: p.location || "",
+        horses,
+        horseNames: horses.map((h) => h.horseName).filter(Boolean).join(", "),
+        status: p.status || "",
+      };
+    });
 
   // Completed events — last 3, abbreviated
   const completedEvents = eventPrepPlans
     .filter((p) => p.status === "completed")
     .sort((a, b) => (b.eventDate || "").localeCompare(a.eventDate || ""))
     .slice(0, 3)
-    .map((p) => ({
-      eventName: p.eventName || "",
-      eventDate: p.eventDate || "",
-      eventType: p.eventType || "",
-      horseName: p.horseName || "",
-      status: "completed",
-    }));
+    .map((p) => {
+      const horses = getHorses(p);
+      return {
+        eventName: p.eventName || "",
+        eventDate: p.eventDate || "",
+        eventType: p.eventType || "",
+        horseNames: horses.map((h) => h.horseName).filter(Boolean).join(", "),
+        status: "completed",
+      };
+    });
 
   // Status distribution
   const statusDistribution = {};

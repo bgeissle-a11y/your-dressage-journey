@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
@@ -10,14 +10,27 @@ import {
 import FormSection from '../Forms/FormSection';
 import FormField from '../Forms/FormField';
 import RadioGroup from '../Forms/RadioGroup';
-import CheckboxGroup from '../Forms/CheckboxGroup';
 import '../Forms/Forms.css';
+
+const EMPTY_HORSE = {
+  horseName: '',
+  currentLevel: '',
+  targetLevel: '',
+  experience: '',
+  challenges: '',
+  progress: '',
+  goal1: '', goal2: '', goal3: '',
+  concern1: '', concern2: '', concern3: ''
+};
+
+const MAX_EVENT_MONTHS = 6;
 
 export default function EventPrepForm() {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = Boolean(id);
+  const horseSectionRef = useRef(null);
 
   const [horseNames, setHorseNames] = useState([]);
   const [formData, setFormData] = useState({
@@ -28,27 +41,14 @@ export default function EventPrepForm() {
     eventTypeOther: '',
     location: '',
     eventDescription: '',
-    // Section 2: Current Context
-    horseName: '',
-    currentLevel: '',
-    targetLevel: '',
-    eventExperience: '',
-    currentChallenges: '',
-    recentProgress: '',
-    // Section 3: Goals
-    goal1: '',
-    goal2: '',
-    goal3: '',
-    // Section 4: Concerns
-    concern1: '',
-    concern2: '',
-    concern3: '',
-    // Section 5: Resources
+    // Section 2: Horses (multi-horse)
+    horses: [{ ...EMPTY_HORSE }],
+    // Section 3: Resources
     ridingFrequency: '',
     coachAccess: '',
     availableResources: [],
     constraints: '',
-    // Section 6: Additional
+    // Section 4: Additional
     additionalInfo: '',
     preferredCoach: '',
     // Status
@@ -57,11 +57,21 @@ export default function EventPrepForm() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
+  const [dateFeedback, setDateFeedback] = useState(null);
 
   useEffect(() => {
     loadHorses();
     if (id) loadExisting();
   }, [id, currentUser]);
+
+  // Update date feedback whenever eventDate changes
+  useEffect(() => {
+    if (formData.eventDate) {
+      setDateFeedback(getDateFeedback(formData.eventDate));
+    } else {
+      setDateFeedback(null);
+    }
+  }, [formData.eventDate]);
 
   async function loadHorses() {
     if (!currentUser) return;
@@ -77,6 +87,22 @@ export default function EventPrepForm() {
     const result = await getEventPrepPlan(id);
     if (result.success) {
       const d = result.data;
+      // d.horses is guaranteed by migrateToMultiHorse in the service
+      const horses = (d.horses || []).map(h => ({
+        horseName: h.horseName || '',
+        currentLevel: h.currentLevel || '',
+        targetLevel: h.targetLevel || '',
+        experience: h.experience || '',
+        challenges: h.challenges || '',
+        progress: h.progress || '',
+        goal1: (h.goals && h.goals[0]) || '',
+        goal2: (h.goals && h.goals[1]) || '',
+        goal3: (h.goals && h.goals[2]) || '',
+        concern1: (h.concerns && h.concerns[0]) || '',
+        concern2: (h.concerns && h.concerns[1]) || '',
+        concern3: (h.concerns && h.concerns[2]) || ''
+      }));
+
       setFormData({
         eventName: d.eventName || '',
         eventDate: d.eventDate || '',
@@ -84,18 +110,7 @@ export default function EventPrepForm() {
         eventTypeOther: d.eventTypeOther || '',
         location: d.location || '',
         eventDescription: d.eventDescription || '',
-        horseName: d.horseName || '',
-        currentLevel: d.currentLevel || '',
-        targetLevel: d.targetLevel || '',
-        eventExperience: d.eventExperience || '',
-        currentChallenges: d.currentChallenges || '',
-        recentProgress: d.recentProgress || '',
-        goal1: (d.goals && d.goals[0]) || '',
-        goal2: (d.goals && d.goals[1]) || '',
-        goal3: (d.goals && d.goals[2]) || '',
-        concern1: (d.concerns && d.concerns[0]) || '',
-        concern2: (d.concerns && d.concerns[1]) || '',
-        concern3: (d.concerns && d.concerns[2]) || '',
+        horses: horses.length > 0 ? horses : [{ ...EMPTY_HORSE }],
         ridingFrequency: d.ridingFrequency || '',
         coachAccess: d.coachAccess || '',
         availableResources: d.availableResources || [],
@@ -114,6 +129,57 @@ export default function EventPrepForm() {
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   }
 
+  function handleHorseChange(index, e) {
+    const { name, value } = e.target;
+    setFormData(prev => {
+      const horses = prev.horses.map((h, i) =>
+        i === index ? { ...h, [name]: value } : h
+      );
+      return { ...prev, horses };
+    });
+    const errorKey = `horses[${index}].${name}`;
+    if (errors[errorKey]) setErrors(prev => ({ ...prev, [errorKey]: '' }));
+  }
+
+  function addHorseEntry() {
+    setFormData(prev => ({
+      ...prev,
+      horses: [...prev.horses, { ...EMPTY_HORSE }]
+    }));
+    // Scroll to new entry after render
+    setTimeout(() => {
+      if (horseSectionRef.current) {
+        const entries = horseSectionRef.current.querySelectorAll('.horse-entry');
+        const last = entries[entries.length - 1];
+        if (last) last.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  }
+
+  function removeHorseEntry(index) {
+    const horse = formData.horses[index];
+    const hasData = horse.horseName || horse.currentLevel || horse.goal1 ||
+      horse.challenges || horse.progress;
+
+    if (hasData && !window.confirm('Remove this horse entry? Any data entered will be lost.')) {
+      return;
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      horses: prev.horses.filter((_, i) => i !== index)
+    }));
+
+    // Clear errors for removed horse
+    setErrors(prev => {
+      const updated = { ...prev };
+      Object.keys(updated).forEach(key => {
+        if (key.startsWith(`horses[${index}]`)) delete updated[key];
+      });
+      return updated;
+    });
+  }
+
   function handleResourceToggle(value) {
     setFormData(prev => {
       const current = prev.availableResources;
@@ -124,18 +190,60 @@ export default function EventPrepForm() {
     });
   }
 
+  function getDateFeedback(dateStr) {
+    if (!dateStr) return null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const eventDate = new Date(dateStr + 'T00:00:00');
+    const maxDate = new Date(today);
+    maxDate.setMonth(maxDate.getMonth() + MAX_EVENT_MONTHS);
+
+    if (eventDate < today) {
+      return { valid: false, message: 'Event date must be today or in the future' };
+    }
+    if (eventDate > maxDate) {
+      return { valid: false, message: `Events must be within ${MAX_EVENT_MONTHS} months` };
+    }
+
+    const diffMs = eventDate - today;
+    const daysUntil = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    const weeks = Math.round(daysUntil / 7);
+
+    if (daysUntil === 0) return { valid: true, message: "That's today!" };
+    if (daysUntil === 1) return { valid: true, message: "That's tomorrow — let's focus on final prep!" };
+    if (daysUntil < 14) return { valid: true, message: `${daysUntil} days away — short timeline` };
+    if (weeks <= 8) return { valid: true, message: `${weeks} weeks away — great lead time` };
+    return { valid: true, message: `${weeks} weeks away — plenty of time to prepare` };
+  }
+
   function validateForm() {
     const newErrors = {};
     if (!formData.eventName.trim()) newErrors.eventName = 'Event name is required';
-    if (!formData.eventDate) newErrors.eventDate = 'Event date is required';
+    if (!formData.eventDate) {
+      newErrors.eventDate = 'Event date is required';
+    } else if (dateFeedback && !dateFeedback.valid) {
+      newErrors.eventDate = dateFeedback.message;
+    }
     if (!formData.eventType) newErrors.eventType = 'Please select an event type';
     if (formData.eventType === 'other' && !formData.eventTypeOther.trim()) {
       newErrors.eventTypeOther = 'Please specify the event type';
     }
-    if (!formData.horseName.trim()) newErrors.horseName = 'Please select a horse';
-    if (!formData.currentLevel.trim()) newErrors.currentLevel = 'Current level is required';
-    if (!formData.goal1.trim()) newErrors.goal1 = 'At least one goal is required';
+
+    // Per-horse validation
+    formData.horses.forEach((horse, i) => {
+      if (!horse.horseName.trim()) {
+        newErrors[`horses[${i}].horseName`] = 'Please select a horse';
+      }
+      if (!horse.currentLevel.trim()) {
+        newErrors[`horses[${i}].currentLevel`] = 'Current level is required';
+      }
+      if (!horse.goal1.trim()) {
+        newErrors[`horses[${i}].goal1`] = 'At least one goal is required';
+      }
+    });
+
     if (!formData.ridingFrequency) newErrors.ridingFrequency = 'Please select riding frequency';
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
@@ -145,6 +253,17 @@ export default function EventPrepForm() {
     if (!validateForm()) return;
 
     setLoading(true);
+    const horses = formData.horses.map(h => ({
+      horseName: h.horseName,
+      currentLevel: h.currentLevel,
+      targetLevel: h.targetLevel,
+      experience: h.experience,
+      challenges: h.challenges,
+      progress: h.progress,
+      goals: [h.goal1, h.goal2, h.goal3].filter(Boolean),
+      concerns: [h.concern1, h.concern2, h.concern3].filter(Boolean)
+    }));
+
     const data = {
       eventName: formData.eventName,
       eventDate: formData.eventDate,
@@ -152,14 +271,8 @@ export default function EventPrepForm() {
       eventTypeOther: formData.eventType === 'other' ? formData.eventTypeOther : '',
       location: formData.location,
       eventDescription: formData.eventDescription,
-      horseName: formData.horseName,
-      currentLevel: formData.currentLevel,
-      targetLevel: formData.targetLevel,
-      eventExperience: formData.eventExperience,
-      currentChallenges: formData.currentChallenges,
-      recentProgress: formData.recentProgress,
-      goals: [formData.goal1, formData.goal2, formData.goal3].filter(Boolean),
-      concerns: [formData.concern1, formData.concern2, formData.concern3].filter(Boolean),
+      horses,
+      horseNames: horses.map(h => h.horseName).filter(Boolean),
       ridingFrequency: formData.ridingFrequency,
       coachAccess: formData.coachAccess,
       availableResources: formData.availableResources,
@@ -208,6 +321,11 @@ export default function EventPrepForm() {
             <div className="form-row">
               <FormField label="Event Date" error={errors.eventDate}>
                 <input type="date" name="eventDate" value={formData.eventDate} onChange={handleChange} disabled={loading} className={errors.eventDate ? 'error' : ''} />
+                {dateFeedback && (
+                  <div className={`date-feedback ${dateFeedback.valid ? 'valid' : 'invalid'}`}>
+                    {dateFeedback.message}
+                  </div>
+                )}
               </FormField>
               <FormField label="Event Type" error={errors.eventType}>
                 <select name="eventType" value={formData.eventType} onChange={handleChange} disabled={loading} className={errors.eventType ? 'error' : ''}>
@@ -236,127 +354,119 @@ export default function EventPrepForm() {
             )}
           </FormSection>
 
-          {/* Section 2: Current Context */}
-          <FormSection title="Your Current Context" description="Help us understand where you are right now">
-            <FormField label="Horse for This Event" error={errors.horseName}>
-              {horseNames.length > 0 ? (
-                <select name="horseName" value={formData.horseName} onChange={handleChange} disabled={loading} className={errors.horseName ? 'error' : ''}>
-                  <option value="">Select horse...</option>
-                  {horseNames.map(name => <option key={name} value={name}>{name}</option>)}
-                </select>
-              ) : (
-                <>
-                  <input type="text" name="horseName" value={formData.horseName} onChange={handleChange} disabled={loading} className={errors.horseName ? 'error' : ''} placeholder="Horse name" />
-                </>
-              )}
-            </FormField>
-            <FormField label="Current Level/Stage" error={errors.currentLevel}>
-              <input type="text" name="currentLevel" value={formData.currentLevel} onChange={handleChange} disabled={loading} className={errors.currentLevel ? 'error' : ''} placeholder="e.g., Training Level, 2nd Level, PSG" />
-            </FormField>
-            <FormField label="Level for This Event" optional helpText="If different from current level">
-              <input type="text" name="targetLevel" value={formData.targetLevel} onChange={handleChange} disabled={loading} placeholder="e.g., Moving up to First Level, Intermediate 1" />
-            </FormField>
-            <FormField label="What's your experience with this type of event?" optional>
-              <RadioGroup name="eventExperience" options={EXPERIENCE_LEVELS} value={formData.eventExperience} onChange={handleChange} disabled={loading} />
-            </FormField>
-            <FormField label="Current Technical or Physical Challenges" optional>
-              <textarea name="currentChallenges" value={formData.currentChallenges} onChange={handleChange} disabled={loading} placeholder="Describe any specific movements, patterns, or physical issues you're working through right now (e.g., inconsistent tempi changes, struggling with half-pass left, horse tension in transitions, recovering from injury)" style={{ minHeight: '120px' }} />
-            </FormField>
-            <FormField label="Recent Progress or Breakthroughs" optional>
-              <textarea name="recentProgress" value={formData.recentProgress} onChange={handleChange} disabled={loading} placeholder="Any recent improvements, aha moments, or wins to build on" style={{ minHeight: '80px' }} />
-            </FormField>
-          </FormSection>
+          {/* Section 2: Horses for This Event */}
+          <FormSection
+            title={<>Horses for This Event <span className="horse-count-badge">{formData.horses.length} {formData.horses.length === 1 ? 'horse' : 'horses'}</span></>}
+            description="Add each horse you're bringing to this event with their specific context, goals, and concerns"
+          >
+            <div className="horse-entries-container" ref={horseSectionRef}>
+              {formData.horses.map((horse, index) => (
+                <div key={index} className="horse-entry">
+                  <div className="horse-entry-header">
+                    <div className="horse-entry-label">
+                      <span className="horse-icon">&#x1F40E;</span>
+                      <span>Horse {index + 1}{horse.horseName ? `: ${horse.horseName}` : ''}</span>
+                    </div>
+                    {formData.horses.length > 1 && (
+                      <button
+                        type="button"
+                        className="remove-horse-btn"
+                        onClick={() => removeHorseEntry(index)}
+                        disabled={loading}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
 
-          {/* Section 3: Goals */}
-          <FormSection title="Your Goals" description="What do you want to achieve at this event? (List up to 3)">
-            <div style={{
-              background: '#FAF8F5',
-              borderLeft: '4px solid #C67B5C',
-              padding: '15px 20px',
-              borderRadius: '8px',
-              marginBottom: '1.5rem',
-              fontSize: '0.9rem',
-              color: '#7A7A7A',
-              lineHeight: 1.6
-            }}>
-              <strong style={{ color: '#3A3A3A' }}>Tip:</strong> Good goals are specific and measurable. Instead of "do well," try "score 62% or higher" or "execute clean lead changes" or "feel confident in warm-up."
-            </div>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '15px' }}>
-              <div style={{
-                width: '32px', height: '32px', borderRadius: '50%',
-                background: '#D4A574', color: 'white', display: 'flex',
-                alignItems: 'center', justifyContent: 'center',
-                fontWeight: 600, fontSize: '0.9rem', flexShrink: 0
-              }}>1</div>
-              <div style={{ flex: 1 }}>
-                <input type="text" name="goal1" value={formData.goal1} onChange={handleChange} disabled={loading} placeholder="Primary goal" className={errors.goal1 ? 'error' : ''} />
-                {errors.goal1 && <div className="form-error">{errors.goal1}</div>}
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '15px' }}>
-              <div style={{
-                width: '32px', height: '32px', borderRadius: '50%',
-                background: '#D4A574', color: 'white', display: 'flex',
-                alignItems: 'center', justifyContent: 'center',
-                fontWeight: 600, fontSize: '0.9rem', flexShrink: 0
-              }}>2</div>
-              <input type="text" name="goal2" value={formData.goal2} onChange={handleChange} disabled={loading} placeholder="Second goal (optional)" style={{ flex: 1 }} />
-            </div>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '15px' }}>
-              <div style={{
-                width: '32px', height: '32px', borderRadius: '50%',
-                background: '#D4A574', color: 'white', display: 'flex',
-                alignItems: 'center', justifyContent: 'center',
-                fontWeight: 600, fontSize: '0.9rem', flexShrink: 0
-              }}>3</div>
-              <input type="text" name="goal3" value={formData.goal3} onChange={handleChange} disabled={loading} placeholder="Third goal (optional)" style={{ flex: 1 }} />
-            </div>
-          </FormSection>
+                  {/* Horse Selection + Levels */}
+                  <FormField label="Horse" error={errors[`horses[${index}].horseName`]}>
+                    {horseNames.length > 0 ? (
+                      <select name="horseName" value={horse.horseName} onChange={e => handleHorseChange(index, e)} disabled={loading} className={errors[`horses[${index}].horseName`] ? 'error' : ''}>
+                        <option value="">Select horse...</option>
+                        {horseNames.map(name => <option key={name} value={name}>{name}</option>)}
+                      </select>
+                    ) : (
+                      <input type="text" name="horseName" value={horse.horseName} onChange={e => handleHorseChange(index, e)} disabled={loading} className={errors[`horses[${index}].horseName`] ? 'error' : ''} placeholder="Horse name" />
+                    )}
+                  </FormField>
+                  <div className="form-row">
+                    <FormField label="Current Level/Stage" error={errors[`horses[${index}].currentLevel`]}>
+                      <input type="text" name="currentLevel" value={horse.currentLevel} onChange={e => handleHorseChange(index, e)} disabled={loading} className={errors[`horses[${index}].currentLevel`] ? 'error' : ''} placeholder="e.g., Training Level, 2nd Level, PSG" />
+                    </FormField>
+                    <FormField label="Level for This Event" optional helpText="If different from current level">
+                      <input type="text" name="targetLevel" value={horse.targetLevel} onChange={e => handleHorseChange(index, e)} disabled={loading} placeholder="e.g., Moving up to First Level" />
+                    </FormField>
+                  </div>
+                  <FormField label="What's your experience with this type of event on this horse?" optional>
+                    <RadioGroup name="experience" options={EXPERIENCE_LEVELS} value={horse.experience} onChange={e => handleHorseChange(index, e)} disabled={loading} />
+                  </FormField>
+                  <FormField label="Current Technical or Physical Challenges" optional>
+                    <textarea name="challenges" value={horse.challenges} onChange={e => handleHorseChange(index, e)} disabled={loading} placeholder="Describe any specific movements, patterns, or physical issues you're working through right now" style={{ minHeight: '100px' }} />
+                  </FormField>
+                  <FormField label="Recent Progress or Breakthroughs" optional>
+                    <textarea name="progress" value={horse.progress} onChange={e => handleHorseChange(index, e)} disabled={loading} placeholder="Any recent improvements, aha moments, or wins to build on" style={{ minHeight: '80px' }} />
+                  </FormField>
 
-          {/* Section 4: Concerns */}
-          <FormSection title="Your Concerns" description="What worries you about this event? (List up to 3)">
-            <div style={{
-              background: '#FAF8F5',
-              borderLeft: '4px solid #C67B5C',
-              padding: '15px 20px',
-              borderRadius: '8px',
-              marginBottom: '1.5rem',
-              fontSize: '0.9rem',
-              color: '#7A7A7A',
-              lineHeight: 1.6
-            }}>
-              <strong style={{ color: '#3A3A3A' }}>Why we ask:</strong> Naming your concerns helps us address them directly in your preparation plan. Common concerns include nerves, horse behavior, specific technical elements, or recovery from setbacks.
-            </div>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '15px' }}>
-              <div style={{
-                width: '32px', height: '32px', borderRadius: '50%',
-                background: '#D4A574', color: 'white', display: 'flex',
-                alignItems: 'center', justifyContent: 'center',
-                fontWeight: 600, fontSize: '0.9rem', flexShrink: 0
-              }}>1</div>
-              <input type="text" name="concern1" value={formData.concern1} onChange={handleChange} disabled={loading} placeholder="Primary concern" style={{ flex: 1 }} />
-            </div>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '15px' }}>
-              <div style={{
-                width: '32px', height: '32px', borderRadius: '50%',
-                background: '#D4A574', color: 'white', display: 'flex',
-                alignItems: 'center', justifyContent: 'center',
-                fontWeight: 600, fontSize: '0.9rem', flexShrink: 0
-              }}>2</div>
-              <input type="text" name="concern2" value={formData.concern2} onChange={handleChange} disabled={loading} placeholder="Second concern (optional)" style={{ flex: 1 }} />
-            </div>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '15px' }}>
-              <div style={{
-                width: '32px', height: '32px', borderRadius: '50%',
-                background: '#D4A574', color: 'white', display: 'flex',
-                alignItems: 'center', justifyContent: 'center',
-                fontWeight: 600, fontSize: '0.9rem', flexShrink: 0
-              }}>3</div>
-              <input type="text" name="concern3" value={formData.concern3} onChange={handleChange} disabled={loading} placeholder="Third concern (optional)" style={{ flex: 1 }} />
+                  {/* Per-Horse Goals */}
+                  <div className="horse-sub-section">
+                    <div className="horse-sub-section-title">Goals for {horse.horseName || `Horse ${index + 1}`}</div>
+                    <div style={{
+                      background: '#FAF8F5',
+                      borderLeft: '4px solid #C67B5C',
+                      padding: '12px 16px',
+                      borderRadius: '8px',
+                      marginBottom: '1rem',
+                      fontSize: '0.88rem',
+                      color: '#7A7A7A',
+                      lineHeight: 1.5
+                    }}>
+                      <strong style={{ color: '#3A3A3A' }}>Tip:</strong> Good goals are specific and measurable. Instead of "do well," try "score 62% or higher" or "execute clean lead changes."
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '12px' }}>
+                      <div className="goal-number-badge">1</div>
+                      <div style={{ flex: 1 }}>
+                        <input type="text" name="goal1" value={horse.goal1} onChange={e => handleHorseChange(index, e)} disabled={loading} placeholder="Primary goal" className={errors[`horses[${index}].goal1`] ? 'error' : ''} />
+                        {errors[`horses[${index}].goal1`] && <div className="form-error">{errors[`horses[${index}].goal1`]}</div>}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '12px' }}>
+                      <div className="goal-number-badge">2</div>
+                      <input type="text" name="goal2" value={horse.goal2} onChange={e => handleHorseChange(index, e)} disabled={loading} placeholder="Second goal (optional)" style={{ flex: 1 }} />
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '12px' }}>
+                      <div className="goal-number-badge">3</div>
+                      <input type="text" name="goal3" value={horse.goal3} onChange={e => handleHorseChange(index, e)} disabled={loading} placeholder="Third goal (optional)" style={{ flex: 1 }} />
+                    </div>
+                  </div>
+
+                  {/* Per-Horse Concerns */}
+                  <div className="horse-sub-section">
+                    <div className="horse-sub-section-title">Concerns for {horse.horseName || `Horse ${index + 1}`}</div>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '12px' }}>
+                      <div className="concern-number-badge">1</div>
+                      <input type="text" name="concern1" value={horse.concern1} onChange={e => handleHorseChange(index, e)} disabled={loading} placeholder="Primary concern (optional)" style={{ flex: 1 }} />
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '12px' }}>
+                      <div className="concern-number-badge">2</div>
+                      <input type="text" name="concern2" value={horse.concern2} onChange={e => handleHorseChange(index, e)} disabled={loading} placeholder="Second concern (optional)" style={{ flex: 1 }} />
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '12px' }}>
+                      <div className="concern-number-badge">3</div>
+                      <input type="text" name="concern3" value={horse.concern3} onChange={e => handleHorseChange(index, e)} disabled={loading} placeholder="Third concern (optional)" style={{ flex: 1 }} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <button type="button" className="add-horse-btn" onClick={addHorseEntry} disabled={loading}>
+                <span className="plus-icon">+</span>
+                Add Another Horse
+              </button>
             </div>
           </FormSection>
 
-          {/* Section 5: Resources & Preparation Time */}
+          {/* Section 3: Resources & Preparation Time */}
           <FormSection title="Resources & Preparation Time" description="Help us tailor your plan to your available resources">
             <FormField label="How many days per week can you typically ride between now and the event?" error={errors.ridingFrequency}>
               <select name="ridingFrequency" value={formData.ridingFrequency} onChange={handleChange} disabled={loading} className={errors.ridingFrequency ? 'error' : ''}>
@@ -388,7 +498,7 @@ export default function EventPrepForm() {
             </FormField>
           </FormSection>
 
-          {/* Section 6: Anything Else? */}
+          {/* Section 4: Anything Else? */}
           <FormSection title="Anything Else?" description="Share any other context that would help us create your ideal preparation plan">
             <FormField label="Additional Information" optional>
               <textarea name="additionalInfo" value={formData.additionalInfo} onChange={handleChange} disabled={loading} placeholder="Mental game focus areas, past experiences with similar events, specific people you're riding with/against, anxiety triggers, motivation strategies that work for you, etc." style={{ minHeight: '120px' }} />

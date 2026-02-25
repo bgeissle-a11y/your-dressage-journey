@@ -103,11 +103,28 @@ export const EXPORT_COLUMNS = {
     'horseName', 'description', 'observations'
   ],
   journeyEvents: [
-    'date', 'category', 'type', 'description',
-    'magnitude', 'duration', 'status', 'resolutionDate'
+    'date', 'entryMode', 'category', 'type', 'description',
+    'magnitude', 'duration', 'status', 'resolutionDate', 'prepReference'
   ],
   eventPrepPlans: [
-    'eventName', 'eventDate', 'eventType', 'location', 'horseName',
-    'currentLevel', 'targetLevel', 'goals', 'concerns', 'status'
+    'eventName', 'eventDate', 'eventType', 'location', 'horseNames',
+    'horseLevels', 'allGoals', 'allConcerns', 'status'
   ]
 };
+
+/**
+ * Flatten multi-horse event prep data for CSV export.
+ * Joins horse names, levels, goals, and concerns into semicolon-separated strings.
+ */
+export function flattenEventPrepForExport(plans) {
+  return plans.map(plan => {
+    const horses = plan.horses || [];
+    return {
+      ...plan,
+      horseNames: horses.map(h => h.horseName).filter(Boolean).join('; '),
+      horseLevels: horses.map(h => h.currentLevel).filter(Boolean).join('; '),
+      allGoals: horses.flatMap(h => h.goals || []).filter(Boolean).join('; '),
+      allConcerns: horses.flatMap(h => h.concerns || []).filter(Boolean).join('; ')
+    };
+  });
+}

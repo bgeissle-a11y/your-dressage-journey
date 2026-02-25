@@ -271,9 +271,14 @@ export default function EventPrepPlan() {
                 {formatDate(plan.eventDate)}
               </div>
               <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
-                {plan.horseName && <span style={{ fontSize: '0.9rem', color: '#7A7A7A' }}>{plan.horseName}</span>}
-                {plan.currentLevel && <span style={{ fontSize: '0.9rem', color: '#7A7A7A' }}>{plan.currentLevel}</span>}
-                {plan.eventExperience && <span style={{ fontSize: '0.9rem', color: '#7A7A7A' }}>{EXP_LABELS[plan.eventExperience] || plan.eventExperience}</span>}
+                {plan.horses && plan.horses.length > 0 && (
+                  <span style={{ fontSize: '0.9rem', color: '#7A7A7A' }}>
+                    {plan.horses.map(h => h.horseName).filter(Boolean).join(', ')}
+                  </span>
+                )}
+                {plan.horses && plan.horses[0]?.currentLevel && (
+                  <span style={{ fontSize: '0.9rem', color: '#7A7A7A' }}>{plan.horses[0].currentLevel}</span>
+                )}
                 <span className={`status-badge status-${plan.status === 'completed' ? 'resolved' : plan.status === 'planning' ? 'active' : 'ongoing'}`}>
                   {STATUS_LABELS[plan.status] || plan.status}
                 </span>
@@ -355,69 +360,67 @@ export default function EventPrepPlan() {
           />
         )}
 
-        {/* Context */}
-        {(plan.targetLevel || plan.currentChallenges || plan.recentProgress) && (
-          <div className="form-section">
-            <div className="form-section-header">
-              <h2 className="form-section-title">Context</h2>
-            </div>
-            {plan.targetLevel && <div style={{ marginBottom: '0.75rem' }}><strong>Target Level:</strong> {plan.targetLevel}</div>}
-            {plan.currentChallenges && <div style={{ marginBottom: '0.75rem' }}><strong>Current Challenges:</strong><p style={{ marginTop: '0.25rem', color: '#3A3A3A', lineHeight: 1.6 }}>{plan.currentChallenges}</p></div>}
-            {plan.recentProgress && <div style={{ marginBottom: '0.75rem' }}><strong>Recent Progress:</strong><p style={{ marginTop: '0.25rem', color: '#3A3A3A', lineHeight: 1.6 }}>{plan.recentProgress}</p></div>}
-          </div>
-        )}
+        {/* Per-Horse Context, Goals & Concerns */}
+        {plan.horses && plan.horses.length > 0 && plan.horses.map((horse, hIdx) => {
+          const hasContext = horse.targetLevel || horse.challenges || horse.progress || horse.experience;
+          const hasGoals = horse.goals && horse.goals.length > 0;
+          const hasConcerns = horse.concerns && horse.concerns.length > 0;
+          if (!hasContext && !hasGoals && !hasConcerns) return null;
 
-        {/* Goals */}
-        {plan.goals && plan.goals.length > 0 && (
-          <div className="form-section">
-            <div className="form-section-header">
-              <h2 className="form-section-title">Goals</h2>
-            </div>
-            {plan.goals.map((goal, i) => (
-              <div key={i} style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '10px 0',
-                borderBottom: i < plan.goals.length - 1 ? '1px solid #F0EBE3' : 'none'
-              }}>
-                <div style={{
-                  width: '28px', height: '28px', borderRadius: '50%',
-                  background: '#D4A574', color: 'white', display: 'flex',
-                  alignItems: 'center', justifyContent: 'center',
-                  fontWeight: 600, fontSize: '0.85rem', flexShrink: 0
-                }}>{i + 1}</div>
-                <span>{goal}</span>
+          return (
+            <div key={hIdx} className="form-section">
+              <div className="form-section-header">
+                <h2 className="form-section-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span className="horse-icon" style={{ width: '30px', height: '30px', background: '#D4A574', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.9em' }}>&#x1F40E;</span>
+                  {horse.horseName || `Horse ${hIdx + 1}`}
+                </h2>
               </div>
-            ))}
-          </div>
-        )}
 
-        {/* Concerns */}
-        {plan.concerns && plan.concerns.length > 0 && (
-          <div className="form-section">
-            <div className="form-section-header">
-              <h2 className="form-section-title">Concerns</h2>
-            </div>
-            {plan.concerns.map((concern, i) => (
-              <div key={i} style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '10px 0',
-                borderBottom: i < plan.concerns.length - 1 ? '1px solid #F0EBE3' : 'none'
-              }}>
-                <div style={{
-                  width: '28px', height: '28px', borderRadius: '50%',
-                  background: '#C67B5C', color: 'white', display: 'flex',
-                  alignItems: 'center', justifyContent: 'center',
-                  fontWeight: 600, fontSize: '0.85rem', flexShrink: 0
-                }}>{i + 1}</div>
-                <span>{concern}</span>
+              {/* Horse Context */}
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+                {horse.currentLevel && <span style={{ fontSize: '0.9rem', color: '#7A7A7A' }}><strong>Level:</strong> {horse.currentLevel}</span>}
+                {horse.targetLevel && <span style={{ fontSize: '0.9rem', color: '#7A7A7A' }}><strong>Target:</strong> {horse.targetLevel}</span>}
+                {horse.experience && <span style={{ fontSize: '0.9rem', color: '#7A7A7A' }}><strong>Experience:</strong> {EXP_LABELS[horse.experience] || horse.experience}</span>}
               </div>
-            ))}
-          </div>
-        )}
+              {horse.challenges && <div style={{ marginBottom: '0.75rem' }}><strong>Current Challenges:</strong><p style={{ marginTop: '0.25rem', color: '#3A3A3A', lineHeight: 1.6 }}>{horse.challenges}</p></div>}
+              {horse.progress && <div style={{ marginBottom: '0.75rem' }}><strong>Recent Progress:</strong><p style={{ marginTop: '0.25rem', color: '#3A3A3A', lineHeight: 1.6 }}>{horse.progress}</p></div>}
+
+              {/* Horse Goals */}
+              {hasGoals && (
+                <div style={{ marginTop: '1rem' }}>
+                  <div style={{ fontWeight: 600, color: '#8B7355', marginBottom: '0.5rem' }}>Goals</div>
+                  {horse.goals.map((goal, i) => (
+                    <div key={i} style={{
+                      display: 'flex', alignItems: 'center', gap: '10px',
+                      padding: '8px 0',
+                      borderBottom: i < horse.goals.length - 1 ? '1px solid #F0EBE3' : 'none'
+                    }}>
+                      <div className="goal-number-badge">{i + 1}</div>
+                      <span>{goal}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Horse Concerns */}
+              {hasConcerns && (
+                <div style={{ marginTop: '1rem' }}>
+                  <div style={{ fontWeight: 600, color: '#C67B5C', marginBottom: '0.5rem' }}>Concerns</div>
+                  {horse.concerns.map((concern, i) => (
+                    <div key={i} style={{
+                      display: 'flex', alignItems: 'center', gap: '10px',
+                      padding: '8px 0',
+                      borderBottom: i < horse.concerns.length - 1 ? '1px solid #F0EBE3' : 'none'
+                    }}>
+                      <div className="concern-number-badge">{i + 1}</div>
+                      <span>{concern}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
 
         {/* Resources */}
         {(plan.ridingFrequency || plan.coachAccess || (plan.availableResources && plan.availableResources.length > 0)) && (

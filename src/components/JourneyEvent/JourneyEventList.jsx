@@ -122,6 +122,7 @@ export default function JourneyEventList() {
                     <span>{formatDate(event.date)}</span>
                     {event.type && <span>{TYPE_LABELS[event.type] || event.type}</span>}
                     <span>{event.entryMode === 'planned' ? 'Planned' : 'Unplanned'}</span>
+                    {event.prepReference && <span title="Linked to Event Preparation">Linked</span>}
                     {event.magnitude && <span>{MAGNITUDE_LABELS[event.magnitude]}</span>}
                     <span className={`status-badge status-${event.status}`}>
                       {STATUS_LABELS[event.status] || event.status}

@@ -79,7 +79,10 @@ async function handler(request) {
 
     // Common setup
     const cacheKey = `eventPlanner_${eventPrepPlanId}`;
+    // Support multi-horse (v2) and single-horse (v1) formats
+    const primaryHorse = (eventPrepPlan.horses && eventPrepPlan.horses[0]) || {};
     const targetLevel =
+      primaryHorse.targetLevel || primaryHorse.currentLevel ||
       eventPrepPlan.targetLevel || eventPrepPlan.currentLevel || "Training";
     const detailedTestContext = buildDetailedTestContext(targetLevel);
 

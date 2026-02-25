@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   createJourneyEvent, getJourneyEvent, updateJourneyEvent,
+  getAllEventPrepPlans,
   EVENT_TYPES, EVENT_MAGNITUDES, IMPACT_DURATIONS, EVENT_STATUSES
 } from '../../services';
 import FormSection from '../Forms/FormSection';
@@ -23,6 +24,7 @@ export default function JourneyEventForm() {
 
   const [formData, setFormData] = useState({
     entryMode: 'unplanned',
+    prepReference: '',
     category: '',
     type: '',
     date: new Date().toISOString().split('T')[0],
@@ -39,10 +41,19 @@ export default function JourneyEventForm() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
+  const [eventPreps, setEventPreps] = useState([]);
 
   useEffect(() => {
     if (id) loadExisting();
-  }, [id]);
+    if (currentUser) loadEventPreps();
+  }, [id, currentUser]);
+
+  async function loadEventPreps() {
+    const result = await getAllEventPrepPlans(currentUser.uid);
+    if (result.success) {
+      setEventPreps(result.data);
+    }
+  }
 
   async function loadExisting() {
     setLoadingData(true);
@@ -51,6 +62,7 @@ export default function JourneyEventForm() {
       const reflection = result.data.reflection || {};
       setFormData({
         entryMode: result.data.entryMode || 'unplanned',
+        prepReference: result.data.prepReference || '',
         category: result.data.category || '',
         type: result.data.type || '',
         date: result.data.date || '',
@@ -74,6 +86,9 @@ export default function JourneyEventForm() {
       const updated = { ...prev, [name]: value };
       if (name === 'status' && value !== 'resolved') {
         updated.resolutionDate = '';
+      }
+      if (name === 'entryMode' && value !== 'planned') {
+        updated.prepReference = '';
       }
       return updated;
     });
@@ -106,6 +121,7 @@ export default function JourneyEventForm() {
 
     const data = {
       entryMode: formData.entryMode,
+      prepReference: formData.entryMode === 'planned' ? formData.prepReference || null : null,
       category: formData.category,
       type: formData.type,
       date: formData.date,
@@ -155,6 +171,23 @@ export default function JourneyEventForm() {
                 <option value="planned">Planned — Show, clinic, audit, lesson</option>
               </select>
             </FormField>
+            {formData.entryMode === 'planned' && eventPreps.length > 0 && (
+              <FormField label="Event Preparation Reference" optional helpText="Link to an Event Preparation you created for this event">
+                <select name="prepReference" value={formData.prepReference} onChange={handleChange} disabled={loading}>
+                  <option value="">Select a prepared event or leave blank...</option>
+                  {eventPreps.map(prep => {
+                    const dateLabel = prep.eventDate
+                      ? new Date(prep.eventDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                      : '';
+                    return (
+                      <option key={prep.id} value={prep.id}>
+                        {prep.eventName}{dateLabel ? ` — ${dateLabel}` : ''}
+                      </option>
+                    );
+                  })}
+                </select>
+              </FormField>
+            )}
             <FormField label="Brief Event Summary" error={errors.category} helpText={formData.entryMode === 'planned' ? 'Event name (e.g., Spring Championship Show, Jane Smith Clinic)' : 'What happened? (e.g., Started new horse, Moved to new barn, Shoulder injury)'}>
               <input type="text" name="category" value={formData.category} onChange={handleChange} disabled={loading} className={errors.category ? 'error' : ''} placeholder={formData.entryMode === 'planned' ? 'Event name...' : 'What happened?'} />
             </FormField>

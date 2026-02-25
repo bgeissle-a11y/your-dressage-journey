@@ -9,7 +9,7 @@ const base = createBaseService(COLLECTION);
  * Helps riders plan and prepare for dressage events, shows, clinics,
  * and other experiences with structured preparation tracking.
  *
- * Data model (matches event-preparation-form.html):
+ * Data model (matches event-preparation-formV2.html — multi-horse):
  * {
  *   userId:             string  - Firebase Auth UID
  *
@@ -21,32 +21,31 @@ const base = createBaseService(COLLECTION);
  *   location:           string  - venue name or city
  *   eventDescription:   string  - additional event details
  *
- *   // Section 2: Current Context
- *   horseName:          string  - which horse for this event
- *   currentLevel:       string  - current dressage level
- *   targetLevel:        string  - level for this event if different
- *   eventExperience:    string  - "first-time" | "some-experience" | "regular"
- *   currentChallenges:  string  - technical or physical challenges
- *   recentProgress:     string  - recent breakthroughs
+ *   // Section 2: Horses (multi-horse, each with context + goals + concerns)
+ *   horses:             array   - [{
+ *     horseName:        string  - required, selected from user's horse profiles
+ *     currentLevel:     string  - required, current dressage level
+ *     targetLevel:      string  - level for this event if different
+ *     experience:       string  - "first-time" | "some-experience" | "regular"
+ *     challenges:       string  - technical or physical challenges
+ *     progress:         string  - recent breakthroughs
+ *     goals:            array   - [string] up to 3, first required
+ *     concerns:         array   - [string] up to 3, all optional
+ *   }]
+ *   horseNames:         array   - [string] denormalized for Firestore queries
  *
- *   // Section 3: Goals (up to 3)
- *   goals:              array   - [string, string, string]
- *
- *   // Section 4: Concerns (up to 3)
- *   concerns:           array   - [string, string, string]
- *
- *   // Section 5: Resources & Preparation
+ *   // Section 3: Resources & Preparation
  *   ridingFrequency:    string  - "1-2" | "3-4" | "5-6" | "7"
  *   coachAccess:        string  - "weekly" | "biweekly" | "monthly" | "occasional" | "none"
  *   availableResources: array   - ["mirrors", "video", "ground-person", "show-facility"]
  *   constraints:        string  - time or resource constraints
  *
- *   // Section 6: Additional
+ *   // Section 4: Additional
  *   additionalInfo:     string  - free-form additional context
  *   preferredCoach:     string  - "klaus" | "jordan" | "emma" | ""
  *
- *   // Generated plan (future AI integration)
- *   generatedPlan:      string|null
+ *   // Generated plan (AI integration)
+ *   generatedPlan:      object|null
  *
  *   // Interactive checklists (plan view)
  *   equipmentList:      array   - [{ item, packed, category }]
@@ -56,6 +55,30 @@ const base = createBaseService(COLLECTION);
  *   status:             string  - "planning" | "confirmed" | "completed" | "cancelled"
  * }
  */
+
+/**
+ * Backward compatibility: migrate old single-horse documents to multi-horse format.
+ * Applied at read time — no batch migration needed.
+ */
+function migrateToMultiHorse(doc) {
+  if (!doc) return doc;
+  if (doc.horses && Array.isArray(doc.horses) && doc.horses.length > 0) return doc;
+
+  return {
+    ...doc,
+    horses: [{
+      horseName: doc.horseName || '',
+      currentLevel: doc.currentLevel || '',
+      targetLevel: doc.targetLevel || '',
+      experience: doc.eventExperience || '',
+      challenges: doc.currentChallenges || '',
+      progress: doc.recentProgress || '',
+      goals: doc.goals || [],
+      concerns: doc.concerns || []
+    }],
+    horseNames: [doc.horseName].filter(Boolean)
+  };
+}
 
 // Event type options (matching HTML form)
 export const EVENT_PREP_TYPES = [
@@ -154,31 +177,21 @@ export async function createEventPrepPlan(userId, planData) {
     location: planData.location || '',
     eventDescription: planData.eventDescription || '',
 
-    // Section 2: Current Context
-    horseName: planData.horseName || '',
-    currentLevel: planData.currentLevel || '',
-    targetLevel: planData.targetLevel || '',
-    eventExperience: planData.eventExperience || '',
-    currentChallenges: planData.currentChallenges || '',
-    recentProgress: planData.recentProgress || '',
+    // Section 2: Horses (multi-horse)
+    horses: planData.horses || [],
+    horseNames: planData.horseNames || [],
 
-    // Section 3: Goals
-    goals: planData.goals || [],
-
-    // Section 4: Concerns
-    concerns: planData.concerns || [],
-
-    // Section 5: Resources
+    // Section 3: Resources
     ridingFrequency: planData.ridingFrequency || '',
     coachAccess: planData.coachAccess || '',
     availableResources: planData.availableResources || [],
     constraints: planData.constraints || '',
 
-    // Section 6: Additional
+    // Section 4: Additional
     additionalInfo: planData.additionalInfo || '',
     preferredCoach: planData.preferredCoach || '',
 
-    // Generated plan (future AI)
+    // Generated plan (AI)
     generatedPlan: null,
 
     // Interactive checklists
@@ -191,42 +204,58 @@ export async function createEventPrepPlan(userId, planData) {
 }
 
 /**
- * Get a single event prep plan
+ * Get a single event prep plan (with backward-compat migration)
  */
 export async function getEventPrepPlan(docId) {
-  return base.read(docId);
+  const result = await base.read(docId);
+  if (result.success) {
+    result.data = migrateToMultiHorse(result.data);
+  }
+  return result;
 }
 
 /**
  * Get all event prep plans for a user (by event date, upcoming first)
  */
 export async function getAllEventPrepPlans(userId, options = {}) {
-  return base.readAll(userId, {
+  const result = await base.readAll(userId, {
     orderField: 'eventDate',
     orderDirection: 'asc',
     ...options
   });
+  if (result.success) {
+    result.data = result.data.map(migrateToMultiHorse);
+  }
+  return result;
 }
 
 /**
  * Get upcoming events (status is planning or confirmed)
  */
 export async function getUpcomingEvents(userId) {
-  return base.queryByField(userId, 'status', 'in', ['planning', 'confirmed']);
+  const result = await base.queryByField(userId, 'status', 'in', ['planning', 'confirmed']);
+  if (result.success) {
+    result.data = result.data.map(migrateToMultiHorse);
+  }
+  return result;
 }
 
 /**
  * Get completed events
  */
 export async function getCompletedEvents(userId) {
-  return base.queryByField(userId, 'status', '==', 'completed');
+  const result = await base.queryByField(userId, 'status', '==', 'completed');
+  if (result.success) {
+    result.data = result.data.map(migrateToMultiHorse);
+  }
+  return result;
 }
 
 /**
- * Get events for a specific horse
+ * Get events for a specific horse (uses denormalized horseNames array)
  */
 export async function getEventsByHorse(userId, horseName) {
-  return base.queryByField(userId, 'horseName', '==', horseName);
+  return base.queryByField(userId, 'horseNames', 'array-contains', horseName);
 }
 
 /**
