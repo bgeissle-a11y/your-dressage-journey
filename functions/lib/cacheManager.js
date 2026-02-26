@@ -88,7 +88,8 @@ async function getCache(uid, outputType, options = {}) {
  * @param {number} [metadata.voiceIndex] - For coaching voice cache
  */
 async function setCache(uid, outputType, result, metadata) {
-  const { dataSnapshotHash, tierLabel, dataTier, voiceIndex } = metadata;
+  const { dataSnapshotHash, tierLabel, dataTier, voiceIndex, eventPrepHash } =
+    metadata;
   const docId = buildDocId(uid, outputType, voiceIndex);
 
   const cacheDoc = {
@@ -104,6 +105,10 @@ async function setCache(uid, outputType, result, metadata) {
 
   if (voiceIndex !== undefined && voiceIndex !== null) {
     cacheDoc.voiceIndex = voiceIndex;
+  }
+
+  if (eventPrepHash) {
+    cacheDoc.eventPrepHash = eventPrepHash;
   }
 
   await db.collection(COLLECTION).doc(docId).set(cacheDoc);

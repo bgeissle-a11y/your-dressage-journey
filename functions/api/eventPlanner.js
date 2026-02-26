@@ -15,6 +15,7 @@
  * Output: Step-specific result (see per-step docs below)
  */
 
+const crypto = require("crypto");
 const { HttpsError } = require("firebase-functions/v2/https");
 const { validateAuth, validateOwnership } = require("../lib/auth");
 const { wrapError } = require("../lib/errors");
@@ -22,8 +23,38 @@ const { prepareRiderData } = require("../lib/prepareRiderData");
 const { callClaude } = require("../lib/claudeCall");
 const { buildEventPlannerPrompt } = require("../lib/promptBuilder");
 const { buildDetailedTestContext } = require("../lib/testDatabase");
-const { getCache, setCache } = require("../lib/cacheManager");
+const { getCache, setCache, getStaleCache } = require("../lib/cacheManager");
 const { db } = require("../lib/firebase");
+
+/**
+ * Compute a short hash of the event prep plan's key content fields.
+ * Used to detect when the event plan itself changed (date, horses, goals)
+ * vs unrelated rider data changes (new debriefs, reflections).
+ *
+ * @param {object} eventPrepPlan - The event prep plan document
+ * @returns {string} 12-char hex hash
+ */
+function computeEventPrepHash(eventPrepPlan) {
+  const keyFields = {
+    eventDate: eventPrepPlan.eventDate,
+    eventType: eventPrepPlan.eventType,
+    horses: (eventPrepPlan.horses || []).map((h) => ({
+      horseName: h.horseName,
+      currentLevel: h.currentLevel,
+      targetLevel: h.targetLevel,
+      goals: h.goals,
+      concerns: h.concerns,
+    })),
+    ridingFrequency: eventPrepPlan.ridingFrequency,
+    coachAccess: eventPrepPlan.coachAccess,
+    constraints: eventPrepPlan.constraints,
+  };
+  return crypto
+    .createHash("md5")
+    .update(JSON.stringify(keyFields))
+    .digest("hex")
+    .slice(0, 12);
+}
 
 /**
  * Cloud Function handler for Event Planner generation (stepped).
@@ -88,8 +119,11 @@ async function handler(request) {
 
     // --- STEP 1: Test Requirements Assembly ---
     if (step === 1) {
+      const eventPrepHash = computeEventPrepHash(eventPrepPlan);
+
       // Cache check (only on step 1)
       if (!forceRefresh) {
+        // 1. Try exact match (both rider data hash and event prep hash match)
         const cached = await getCache(uid, cacheKey, { currentHash: hash });
         if (cached) {
           return {
@@ -104,19 +138,88 @@ async function handler(request) {
             generatedAt: cached.generatedAt,
           };
         }
+
+        // 2. Stale-while-revalidate: serve stale cache with context flags
+        const staleCache = await getStaleCache(uid, cacheKey, {
+          currentHash: hash,
+        });
+        if (staleCache) {
+          const cachedEventPrepHash = staleCache.eventPrepHash || null;
+          const eventPrepChanged = cachedEventPrepHash !== eventPrepHash;
+          const cacheAgeDays = staleCache.generatedAt
+            ? (Date.now() - new Date(staleCache.generatedAt).getTime()) /
+              (1000 * 60 * 60 * 24)
+            : Infinity;
+
+          // If event prep unchanged and cache <7 days old, serve as fresh
+          if (!eventPrepChanged && cacheAgeDays < 7) {
+            console.log(
+              `[eventPlanner] Serving recent stale cache as fresh (${cacheAgeDays.toFixed(1)} days old, event prep unchanged)`
+            );
+            return {
+              success: true,
+              step: 1,
+              fromCache: true,
+              allSections: true,
+              ...staleCache.result,
+              tier: riderData.tier,
+              dataTier: riderData.dataTier,
+              dataSnapshot: riderData.dataSnapshot,
+              generatedAt: staleCache.generatedAt,
+            };
+          }
+
+          // Serve as stale with reason so frontend can show banner
+          console.log(
+            `[eventPlanner] Serving stale cache (reason: ${eventPrepChanged ? "event_plan_changed" : "rider_data_changed"}, age: ${cacheAgeDays.toFixed(1)} days)`
+          );
+          return {
+            success: true,
+            step: 1,
+            fromCache: true,
+            allSections: true,
+            stale: true,
+            staleReason: eventPrepChanged
+              ? "event_plan_changed"
+              : "rider_data_changed",
+            eventPrepChanged,
+            ...staleCache.result,
+            tier: riderData.tier,
+            dataTier: riderData.dataTier,
+            dataSnapshot: riderData.dataSnapshot,
+            generatedAt: staleCache.generatedAt,
+          };
+        }
       }
 
       console.log("[eventPlanner] Step 1: Test Requirements Assembly");
       const { system, userMessage } = buildEventPlannerPrompt(
         1, riderData, eventPrepPlan, detailedTestContext, {}
       );
-      const testRequirements = await callClaude({
-        system,
-        userMessage,
-        jsonMode: true,
-        maxTokens: 8192,
-        context: "ep-1-test-requirements",
-      });
+
+      let testRequirements;
+      try {
+        testRequirements = await callClaude({
+          system,
+          userMessage,
+          jsonMode: true,
+          maxTokens: 16384,
+          context: "ep-1-test-requirements",
+        });
+      } catch (err) {
+        if (err.message && err.message.includes("TRUNCATED")) {
+          console.error(
+            `[eventPlanner] EP-1 truncated for level ${targetLevel}. ` +
+            `This level may require more output tokens than allocated.`
+          );
+          throw new HttpsError(
+            "resource-exhausted",
+            "The test requirements analysis was too large to complete. " +
+            "Please try again — if the issue persists, contact support."
+          );
+        }
+        throw err;
+      }
 
       return {
         success: true,
@@ -220,10 +323,12 @@ async function handler(request) {
         showDayGuidance,
       };
 
+      const eventPrepHash = computeEventPrepHash(eventPrepPlan);
       await setCache(uid, cacheKey, fullResult, {
         dataSnapshotHash: hash,
         tierLabel: riderData.tier?.label || "unknown",
         dataTier: riderData.dataTier,
+        eventPrepHash,
       });
 
       // Write-back metadata to eventPrepPlan document

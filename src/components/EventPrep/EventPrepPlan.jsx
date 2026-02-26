@@ -19,14 +19,6 @@ const RESOURCE_LABELS = Object.fromEntries(AVAILABLE_RESOURCES.map(r => [r.value
 const VOICE_LABELS = Object.fromEntries(COACHING_VOICES.filter(v => v.value).map(v => [v.value, v.label]));
 const STATUS_LABELS = Object.fromEntries(EVENT_PREP_STATUSES.map(s => [s.value, s.label]));
 
-const EQUIPMENT_CATEGORIES = {
-  tack: 'Tack',
-  'rider-attire': 'Rider Attire',
-  aids: 'Aids',
-  'horse-care': 'Horse Care',
-  documents: 'Documents'
-};
-
 const STEP_LABELS = [
   '',
   'Analyzing test requirements...',
@@ -50,7 +42,13 @@ export default function EventPrepPlan() {
     preparationPlan: null,
     showDayGuidance: null,
   });
-  const [aiMeta, setAiMeta] = useState({ generatedAt: null, fromCache: false });
+  const [aiMeta, setAiMeta] = useState({
+    generatedAt: null,
+    fromCache: false,
+    stale: false,
+    staleReason: null,
+    eventPrepChanged: false,
+  });
   const [aiStep, setAiStep] = useState(0); // 0=idle, 1-4=in-progress, 5=complete
   const [aiError, setAiError] = useState(null);
   const [failedStep, setFailedStep] = useState(null);
@@ -90,7 +88,13 @@ export default function EventPrepPlan() {
           preparationPlan: result.preparationPlan,
           showDayGuidance: result.showDayGuidance,
         });
-        setAiMeta({ generatedAt: result.generatedAt, fromCache: true });
+        setAiMeta({
+          generatedAt: result.generatedAt,
+          fromCache: true,
+          stale: result.stale || false,
+          staleReason: result.staleReason || null,
+          eventPrepChanged: result.eventPrepChanged || false,
+        });
         setAiStep(5);
       } else {
         // No cache available — return to idle
@@ -150,7 +154,13 @@ export default function EventPrepPlan() {
             preparationPlan: result.preparationPlan,
             showDayGuidance: result.showDayGuidance,
           });
-          setAiMeta({ generatedAt: result.generatedAt, fromCache: true });
+          setAiMeta({
+            generatedAt: result.generatedAt,
+            fromCache: true,
+            stale: result.stale || false,
+            staleReason: result.staleReason || null,
+            eventPrepChanged: result.eventPrepChanged || false,
+          });
           setAiStep(5);
           return;
         }
@@ -158,7 +168,7 @@ export default function EventPrepPlan() {
         // Update accumulated and displayed state progressively
         if (step === 1) {
           accumulated.testRequirements = result.testRequirements;
-          setAiMeta({ generatedAt: null, fromCache: false });
+          setAiMeta({ generatedAt: null, fromCache: false, stale: false, staleReason: null, eventPrepChanged: false });
         } else if (step === 2) {
           accumulated.readinessAnalysis = result.readinessAnalysis;
         } else if (step === 3) {
@@ -179,14 +189,6 @@ export default function EventPrepPlan() {
     }
 
     setAiStep(5);
-  }
-
-  async function toggleEquipment(index) {
-    if (!plan) return;
-    const updated = [...plan.equipmentList];
-    updated[index] = { ...updated[index], packed: !updated[index].packed };
-    setPlan(prev => ({ ...prev, equipmentList: updated }));
-    await updateEventPrepPlan(id, { equipmentList: updated });
   }
 
   async function toggleTask(index) {
@@ -229,15 +231,6 @@ export default function EventPrepPlan() {
   }
 
   const days = daysUntilEvent();
-  const equipmentByCategory = {};
-  (plan.equipmentList || []).forEach((item, index) => {
-    const cat = item.category || 'other';
-    if (!equipmentByCategory[cat]) equipmentByCategory[cat] = [];
-    equipmentByCategory[cat].push({ ...item, _index: index });
-  });
-
-  const packedCount = (plan.equipmentList || []).filter(e => e.packed).length;
-  const totalEquipment = (plan.equipmentList || []).length;
   const completedTasks = (plan.prepTasks || []).filter(t => t.completed).length;
   const totalTasks = (plan.prepTasks || []).length;
 
@@ -354,9 +347,13 @@ export default function EventPrepPlan() {
               ...aiSections,
               generatedAt: aiMeta.generatedAt,
               fromCache: aiMeta.fromCache,
+              stale: aiMeta.stale,
+              staleReason: aiMeta.staleReason,
+              eventPrepChanged: aiMeta.eventPrepChanged,
             }}
             isGenerating={isGenerating}
             currentStep={aiStep}
+            onRegenerate={() => generatePlan(true)}
           />
         )}
 
@@ -477,39 +474,6 @@ export default function EventPrepPlan() {
                 />
                 <span style={{ textDecoration: task.completed ? 'line-through' : 'none', flex: 1 }}>{task.task}</span>
                 {task.dueDate && <span style={{ fontSize: '0.82rem', color: '#7A7A7A' }}>{task.dueDate}</span>}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Equipment Checklist */}
-        {totalEquipment > 0 && (
-          <div className="form-section">
-            <div className="form-section-header">
-              <h2 className="form-section-title">Equipment Checklist ({packedCount}/{totalEquipment})</h2>
-            </div>
-            {Object.entries(equipmentByCategory).map(([cat, items]) => (
-              <div key={cat} style={{ marginBottom: '1rem' }}>
-                <h3 style={{ fontSize: '0.95rem', fontWeight: 600, color: '#8B7355', marginBottom: '0.5rem' }}>
-                  {EQUIPMENT_CATEGORIES[cat] || cat}
-                </h3>
-                {items.map(item => (
-                  <div key={item._index} style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    padding: '6px 0',
-                    opacity: item.packed ? 0.6 : 1
-                  }}>
-                    <input
-                      type="checkbox"
-                      checked={item.packed}
-                      onChange={() => toggleEquipment(item._index)}
-                      style={{ accentColor: '#6B8E5F' }}
-                    />
-                    <span style={{ textDecoration: item.packed ? 'line-through' : 'none' }}>{item.item}</span>
-                  </div>
-                ))}
               </div>
             ))}
           </div>

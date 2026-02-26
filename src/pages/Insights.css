@@ -2605,6 +2605,39 @@
   gap: 1rem;
 }
 
+/* Stale data banner */
+.ep-stale-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  background: #FFF9F0;
+  border: 1px solid #E0D5C7;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.88rem;
+  color: #8B7355;
+}
+
+.ep-stale-banner__text {
+  flex: 1;
+}
+
+.ep-stale-banner__btn {
+  background: #8B7355;
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ep-stale-banner__btn:hover {
+  background: #6B5A3F;
+}
+
 /* Section labels */
 .ep-section-label {
   font-size: 0.82rem;

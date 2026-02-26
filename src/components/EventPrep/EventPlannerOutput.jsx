@@ -6,11 +6,12 @@ import ShowDayGuidanceDisplay from './ShowDayGuidanceDisplay';
 /**
  * Orchestrator for the 4-section AI Event Planner output.
  * Renders each display component progressively as data arrives.
+ * Shows a stale-data banner when cached plan is outdated.
  */
-export default function EventPlannerOutput({ data, isGenerating = false, currentStep = 0 }) {
+export default function EventPlannerOutput({ data, isGenerating = false, currentStep = 0, onRegenerate }) {
   if (!data) return null;
 
-  const { testRequirements, readinessAnalysis, preparationPlan, showDayGuidance, generatedAt, fromCache } = data;
+  const { testRequirements, readinessAnalysis, preparationPlan, showDayGuidance, generatedAt, fromCache, stale, staleReason, eventPrepChanged } = data;
 
   const hasAnySection = testRequirements || readinessAnalysis || preparationPlan || showDayGuidance;
   if (!hasAnySection) return null;
@@ -30,7 +31,7 @@ export default function EventPlannerOutput({ data, isGenerating = false, current
         <div className="ep-output__meta">
           {generatedAt && (
             <span className="panel-timestamp">
-              {fromCache && 'Cached \u00B7 '}
+              {fromCache && !stale && 'Cached \u00B7 '}
               {new Date(generatedAt).toLocaleDateString('en-US', {
                 month: 'short', day: 'numeric', year: 'numeric'
               })}
@@ -38,6 +39,22 @@ export default function EventPlannerOutput({ data, isGenerating = false, current
           )}
         </div>
       </div>
+
+      {/* Stale data banner */}
+      {stale && !isGenerating && (
+        <div className="ep-stale-banner">
+          <div className="ep-stale-banner__text">
+            {eventPrepChanged
+              ? 'Your event details have changed since this plan was generated.'
+              : 'You have new training data since this plan was generated.'}
+          </div>
+          {onRegenerate && (
+            <button className="ep-stale-banner__btn" onClick={onRegenerate}>
+              Regenerate
+            </button>
+          )}
+        </div>
+      )}
 
       {testRequirements && <TestRequirementsDisplay data={testRequirements} />}
       {readinessAnalysis && <ReadinessAnalysisDisplay data={readinessAnalysis} />}
