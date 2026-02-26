@@ -12,19 +12,48 @@
  */
 function aggregateProfile(riderProfile, horseProfiles) {
   const horses = (horseProfiles || [])
-    .map((h) => ({
-      name: h.horseName || "",
-      age: h.age || null,
-      breed: h.breed || "",
-      sex: h.sex || "",
-      partnershipDuration: h.partnership || "",
-      level: h.horseLevel || "",
-      arrangement: h.arrangement || "",
-      strengths: h.strengths || "",
-      soundness: h.soundness || "",
-      conditions: h.conditions || "",
-      importantNotes: h.important || "",
-    }))
+    .map((h) => {
+      // Compute age: prefer birthYear calculation, fall back to approxAge, then legacy age
+      let computedAge = h.age || null;
+      if (h.birthYear) {
+        computedAge = new Date().getFullYear() - parseInt(h.birthYear, 10);
+      } else if (h.approxAge) {
+        computedAge = parseInt(h.approxAge, 10) || null;
+      }
+
+      // Compute partnership duration: prefer month/year, fall back to legacy string
+      let partnershipDuration = h.partnership || "";
+      if (h.partnershipMonth && h.partnershipYear) {
+        const now = new Date();
+        const start = new Date(parseInt(h.partnershipYear), parseInt(h.partnershipMonth) - 1);
+        const totalMonths =
+          (now.getFullYear() - start.getFullYear()) * 12 +
+          (now.getMonth() - start.getMonth());
+        const years = Math.floor(totalMonths / 12);
+        const months = totalMonths % 12;
+        const parts = [];
+        if (years > 0) parts.push(`${years} year${years !== 1 ? "s" : ""}`);
+        if (months > 0) parts.push(`${months} month${months !== 1 ? "s" : ""}`);
+        partnershipDuration = parts.join(", ") || "less than a month";
+      } else if (h.partnershipYear) {
+        partnershipDuration = `since ${h.partnershipYear}`;
+      }
+
+      return {
+        name: h.horseName || "",
+        age: computedAge,
+        breed: h.breed || "",
+        sex: h.sex || "",
+        partnershipDuration,
+        level: h.horseLevel || "",
+        arrangement: h.arrangement || "",
+        strengths: h.strengths || "",
+        soundness: h.soundness || "",
+        conditions: h.conditions || "",
+        importantNotes: h.important || "",
+        asymmetry: h.asymmetry || null,
+      };
+    })
     .sort((a, b) => a.name.localeCompare(b.name));
 
   if (!riderProfile) {

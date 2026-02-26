@@ -77,7 +77,7 @@ Your Dressage Journey is an AI-powered coaching platform for adult amateur dress
 - Created AppLayout with navigation
 - Built shared components including VoiceInput (Web Speech API for hands-free entry at the barn)
 - Handled date timezone issues (ISO strings parsed with `+ 'T00:00:00'`)
-- Event Prep form matched the 6-section reference HTML spec
+- Event Prep form matched the reference HTML spec (`event-preparation-formV2.html` is the current version — multi-horse support, per-horse goals/concerns, Logistics section with packing list button)
 
 ### Phase 5: Deployment & Dashboard
 - Configured Firebase Hosting (`firebase.json` with SPA rewrite, asset caching)

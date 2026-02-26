@@ -1559,6 +1559,184 @@
   background: rgba(192, 57, 43, 0.06);
 }
 
+/* ============================================
+   Prompt Chips (click-to-append to textarea)
+   ============================================ */
+.prompt-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 10px;
+}
+
+.prompt-chip {
+  display: inline-block;
+  background: #F0EBE3;
+  color: #6F5C44;
+  font-size: 0.82em;
+  font-weight: 500;
+  padding: 4px 11px;
+  border-radius: 20px;
+  border: 1px solid #D4C4B0;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  user-select: none;
+  font-family: 'Work Sans', sans-serif;
+}
+
+.prompt-chip:hover {
+  background: #D4A574;
+  color: white;
+  border-color: #D4A574;
+}
+
+.prompt-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   Optional Badge (inline section title badge)
+   ============================================ */
+.optional-badge {
+  display: inline-block;
+  background: #F0EBE3;
+  color: #8B7355;
+  font-size: 0.72em;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-left: 10px;
+  vertical-align: middle;
+  font-family: 'Work Sans', sans-serif;
+}
+
+/* ============================================
+   Section Intro (callout box)
+   ============================================ */
+.section-intro {
+  background: #FAF8F5;
+  border-left: 4px solid #D4A574;
+  padding: 14px 18px;
+  border-radius: 0 8px 8px 0;
+  margin-bottom: 24px;
+  color: #5A5A5A;
+  font-size: 0.95em;
+  line-height: 1.7;
+}
+
+/* ============================================
+   Asymmetry Test Cards
+   ============================================ */
+.test-card {
+  border: 1px solid #E0D5C7;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.test-card:hover {
+  box-shadow: 0 3px 12px rgba(139, 115, 85, 0.12);
+}
+
+.test-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  cursor: pointer;
+  background: #FDFBF8;
+  user-select: none;
+  gap: 12px;
+}
+
+.test-toggle:hover {
+  background: #F5F1EB;
+}
+
+.test-toggle-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.test-checkbox {
+  width: 20px;
+  height: 20px;
+  accent-color: #8B7355;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.test-toggle-title {
+  font-weight: 600;
+  color: #3A3A3A;
+  font-size: 1em;
+}
+
+.test-toggle-arrow {
+  color: #8B7355;
+  font-size: 0.9em;
+  transition: transform 0.25s ease;
+  flex-shrink: 0;
+}
+
+.test-toggle-arrow.open {
+  transform: rotate(180deg);
+}
+
+.test-body {
+  display: none;
+  padding: 0 20px 20px 20px;
+  border-top: 1px solid #E0D5C7;
+  background: white;
+}
+
+.test-body.open {
+  display: block;
+}
+
+.test-description {
+  background: #FAF8F5;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 16px 0 14px;
+  font-size: 0.92em;
+  color: #5A5A5A;
+  line-height: 1.75;
+}
+
+.test-description strong {
+  color: #8B7355;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.test-description .what-it-means {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #D4C4B0;
+  font-style: italic;
+  color: #7A7A7A;
+}
+
+.test-label {
+  font-weight: 600;
+  color: #3A3A3A;
+  font-size: 0.95em;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.test-body textarea {
+  width: 100%;
+  min-height: 80px;
+}
+
 @media (max-width: 768px) {
   .horse-entry {
     padding: 20px 16px;
@@ -1572,5 +1750,21 @@
 
   .remove-horse-btn {
     align-self: flex-end;
+  }
+
+  .prompt-chips {
+    gap: 5px;
+  }
+
+  .test-toggle {
+    padding: 12px 16px;
+  }
+
+  .test-toggle-title {
+    font-size: 0.9em;
+  }
+
+  .test-body {
+    padding: 0 16px 16px 16px;
   }
 }

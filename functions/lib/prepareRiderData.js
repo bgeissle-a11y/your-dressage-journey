@@ -80,6 +80,8 @@ function buildHorseSummaries(profile, rideHistory) {
       soundness: horse.soundness,
       conditions: horse.conditions,
       importantNotes: horse.importantNotes,
+      // V2: asymmetry assessment data
+      asymmetry: horse.asymmetry || null,
       // Ride statistics (null if no rides on this horse)
       rideCount: stats ? stats.rideCount : 0,
       avgQuality: stats ? stats.avgQuality : null,

@@ -57,9 +57,20 @@ export default function HorseProfileList() {
               <div className="list-card-title">{horse.horseName}</div>
               <div className="list-card-meta">
                 {horse.breed && <span>{horse.breed}</span>}
-                {horse.age && <span>{horse.age} years</span>}
+                {horse.birthYear ? (
+                  <span>{new Date().getFullYear() - parseInt(horse.birthYear)} years</span>
+                ) : horse.approxAge ? (
+                  <span>~{horse.approxAge} years</span>
+                ) : horse.age ? (
+                  <span>{horse.age} years</span>
+                ) : null}
                 {horse.horseLevel && <span>{horse.horseLevel}</span>}
                 {horse.arrangement && <span>{horse.arrangement}</span>}
+                {horse.asymmetry && (() => {
+                  const completed = ['sweat', 'carrot', 'tail', 'hoof']
+                    .filter(k => horse.asymmetry[k]?.completed).length;
+                  return completed > 0 ? <span>{completed}/4 asymmetry tests</span> : null;
+                })()}
               </div>
             </Link>
             <div className="list-card-actions">

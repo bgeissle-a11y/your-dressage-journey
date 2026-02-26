@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your Dressage Journey Pilot - Horse Profile Form">
+    <title>Horse Profile | Your Dressage Journey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #FAF8F5 0%, #F5F1EB 100%);
+            padding: 20px;
+            line-height: 1.6;
+            color: #3A3A3A;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            background: white;
+            padding: 40px 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(139, 115, 85, 0.12);
+            border: 1px solid #E0D5C7;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            color: #8B7355;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: #7A7A7A;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .intro-text {
+            color: #999;
+            font-size: 0.95em;
+            font-style: italic;
+            margin-top: 15px;
+        }
+
+        .section {
+            background: white;
+            padding: 35px;
+            margin-bottom: 25px;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(139, 115, 85, 0.08);
+            border: 1px solid #E0D5C7;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            color: #8B7355;
+            font-size: 1.6em;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #D4A574;
+            font-weight: 600;
+        }
+
+        .field {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #3A3A3A;
+            font-size: 1.05em;
+        }
+
+        .required {
+            color: #D0021B;
+            font-weight: bold;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            border: 2px solid #E0D5C7;
+            border-radius: 10px;
+            font-family: 'Work Sans', sans-serif;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #8B7355;
+            box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238B7355' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 40px;
+        }
+
+        .help-text {
+            font-size: 0.9em;
+            color: #7A7A7A;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        button {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.15em;
+            font-weight: 600;
+            background: #8B7355;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Work Sans', sans-serif;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(139, 115, 85, 0.25);
+        }
+
+        button:hover {
+            background: #6F5C44;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(139, 115, 85, 0.35);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result-screen {
+            display: none;
+        }
+
+        .success-header {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border: 3px solid #28a745;
+            padding: 40px 30px;
+            text-align: center;
+            border-radius: 16px;
+            margin-bottom: 25px;
+        }
+
+        .success-header h2 {
+            font-family: 'Playfair Display', serif;
+            color: #155724;
+            font-size: 2.2em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .success-header p {
+            color: #155724;
+            font-size: 1.1em;
+            line-height: 1.8;
+        }
+
+        .instructions-box {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-left: 5px solid #ffc107;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .instructions-box h3 {
+            font-family: 'Playfair Display', serif;
+            color: #856404;
+            font-size: 1.4em;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .instructions-box ol {
+            margin-left: 20px;
+            color: #856404;
+            font-size: 1.05em;
+            line-height: 2;
+        }
+
+        .instructions-box strong {
+            color: #533f03;
+        }
+
+        .result-box {
+            width: 100%;
+            min-height: 450px;
+            padding: 20px;
+            font-size: 13px;
+            font-family: 'Courier New', monospace;
+            border: 3px solid #28a745;
+            border-radius: 12px;
+            background: #f0fff4;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            color: #1e4620;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #8B7355;
+            border: 2px solid #8B7355;
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(139, 115, 85, 0.05);
+            border-color: #6F5C44;
+        }
+
+        .prompt-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-bottom: 10px;
+        }
+
+        .prompt-chip {
+            display: inline-block;
+            background: #F0EBE3;
+            color: #6F5C44;
+            font-size: 0.82em;
+            font-weight: 500;
+            padding: 4px 11px;
+            border-radius: 20px;
+            border: 1px solid #D4C4B0;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            user-select: none;
+        }
+
+        .prompt-chip:hover {
+            background: #D4A574;
+            color: white;
+            border-color: #D4A574;
+        }
+
+        .optional-badge {
+            display: inline-block;
+            background: #F0EBE3;
+            color: #8B7355;
+            font-size: 0.72em;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-left: 10px;
+            vertical-align: middle;
+            font-family: 'Work Sans', sans-serif;
+        }
+
+        .section-intro {
+            background: #FAF8F5;
+            border-left: 4px solid #D4A574;
+            padding: 14px 18px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 24px;
+            color: #5A5A5A;
+            font-size: 0.95em;
+            line-height: 1.7;
+        }
+
+        .test-card {
+            border: 1px solid #E0D5C7;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .test-card:hover {
+            box-shadow: 0 3px 12px rgba(139, 115, 85, 0.12);
+        }
+
+        .test-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            cursor: pointer;
+            background: #FDFBF8;
+            user-select: none;
+            gap: 12px;
+        }
+
+        .test-toggle:hover {
+            background: #F5F1EB;
+        }
+
+        .test-toggle-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .test-checkbox {
+            width: 20px;
+            height: 20px;
+            accent-color: #8B7355;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .test-toggle-title {
+            font-weight: 600;
+            color: #3A3A3A;
+            font-size: 1em;
+        }
+
+        .test-toggle-arrow {
+            color: #8B7355;
+            font-size: 0.9em;
+            transition: transform 0.25s ease;
+            flex-shrink: 0;
+        }
+
+        .test-toggle-arrow.open {
+            transform: rotate(180deg);
+        }
+
+        .test-body {
+            display: none;
+            padding: 0 20px 20px 20px;
+            border-top: 1px solid #E0D5C7;
+            background: white;
+        }
+
+        .test-body.open {
+            display: block;
+        }
+
+        .test-description {
+            background: #FAF8F5;
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin: 16px 0 14px;
+            font-size: 0.92em;
+            color: #5A5A5A;
+            line-height: 1.75;
+        }
+
+        .test-description strong {
+            color: #8B7355;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .test-description .what-it-means {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #D4C4B0;
+            font-style: italic;
+            color: #7A7A7A;
+        }
+
+        .test-label {
+            font-weight: 600;
+            color: #3A3A3A;
+            font-size: 0.95em;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .section {
+                padding: 25px 20px;
+            }
+
+            header {
+                padding: 30px 20px;
+            }
+
+            .success-header h2 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Your Dressage Journey</h1>
+            <p class="subtitle">Pilot Program Application</p>
+            <p class="intro-text">Horse Profile Form (Optional)</p>
+        </header>
+
+        <div id="formScreen">
+            <div class="section">
+                <h2 class="section-title">1. Basic Information</h2>
+                
+                <div class="field">
+                    <label>Your Name <span class="required">*</span></label>
+                    <input type="text" id="riderName" placeholder="Your full name">
+                    <p class="help-text">Should match your Rider Profile</p>
+                </div>
+
+                <div class="field">
+                    <label>Horse's Name <span class="required">*</span></label>
+                    <input type="text" id="horseName" placeholder="Your horse's name">
+                </div>
+
+                <div class="field">
+                    <label>Birthdate <span style="font-weight:400; color:#7A7A7A; font-size:0.9em;">(month &amp; year)</span></label>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <select id="birthMonth" style="flex: 1; min-width: 140px;">
+                            <option value="">Month</option>
+                            <option value="01">January</option>
+                            <option value="02">February</option>
+                            <option value="03">March</option>
+                            <option value="04">April</option>
+                            <option value="05">May</option>
+                            <option value="06">June</option>
+                            <option value="07">July</option>
+                            <option value="08">August</option>
+                            <option value="09">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                        <select id="birthYear" style="flex: 1; min-width: 110px;"></select>
+                    </div>
+                    <p class="help-text">Birthdate is stored permanently so the AI always knows your horse's exact age during analysis.</p>
+                </div>
+
+                <div class="field" id="approxAgeField">
+                    <label style="font-weight: 400; font-size: 0.95em; color: #7A7A7A;">Don't know the exact birthdate? Enter an approximate age instead:</label>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="number" id="approxAge" min="1" max="45" placeholder="e.g., 12" style="max-width: 120px;">
+                        <span style="color: #7A7A7A; font-size: 0.9em;">years old</span>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Breed</label>
+                    <input type="text" id="breed" placeholder="e.g., Warmblood, Thoroughbred">
+                </div>
+
+                <div class="field">
+                    <label>Sex</label>
+                    <select id="sex">
+                        <option value="">--Select--</option>
+                        <option value="mare">Mare</option>
+                        <option value="gelding">Gelding</option>
+                        <option value="stallion">Stallion</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">2. Partnership & Training</h2>
+                
+                <div class="field">
+                    <label>When did you start working together?</label>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <select id="partnershipMonth" style="flex: 1; min-width: 140px;">
+                            <option value="">Month</option>
+                            <option value="01">January</option>
+                            <option value="02">February</option>
+                            <option value="03">March</option>
+                            <option value="04">April</option>
+                            <option value="05">May</option>
+                            <option value="06">June</option>
+                            <option value="07">July</option>
+                            <option value="08">August</option>
+                            <option value="09">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                        <select id="partnershipYear" style="flex: 1; min-width: 110px;"></select>
+                    </div>
+                    <p class="help-text">The AI uses this to understand the arc of your partnership over time.</p>
+                </div>
+
+                <div class="field">
+                    <label>Training Level</label>
+                    <select id="horseLevel">
+                        <option value="">--Select--</option>
+                        <option value="beginner">Beginner/Green</option>
+                        <option value="training">Training Level</option>
+                        <option value="first">First Level</option>
+                        <option value="second">Second Level</option>
+                        <option value="third">Third Level</option>
+                        <option value="fourth">Fourth Level</option>
+                        <option value="psg">Prix St. Georges</option>
+                        <option value="inter1">Intermediate I</option>
+                        <option value="inter2">Intermediate II</option>
+                        <option value="gp">Grand Prix</option>
+                        <option value="training-not-showing">In training (not showing)</option>
+                        <option value="groundwork">Ground work only / not currently under saddle</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Your arrangement with this horse</label>
+                    <select id="arrangement">
+                        <option value="">--Select--</option>
+                        <option value="own">I own this horse</option>
+                        <option value="lease">I lease this horse</option>
+                        <option value="partial-lease">Partial lease</option>
+                        <option value="catch-ride">Catch ride</option>
+                        <option value="other">Other arrangement</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">3. About This Horse</h2>
+                
+                <div class="field">
+                    <label>Strengths & Qualities</label>
+                    <div class="prompt-chips">
+                        <span class="prompt-chip">expressive</span>
+                        <span class="prompt-chip">brave</span>
+                        <span class="prompt-chip">sensitive</span>
+                        <span class="prompt-chip">forgiving</span>
+                        <span class="prompt-chip">careful</span>
+                        <span class="prompt-chip">honest</span>
+                        <span class="prompt-chip">willing</span>
+                        <span class="prompt-chip">elastic</span>
+                        <span class="prompt-chip">powerful</span>
+                        <span class="prompt-chip">good mind</span>
+                        <span class="prompt-chip">spooky</span>
+                        <span class="prompt-chip">reactive</span>
+                        <span class="prompt-chip">quiet</span>
+                    </div>
+                    <textarea id="strengths" placeholder="What does this horse do well? What are their best qualities?"></textarea>
+                </div>
+
+                <div class="field">
+                    <label>Current Soundness Status</label>
+                    <select id="soundness">
+                        <option value="">--Select--</option>
+                        <option value="sound">Sound/No known issues</option>
+                        <option value="managing">Managing ongoing issues</option>
+                        <option value="recovering">Recovering from injury</option>
+                        <option value="not-sound">Not currently sound</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Chronic Conditions or Special Considerations</label>
+                    <textarea id="conditions" placeholder="Any ongoing health issues, special care requirements, or important notes"></textarea>
+                    <p class="help-text">Optional - helps understand your partnership context</p>
+                </div>
+
+                <div class="field">
+                    <label>What is important about this horse? <span class="required">*</span></label>
+                    <textarea id="important" placeholder="What makes this partnership meaningful to you? Why is this horse special in your journey?" style="min-height: 120px;"></textarea>
+                    <p class="help-text">This is the most important question - share what matters</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">4. Horse Asymmetry Assessment <span class="optional-badge">Optional</span></h2>
+
+                <p class="section-intro">
+                    Asymmetry is normal in horses—just as humans are right- or left-handed. Knowing your horse's patterns helps the AI connect training observations to physical tendencies. Complete any or all of the four tests below at your own pace. Check the box to activate each test, then record what you find.
+                </p>
+
+                <!-- Test 1 -->
+                <div class="test-card" id="card1">
+                    <div class="test-toggle" onclick="toggleTest(1)">
+                        <div class="test-toggle-left">
+                            <input type="checkbox" class="test-checkbox" id="check1" onclick="event.stopPropagation(); toggleTest(1, this.checked)">
+                            <span class="test-toggle-title">Test 1 — The Sweat & Hair Diagnostic</span>
+                        </div>
+                        <span class="test-toggle-arrow" id="arrow1">▼</span>
+                    </div>
+                    <div class="test-body" id="body1">
+                        <div class="test-description">
+                            <strong>How to do it:</strong>
+                            After a ride where your horse broke a light sweat, pull the saddle and pad off immediately. Look at the sweat patterns on the horse's back and the underside of the pad.
+                            <div class="what-it-means">
+                                <strong>What you're looking for:</strong> Is one side bone-dry while the other is soaked? Are the hair follicles ruffled or "swirled" differently left vs. right? Dry spots can indicate too much pressure (constricting sweat glands); ruffled hair suggests the saddle is shifting toward one side.
+                            </div>
+                        </div>
+                        <span class="test-label">What did you observe?</span>
+                        <textarea id="sweat_observation" placeholder="e.g., Left side was consistently dry near the saddle panel, right side sweated normally. Hair ruffled forward on the left."></textarea>
+                        <span class="test-label" style="margin-top: 12px;">Your interpretation (optional)</span>
+                        <textarea id="sweat_interpretation" style="min-height: 70px;" placeholder="e.g., Saddle may be bridging on the left, or left panel has more pressure."></textarea>
+                    </div>
+                </div>
+
+                <!-- Test 2 -->
+                <div class="test-card" id="card2">
+                    <div class="test-toggle" onclick="toggleTest(2)">
+                        <div class="test-toggle-left">
+                            <input type="checkbox" class="test-checkbox" id="check2" onclick="event.stopPropagation(); toggleTest(2, this.checked)">
+                            <span class="test-toggle-title">Test 2 — The Carrot Stretch</span>
+                        </div>
+                        <span class="test-toggle-arrow" id="arrow2">▼</span>
+                    </div>
+                    <div class="test-body" id="body2">
+                        <div class="test-description">
+                            <strong>How to do it:</strong>
+                            Stand your horse squarely on level ground. Use a carrot or treat to lead their nose toward each hip in turn—ask them to touch their flank/hip on the left, then the right.
+                            <div class="what-it-means">
+                                <strong>What you're looking for:</strong> How far can they reach each side? Does one side cause them to "cheat" by stepping out with a leg to compensate? This identifies lateral stiffness in the neck and thoracic spine.
+                            </div>
+                        </div>
+                        <span class="test-label">What did you observe?</span>
+                        <textarea id="carrot_observation" placeholder="e.g., Easily reaches hip on left. On right, can only get to mid-ribcage and shifts right hind out to compensate."></textarea>
+                        <span class="test-label" style="margin-top: 12px;">Your interpretation (optional)</span>
+                        <textarea id="carrot_interpretation" style="min-height: 70px;" placeholder="e.g., Lateral stiffness in right side of neck/thoracic spine."></textarea>
+                    </div>
+                </div>
+
+                <!-- Test 3 -->
+                <div class="test-card" id="card3">
+                    <div class="test-toggle" onclick="toggleTest(3)">
+                        <div class="test-toggle-left">
+                            <input type="checkbox" class="test-checkbox" id="check3" onclick="event.stopPropagation(); toggleTest(3, this.checked)">
+                            <span class="test-toggle-title">Test 3 — The Tail Pull & Swing</span>
+                        </div>
+                        <span class="test-toggle-arrow" id="arrow3">▼</span>
+                    </div>
+                    <div class="test-body" id="body3">
+                        <div class="test-description">
+                            <strong>How to do it:</strong>
+                            Stand safely to the side of the haunches. Gently grasp the dock of the tail and let it rest in your hand—feel for tension. Then gently swing the tail like a pendulum, left and right.
+                            <div class="what-it-means">
+                                <strong>What you're looking for:</strong> Does the tail hang naturally to one side? When you swing it, does it move fluidly one way but feel "blocked" or resistant the other? A tail that parks to one side often indicates a rotated pelvis or tension in the opposite SI region.
+                            </div>
+                        </div>
+                        <span class="test-label">What did you observe?</span>
+                        <textarea id="tail_observation" placeholder="e.g., Tail rests slightly to the right. Swings freely to the left but feels blocked/stiff swinging to the right."></textarea>
+                        <span class="test-label" style="margin-top: 12px;">Your interpretation (optional)</span>
+                        <textarea id="tail_interpretation" style="min-height: 70px;" placeholder="e.g., Possible right SI tension or pelvic rotation to the left."></textarea>
+                    </div>
+                </div>
+
+                <!-- Test 4 -->
+                <div class="test-card" id="card4">
+                    <div class="test-toggle" onclick="toggleTest(4)">
+                        <div class="test-toggle-left">
+                            <input type="checkbox" class="test-checkbox" id="check4" onclick="event.stopPropagation(); toggleTest(4, this.checked)">
+                            <span class="test-toggle-title">Test 4 — The Hoof Print Tracking</span>
+                        </div>
+                        <span class="test-toggle-arrow" id="arrow4">▼</span>
+                    </div>
+                    <div class="test-body" id="body4">
+                        <div class="test-description">
+                            <strong>How to do it:</strong>
+                            On a freshly dragged arena or soft level dirt, lead your horse in a straight line at a walk for about 20 meters. Look back at the tracks.
+                            <div class="what-it-means">
+                                <strong>What you're looking for:</strong> Are the hind hooves stepping directly into the prints of the front hooves (tracking up)? Or is one hind consistently stepping to the inside or outside of the front track? The "weak" pushing leg typically straddling the midline or falling short.
+                            </div>
+                        </div>
+                        <span class="test-label">What did you observe?</span>
+                        <textarea id="hoof_observation" placeholder="e.g., Left hind tracks up cleanly. Right hind consistently falls about 3 inches to the inside of the right front print."></textarea>
+                        <span class="test-label" style="margin-top: 12px;">Your interpretation (optional)</span>
+                        <textarea id="hoof_interpretation" style="min-height: 70px;" placeholder="e.g., Right hind appears to be the weaker pushing leg."></textarea>
+                    </div>
+                </div>
+
+                <div class="field" style="margin-top: 20px; margin-bottom: 0;">
+                    <label>Overall Asymmetry Notes</label>
+                    <textarea id="asymmetry_overall" placeholder="Any patterns you notice across the tests, or other asymmetry observations from your trainer, vet, or bodyworker?"></textarea>
+                    <p class="help-text">e.g., My chiropractor mentioned right SI issues, which aligns with the tail and carrot stretch findings.</p>
+                </div>
+            </div>
+
+            <button type="button" onclick="generateData()">Submit Horse Profile</button>
+        </div>
+
+        <div id="resultScreen" class="result-screen">
+            <div class="success-header">
+                <h2>âœ“ Profile Complete!</h2>
+                <p>Your horse profile information has been prepared and is ready to send.</p>
+            </div>
+            
+            <div class="instructions-box">
+                <h3>ðŸ“‹ Next Steps:</h3>
+                <ol>
+                    <li><strong>Tap inside the text box below</strong></li>
+                    <li><strong>Select all the text</strong> (tap "Select All" or press and hold)</li>
+                    <li><strong>Tap "Copy"</strong></li>
+                    <li><strong>Open your email app</strong></li>
+                    <li><strong>Paste</strong> the data and send to Barb</li>
+                </ol>
+            </div>
+
+            <textarea id="resultBox" class="result-box" readonly></textarea>
+
+            <button type="button" onclick="location.reload()" class="btn-secondary">Start Over / Edit Information</button>
+        </div>
+    </div>
+
+    <script>
+        // Populate birth year dropdown
+        (function() {
+            var yearSelect = document.getElementById('birthYear');
+            var currentYear = new Date().getFullYear();
+            var opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = 'Year';
+            yearSelect.appendChild(opt);
+            for (var y = currentYear; y >= currentYear - 45; y--) {
+                var o = document.createElement('option');
+                o.value = y;
+                o.textContent = y;
+                yearSelect.appendChild(o);
+            }
+
+            // Partnership year — same range but only goes back ~30 years
+            var pYear = document.getElementById('partnershipYear');
+            var po = document.createElement('option');
+            po.value = '';
+            po.textContent = 'Year';
+            pYear.appendChild(po);
+            for (var y = currentYear; y >= currentYear - 30; y--) {
+                var o = document.createElement('option');
+                o.value = y;
+                o.textContent = y;
+                pYear.appendChild(o);
+            }
+        })();
+
+        // Chip click — appends word to strengths textarea
+        document.querySelectorAll('.prompt-chip').forEach(function(chip) {
+            chip.addEventListener('click', function() {
+                var ta = document.getElementById('strengths');
+                var word = chip.textContent;
+                var current = ta.value.trim();
+                if (current && !current.endsWith(',')) {
+                    ta.value = current + ', ' + word;
+                } else if (current.endsWith(',')) {
+                    ta.value = current + ' ' + word;
+                } else {
+                    ta.value = word;
+                }
+                ta.focus();
+            });
+        });
+
+        function toggleTest(num, forceOpen) {
+            var body = document.getElementById('body' + num);
+            var arrow = document.getElementById('arrow' + num);
+            var checkbox = document.getElementById('check' + num);
+            var isOpen = body.classList.contains('open');
+
+            if (forceOpen !== undefined) {
+                // Called from checkbox click
+                if (forceOpen) {
+                    body.classList.add('open');
+                    arrow.classList.add('open');
+                    checkbox.checked = true;
+                } else {
+                    body.classList.remove('open');
+                    arrow.classList.remove('open');
+                    checkbox.checked = false;
+                }
+            } else {
+                // Called from header click — toggle
+                if (isOpen) {
+                    body.classList.remove('open');
+                    arrow.classList.remove('open');
+                    checkbox.checked = false;
+                } else {
+                    body.classList.add('open');
+                    arrow.classList.add('open');
+                    checkbox.checked = true;
+                }
+            }
+        }
+
+        function generateData() {
+            // Collect form data
+            var data = {
+                riderName: document.getElementById('riderName').value.trim(),
+                horseName: document.getElementById('horseName').value.trim(),
+                birthMonth: document.getElementById('birthMonth').value,
+                birthYear: document.getElementById('birthYear').value,
+                approxAge: document.getElementById('approxAge').value,
+                breed: document.getElementById('breed').value.trim(),
+                sex: document.getElementById('sex').value,
+                partnershipMonth: document.getElementById('partnershipMonth').value,
+                partnershipYear: document.getElementById('partnershipYear').value,
+                horseLevel: document.getElementById('horseLevel').value,
+                arrangement: document.getElementById('arrangement').value,
+                strengths: document.getElementById('strengths').value.trim(),
+                soundness: document.getElementById('soundness').value,
+                conditions: document.getElementById('conditions').value.trim(),
+                important: document.getElementById('important').value.trim(),
+                asymmetry: {
+                    sweat: {
+                        completed: document.getElementById('check1').checked,
+                        observation: document.getElementById('sweat_observation').value.trim(),
+                        interpretation: document.getElementById('sweat_interpretation').value.trim()
+                    },
+                    carrot: {
+                        completed: document.getElementById('check2').checked,
+                        observation: document.getElementById('carrot_observation').value.trim(),
+                        interpretation: document.getElementById('carrot_interpretation').value.trim()
+                    },
+                    tail: {
+                        completed: document.getElementById('check3').checked,
+                        observation: document.getElementById('tail_observation').value.trim(),
+                        interpretation: document.getElementById('tail_interpretation').value.trim()
+                    },
+                    hoof: {
+                        completed: document.getElementById('check4').checked,
+                        observation: document.getElementById('hoof_observation').value.trim(),
+                        interpretation: document.getElementById('hoof_interpretation').value.trim()
+                    },
+                    overall: document.getElementById('asymmetry_overall').value.trim()
+                },
+                timestamp: new Date().toISOString()
+            };
+            
+            // Validate required fields
+            var errors = [];
+            if (!data.riderName) errors.push('â€¢ Your Name');
+            if (!data.horseName) errors.push('â€¢ Horse\'s Name');
+            if (!data.important) errors.push('â€¢ What is important about this horse');
+            
+            if (errors.length > 0) {
+                alert('Please complete these required fields:\n\n' + errors.join('\n'));
+                return;
+            }
+            
+            // Format output
+            var output = '==========================================================\n';
+            output += '       YOUR DRESSAGE JOURNEY - HORSE PROFILE\n';
+            output += '              Pilot Program Application\n';
+            output += '==========================================================\n\n';
+            
+            output += 'BASIC INFORMATION:\n';
+            output += '----------------------------------------\n';
+            output += 'Rider Name: ' + data.riderName + '\n';
+            output += 'Horse Name: ' + data.horseName + '\n';
+            
+            var monthNames = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
+            if (data.birthMonth && data.birthYear) {
+                var birthStr = monthNames[parseInt(data.birthMonth)] + ' ' + data.birthYear;
+                var age = new Date().getFullYear() - parseInt(data.birthYear);
+                output += 'Birthdate: ' + birthStr + ' (approx. ' + age + ' years old)\n';
+            } else if (data.birthYear) {
+                var age = new Date().getFullYear() - parseInt(data.birthYear);
+                output += 'Birth Year: ' + data.birthYear + ' (approx. ' + age + ' years old)\n';
+            } else if (data.approxAge) {
+                output += 'Approximate Age: ' + data.approxAge + ' years\n';
+            } else {
+                output += 'Age/Birthdate: Not provided\n';
+            }
+            output += 'Breed: ' + (data.breed || 'Not provided') + '\n';
+            output += 'Sex: ' + (data.sex || 'Not provided') + '\n\n';
+            
+            output += 'PARTNERSHIP & TRAINING:\n';
+            output += '----------------------------------------\n';
+            output += 'Partnership Start: ';
+            if (data.partnershipMonth && data.partnershipYear) {
+                var pMonthStr = monthNames[parseInt(data.partnershipMonth)] + ' ' + data.partnershipYear;
+                var now = new Date();
+                var pStart = new Date(parseInt(data.partnershipYear), parseInt(data.partnershipMonth) - 1);
+                var totalMonths = (now.getFullYear() - pStart.getFullYear()) * 12 + (now.getMonth() - pStart.getMonth());
+                var pYears = Math.floor(totalMonths / 12);
+                var pMonths = totalMonths % 12;
+                var durationStr = pYears > 0 ? pYears + ' year' + (pYears !== 1 ? 's' : '') : '';
+                if (pMonths > 0) durationStr += (durationStr ? ', ' : '') + pMonths + ' month' + (pMonths !== 1 ? 's' : '');
+                output += pMonthStr + ' (' + (durationStr || 'less than a month') + ' together)\n';
+            } else if (data.partnershipYear) {
+                output += data.partnershipYear + '\n';
+            } else {
+                output += 'Not provided\n';
+            }
+            output += 'Training Level: ' + (data.horseLevel || 'Not provided') + '\n';
+            output += 'Arrangement: ' + (data.arrangement || 'Not provided') + '\n\n';
+            
+            output += 'ABOUT THIS HORSE:\n';
+            output += '----------------------------------------\n';
+            
+            if (data.strengths) {
+                output += 'Strengths & Qualities:\n' + data.strengths + '\n\n';
+            }
+            
+            output += 'Soundness Status: ' + (data.soundness || 'Not provided') + '\n';
+            
+            if (data.conditions) {
+                output += 'Conditions/Considerations:\n' + data.conditions + '\n\n';
+            } else {
+                output += 'Conditions/Considerations: None noted\n\n';
+            }
+            
+            output += 'WHAT IS IMPORTANT:\n';
+            output += '----------------------------------------\n';
+            output += data.important + '\n\n';
+            
+            // Asymmetry section — only output if at least one test was done or notes added
+            var a = data.asymmetry;
+            var anyAsymmetry = a.sweat.completed || a.carrot.completed || a.tail.completed || a.hoof.completed || a.overall;
+            if (anyAsymmetry) {
+                output += 'HORSE ASYMMETRY ASSESSMENT:\n';
+                output += '----------------------------------------\n';
+                
+                var testDefs = [
+                    { key: 'sweat', label: 'Test 1 — Sweat & Hair Diagnostic', data: a.sweat },
+                    { key: 'carrot', label: 'Test 2 — Carrot Stretch', data: a.carrot },
+                    { key: 'tail', label: 'Test 3 — Tail Pull & Swing', data: a.tail },
+                    { key: 'hoof', label: 'Test 4 — Hoof Print Tracking', data: a.hoof }
+                ];
+
+                testDefs.forEach(function(t) {
+                    if (t.data.completed) {
+                        output += t.label + ':\n';
+                        if (t.data.observation) output += '  Observation: ' + t.data.observation + '\n';
+                        if (t.data.interpretation) output += '  Interpretation: ' + t.data.interpretation + '\n';
+                        output += '\n';
+                    }
+                });
+
+                if (a.overall) {
+                    output += 'Overall Asymmetry Notes:\n' + a.overall + '\n\n';
+                }
+            }
+
+            output += 'SUBMISSION:\n';
+            output += '----------------------------------------\n';
+            output += 'Timestamp: ' + new Date().toLocaleString() + '\n\n';
+            
+            output += '==========================================================\n';
+            output += '               JSON FORMAT (for database)\n';
+            output += '==========================================================\n\n';
+            output += JSON.stringify(data, null, 2);
+            
+            // Display result
+            document.getElementById('resultBox').value = output;
+            document.getElementById('formScreen').style.display = 'none';
+            document.getElementById('resultScreen').style.display = 'block';
+            window.scrollTo(0, 0);
+            
+            // Auto-select text
+            setTimeout(function() {
+                document.getElementById('resultBox').select();
+            }, 100);
+        }
+    </script>
+</body>
+</html>
