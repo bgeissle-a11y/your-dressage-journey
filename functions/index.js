@@ -12,7 +12,7 @@
 // Sentry must be initialized before any other imports
 require("./lib/sentry");
 
-const { onCall } = require("firebase-functions/v2/https");
+const { onCall, onRequest } = require("firebase-functions/v2/https");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const { defineSecret } = require("firebase-functions/params");
@@ -29,6 +29,8 @@ const eventPlanner = require("./api/eventPlanner");
 const physicalGuidance = require("./api/physicalGuidance");
 const cacheWarmth = require("./api/cacheWarmth");
 const dataTriggeredRegeneration = require("./api/dataTriggeredRegeneration");
+const firstGlimpse = require("./api/firstGlimpse");
+const waitlist = require("./api/waitlist");
 
 // Secrets — declared once, referenced by all AI functions
 const anthropicKey = defineSecret("ANTHROPIC_API_KEY");
@@ -38,6 +40,23 @@ exports.ping = onCall((request) => {
   validateAuth(request);
   return { status: "ok", timestamp: new Date().toISOString() };
 });
+
+// --- Unauthenticated health endpoint for UptimeRobot ---
+exports.health = onRequest((req, res) => {
+  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
+// --- First Glimpse (unauthenticated, marketing/lead-gen) ---
+exports.firstGlimpse = onRequest(
+  { secrets: [anthropicKey], timeoutSeconds: 60, memory: "256MiB" },
+  firstGlimpse.handler
+);
+
+// --- Waitlist email capture (unauthenticated, pre-launch) ---
+exports.waitlist = onRequest(
+  { timeoutSeconds: 15, memory: "256MiB" },
+  waitlist.handler
+);
 
 // --- Data preparation (for testing the pre-processing layer) ---
 exports.prepareData = onCall(async (request) => {

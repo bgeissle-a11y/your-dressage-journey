@@ -16,6 +16,22 @@
     ],
     "rewrites": [
       {
+        "source": "/firstGlimpse",
+        "function": "firstGlimpse"
+      },
+      {
+        "source": "/waitlist",
+        "function": "waitlist"
+      },
+      {
+        "source": "/first-glimpse",
+        "destination": "/first-glimpse.html"
+      },
+      {
+        "source": "/first-glimpse-quick",
+        "destination": "/first-glimpse-quick.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

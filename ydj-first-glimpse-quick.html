@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>First Glimpse Quick | Your Dressage Journey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #8B7355;
+            --color-secondary: #D4A574;
+            --color-accent: #C67B5C;
+            --color-success: #6B8E5F;
+            --color-bg: #FAF8F5;
+            --color-bg-secondary: #F5F1EB;
+            --color-text: #3A3A3A;
+            --color-text-light: #7A7A7A;
+            --color-border: #E0D5C7;
+            --shadow-soft: 0 2px 12px rgba(139, 115, 85, 0.08);
+            --shadow-medium: 0 4px 24px rgba(139, 115, 85, 0.12);
+            --shadow-large: 0 8px 40px rgba(139, 115, 85, 0.18);
+
+            --cat-milestone: #4A7DC4;
+            --cat-validation: #5B9E6B;
+            --cat-aha: #D4A017;
+            --cat-obstacle: #C45252;
+            --cat-connection: #8B5EA0;
+            --cat-body: #D4722A;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ─── TOP BAR ─── */
+        .top-bar {
+            width: 100%;
+            background: white;
+            border-bottom: 1px solid var(--color-border);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05em;
+            color: var(--color-primary);
+            font-weight: 600;
+        }
+
+        .logo span {
+            font-weight: 400;
+            color: var(--color-text-light);
+            font-size: 0.82em;
+            display: block;
+            font-family: 'Work Sans', sans-serif;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .progress-area {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+            min-width: 130px;
+        }
+
+        .progress-label {
+            font-size: 0.7em;
+            color: var(--color-text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .progress-track {
+            width: 130px;
+            height: 4px;
+            background: var(--color-border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--color-primary), var(--color-secondary));
+            border-radius: 2px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ─── MAIN ─── */
+        .main {
+            width: 100%;
+            max-width: 660px;
+            padding: 40px 20px 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ─── SCREENS (shared) ─── */
+        .screen {
+            width: 100%;
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+            animation: fadeUp 0.38s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── WELCOME ─── */
+        .welcome-screen {
+            text-align: center;
+            padding: 16px 0 0;
+        }
+
+        .welcome-eyebrow {
+            font-size: 0.72em;
+            text-transform: uppercase;
+            letter-spacing: 1.4px;
+            color: var(--color-secondary);
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .welcome-h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2em, 6vw, 3.1em);
+            color: var(--color-primary);
+            line-height: 1.15;
+            margin-bottom: 24px;
+            font-weight: 700;
+        }
+
+        .welcome-h1 em {
+            font-style: italic;
+            color: var(--color-accent);
+        }
+
+        .welcome-sub {
+            font-size: 1.08em;
+            color: var(--color-text-light);
+            line-height: 1.7;
+            max-width: 460px;
+            margin: 0 auto 32px;
+        }
+
+        .welcome-meta {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .meta-pill {
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: 20px;
+            padding: 7px 16px;
+            font-size: 0.82em;
+            color: var(--color-text-light);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+            color: white;
+            border: none;
+            padding: 17px 52px;
+            border-radius: 50px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1.05em;
+            font-weight: 500;
+            cursor: pointer;
+            letter-spacing: 0.2px;
+            box-shadow: 0 4px 22px rgba(139, 115, 85, 0.32);
+            transition: transform 0.15s, box-shadow 0.15s;
+            display: inline-block;
+        }
+
+        .btn-start:hover { transform: translateY(-2px); box-shadow: 0 6px 30px rgba(139, 115, 85, 0.42); }
+        .btn-start:active { transform: translateY(0); }
+
+        .welcome-note {
+            margin-top: 18px;
+            font-size: 0.76em;
+            color: var(--color-text-light);
+        }
+
+        .cat-stripe {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            margin-top: 36px;
+        }
+
+        .cat-stripe .s {
+            height: 3px;
+            width: 40px;
+            border-radius: 2px;
+            opacity: 0.7;
+        }
+
+        /* ─── QUESTION CARD ─── */
+        .q-card {
+            background: white;
+            border-radius: 20px;
+            padding: 44px 48px 38px;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--color-border);
+        }
+
+        @media (max-width: 580px) {
+            .q-card { padding: 30px 22px 26px; }
+        }
+
+        .q-eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.7em;
+            text-transform: uppercase;
+            letter-spacing: 1.1px;
+            color: var(--color-text-light);
+            margin-bottom: 12px;
+        }
+
+        .q-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .q-text {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.25em, 3.5vw, 1.6em);
+            color: var(--color-text);
+            line-height: 1.38;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .q-sub {
+            font-size: 0.87em;
+            color: var(--color-text-light);
+            line-height: 1.55;
+            margin-bottom: 26px;
+            font-style: italic;
+        }
+
+        /* ─── HORSE HELLO ─── */
+        .horse-hello {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 1.05em;
+            color: var(--color-secondary);
+            margin-bottom: 20px;
+            min-height: 1.4em;
+            transition: opacity 0.5s;
+        }
+
+        /* ─── INPUTS ─── */
+        input[type="text"], textarea, select {
+            width: 100%;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.97em;
+            color: var(--color-text);
+            background: var(--color-bg);
+            border: 1.5px solid var(--color-border);
+            border-radius: 12px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+        }
+
+        input[type="text"] { padding: 14px 18px; }
+        textarea { padding: 15px 18px; min-height: 120px; resize: vertical; line-height: 1.6; }
+        select {
+            padding: 14px 18px;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238B7355' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 18px center;
+            cursor: pointer;
+        }
+
+        input[type="text"]:focus, textarea:focus, select:focus {
+            border-color: var(--color-secondary);
+            box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.13);
+            background: white;
+        }
+
+        input::placeholder, textarea::placeholder { color: #B5A99A; }
+
+        /* ─── NAV ─── */
+        .q-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 24px;
+            gap: 12px;
+        }
+
+        .btn-back {
+            background: none;
+            border: 1.5px solid var(--color-border);
+            color: var(--color-text-light);
+            padding: 11px 22px;
+            border-radius: 50px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.88em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-back:hover { border-color: var(--color-primary); color: var(--color-primary); }
+
+        .btn-next {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+            color: white;
+            border: none;
+            padding: 13px 34px;
+            border-radius: 50px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.93em;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 3px 14px rgba(139, 115, 85, 0.28);
+            transition: transform 0.15s, box-shadow 0.15s;
+            flex-shrink: 0;
+        }
+
+        .btn-next:hover { transform: translateY(-1px); box-shadow: 0 5px 20px rgba(139, 115, 85, 0.36); }
+        .btn-next:active { transform: translateY(0); }
+
+        .skip-row {
+            text-align: center;
+            margin-top: 13px;
+        }
+
+        .skip-link {
+            font-size: 0.8em;
+            color: var(--color-text-light);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            cursor: pointer;
+            background: none;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+            padding: 0;
+            font-family: 'Work Sans', sans-serif;
+            transition: color 0.2s, border-color 0.2s;
+        }
+
+        .skip-link:hover { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+
+        /* ─── CATEGORY PICKER ─── */
+        .cat-picker-intro {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .cat-picker-intro .q-text {
+            margin-bottom: 8px;
+        }
+
+        .cat-picker-intro .q-sub {
+            margin-bottom: 0;
+        }
+
+        .cat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 480px) {
+            .cat-grid { grid-template-columns: 1fr; }
+        }
+
+        .cat-tile {
+            background: var(--color-bg);
+            border: 2px solid var(--color-border);
+            border-radius: 14px;
+            padding: 18px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cat-tile::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--tile-color);
+            border-radius: 14px 0 0 14px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .cat-tile:hover {
+            border-color: var(--tile-color);
+            background: white;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .cat-tile.selected {
+            border-color: var(--tile-color);
+            background: white;
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--tile-color) 15%, transparent);
+        }
+
+        .cat-tile.selected::before { opacity: 1; }
+
+        .cat-tile.dimmed {
+            opacity: 0.45;
+            pointer-events: none;
+        }
+
+        .tile-emoji { font-size: 1.3em; margin-bottom: 8px; display: block; }
+
+        .tile-line {
+            font-size: 0.9em;
+            color: var(--color-text);
+            line-height: 1.4;
+            font-weight: 400;
+        }
+
+        .tile-check {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--tile-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: scale(0.6);
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .tile-check svg { width: 10px; height: 10px; }
+
+        .cat-tile.selected .tile-check {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .cat-min-note {
+            text-align: center;
+            font-size: 0.78em;
+            color: var(--color-text-light);
+            margin-top: 6px;
+            font-style: italic;
+            min-height: 1.2em;
+            transition: color 0.2s;
+        }
+
+        .cat-min-note.warn { color: var(--color-accent); }
+
+        .cat-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        /* ─── LOADING ─── */
+        .loading-screen {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .loading-phase {
+            transition: opacity 0.45s;
+        }
+
+        .loading-icon {
+            font-size: 3.6em;
+            margin-bottom: 20px;
+            display: block;
+            animation: floatBob 2.2s ease-in-out infinite;
+        }
+
+        @keyframes floatBob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .loading-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.55em;
+            color: var(--color-primary);
+            margin-bottom: 10px;
+            min-height: 1.6em;
+        }
+
+        .loading-sub {
+            font-size: 0.93em;
+            color: var(--color-text-light);
+            line-height: 1.6;
+            max-width: 380px;
+            margin: 0 auto 28px;
+            min-height: 3em;
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .loading-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-secondary);
+            animation: dotPulse 1.3s ease-in-out infinite;
+        }
+
+        .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes dotPulse {
+            0%, 80%, 100% { transform: scale(0.65); opacity: 0.35; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Coach reveal */
+        .coach-reveal {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            animation: fadeUp 0.5s forwards;
+        }
+
+        .coach-reveal.visible { display: flex; }
+
+        .reveal-label {
+            font-size: 0.72em;
+            text-transform: uppercase;
+            letter-spacing: 1.4px;
+            color: var(--color-text-light);
+        }
+
+        .reveal-icon {
+            font-size: 3.2em;
+            animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.4); opacity: 0; }
+            to   { transform: scale(1); opacity: 1; }
+        }
+
+        .reveal-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.7em;
+            color: var(--color-primary);
+            font-weight: 700;
+            opacity: 0;
+            animation: fadeIn 0.5s 0.4s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .reveal-tagline {
+            font-size: 0.86em;
+            color: var(--color-text-light);
+            font-style: italic;
+            opacity: 0;
+            animation: fadeIn 0.5s 0.7s forwards;
+        }
+
+        /* ─── RESULT ─── */
+        .result-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .result-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.5em, 4vw, 2em);
+            color: var(--color-primary);
+            margin-bottom: 6px;
+        }
+
+        .result-header p {
+            font-size: 0.88em;
+            color: var(--color-text-light);
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 20px;
+            padding: 38px 44px;
+            box-shadow: var(--shadow-large);
+            border: 1px solid var(--color-border);
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 580px) {
+            .result-card { padding: 26px 20px; }
+        }
+
+        .result-voice-strip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 22px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .result-voice-icon { font-size: 1.3em; }
+
+        .result-voice-info .label {
+            font-size: 0.68em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--color-text-light);
+        }
+
+        .result-voice-info .name {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.98em;
+            color: var(--color-primary);
+            font-weight: 600;
+        }
+
+        .result-insight {
+            font-size: 1.03em;
+            line-height: 1.82;
+            color: var(--color-text);
+            margin-bottom: 28px;
+        }
+
+        .result-divider {
+            height: 1px;
+            background: var(--color-border);
+            margin-bottom: 24px;
+        }
+
+        .actionable-eyebrow {
+            font-size: 0.68em;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--color-secondary);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .actionable-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15em;
+            color: var(--color-primary);
+            margin-bottom: 9px;
+            font-weight: 600;
+        }
+
+        .actionable-text {
+            font-size: 0.95em;
+            line-height: 1.7;
+            color: var(--color-text);
+        }
+
+        /* ─── CTA ─── */
+        .cta-card {
+            background: linear-gradient(135deg, #3A2E22 0%, #5C4033 55%, #8B7355 100%);
+            border-radius: 20px;
+            padding: 38px 44px;
+            text-align: center;
+            color: white;
+            margin-bottom: 14px;
+        }
+
+        @media (max-width: 580px) { .cta-card { padding: 28px 20px; } }
+
+        .cta-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.45em;
+            margin-bottom: 10px;
+        }
+
+        .cta-card p {
+            font-size: 0.9em;
+            line-height: 1.65;
+            opacity: 0.82;
+            max-width: 400px;
+            margin: 0 auto 26px;
+        }
+
+        .btn-cta {
+            background: white;
+            color: var(--color-primary);
+            border: none;
+            padding: 13px 38px;
+            border-radius: 50px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.94em;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 3px 14px rgba(0,0,0,0.18);
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .btn-cta:hover { transform: translateY(-2px); box-shadow: 0 5px 22px rgba(0,0,0,0.24); }
+
+        .restart-row {
+            text-align: center;
+            margin-top: 6px;
+        }
+
+        .restart-row button {
+            background: none;
+            border: none;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.8em;
+            color: var(--color-text-light);
+            cursor: pointer;
+            border-bottom: 1px solid transparent;
+            padding: 0;
+            transition: all 0.2s;
+        }
+
+        .restart-row button:hover { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+
+        /* ─── ERROR ─── */
+        .error-card {
+            background: #FEF3F0;
+            border: 1px solid #F5C6BC;
+            border-radius: 12px;
+            padding: 18px 22px;
+            color: #8B3A2A;
+            font-size: 0.88em;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        /* ─── SHAKE ANIMATION ─── */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+
+        .shake { animation: shake 0.4s ease; }
+
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <div class="logo">
+        Your Dressage Journey
+        <span>First Glimpse · Quick</span>
+    </div>
+    <div class="progress-area">
+        <div class="progress-label" id="progressLabel">Welcome</div>
+        <div class="progress-track">
+            <div class="progress-fill" id="progressFill" style="width:0%"></div>
+        </div>
+    </div>
+</div>
+
+<div class="main">
+
+    <!-- ═══ WELCOME ═══ -->
+    <div class="screen active" id="screenWelcome">
+        <div class="welcome-screen">
+            <div class="welcome-eyebrow">Your Dressage Journey · First Glimpse</div>
+            <h1 class="welcome-h1">Tell us about you<br>and your <em>horse.</em><br>We'll tell you something<br>you might not have seen.</h1>
+            <p class="welcome-sub">A few questions. One personalized insight. Choose what you share — we'll do the rest.</p>
+            <div class="welcome-meta">
+                <div class="meta-pill">~4 minutes</div>
+                <div class="meta-pill">You choose the questions</div>
+                <div class="meta-pill">One personal insight</div>
+            </div>
+            <button class="btn-start" onclick="goTo('screenName')">Begin →</button>
+            <div class="welcome-note">No login required · Your responses are not stored</div>
+            <div class="cat-stripe">
+                <div class="s" style="background:var(--cat-milestone)"></div>
+                <div class="s" style="background:var(--cat-validation)"></div>
+                <div class="s" style="background:var(--cat-aha)"></div>
+                <div class="s" style="background:var(--cat-obstacle)"></div>
+                <div class="s" style="background:var(--cat-connection)"></div>
+                <div class="s" style="background:var(--cat-body)"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Q1: RIDER NAME ═══ -->
+    <div class="screen" id="screenName">
+        <div class="q-card">
+            <div class="q-eyebrow">About You</div>
+            <div class="q-text">What's your first name?</div>
+            <input type="text" id="inputName" placeholder="Your first name" autocomplete="given-name" />
+            <div class="q-nav">
+                <button class="btn-back" onclick="goTo('screenWelcome')">← Back</button>
+                <button class="btn-next" onclick="submitName()">Continue →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Q2: WHY DRESSAGE ═══ -->
+    <div class="screen" id="screenWhy">
+        <div class="q-card">
+            <div class="q-eyebrow">About You</div>
+            <div class="q-text">Tell us something we should know about why you ride dressage.</div>
+            <div class="q-sub">Your answer to this shapes everything that follows.</div>
+            <textarea id="inputWhy" placeholder="What draws you back to it, again and again — even on the hard days?"></textarea>
+            <div class="q-nav">
+                <button class="btn-back" onclick="goTo('screenName')">← Back</button>
+                <button class="btn-next" onclick="submitWhy()">Continue →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Q3: HORSE NAME ═══ -->
+    <div class="screen" id="screenHorseName">
+        <div class="q-card">
+            <div class="q-eyebrow">About Your Horse</div>
+            <div class="q-text">What is your horse's name?</div>
+            <input type="text" id="inputHorseName" placeholder="Your horse's name" autocomplete="off" />
+            <div class="q-nav">
+                <button class="btn-back" onclick="goTo('screenWhy')">← Back</button>
+                <button class="btn-next" onclick="submitHorseName()">Continue →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Q4: HORSE SPECIAL (with Hello moment) ═══ -->
+    <div class="screen" id="screenHorseSpecial">
+        <div class="q-card">
+            <div class="q-eyebrow">About Your Horse</div>
+            <div class="horse-hello" id="horseHello"></div>
+            <div class="q-text">What's something special about this horse that words barely do justice to?</div>
+            <div class="q-sub">A quality, a quirk, a gift — something that makes this horse uniquely themselves.</div>
+            <textarea id="inputHorseSpecial" placeholder="When she's really with me, it feels like we share a language nobody else can hear…"></textarea>
+            <div class="q-nav">
+                <button class="btn-back" onclick="goTo('screenHorseName')">← Back</button>
+                <button class="btn-next" onclick="submitField('inputHorseSpecial', 'horse_special', 'screenPartnership')">Continue →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Q5: PARTNERSHIP (optional) ═══ -->
+    <div class="screen" id="screenPartnership">
+        <div class="q-card">
+            <div class="q-eyebrow">About Your Horse</div>
+            <div class="q-text">What's something important to understand about your partnership with this horse right now?</div>
+            <div class="q-sub">Where you are together at this moment — what's working, what's still becoming.</div>
+            <textarea id="inputPartnership" placeholder="We're building trust around the canter work. Some days it flows, some days we're negotiating…"></textarea>
+            <div class="q-nav">
+                <button class="btn-back" onclick="goTo('screenHorseSpecial')">← Back</button>
+                <button class="btn-next" onclick="submitField('inputPartnership', 'partnership', 'screenCategoryPick')">Continue →</button>
+            </div>
+            <div class="skip-row">
+                <button class="skip-link" onclick="skipTo('screenCategoryPick', 'partnership')">Skip for now →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ CATEGORY PICKER ═══ -->
+    <div class="screen" id="screenCategoryPick">
+        <div class="q-card">
+            <div class="cat-picker-intro">
+                <div class="q-text">Which of these feels most alive<br>for you right now?</div>
+                <div class="q-sub">Pick 1–3. You'll answer only the ones you choose.<br>The others stay quiet.</div>
+            </div>
+
+            <div class="cat-grid">
+                <div class="cat-tile" data-cat="milestone" style="--tile-color: var(--cat-milestone)" onclick="toggleCat(this)">
+                    <span class="tile-emoji">🟦</span>
+                    <div class="tile-line">A recent breakthrough — big or small</div>
+                    <div class="tile-check">
+                        <svg viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                </div>
+                <div class="cat-tile" data-cat="validation" style="--tile-color: var(--cat-validation)" onclick="toggleCat(this)">
+                    <span class="tile-emoji">🟩</span>
+                    <div class="tile-line">Something you're particularly proud of</div>
+                    <div class="tile-check">
+                        <svg viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                </div>
+                <div class="cat-tile" data-cat="aha" style="--tile-color: var(--cat-aha)" onclick="toggleCat(this)">
+                    <span class="tile-emoji">🟨</span>
+                    <div class="tile-line">An insight that recently clicked</div>
+                    <div class="tile-check">
+                        <svg viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                </div>
+                <div class="cat-tile" data-cat="obstacle" style="--tile-color: var(--cat-obstacle)" onclick="toggleCat(this)">
+                    <span class="tile-emoji">🟥</span>
+                    <div class="tile-line">A challenge that keeps showing up</div>
+                    <div class="tile-check">
+                        <svg viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                </div>
+                <div class="cat-tile" data-cat="connection" style="--tile-color: var(--cat-connection)" onclick="toggleCat(this)">
+                    <span class="tile-emoji">🟪</span>
+                    <div class="tile-line">A moment of real connection with your horse</div>
+                    <div class="tile-check">
+                        <svg viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                </div>
+                <div class="cat-tile" data-cat="body" style="--tile-color: var(--cat-body)" onclick="toggleCat(this)">
+                    <span class="tile-emoji">🟧</span>
+                    <div class="tile-line">Something about your body you're still figuring out</div>
+                    <div class="tile-check">
+                        <svg viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cat-min-note" id="catMinNote">Choose at least one to continue</div>
+
+            <div class="cat-nav">
+                <button class="btn-back" onclick="goTo('screenPartnership')">← Back</button>
+                <button class="btn-next" onclick="submitCategories()">Continue →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ DYNAMIC CATEGORY QUESTIONS ═══ -->
+    <!-- Rendered by JS into #screenCatQuestions -->
+    <div class="screen" id="screenCatQ"></div>
+
+    <!-- ═══ RECENT RIDE ═══ -->
+    <div class="screen" id="screenRide">
+        <div class="q-card">
+            <div class="q-eyebrow">A Recent Ride</div>
+            <div class="q-text">Think of a recent ride. Describe one thing that stuck with you — and why it did.</div>
+            <div class="q-sub">This one is just between you and the ride. No right answer.</div>
+            <textarea id="inputRide" placeholder="The whole ride felt off until the very last halt, which was absolutely perfect. I couldn't stop thinking about why…"></textarea>
+            <div class="q-nav">
+                <button class="btn-back" id="rideBackBtn" onclick="rideBack()">← Back</button>
+                <button class="btn-next" onclick="submitField('inputRide', 'recent_ride', 'screenHappiness')">Continue →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ HAPPINESS ═══ -->
+    <div class="screen" id="screenHappiness">
+        <div class="q-card">
+            <div class="q-eyebrow">Self-Awareness</div>
+            <div class="q-text">When do you feel most alive and happy when you're riding?</div>
+            <div class="q-sub">What does that feel like, and what tends to produce it?</div>
+            <textarea id="inputHappiness" placeholder="When my horse is truly in front of my leg and I feel like I could ask for anything…"></textarea>
+            <div class="q-nav">
+                <button class="btn-back" onclick="goTo('screenRide')">← Back</button>
+                <button class="btn-next" onclick="submitField('inputHappiness', 'happiness', 'screenShow')">Continue →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ SHOW LEVEL (optional) ═══ -->
+    <div class="screen" id="screenShow">
+        <div class="q-card">
+            <div class="q-eyebrow">Upcoming Competition <span style="background:var(--color-bg-secondary);border:1px solid var(--color-border);color:var(--color-text-light);font-size:0.75em;padding:2px 10px;border-radius:10px;margin-left:6px;text-transform:uppercase;letter-spacing:0.7px;vertical-align:middle;">Optional</span></div>
+            <div class="q-text">I'm planning to show at this level soon</div>
+            <div class="q-sub">Optional — skip if you're not preparing for a show right now.</div>
+            <select id="inputShow">
+                <option value="">Skip — I'm not preparing for a show right now</option>
+                <option value="Introductory">Introductory Level</option>
+                <option value="Training Level">Training Level</option>
+                <option value="First Level">First Level</option>
+                <option value="Second Level">Second Level</option>
+                <option value="Third Level">Third Level</option>
+                <option value="Fourth Level">Fourth Level</option>
+                <option value="Prix St. Georges">Prix St. Georges</option>
+                <option value="Intermediaire I">Intermédiaire I</option>
+                <option value="Intermediaire II">Intermédiaire II</option>
+                <option value="Grand Prix">Grand Prix</option>
+            </select>
+            <div id="showAck" style="min-height:1.4em;margin-top:10px;font-size:0.85em;color:var(--color-secondary);font-style:italic;opacity:0;transition:opacity 0.3s;"></div>
+            <div class="q-nav">
+                <button class="btn-back" onclick="goTo('screenHappiness')">← Back</button>
+                <button class="btn-next" onclick="submitShow()">Generate My Glimpse →</button>
+            </div>
+            <div class="skip-row">
+                <button class="skip-link" onclick="answers.show_level=''; submitAndLoad()">Skip this question</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ LOADING ═══ -->
+    <div class="screen" id="screenLoading">
+        <div class="loading-screen">
+            <div id="loadPhase1" class="loading-phase">
+                <span class="loading-icon" id="loadingIcon">🐴</span>
+                <div class="loading-title" id="loadingTitle">Reading your story…</div>
+                <div class="loading-sub" id="loadingSub">Everything you shared about you and your horse is being woven together.</div>
+                <div class="loading-dots"><span></span><span></span><span></span></div>
+            </div>
+            <div id="loadPhase2" class="coach-reveal" style="display:none">
+                <div class="reveal-label">Your coach today is</div>
+                <div class="reveal-icon" id="revealIcon">🎯</div>
+                <div class="reveal-name" id="revealName">The Classical Master</div>
+                <div class="reveal-tagline" id="revealTagline">"Why not the first time?"</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ RESULT ═══ -->
+    <div class="screen" id="screenResult">
+        <div class="result-header">
+            <h2 id="resultTitle">Your First Glimpse</h2>
+            <p id="resultSubtitle">A personalized insight, crafted from what you shared</p>
+        </div>
+        <div class="result-card">
+            <div class="result-voice-strip" id="resultVoiceStrip">
+                <div class="result-voice-icon" id="resultVoiceIcon">🎯</div>
+                <div class="result-voice-info">
+                    <div class="label">Your coach</div>
+                    <div class="name" id="resultVoiceName">The Classical Master</div>
+                </div>
+            </div>
+            <div class="result-insight" id="resultInsight"></div>
+            <div class="result-divider"></div>
+            <div class="actionable-eyebrow">Your First Step</div>
+            <div class="actionable-title" id="actionableTitle"></div>
+            <div class="actionable-text" id="actionableText"></div>
+        </div>
+        <div id="errorCard" style="display:none" class="error-card"></div>
+        <div class="cta-card">
+            <h3>This is just the beginning</h3>
+            <p>Your Dressage Journey builds on hundreds of moments like this one — transforming your training into patterns, insights, and a coaching conversation that grows with you.</p>
+            <a href="#" class="btn-cta">Join the Journey →</a>
+        </div>
+        <div class="restart-row">
+            <button onclick="restart()">Start over with a different horse or story</button>
+        </div>
+    </div>
+
+</div><!-- /main -->
+
+<script>
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+const answers = {};
+let selectedCats = [];   // ordered array of selected category keys
+let catQIndex  = 0;      // which cat question we're on
+
+const CAT_CONFIG = {
+    milestone:  { color: '#4A7DC4', emoji: '🟦', label: 'A recent breakthrough — big or small',       question: 'Describe a recent moment in your riding that felt like a personal breakthrough — big or small.',         sub: 'Something that came from inside you. A skill that finally clicked, a fear you moved through, a moment of understanding.',                   placeholder: 'Last week I managed to stay soft in my hip through the entire canter transition…' },
+    validation: { color: '#5B9E6B', emoji: '🟩', label: 'Something you\'re particularly proud of',      question: 'Tell us about an achievement in your riding that you\'re particularly proud of.',                       sub: 'Something recognized from outside — a score, feedback from a trainer, a show result, something someone said that landed.',                   placeholder: 'My trainer said she finally saw my horse stepping under himself in the trot…' },
+    aha:        { color: '#D4A017', emoji: '🟨', label: 'An insight that recently clicked',             question: 'Describe a dressage insight you\'ve recently (re)discovered — something that clicked in a new way.',   sub: 'An idea, a principle, or a feeling that suddenly made more sense than it ever had before.',                                                   placeholder: 'I finally understood what my trainer meant about "riding from back to front"…' },
+    obstacle:   { color: '#C45252', emoji: '🟥', label: 'A challenge that keeps showing up',            question: 'Describe a challenge you\'re currently facing in your riding — the one that keeps showing up.',         sub: 'Be honest. The patterns we struggle to name are often the ones most worth understanding.',                                                   placeholder: 'My right rein. I know I hold too much, and I know why, but I can\'t seem to break the habit…' },
+    connection: { color: '#8B5EA0', emoji: '🟪', label: 'A moment of real connection with your horse', question: 'Describe a moment when you felt a genuine connection to your horse — when the conversation between you was real.', sub: 'When the language between you was clear, and you both knew it.',                                                                          placeholder: 'There was one hack last autumn where I just let go and she just listened. We were one thing moving through the field…' },
+    body:       { color: '#D4722A', emoji: '🟧', label: 'Something about your body you\'re still figuring out', question: 'Describe something about your position or body that you regularly work to improve — and why it matters to you.', sub: 'What does your body do in the saddle that you\'re still learning to understand or change?',                                        placeholder: 'My lower back tightens when I\'m nervous, which blocks the swing in my seat…' },
+};
+
+const SCREEN_ORDER = [
+    'screenWelcome','screenName','screenWhy','screenHorseName',
+    'screenHorseSpecial','screenPartnership','screenCategoryPick',
+    'screenCatQ','screenRide','screenHappiness','screenShow',
+    'screenLoading','screenResult'
+];
+
+// Progress: count visible steps (excl welcome & loading & result)
+const PROGRESS_STEPS = ['screenName','screenWhy','screenHorseName','screenHorseSpecial',
+                         'screenPartnership','screenCategoryPick','screenCatQ',
+                         'screenRide','screenHappiness','screenShow'];
+
+function currentProgress(id) {
+    const idx = PROGRESS_STEPS.indexOf(id);
+    if (idx < 0) return null;
+    // Adjust total for selected cats (replace screenCatQ slot)
+    const total = PROGRESS_STEPS.length - 1 + Math.max(selectedCats.length, 1);
+    const step  = idx < 7 ? idx + 1 : idx + Math.max(selectedCats.length, 1);
+    return { step, total };
+}
+
+// ═══════════════════════════════════════════
+// SCREEN NAV
+// ═══════════════════════════════════════════
+function goTo(id) {
+    document.querySelectorAll('.screen').forEach(s => {
+        s.classList.remove('active');
+        s.style.display = '';
+    });
+    const el = document.getElementById(id);
+    el.style.display = 'block';
+    // Force reflow for animation
+    void el.offsetWidth;
+    el.classList.add('active');
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    const prog = currentProgress(id);
+    if (prog) {
+        document.getElementById('progressLabel').textContent = `Step ${prog.step} of ${prog.total}`;
+        document.getElementById('progressFill').style.width = Math.round((prog.step / prog.total) * 100) + '%';
+    } else if (id === 'screenWelcome') {
+        document.getElementById('progressLabel').textContent = 'Welcome';
+        document.getElementById('progressFill').style.width = '0%';
+    } else if (id === 'screenLoading') {
+        document.getElementById('progressFill').style.width = '100%';
+        document.getElementById('progressLabel').textContent = 'Almost there…';
+    } else if (id === 'screenResult') {
+        document.getElementById('progressLabel').textContent = 'Complete';
+    }
+}
+
+// ═══════════════════════════════════════════
+// VALIDATION HELPERS
+// ═══════════════════════════════════════════
+function requireField(id) {
+    const el = document.getElementById(id);
+    if (!el.value.trim()) {
+        el.classList.add('shake');
+        el.style.borderColor = '#C45252';
+        el.style.boxShadow = '0 0 0 3px rgba(196,82,82,0.1)';
+        el.focus();
+        setTimeout(() => {
+            el.classList.remove('shake');
+            el.style.borderColor = '';
+            el.style.boxShadow = '';
+        }, 1800);
+        return false;
+    }
+    return true;
+}
+
+function submitField(inputId, answerKey, nextScreen) {
+    if (!requireField(inputId)) return;
+    answers[answerKey] = document.getElementById(inputId).value.trim();
+    goTo(nextScreen);
+}
+
+function skipTo(nextScreen, answerKey) {
+    if (answerKey) answers[answerKey] = '';
+    goTo(nextScreen);
+}
+
+// ═══════════════════════════════════════════
+// QUESTION SUBMITS
+// ═══════════════════════════════════════════
+function submitName() {
+    if (!requireField('inputName')) return;
+    answers.rider_name = document.getElementById('inputName').value.trim();
+    goTo('screenWhy');
+}
+
+function submitWhy() {
+    if (!requireField('inputWhy')) return;
+    answers.why_dressage = document.getElementById('inputWhy').value.trim();
+    goTo('screenHorseName');
+}
+
+function submitHorseName() {
+    if (!requireField('inputHorseName')) return;
+    answers.horse_name = document.getElementById('inputHorseName').value.trim();
+
+    // Plant horse hello for next screen
+    const helloEl = document.getElementById('horseHello');
+    helloEl.style.opacity = '0';
+    helloEl.textContent = `Hello, ${answers.horse_name}. We'll make sure to include you in this.`;
+
+    goTo('screenHorseSpecial');
+
+    // Fade hello in after screen transition
+    setTimeout(() => {
+        helloEl.style.opacity = '1';
+    }, 500);
+}
+
+function submitShow() {
+    const val = document.getElementById('inputShow').value;
+    answers.show_level = val;
+    if (val) {
+        const ack = document.getElementById('showAck');
+        ack.textContent = 'We\'ll keep this in mind.';
+        ack.style.opacity = '1';
+        setTimeout(() => submitAndLoad(), 900);
+    } else {
+        submitAndLoad();
+    }
+}
+
+// ═══════════════════════════════════════════
+// CATEGORY PICKER
+// ═══════════════════════════════════════════
+function toggleCat(tile) {
+    const cat = tile.dataset.cat;
+    const isSelected = tile.classList.contains('selected');
+
+    if (isSelected) {
+        tile.classList.remove('selected');
+        selectedCats = selectedCats.filter(c => c !== cat);
+    } else {
+        if (selectedCats.length >= 3) {
+            // Shake tile to signal max reached
+            tile.classList.add('shake');
+            setTimeout(() => tile.classList.remove('shake'), 400);
+            updateCatNote();
+            return;
+        }
+        tile.classList.add('selected');
+        selectedCats.push(cat);
+    }
+
+    // Dim unselected if at max
+    document.querySelectorAll('.cat-tile').forEach(t => {
+        if (!t.classList.contains('selected')) {
+            t.classList.toggle('dimmed', selectedCats.length >= 3);
+        }
+    });
+
+    updateCatNote();
+}
+
+function updateCatNote() {
+    const note = document.getElementById('catMinNote');
+    if (selectedCats.length === 0) {
+        note.textContent = 'Choose at least one to continue';
+        note.classList.remove('warn');
+    } else if (selectedCats.length === 3) {
+        note.textContent = 'Maximum 3 selected — looking good';
+        note.classList.remove('warn');
+    } else {
+        note.textContent = `${selectedCats.length} selected`;
+        note.classList.remove('warn');
+    }
+}
+
+function submitCategories() {
+    if (selectedCats.length === 0) {
+        const note = document.getElementById('catMinNote');
+        note.textContent = 'Please choose at least one to continue';
+        note.classList.add('warn');
+        return;
+    }
+    catQIndex = 0;
+    showCatQuestion(0);
+}
+
+// ═══════════════════════════════════════════
+// DYNAMIC CATEGORY QUESTIONS
+// ═══════════════════════════════════════════
+function showCatQuestion(index) {
+    catQIndex = index;
+    const cat = selectedCats[index];
+    const cfg = CAT_CONFIG[cat];
+    const isLast = index === selectedCats.length - 1;
+    const savedVal = answers[cat] || '';
+
+    const container = document.getElementById('screenCatQ');
+    container.innerHTML = `
+        <div class="q-card">
+            <div class="q-eyebrow">
+                <span class="q-dot" style="background:${cfg.color}"></span>
+                Your Story${selectedCats.length > 1 ? ' · ' + (index + 1) + ' of ' + selectedCats.length : ''}
+            </div>
+            <div class="q-text">${cfg.question}</div>
+            <div class="q-sub">${cfg.sub}</div>
+            <textarea id="inputCatQ" placeholder="${cfg.placeholder}">${savedVal}</textarea>
+            <div class="q-nav">
+                <button class="btn-back" onclick="catBack()">← Back</button>
+                <button class="btn-next" onclick="submitCatQ()">${isLast ? 'Continue →' : 'Continue →'}</button>
+            </div>
+        </div>
+    `;
+
+    goTo('screenCatQ');
+    setTimeout(() => {
+        const ta = document.getElementById('inputCatQ');
+        if (ta) ta.focus();
+    }, 150);
+}
+
+function submitCatQ() {
+    const ta = document.getElementById('inputCatQ');
+    if (!ta || !ta.value.trim()) {
+        ta.classList.add('shake');
+        ta.style.borderColor = '#C45252';
+        ta.style.boxShadow = '0 0 0 3px rgba(196,82,82,0.1)';
+        ta.focus();
+        setTimeout(() => {
+            ta.classList.remove('shake');
+            ta.style.borderColor = '';
+            ta.style.boxShadow = '';
+        }, 1800);
+        return;
+    }
+    answers[selectedCats[catQIndex]] = ta.value.trim();
+
+    if (catQIndex < selectedCats.length - 1) {
+        showCatQuestion(catQIndex + 1);
+    } else {
+        goTo('screenRide');
+    }
+}
+
+function catBack() {
+    // Save current value
+    const ta = document.getElementById('inputCatQ');
+    if (ta && ta.value.trim()) answers[selectedCats[catQIndex]] = ta.value.trim();
+
+    if (catQIndex > 0) {
+        showCatQuestion(catQIndex - 1);
+    } else {
+        goTo('screenCategoryPick');
+    }
+}
+
+function rideBack() {
+    if (selectedCats.length > 0) {
+        showCatQuestion(selectedCats.length - 1);
+    } else {
+        goTo('screenCategoryPick');
+    }
+}
+
+// ═══════════════════════════════════════════
+// ENTER KEY
+// ═══════════════════════════════════════════
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        const inp = document.querySelector('.screen.active input[type="text"]');
+        if (inp) {
+            e.preventDefault();
+            inp.closest('.screen').querySelector('.btn-next').click();
+        }
+    }
+});
+
+// Show level acknowledgment
+document.addEventListener('change', function(e) {
+    if (e.target.id === 'inputShow' && e.target.value) {
+        const ack = document.getElementById('showAck');
+        ack.textContent = 'We\'ll keep this in mind.';
+        ack.style.opacity = '1';
+    }
+});
+
+// ═══════════════════════════════════════════
+// SUBMIT & LOAD
+// ═══════════════════════════════════════════
+async function submitAndLoad() {
+    goTo('screenLoading');
+
+    // Phase 1: reading message
+    const icon = document.getElementById('loadingIcon');
+    const title = document.getElementById('loadingTitle');
+    const sub   = document.getElementById('loadingSub');
+
+    title.textContent = `Reading everything you shared about ${answers.rider_name || 'you'} and ${answers.horse_name || 'your horse'}…`;
+    sub.textContent   = 'Finding the thread that connects it all.';
+
+    // Phase 2: coach reveal (after API returns)
+    try {
+        const prompt   = buildPrompt(answers);
+        const parsed   = await callAPI(prompt);
+
+        // Transition to reveal
+        document.getElementById('loadPhase1').style.opacity = '0';
+        await sleep(400);
+        document.getElementById('loadPhase1').style.display = 'none';
+
+        const p2 = document.getElementById('loadPhase2');
+        document.getElementById('revealIcon').textContent    = parsed.voice.icon;
+        document.getElementById('revealName').textContent    = parsed.voice.name;
+        document.getElementById('revealTagline').textContent = parsed.voice.tagline;
+        p2.style.display = 'flex';
+        p2.classList.add('visible');
+
+        // Hold for drama
+        await sleep(2200);
+
+        displayResult(parsed);
+
+    } catch (err) {
+        displayError(err.message);
+    }
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ═══════════════════════════════════════════
+// PROMPT
+// ═══════════════════════════════════════════
+function buildPrompt(a) {
+    const catLines = Object.keys(CAT_CONFIG).map(key => {
+        const label = {
+            milestone:  'Personal Breakthrough (Personal Milestone)',
+            validation: 'Achievement They\'re Proud Of (External Validation)',
+            aha:        'Insight Recently Discovered (Aha Moment)',
+            obstacle:   'Current Challenge (Obstacle)',
+            connection: 'Moment of Connection With Horse (Connection)',
+            body:       'Position / Body Awareness (Feel & Body Awareness)',
+        }[key];
+        return `${label}: ${a[key] || 'Not shared'}`;
+    }).join('\n');
+
+    const showLine = a.show_level
+        ? `The rider is preparing to compete at ${a.show_level} level.`
+        : 'The rider has not mentioned an upcoming competition.';
+
+    return `You are an AI coach for "Your Dressage Journey," a platform that helps adult amateur dressage riders find patterns and meaning in their training.
+
+A rider has just completed a brief introductory experience — a "First Glimpse." They chose which reflection categories to share, so some may say "Not shared." This is intentional; focus your insight on what they DID share and do not draw attention to gaps.
+
+\u2550\u2550\u2550 RIDER \u2550\u2550\u2550
+Name: ${a.rider_name || 'Not provided'}
+Why They Ride Dressage: ${a.why_dressage || 'Not provided'}
+
+\u2550\u2550\u2550 HORSE \u2550\u2550\u2550
+Horse Name: ${a.horse_name || 'Not provided'}
+What's Special About This Horse: ${a.horse_special || 'Not provided'}
+About Their Partnership: ${a.partnership || 'Not provided'}
+
+\u2550\u2550\u2550 REFLECTIONS (rider chose which to share) \u2550\u2550\u2550
+${catLines}
+
+\u2550\u2550\u2550 RECENT RIDE \u2550\u2550\u2550
+${a.recent_ride || 'Not provided'}
+
+\u2550\u2550\u2550 SELF-AWARENESS \u2550\u2550\u2550
+When they feel most happy riding: ${a.happiness || 'Not provided'}
+
+\u2550\u2550\u2550 COMPETITION CONTEXT \u2550\u2550\u2550
+${showLine}
+
+\u2550\u2550\u2550 YOUR TASK \u2550\u2550\u2550
+
+STEP 1 \u2014 CHOOSE YOUR VOICE:
+Read the rider's language, emotional tone, and the nature of their challenge and joy. Choose the single coaching voice that will most serve this rider right now:
+
+- \uD83C\uDFAF The Classical Master \u2014 for riders whose challenge is rooted in classical principles, training foundations, or the "why" behind technique. Wise, patient, occasionally poetic. Speaks in long arcs. Catchphrase: "Why not the first time?"
+- \u2B50 The Empathetic Coach \u2014 for riders whose primary story is emotional: confidence, trust with their horse, the inner experience of riding. Warm, validating, perceptive. Catchphrase: "You've got this."
+- \uD83D\uDD2C The Technical Coach \u2014 for riders whose obstacle is biomechanical or positional, describing riding in cause-and-effect terms. Clear, specific, constructive. Catchphrase: "Did you feel that?"
+- \uD83D\uDCCB The Strategic Planner \u2014 for riders who are competition-focused, goal-oriented, or preparing for something specific. Practical, forward-looking, structured. Catchphrase: "Let's map this out."
+
+DEFAULT to The Classical Master if the choice is unclear.
+
+STEP 2 \u2014 WRITE YOUR RESPONSE:
+
+Write exactly two parts. No headers. No bullet points. No numbered lists.
+
+PART 1 \u2014 ONE PARAGRAPH OF INSIGHT (5\u20138 sentences):
+Begin by addressing the rider by first name. Write one substantive, personal paragraph synthesizing what you notice across ALL their responses. Reference specific details they shared \u2014 the horse's name, the particular challenge or breakthrough, the feeling they named. Identify one meaningful pattern or connection they may not have articulated themselves. This should feel like it was written for this specific person, not anyone else. Speak in the voice you selected.
+
+PART 2 \u2014 YOUR FIRST STEP:
+After the paragraph, write exactly this separator on its own line: |||ACTIONABLE|||
+Then write a short, vivid title (5\u20138 words) for the actionable.
+Then write: |||TEXT|||
+Then write 2\u20133 sentences describing a specific actionable \u2014 a mental skill, physical exercise, intention to carry into their next ride, or concrete goal. Make it specific enough to actually do. Connect it to something they shared.
+
+EXAMPLE FORMAT:
+[One paragraph of personal insight]
+|||ACTIONABLE|||
+Soften the Right Hand Before You Ask
+|||TEXT|||
+Before your next three rides, spend the first five minutes consciously checking your right rein contact at the walk. Ask yourself: "Am I holding a conversation, or am I gripping?" Notice what changes when you release even 10% of that tension before picking up trot.
+
+Do not include the voice name in your output. Do not explain your choice. Just begin speaking in that voice.`;
+}
+
+// ═══════════════════════════════════════════
+// API CALL
+// ═══════════════════════════════════════════
+async function callAPI(prompt) {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'anthropic-dangerous-direct-browser-access': 'true',
+        },
+        body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 1000,
+            messages: [{ role: 'user', content: prompt }],
+        }),
+    });
+
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error?.message || `API error ${response.status}`);
+    }
+
+    const data = await response.json();
+    const text = data.content?.[0]?.text || '';
+    return parseResponse(text);
+}
+
+function parseResponse(text) {
+    const parts = text.split('|||ACTIONABLE|||');
+    const insight = parts[0].trim();
+    let actionTitle = '', actionText = '';
+    if (parts[1]) {
+        const ap = parts[1].split('|||TEXT|||');
+        actionTitle = ap[0].trim();
+        actionText  = ap[1] ? ap[1].trim() : '';
+    }
+    const voice = detectVoice(text);
+    return { insight, actionTitle, actionText, voice };
+}
+
+function detectVoice(text) {
+    const t = text.toLowerCase();
+    const scores = { classical: 0, empathetic: 0, technical: 0, strategic: 0 };
+
+    ['training scale','classical','principles','foundation','why not the first time','long arc','rhythm','suppleness','impulsion'].forEach(k => { if (t.includes(k)) scores.classical++; });
+    ["you've got this","confidence","trust yourself","emotional","inner experience","courage","vulnerability","partnership"].forEach(k => { if (t.includes(k)) scores.empathetic++; });
+    ['did you feel','biomechan','position','seat bone','hip','core','half-halt','proprioceptive','cause and effect'].forEach(k => { if (t.includes(k)) scores.technical++; });
+    ['competition','show','test','score','timeline','goal','strategy','prepare','map this out'].forEach(k => { if (t.includes(k)) scores.strategic++; });
+
+    const top = Object.entries(scores).sort((a,b) => b[1]-a[1])[0][0];
+
+    return {
+        classical:  { icon: '🎯', name: 'The Classical Master',  tagline: '"Why not the first time?"' },
+        empathetic: { icon: '⭐', name: 'The Empathetic Coach',  tagline: '"You\'ve got this."' },
+        technical:  { icon: '🔬', name: 'The Technical Coach',   tagline: '"Did you feel that?"' },
+        strategic:  { icon: '📋', name: 'The Strategic Planner', tagline: '"Let\'s map this out."' },
+    }[top] || { icon: '🎯', name: 'The Classical Master', tagline: '"Why not the first time?"' };
+}
+
+// ═══════════════════════════════════════════
+// DISPLAY
+// ═══════════════════════════════════════════
+function displayResult(parsed) {
+    document.getElementById('resultTitle').textContent =
+        `${answers.rider_name ? answers.rider_name + '\'s' : 'Your'} First Glimpse`;
+
+    document.getElementById('resultVoiceIcon').textContent = parsed.voice.icon;
+    document.getElementById('resultVoiceName').textContent = parsed.voice.name;
+    document.getElementById('resultInsight').textContent   = parsed.insight;
+    document.getElementById('actionableTitle').textContent = parsed.actionTitle;
+    document.getElementById('actionableText').textContent  = parsed.actionText;
+
+    goTo('screenResult');
+}
+
+function displayError(msg) {
+    document.getElementById('errorCard').style.display = 'block';
+    document.getElementById('errorCard').textContent =
+        `We weren't able to generate your insight right now. ${msg ? 'Details: ' + msg : 'Please try again in a moment.'}`;
+    document.getElementById('resultInsight').textContent   = '';
+    document.getElementById('actionableTitle').textContent = '';
+    document.getElementById('actionableText').textContent  = '';
+    goTo('screenResult');
+}
+
+function restart() {
+    // Reset all state
+    Object.keys(answers).forEach(k => delete answers[k]);
+    selectedCats = [];
+    catQIndex = 0;
+
+    // Reset inputs
+    ['inputName','inputWhy','inputHorseName','inputHorseSpecial','inputPartnership',
+     'inputRide','inputHappiness'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    document.querySelectorAll('.cat-tile').forEach(t => {
+        t.classList.remove('selected','dimmed');
+    });
+    document.getElementById('catMinNote').textContent = 'Choose at least one to continue';
+    document.getElementById('catMinNote').classList.remove('warn');
+    document.getElementById('showAck').style.opacity = '0';
+    document.getElementById('errorCard').style.display = 'none';
+
+    // Reset loading screen
+    document.getElementById('loadPhase1').style.opacity = '1';
+    document.getElementById('loadPhase1').style.display = '';
+    document.getElementById('loadPhase2').style.display = 'none';
+    document.getElementById('loadPhase2').classList.remove('visible');
+
+    goTo('screenWelcome');
+}
+</script>
+</body>
+</html>
