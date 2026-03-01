@@ -152,3 +152,15 @@ export async function checkCacheStaleness() {
   const result = await fn({});
   return result.data;
 }
+
+/**
+ * Admin: cross-user activity summary.
+ * Requires admin custom claim on the caller's Firebase Auth account.
+ *
+ * @returns {Promise<object>} { success, userCount, users: [...], generatedAt }
+ */
+export async function getAdminStats() {
+  const fn = httpsCallable(functions, 'getAdminStats', { timeout: 60_000 });
+  const result = await fn({});
+  return result.data;
+}

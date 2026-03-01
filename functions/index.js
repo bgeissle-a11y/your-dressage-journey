@@ -31,6 +31,7 @@ const cacheWarmth = require("./api/cacheWarmth");
 const dataTriggeredRegeneration = require("./api/dataTriggeredRegeneration");
 const firstGlimpse = require("./api/firstGlimpse");
 const waitlist = require("./api/waitlist");
+const adminStats = require("./api/adminStats");
 
 // Secrets — declared once, referenced by all AI functions
 const anthropicKey = defineSecret("ANTHROPIC_API_KEY");
@@ -133,6 +134,14 @@ exports.checkCacheStaleness = onCall(
 //   },
 //   cacheWarmth.warmHandler
 // );
+
+// --- Admin ---
+
+// Cross-user activity summary (requires admin custom claim)
+exports.getAdminStats = onCall(
+  { timeoutSeconds: 60, memory: "256MiB" },
+  adminStats.handler
+);
 
 // --- Data-Triggered Background Regeneration ---
 

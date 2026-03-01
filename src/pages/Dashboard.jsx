@@ -10,8 +10,11 @@ import {
   getAllEventPrepPlans,
   getAllHealthEntries
 } from '../services';
+import { getAdminStats } from '../services/aiService';
 import { exportToCSV, exportToJSON, EXPORT_COLUMNS } from '../utils/exportUtils';
 import './Dashboard.css';
+
+const ADMIN_UID = 'HwwKk5C7qZh1Bn0KYalPYIZWHmj2';
 
 const sections = [
   {
@@ -67,6 +70,23 @@ export default function Dashboard() {
   const { currentUser } = useAuth();
   const { loading, stats, recentDebriefs, upcomingEvents } = useDashboardData();
   const [exporting, setExporting] = useState(false);
+  const [adminData, setAdminData] = useState(null);
+  const [adminLoading, setAdminLoading] = useState(false);
+  const [adminError, setAdminError] = useState(null);
+
+  const isAdmin = currentUser?.uid === ADMIN_UID;
+
+  async function handleAdminStats() {
+    setAdminLoading(true);
+    setAdminError(null);
+    try {
+      const data = await getAdminStats();
+      setAdminData(data);
+    } catch (err) {
+      setAdminError(err.message || 'Failed to load admin stats');
+    }
+    setAdminLoading(false);
+  }
 
   async function handleExportAll(format) {
     if (!currentUser || exporting) return;
@@ -229,6 +249,49 @@ export default function Dashboard() {
           </div>
         ))}
       </div>
+
+      {/* Admin Stats — only visible to admin */}
+      {isAdmin && (
+        <div className="dashboard-export">
+          <h2>Pilot Activity</h2>
+          <p>Cross-user activity summary for all pilot participants.</p>
+          <button className="btn-export" onClick={handleAdminStats} disabled={adminLoading}>
+            {adminLoading ? 'Loading...' : 'View User Activity'}
+          </button>
+          {adminError && <p style={{ color: '#D0021B', marginTop: '0.5rem' }}>{adminError}</p>}
+          {adminData && (
+            <div style={{ marginTop: '1rem', overflowX: 'auto' }}>
+              <p style={{ marginBottom: '0.5rem', color: '#8B7355' }}>{adminData.userCount} users as of {new Date(adminData.generatedAt).toLocaleDateString()}</p>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid #E0D5C7', textAlign: 'left' }}>
+                    <th style={{ padding: '0.5rem' }}>Name</th>
+                    <th style={{ padding: '0.5rem' }}>Email</th>
+                    <th style={{ padding: '0.5rem', textAlign: 'right' }}>Rides</th>
+                    <th style={{ padding: '0.5rem', textAlign: 'right' }}>Reflect.</th>
+                    <th style={{ padding: '0.5rem', textAlign: 'right' }}>Obs.</th>
+                    <th style={{ padding: '0.5rem', textAlign: 'right' }}>Total</th>
+                    <th style={{ padding: '0.5rem' }}>Last Active</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {adminData.users.map(u => (
+                    <tr key={u.uid} style={{ borderBottom: '1px solid #E0D5C7' }}>
+                      <td style={{ padding: '0.5rem' }}>{u.displayName || '—'}</td>
+                      <td style={{ padding: '0.5rem' }}>{u.email || '—'}</td>
+                      <td style={{ padding: '0.5rem', textAlign: 'right' }}>{u.debriefs || 0}</td>
+                      <td style={{ padding: '0.5rem', textAlign: 'right' }}>{u.reflections || 0}</td>
+                      <td style={{ padding: '0.5rem', textAlign: 'right' }}>{u.observations || 0}</td>
+                      <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 600 }}>{u.total}</td>
+                      <td style={{ padding: '0.5rem' }}>{u.lastActivity ? new Date(u.lastActivity).toLocaleDateString() : '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Export All */}
       <div className="dashboard-export">
