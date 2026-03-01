@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   createJourneyEvent, getJourneyEvent, updateJourneyEvent,
@@ -10,6 +10,7 @@ import FormSection from '../Forms/FormSection';
 import FormField from '../Forms/FormField';
 import VoiceInput from '../Forms/VoiceInput';
 import '../Forms/Forms.css';
+import '../HorseHealth/HorseHealth.css';
 
 export default function JourneyEventForm() {
   const { currentUser } = useAuth();
@@ -158,6 +159,10 @@ export default function JourneyEventForm() {
       <div className="form-page-header">
         <h1>{isEdit ? 'Edit Journey Event' : 'Log Journey Event'}</h1>
         <p>Track significant events that shape your riding journey</p>
+      </div>
+
+      <div className="form-info-callout">
+        Tracking a vet visit, soundness issue, or body work appointment? Use the <Link to="/horse-health/new">Health &amp; Soundness Tracker</Link> — it gives you a full medical history per horse.
       </div>
 
       <form onSubmit={handleSubmit} autoComplete="off">

@@ -109,6 +109,10 @@ export const EXPORT_COLUMNS = {
   eventPrepPlans: [
     'eventName', 'eventDate', 'eventType', 'location', 'horseNames',
     'horseLevels', 'allGoals', 'allConcerns', 'status'
+  ],
+  horseHealthEntries: [
+    'date', 'horseName', 'issueType', 'title', 'notes',
+    'professionals', 'results', 'nextSteps', 'status', 'resolvedDate'
   ]
 };
 

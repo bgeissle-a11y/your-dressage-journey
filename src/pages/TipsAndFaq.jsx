@@ -22,6 +22,7 @@ export default function TipsAndFaq() {
           <a href="#reflections">The Six Reflection Categories</a>
           <a href="#profiles">Setting Up Your Profiles</a>
           <a href="#events">Events: Logging & Preparation</a>
+          <a href="#health-soundness">Horse Health & Soundness Tracker</a>
           <a href="#observations">Observation Form</a>
           <a href="#assessments">Self-Assessments</a>
           <a href="#best-tips">Getting the Most Value</a>
@@ -73,7 +74,13 @@ export default function TipsAndFaq() {
           <Link to="/events/new" className="tips-form-card">
             <div className="tips-card-icon">&#x1F4C5;</div>
             <div className="tips-card-title">Journey Event Log</div>
-            <div className="tips-card-desc">Record shows, clinics, vet visits, rider or horse health issues, environmental changes, and their impact and significance.</div>
+            <div className="tips-card-desc">Record shows, clinics, rider health, environmental changes, and other significant moments and their impact on your journey.</div>
+            <span className="tips-card-freq">As they happen</span>
+          </Link>
+          <Link to="/horse-health/new" className="tips-form-card">
+            <div className="tips-card-icon">&#x1F434;</div>
+            <div className="tips-card-title">Health & Soundness</div>
+            <div className="tips-card-desc">Track vet visits, body work, saddle fittings, soundness concerns, and emergencies — with full history per horse.</div>
             <span className="tips-card-freq">As they happen</span>
           </Link>
           <Link to="/observations/new" className="tips-form-card">
@@ -269,7 +276,7 @@ export default function TipsAndFaq() {
         </ul>
 
         <h3>Journey Event Log</h3>
-        <p>Use this <strong>after</strong> (or during) significant events to create a record. Log shows, clinics, vet visits, rider or horse health issues, environmental changes (new barn, footing changes, seasonal shifts), farrier visits, new equipment, or training milestones. The form captures not just what happened, but the <strong>impact and significance</strong> of each event on your journey. These entries become data points the AI uses to correlate events with changes in your riding patterns.</p>
+        <p>Use this <strong>after</strong> (or during) significant events to create a record. Log shows, clinics, rider health issues, environmental changes (new barn, footing changes, seasonal shifts), new equipment, or training milestones. <strong>Horse health, vet visits, body work, and soundness concerns now have their own dedicated tracker</strong> — use the <Link to="/horse-health/new">Health &amp; Soundness Tracker</Link> for those. The form captures not just what happened, but the <strong>impact and significance</strong> of each event on your journey.</p>
 
         <div className="tips-emphasis">
           <strong>The power of pairing these forms:</strong> When you prepare for an event AND log what actually happened, the AI can analyze the gap between intention and outcome—one of the most revealing patterns in rider development.
@@ -278,6 +285,33 @@ export default function TipsAndFaq() {
         <div className="tips-tip-box">
           <h4>Don&#39;t Forget the "Small" Events</h4>
           <p>A farrier visit, a saddle fitting, a sore back, allergy season, even a change in turnout schedule can affect your riding. Log these too—they often explain patterns that would otherwise seem mysterious.</p>
+        </div>
+      </div>
+
+      {/* Horse Health & Soundness Tracker */}
+      <div className="tips-section" id="health-soundness">
+        <h2>Horse Health &amp; Soundness Tracker</h2>
+
+        <p className="tips-welcome-text">
+          A dedicated log for tracking everything related to your horse&#39;s physical wellbeing — from routine maintenance to concerns worth monitoring to emergencies.
+        </p>
+
+        <h3>How It Differs from the Journey Event Log</h3>
+        <p>The Journey Event Log captures life events that affect your training context — shows, clinics, barn changes, rider health. The Health &amp; Soundness Tracker is <strong>horse-specific and clinical</strong> — it&#39;s a medical and care record, not a narrative log. Each entry is tied to a horse by name, so if you ride multiple horses, each builds its own health history.</p>
+
+        <h3>The Three Issue Types</h3>
+        <ul className="tips-bullets">
+          <li><strong>Maintenance:</strong> Routine, planned care — chiropractic, massage, farrier, saddle fitting, PPE check-ins. These are positive signals of attentive horsemanship.</li>
+          <li><strong>Concern:</strong> Something worth monitoring — mild lameness, behavior shift, subtle change. Not yet an emergency, but worth tracking.</li>
+          <li><strong>Emergency:</strong> Acute or serious — colic, injury, significant lameness episode. Entries that require immediate professional attention.</li>
+        </ul>
+
+        <h3>Status Tracking</h3>
+        <p>Mark entries as <strong>Ongoing</strong> or <strong>Resolved</strong> — and update them over time. This creates a longitudinal health picture the AI can use to correlate with your training data. When an ongoing concern resolves, update the entry so the AI knows the constraint has lifted.</p>
+
+        <div className="tips-tip-box">
+          <h4>Log Every Professional Visit</h4>
+          <p>Log every professional visit, not just problems. Chiro, massage, saddle fitter, and farrier visits are data. When the AI sees that your horse had bodywork two days before a breakthrough ride, it can flag that connection.</p>
         </div>
       </div>
 

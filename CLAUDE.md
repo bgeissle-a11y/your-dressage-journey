@@ -66,14 +66,14 @@ Your Dressage Journey is an AI-powered coaching platform for adult amateur dress
 - Login and registration flows
 - Auth state management across the app
 
-### Phase 3: Firestore Data Layer (8 Service Modules)
+### Phase 3: Firestore Data Layer (9 Service Modules)
 - Created `createBaseService(collectionName)` factory pattern — all services return `{success, data, error}`
-- Built services for all 10 Firestore collections: users, riderProfiles, horseProfiles, reflections, debriefs, journeyEvents, observations, eventPrepPlans, physicalAssessments, riderAssessments
+- Built services for all 11 Firestore collections: users, riderProfiles, horseProfiles, reflections, debriefs, journeyEvents, observations, eventPrepPlans, physicalAssessments, riderAssessments, horseHealthEntries
 - Implemented soft delete with `isDeleted` flag
 - Solved the Firestore composite index problem by removing `orderBy` and sorting client-side
 
-### Phase 4: Form Integration (7 Form Systems)
-- Built all 7 form + list page pairs with consistent patterns (`useState` for formData/errors/loading, validation, edit mode via URL params)
+### Phase 4: Form Integration (8 Form Systems)
+- Built all 8 form + list page pairs with consistent patterns (`useState` for formData/errors/loading, validation, edit mode via URL params)
 - Created AppLayout with navigation
 - Built shared components including VoiceInput (Web Speech API for hands-free entry at the barn)
 - Handled date timezone issues (ISO strings parsed with `+ 'T00:00:00'`)
@@ -130,7 +130,7 @@ Your Dressage Journey is an AI-powered coaching platform for adult amateur dress
 
 ---
 
-## Input Data Model (8 Data Collection Forms)
+## Input Data Model (9 Data Collection Forms)
 
 | Form | Frequency | Purpose |
 |---|---|---|
@@ -142,6 +142,7 @@ Your Dressage Journey is an AI-powered coaching platform for adult amateur dress
 | **Journey Event Log** | As needed | Significant life events affecting training (planned/unplanned with post-event reflection) |
 | **Rider Self-Assessment** | Periodic | Mental skills, emotional patterns, strengths/growth areas (6 sections incl. scenarios, regulation, attribute grids, self-rating sliders) |
 | **Physical Self-Assessment** | Periodic | Body awareness, physical strengths/limitations (4 sections incl. kinesthetic slider, tension body-map grids) |
+| **Horse Health & Soundness** | As needed | Per-horse log of vet visits, body work, saddle fittings, soundness concerns, emergencies (issue type, professionals, results, next steps, status) |
 
 ### The Six Reflection Categories
 These are a core innovation of YDJ — a universal framework for skill development reflection:
@@ -214,6 +215,7 @@ Each voice receives identical pre-processed data but analyzes through a distinct
 - `YDJ_Prompt_Additions_Dressage_Principles.md` — Specifies exactly where/how to inject Core Dressage Principles awareness into each prompt
 - `YDJ_Prompt_Additions_Level_Progression.md` — Specifies exactly where/how to inject level progression guardrails
 - `YDJ_Prompt_Additions_Freestyle.md` — Specifies exactly where/how to inject freestyle guardrails
+- `YDJ_Prompt_Additions_Horse_Health.md` — Specifies exactly where/how to inject horse health & soundness awareness into each prompt
 
 ### Platform Definition
 - `YDJ_Platform_Outputs_Definition_v2.docx` — Comprehensive definition of all 7 outputs, input data model, API call architecture, and implementation priorities
@@ -348,6 +350,7 @@ box is present.
 - **Data grounding:** AI coaching should quote the rider's own language from debriefs/reflections. Never generic.
 - **Chunked output:** Long AI responses use progressive disclosure — "scan first, dive deep when ready."
 - **Cost consciousness:** Pre-process aggressively to reduce API tokens. Use Sonnet unless the task specifically requires Opus-level reasoning.
+- **Horse health records:** Health data contextualizes training — it explains patterns, tempers recommendations, and surfaces connections. The AI should never use health records to alarm the rider or second-guess veterinary/professional judgment. Its role is correlation, not diagnosis.
 
 ---
 

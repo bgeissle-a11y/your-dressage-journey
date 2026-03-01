@@ -7,7 +7,8 @@ import {
   getAllReflections,
   getAllObservations,
   getAllJourneyEvents,
-  getAllEventPrepPlans
+  getAllEventPrepPlans,
+  getAllHealthEntries
 } from '../services';
 import { exportToCSV, exportToJSON, EXPORT_COLUMNS } from '../utils/exportUtils';
 import './Dashboard.css';
@@ -19,6 +20,7 @@ const sections = [
       { label: 'Post-Ride Debrief', description: 'Log your ride experience and rate intentions', to: '/debriefs/new', color: '#8B7355' },
       { label: 'Reflection', description: 'Capture personal milestones, aha moments, and growth', to: '/reflections/new', color: '#4A90E2' },
       { label: 'Observation', description: 'Note what you learn watching others ride', to: '/observations/new', color: '#8B5CF6' },
+      { label: 'Health & Soundness', description: 'Track vet visits, body work, and soundness concerns', to: '/horse-health/new', color: '#6B8E5F' },
     ]
   },
   {
@@ -36,6 +38,7 @@ const sections = [
       { label: 'All Observations', description: 'View observation notes', to: '/observations' },
       { label: 'Journey Events', description: 'View your timeline', to: '/events' },
       { label: 'Event Preps', description: 'View preparation plans', to: '/event-prep' },
+      { label: 'Health & Soundness Log', description: 'View health records', to: '/horse-health' },
     ]
   },
   {
@@ -70,12 +73,13 @@ export default function Dashboard() {
     setExporting(true);
 
     try {
-      const [debRes, refRes, obsRes, evtRes, prepRes] = await Promise.all([
+      const [debRes, refRes, obsRes, evtRes, prepRes, healthRes] = await Promise.all([
         getAllDebriefs(currentUser.uid),
         getAllReflections(currentUser.uid),
         getAllObservations(currentUser.uid),
         getAllJourneyEvents(currentUser.uid),
-        getAllEventPrepPlans(currentUser.uid)
+        getAllEventPrepPlans(currentUser.uid),
+        getAllHealthEntries(currentUser.uid)
       ]);
 
       const exportFn = format === 'csv' ? exportToCSV : exportToJSON;
@@ -86,6 +90,7 @@ export default function Dashboard() {
       if (obsRes.success && obsRes.data.length) exportFn(obsRes.data, `ydj-observations-${today}`, EXPORT_COLUMNS.observations);
       if (evtRes.success && evtRes.data.length) exportFn(evtRes.data, `ydj-journey-events-${today}`, EXPORT_COLUMNS.journeyEvents);
       if (prepRes.success && prepRes.data.length) exportFn(prepRes.data, `ydj-event-preps-${today}`, EXPORT_COLUMNS.eventPrepPlans);
+      if (healthRes.success && healthRes.data.length) exportFn(healthRes.data, `ydj-horse-health-${today}`, EXPORT_COLUMNS.horseHealthEntries);
     } catch (err) {
       console.error('Export failed:', err);
     }
@@ -178,6 +183,7 @@ export default function Dashboard() {
           <Link to="/observations/new" className="action-btn"><span>+</span> New Observation</Link>
           <Link to="/event-prep/new" className="action-btn"><span>+</span> Event Prep</Link>
           <Link to="/events/new" className="action-btn"><span>+</span> Journey Event</Link>
+          <Link to="/horse-health/new" className="action-btn"><span>+</span> Health Entry</Link>
 
           {upcomingEvents.length > 0 && (
             <div className="dashboard-upcoming">

@@ -32,7 +32,7 @@ export const EVENT_TYPES = [
   { value: 'clinic', label: 'Clinic/Educational' },
   { value: 'evaluation', label: 'Evaluation/Audit' },
   { value: 'rider', label: 'Rider Health/Physical' },
-  { value: 'horse', label: 'Horse Health/Horse Change' },
+  { value: 'horse', label: 'Horse Change (barn move, new horse, retirement)' },
   { value: 'environment', label: 'Environment/Support System' },
   { value: 'equipment', label: 'Equipment/Tack' },
   { value: 'financial', label: 'Financial' },

@@ -33,6 +33,10 @@ import EventPrepList from './components/EventPrep/EventPrepList';
 import EventPrepForm from './components/EventPrep/EventPrepForm';
 import EventPrepPlan from './components/EventPrep/EventPrepPlan';
 
+// Horse Health
+import HealthEntryList from './components/HorseHealth/HealthEntryList';
+import HealthEntryForm from './components/HorseHealth/HealthEntryForm';
+
 // Assessments
 import PhysicalAssessmentList from './components/PhysicalAssessment/PhysicalAssessmentList';
 import PhysicalAssessmentForm from './components/PhysicalAssessment/PhysicalAssessmentForm';
@@ -96,6 +100,11 @@ function App() {
             <Route path="/events" element={<JourneyEventList />} />
             <Route path="/events/new" element={<JourneyEventForm />} />
             <Route path="/events/:id/edit" element={<JourneyEventForm />} />
+
+            {/* Horse Health */}
+            <Route path="/horse-health" element={<HealthEntryList />} />
+            <Route path="/horse-health/new" element={<HealthEntryForm />} />
+            <Route path="/horse-health/:id/edit" element={<HealthEntryForm />} />
 
             {/* Event Prep */}
             <Route path="/event-prep" element={<EventPrepList />} />

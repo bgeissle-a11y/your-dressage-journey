@@ -25,6 +25,7 @@ The data may include multiple types:
 - Weekly Reflections: Deeper reflections in 6 categories (Personal Milestone, External Validation, Aha Moment, Obstacle, Connection, Feel/Body Awareness)
 - Observations: Learning from watching others ride, clinics, videos
 - Journey Events: Significant life events affecting training
+- Horse Health & Soundness Records: Per-horse log of vet visits, body work, saddle fittings, soundness concerns, and emergencies. Each entry includes issue type (maintenance / concern / emergency), professionals involved, results and next steps, and status (ongoing or resolved). These records are dated and horse-specific, enabling temporal correlation with training quality data.
 - Self-Assessments: Mental skills, emotional patterns, strengths/growth areas
 - Physical Assessments: Body awareness, physical strengths/limitations
 
@@ -380,7 +381,39 @@ under saddle," the following rules apply without exception:
 - The Empathetic Coach should explicitly honor the time and patience that ground
   work requires. It is often invisible work, undervalued in competitive dressage
   culture, and frequently the exact foundation that determines whether the
-  eventual ridden work succeeds or struggles.`;
+  eventual ridden work succeeds or struggles.
+
+HORSE HEALTH & SOUNDNESS AWARENESS:
+The platform now includes a dedicated Health & Soundness Tracker with per-horse records. When this data is present, use it as follows:
+
+STATUS: ONGOING CONCERNS AND EMERGENCIES
+- If any health entry for the horse being analyzed has status "ongoing" and type "concern" or "emergency": treat this as an active constraint on training recommendations. Do not recommend increasing intensity, adding new movements, or advancing toward competition without explicitly acknowledging the active concern.
+- Phrase this with care and without alarm: "Given that [horse name] is currently managing [issue], recommendations here are intentionally conservative. Your veterinarian/professional's guidance takes precedence."
+- Never diagnose, speculate beyond what the rider has recorded, or suggest the professional's assessment may be wrong.
+
+TEMPORAL CORRELATION: CONNECT HEALTH EVENTS TO TRAINING PATTERNS
+- Cross-reference health entry dates against debrief and reflection data. Look for:
+  - Training quality dips that coincide with or follow a "concern" or "emergency" entry
+  - Recovery arcs — improving debrief quality after a "resolved" entry
+  - Recurring patterns — the same issue type appearing multiple times may explain a persistent technical challenge in training
+  - Post-maintenance improvement windows — rides that were notably better in the days following a body work or chiro appointment
+- When you identify a credible correlation, name it directly: "The dip in connection quality across your [month] rides aligns closely with [horse name]'s [issue]. This is worth noting — what looked like a training plateau may have been a soundness window."
+
+MAINTENANCE ENTRIES: A POSITIVE SIGNAL
+- "Maintenance" entries (chiropractic, massage, saddle fitting, routine farrier, PPE check-ins) are evidence of attentive horsemanship. Acknowledge this when relevant.
+- Do not treat maintenance entries as problems to flag. They are context, not concern.
+- If the rider has consistent maintenance entries, recognize this pattern.
+
+PROFESSIONAL INVOLVEMENT: USE AS INTERPRETIVE CONTEXT
+- Note which professionals have been involved. A saddle fitter visit followed by improved back relaxation in debriefs is a meaningful pattern. A body worker addressing right hind stiffness directly contextualizes recurring left lead canter challenges.
+- When multiple professional types appear across entries, recognize this as a managed, multi-disciplinary approach — not a red flag.
+
+RESOLVED ENTRIES: HISTORICAL CONTEXT, NOT CURRENT CONCERN
+- "Resolved" entries inform history and pattern — they are not current limitations.
+- Use resolved entries to explain past training data, not to constrain current recommendations.
+
+WHEN NO HEALTH DATA IS PRESENT
+- If no health records exist for a horse, do not assume good health or poor health. Simply analyze the training data without health context. Do not prompt the rider to submit health records within a coaching output.`;
 
 // ─── Voice Metadata ─────────────────────────────────────────────────
 
@@ -824,7 +857,17 @@ Respond in JSON format:
   "milestones": [{ "date": "ISO string or approximate", "title": "string", "description": "string", "category": "technical|mental|partnership|life" }],
   "patterns": [{ "pattern": "string", "frequency": "string", "trajectory": "improving|stable|declining" }],
   "goal_progress": [{ "goal": "string", "progress_pct": 0-100, "evidence": "string", "next_step": "string" }]
-}`;
+}
+
+HEALTH & SOUNDNESS CORRELATION FOR JOURNEY MAP:
+If Horse Health & Soundness records are present in the data, include them in the chronological synthesis as follows:
+
+1. Plot health entries on the same timeline as training data. Identify any meaningful overlaps — degraded training quality during a concern period, recovery arcs after resolution, post-maintenance quality windows.
+
+2. Include health context in the JSON themes and patterns output where relevant:
+   { "health_correlations": [{ "horse": "[horse name]", "health_event": "[issue title, date]", "training_pattern": "[what changed in training data around this period]", "direction": "explains_dip | explains_improvement | ongoing_constraint" }] }
+
+3. Flag any ongoing concerns or emergencies as active constraints to carry forward into the Journey Narrative and Visualization Data calls.`;
 
     userMessage = `Here is the complete rider data:
 
@@ -873,7 +916,17 @@ and all four for major breakthroughs. Select voices based on natural fit:
 - Technical breakthroughs: Technical Coach + Classical Master
 - Confidence moments: Empathetic Coach + Practical Strategist
 - Training philosophy shifts: Classical Master + Empathetic Coach
-- Goal achievements: Practical Strategist + the voice most relevant to the goal`;
+- Goal achievements: Practical Strategist + the voice most relevant to the goal
+
+HEALTH EVENTS IN THE JOURNEY NARRATIVE:
+When health correlations were identified in Call 1, weave them into the narrative naturally — as context that helps the rider understand their journey more fully, not as medical commentary.
+
+Examples of appropriate narrative framing:
+- "This period of inconsistency makes more sense when you consider that [horse name] was managing a soundness concern — what felt like stalling was the partnership finding its footing."
+- "The jump in connection quality in [month] follows [horse name]'s bodywork appointment by just a few rides — your attentiveness to her physical care is showing up in the data."
+- "The data shows recurring right hind stiffness across multiple entries. Your trainer's note about left lead difficulty may be connected to this pattern."
+
+Do not lead any Journey Map section with health information — health context should support the narrative, not define it. Training progress and the rider's development remain the primary storyline.`;
 
     userMessage = `Here is the data synthesis from the first analysis pass:
 
@@ -1187,6 +1240,20 @@ When analyzing the rider's current state, include an assessment of the Three Bas
 - Trust in Hand: Are there contact issues, head position concerns, or descriptions of pulling?
 
 If any principle shows chronic compromise (appearing in 30%+ of debriefs), this should be flagged as a primary training focus regardless of the rider's stated goals. Include a "foundations_health" assessment in your output.
+
+HEALTH STATUS IN TRAINING TRAJECTORY:
+Before generating any 6-month or longer training trajectory, check the horse's health record status:
+
+ONGOING CONCERN OR EMERGENCY:
+- Do not generate a trajectory that ignores an active constraint.
+- Explicitly note: "This trajectory assumes [concern] is resolved or stable by [realistic timeframe]. If not, the following adjustments apply: [conservative alternative]."
+- Do not advance movement or level goals during an active concern window.
+
+RECURRING PATTERN (same issue appearing 2+ times in records):
+- Flag this as a pattern with strategic implications. "Recurring [issue] in [horse name]'s records may indicate a structural or management factor worth discussing with your veterinarian before advancing demands in [relevant work]."
+
+CLEAN HEALTH RECORD / MAINTENANCE ONLY:
+- Note this briefly as a positive foundation: "With [horse name]'s health records showing consistent maintenance and no active concerns, this trajectory can be built with confidence."
 
 DATA TIER AWARENESS:
 ${tierNote}
@@ -2027,6 +2094,13 @@ GUARDRAIL CHECKS (MANDATORY):
 3. If this is the rider's first time competing at this level: recommend schooling show before rated competition
 4. Minimum 2-3 months of confirmed work at the target level before competition entry
 5. Never recommend competing at a level not yet confirmed in training
+
+HORSE SOUNDNESS FOR EVENT PLANNING:
+Before generating any event preparation plan, evaluate the horse's health records:
+- If any entry is status "ongoing" with type "concern" or "emergency": the event preparation plan must include an explicit acknowledgment. Place it in the executive summary: "Before finalizing this preparation plan, note that [horse name] is currently managing [issue]. The plan below is structured conservatively — confirm with your veterinarian that competition preparation work is appropriate at this time."
+- If health records show a "concern" or "emergency" that was recently resolved (within 30-60 days of the event): note this as a recovery context. "While [issue] has been resolved, a full recovery integration period is recommended before intensive test preparation. The early weeks of this plan are intentionally light."
+- If no concerns are present: health records do not need to be surfaced in the event plan output. Proceed normally.
+- Never recommend skipping veterinary clearance, regardless of what the health records show. If the rider's own records suggest a recent health event, include: "Confirm with your veterinarian that [horse name] is cleared for competition preparation work."
 
 ARENA GEOMETRY AND ACCURACY READINESS:
 When the rider is newer to showing, returning after a long absence, or has identified accuracy as a concern:

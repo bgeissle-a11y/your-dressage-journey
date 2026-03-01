@@ -159,3 +159,7 @@ exports.onRiderAssessmentCreated = onDocumentCreated(
   { document: "riderAssessments/{docId}", secrets: [anthropicKey], timeoutSeconds: 540, memory: "512MiB" },
   dataTriggeredRegeneration.handleImmediateChange
 );
+exports.onHealthEntryCreated = onDocumentCreated(
+  { document: "horseHealthEntries/{docId}", secrets: [anthropicKey], timeoutSeconds: 540, memory: "512MiB" },
+  dataTriggeredRegeneration.handleImmediateChange
+);

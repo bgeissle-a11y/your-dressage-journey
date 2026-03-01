@@ -23,6 +23,7 @@ const { aggregateObservations } = require("../aggregators/observations");
 const { aggregateEventPrep } = require("../aggregators/eventPrep");
 const { aggregateSelfAssessments } = require("../aggregators/selfAssessments");
 const { aggregateMentalPatterns } = require("../aggregators/mentalPatterns");
+const { aggregateHorseHealth } = require("../aggregators/horseHealth");
 
 /**
  * Convert Firestore Timestamp fields to ISO strings.
@@ -105,6 +106,7 @@ function buildOverallStats(rawCounts, rideHistory, reflections, profile) {
     journeyEventCount: rawCounts.journeyEvents,
     eventPrepCount: rawCounts.eventPreps,
     horseCount: profile.horseCount,
+    horseHealthCount: rawCounts.horseHealthEntries,
     ridingStreak: rideHistory.ridingStreak,
     categoryCoverage: reflections.categoryCoverage,
   };
@@ -132,7 +134,7 @@ function buildDataSnapshot(rawCounts) {
  * @returns {Promise<Object>} Complete aggregated rider data for prompt injection
  */
 async function prepareRiderData(uid) {
-  // Fetch all 10 collections in parallel
+  // Fetch all 11 collections in parallel
   const [
     userDoc,
     riderProfiles,
@@ -144,6 +146,7 @@ async function prepareRiderData(uid) {
     eventPrepPlans,
     physicalAssessments,
     riderAssessments,
+    horseHealthEntries,
   ] = await Promise.all([
     fetchUserDoc(uid),
     fetchCollection("riderProfiles", uid),
@@ -155,6 +158,7 @@ async function prepareRiderData(uid) {
     fetchCollection("eventPrepPlans", uid),
     fetchCollection("physicalAssessments", uid),
     fetchCollection("riderAssessments", uid),
+    fetchCollection("horseHealthEntries", uid),
   ]);
 
   // Filter out drafts
@@ -172,9 +176,10 @@ async function prepareRiderData(uid) {
     horses: horseProfiles.length,
     physicalAssessments: nonDraftPhysical.length,
     riderAssessments: nonDraftRider.length,
+    horseHealthEntries: horseHealthEntries.length,
   };
 
-  // Run all 7 base sub-aggregators
+  // Run all 8 base sub-aggregators
   const riderProfile = riderProfiles[0] || null;
   const profile = aggregateProfile(riderProfile, horseProfiles);
   const rideHistory = aggregateRideHistory(nonDraftDebriefs);
@@ -183,6 +188,7 @@ async function prepareRiderData(uid) {
   const observationsSummary = aggregateObservations(observations);
   const eventPrep = aggregateEventPrep(eventPrepPlans);
   const selfAssessments = aggregateSelfAssessments(nonDraftPhysical, nonDraftRider);
+  const horseHealth = aggregateHorseHealth(horseHealthEntries);
 
   // Cross-cut aggregator: mental patterns
   const mentalPatterns = aggregateMentalPatterns(rideHistory, selfAssessments, reflectionsSummary);
@@ -228,6 +234,7 @@ async function prepareRiderData(uid) {
     observations: observationsSummary,
     eventPrep,
     selfAssessments,
+    horseHealth,
 
     // Quick-reference stats and staleness detection
     overallStats,

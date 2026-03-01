@@ -121,3 +121,17 @@ export {
   RIDER_ATTRIBUTES,
   SELF_RATING_SCALES
 } from './riderAssessmentService';
+
+// Horse health & soundness
+export {
+  createHealthEntry,
+  getHealthEntry,
+  getAllHealthEntries,
+  getOngoingHealthEntries,
+  getHealthEntriesByHorse,
+  updateHealthEntry,
+  deleteHealthEntry,
+  ISSUE_TYPES,
+  PROFESSIONAL_TYPES,
+  HEALTH_STATUSES
+} from './horseHealthService';
