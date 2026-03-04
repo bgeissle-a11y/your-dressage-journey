@@ -1,7 +1,7 @@
 /**
  * Event Planner API
  *
- * Generates a comprehensive event preparation plan through 4 API calls:
+ * Generates a comprehensive event/show preparation plan through 4 API calls:
  *
  * EP-1 (Test Requirements):  Enrich test database data with coaching intelligence
  * EP-2 (Readiness Analysis): Evaluate rider-horse readiness against test requirements
@@ -11,7 +11,9 @@
  * Client-orchestrated: the frontend calls this function once per step (1-4),
  * passing prior step results back. Each invocation makes a single Claude call.
  *
- * Input:  { eventPrepPlanId: string, step: 1-4, priorResults?: object, forceRefresh?: boolean }
+ * Supports both legacy eventPrepPlans and new showPreparations collections.
+ *
+ * Input:  { eventPrepPlanId|showPrepPlanId: string, step: 1-4, priorResults?: object, forceRefresh?: boolean }
  * Output: Step-specific result (see per-step docs below)
  */
 
@@ -27,28 +29,48 @@ const { getCache, setCache, getStaleCache } = require("../lib/cacheManager");
 const { db } = require("../lib/firebase");
 
 /**
- * Compute a short hash of the event prep plan's key content fields.
- * Used to detect when the event plan itself changed (date, horses, goals)
+ * Compute a short hash of the event/show prep plan's key content fields.
+ * Used to detect when the plan itself changed (date, horses, goals)
  * vs unrelated rider data changes (new debriefs, reflections).
  *
- * @param {object} eventPrepPlan - The event prep plan document
+ * Supports both legacy eventPrepPlans and new showPreparations formats.
+ *
+ * @param {object} prepPlan - The event/show prep plan document
  * @returns {string} 12-char hex hash
  */
-function computeEventPrepHash(eventPrepPlan) {
-  const keyFields = {
-    eventDate: eventPrepPlan.eventDate,
-    eventType: eventPrepPlan.eventType,
-    horses: (eventPrepPlan.horses || []).map((h) => ({
-      horseName: h.horseName,
-      currentLevel: h.currentLevel,
-      targetLevel: h.targetLevel,
-      goals: h.goals,
-      concerns: h.concerns,
-    })),
-    ridingFrequency: eventPrepPlan.ridingFrequency,
-    coachAccess: eventPrepPlan.coachAccess,
-    constraints: eventPrepPlan.constraints,
-  };
+function computeEventPrepHash(prepPlan) {
+  // Detect showPreparations format by presence of showName
+  const isShowPrep = Boolean(prepPlan.showName);
+
+  const keyFields = isShowPrep
+    ? {
+        showDateStart: prepPlan.showDateStart,
+        showDateEnd: prepPlan.showDateEnd,
+        showType: prepPlan.showType,
+        horseName: prepPlan.horseName,
+        currentLevel: prepPlan.currentLevel,
+        testsSelected: prepPlan.testsSelected,
+        goals: prepPlan.goals,
+        concerns: prepPlan.concerns,
+        ridingFrequency: prepPlan.ridingFrequency,
+        coachAccess: prepPlan.coachAccess,
+        constraints: prepPlan.constraints,
+      }
+    : {
+        eventDate: prepPlan.eventDate,
+        eventType: prepPlan.eventType,
+        horses: (prepPlan.horses || []).map((h) => ({
+          horseName: h.horseName,
+          currentLevel: h.currentLevel,
+          targetLevel: h.targetLevel,
+          goals: h.goals,
+          concerns: h.concerns,
+        })),
+        ridingFrequency: prepPlan.ridingFrequency,
+        coachAccess: prepPlan.coachAccess,
+        constraints: prepPlan.constraints,
+      };
+
   return crypto
     .createHash("md5")
     .update(JSON.stringify(keyFields))
@@ -67,16 +89,21 @@ async function handler(request) {
     const uid = validateAuth(request);
     const {
       eventPrepPlanId,
+      showPrepPlanId,
       step,
       priorResults = {},
       forceRefresh = false,
     } = request.data || {};
 
+    // Determine which collection/ID to use
+    const planId = showPrepPlanId || eventPrepPlanId;
+    const collectionName = showPrepPlanId ? "showPreparations" : "eventPrepPlans";
+
     // Validate required parameters
-    if (!eventPrepPlanId || typeof eventPrepPlanId !== "string") {
+    if (!planId || typeof planId !== "string") {
       throw new HttpsError(
         "invalid-argument",
-        "eventPrepPlanId is required and must be a string."
+        "eventPrepPlanId or showPrepPlanId is required and must be a string."
       );
     }
     if (!step || ![1, 2, 3, 4].includes(step)) {
@@ -86,9 +113,9 @@ async function handler(request) {
       );
     }
 
-    // Fetch event prep plan + rider data in parallel (needed by every step)
+    // Fetch prep plan + rider data in parallel (needed by every step)
     const [eventPrepPlan, riderData] = await Promise.all([
-      validateOwnership("eventPrepPlans", eventPrepPlanId, uid),
+      validateOwnership(collectionName, planId, uid),
       prepareRiderData(uid),
     ]);
 
@@ -100,7 +127,7 @@ async function handler(request) {
         success: false,
         error: "insufficient_data",
         message:
-          "We need a bit more data to generate your Event Plan. " +
+          "We need a bit more data to generate your Show Plan. " +
           "Please complete your rider profile, add at least one horse profile, " +
           "and submit at least 3 post-ride debriefs.",
         dataTier: riderData.dataTier,
@@ -109,8 +136,9 @@ async function handler(request) {
     }
 
     // Common setup
-    const cacheKey = `eventPlanner_${eventPrepPlanId}`;
-    // Support multi-horse (v2) and single-horse (v1) formats
+    const isShowPrep = Boolean(showPrepPlanId);
+    const cacheKey = `${isShowPrep ? "showPlanner" : "eventPlanner"}_${planId}`;
+    // Support show prep (single horse), multi-horse (v2), and single-horse (v1) formats
     const primaryHorse = (eventPrepPlan.horses && eventPrepPlan.horses[0]) || {};
     const targetLevel =
       primaryHorse.targetLevel || primaryHorse.currentLevel ||
@@ -331,9 +359,9 @@ async function handler(request) {
         eventPrepHash,
       });
 
-      // Write-back metadata to eventPrepPlan document
+      // Write-back metadata to the prep plan document
       const generatedAt = new Date().toISOString();
-      await db.collection("eventPrepPlans").doc(eventPrepPlanId).update({
+      await db.collection(collectionName).doc(planId).update({
         generatedPlan: {
           cacheKey: `${uid}_${cacheKey}`,
           generatedAt,

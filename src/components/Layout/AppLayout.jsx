@@ -105,7 +105,7 @@ export default function AppLayout() {
             <div className="nav-dropdown">
               <button
                 className={`nav-link dropdown-trigger ${
-                  isActive('/event-prep') || isActive('/events') ? 'active' : ''
+                  isActive('/show-prep') || isActive('/events') ? 'active' : ''
                 }`}
                 onClick={() => toggleDropdown('plan')}
               >
@@ -113,10 +113,10 @@ export default function AppLayout() {
               </button>
               {openDropdown === 'plan' && (
                 <div className="dropdown-menu">
-                  <Link to="/event-prep/new" className="dropdown-item">New Event Prep</Link>
+                  <Link to="/show-prep/new" className="dropdown-item">New Show Prep</Link>
                   <Link to="/events/new" className="dropdown-item">New Journey Event</Link>
                   <div className="dropdown-divider" />
-                  <Link to="/event-prep" className="dropdown-item">All Event Preps</Link>
+                  <Link to="/show-prep" className="dropdown-item">All Show Preps</Link>
                   <Link to="/events" className="dropdown-item">All Journey Events</Link>
                 </div>
               )}

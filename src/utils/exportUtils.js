@@ -113,6 +113,11 @@ export const EXPORT_COLUMNS = {
   horseHealthEntries: [
     'date', 'horseName', 'issueType', 'title', 'notes',
     'professionals', 'results', 'nextSteps', 'status', 'resolvedDate'
+  ],
+  showPreparations: [
+    'showName', 'showDateStart', 'showDateEnd', 'showType', 'horseName',
+    'currentLevel', 'testsSelected', 'goals', 'concerns', 'ridingFrequency',
+    'coachAccess', 'status'
   ]
 };
 

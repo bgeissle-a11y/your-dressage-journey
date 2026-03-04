@@ -301,7 +301,7 @@ export default function OutputsTipsAndFaq() {
       {/* Event Planner */}
       <div className="tips-section" id="event-planner">
         <h2>&#x1F3AF; Event Planner</h2>
-        <p className="tips-welcome-text">When you submit an Event Preparation form for an upcoming show, clinic, or competition, the Event Planner generates a comprehensive, personalized preparation plan &mdash; from readiness analysis against specific dressage test requirements all the way through show-day strategy.</p>
+        <p className="tips-welcome-text">When you submit a Show Preparation form for an upcoming show, the Event Planner generates a comprehensive, personalized preparation plan &mdash; from readiness analysis against specific dressage test requirements all the way through show-day strategy.</p>
         <h3>The Four-Part Plan</h3>
         <ul className="tips-bullets">
           <li><strong>Test Requirements Assembly:</strong> If you&#39;re competing, the planner pulls the complete requirements from the verified dressage test database &mdash; movements, geometry, coefficients, and common errors for your specific test.</li>
@@ -313,7 +313,7 @@ export default function OutputsTipsAndFaq() {
           <h4>The Preparation + Follow-Up Loop</h4>
           <p>The Event Planner generates structured post-event debrief questions that feed back into the YDJ system. When you prepare for an event AND log what actually happened afterward, the AI can analyze the gap between intention and outcome &mdash; one of the most revealing patterns in rider development.</p>
         </div>
-        <div className="tips-emphasis"><strong>Generated:</strong> On demand, whenever you submit an Event Preparation form. Works for events within the next six months.</div>
+        <div className="tips-emphasis"><strong>Generated:</strong> On demand, whenever you submit a Show Preparation form. Works for shows within the next six months.</div>
       </div>
 
       {/* Self-Assessment Analysis */}
@@ -378,8 +378,8 @@ export default function OutputsTipsAndFaq() {
         <h3>Log the "Small" Events</h3>
         <p>A farrier visit, a saddle fitting, allergy season, a change in turnout schedule &mdash; these often explain patterns that would otherwise seem mysterious. When your ride quality dips for two weeks and the AI can see that it coincided with a barn change, that&#39;s an insight worth having.</p>
 
-        <h3>Use the Event Planner Loop</h3>
-        <p>Submit the Event Preparation form before shows and clinics, then log the event and complete a debrief afterward. The before/after pairing is one of the richest sources of insight the AI can work with.</p>
+        <h3>Use the Show Planner Loop</h3>
+        <p>Submit the Show Preparation form before shows, then log the event and complete a debrief afterward. The before/after pairing is one of the richest sources of insight the AI can work with.</p>
 
         <h3>Read What Challenges You</h3>
         <p>If a coaching voice says something that feels uncomfortable or surprising, sit with it before dismissing it. The AI can see patterns across your entire dataset that are hard to hold in your head simultaneously. Sometimes the most valuable insight is the one that doesn&#39;t match your self-narrative.</p>

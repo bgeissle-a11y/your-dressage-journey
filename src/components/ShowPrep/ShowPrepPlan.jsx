@@ -2,22 +2,23 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
-  getEventPrepPlan, updateEventPrepPlan,
-  EVENT_PREP_TYPES, EXPERIENCE_LEVELS, RIDING_FREQUENCIES,
-  COACH_ACCESS_OPTIONS, AVAILABLE_RESOURCES, COACHING_VOICES, EVENT_PREP_STATUSES
+  getShowPreparation, updateShowPreparation,
+  SHOW_TYPES, SHOW_EXPERIENCE_LEVELS, SHOW_PREP_STATUSES,
+  RIDING_FREQUENCIES, COACH_ACCESS_OPTIONS, AVAILABLE_RESOURCES,
+  resolveTestNames
 } from '../../services';
 import { getEventPlannerStep } from '../../services/aiService';
-import EventPlannerOutput from './EventPlannerOutput';
+import EventPlannerOutput from '../EventPrep/EventPlannerOutput';
 import '../Forms/Forms.css';
 import '../../pages/Insights.css';
+import './ShowPrep.css';
 
-const TYPE_LABELS = Object.fromEntries(EVENT_PREP_TYPES.map(t => [t.value, t.label]));
-const EXP_LABELS = Object.fromEntries(EXPERIENCE_LEVELS.map(e => [e.value, e.label]));
+const TYPE_LABELS = Object.fromEntries(SHOW_TYPES.map(t => [t.value, t.label]));
+const EXP_LABELS = Object.fromEntries(SHOW_EXPERIENCE_LEVELS.map(e => [e.value, e.label]));
 const FREQ_LABELS = Object.fromEntries(RIDING_FREQUENCIES.map(f => [f.value, f.label]));
 const COACH_LABELS = Object.fromEntries(COACH_ACCESS_OPTIONS.map(c => [c.value, c.label]));
 const RESOURCE_LABELS = Object.fromEntries(AVAILABLE_RESOURCES.map(r => [r.value, r.label]));
-const VOICE_LABELS = Object.fromEntries(COACHING_VOICES.filter(v => v.value).map(v => [v.value, v.label]));
-const STATUS_LABELS = Object.fromEntries(EVENT_PREP_STATUSES.map(s => [s.value, s.label]));
+const STATUS_LABELS = Object.fromEntries(SHOW_PREP_STATUSES.map(s => [s.value, s.label]));
 
 const STEP_LABELS = [
   '',
@@ -27,7 +28,7 @@ const STEP_LABELS = [
   'Creating show-day guidance...',
 ];
 
-export default function EventPrepPlan() {
+export default function ShowPrepPlan() {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
   const { id } = useParams();
@@ -35,7 +36,7 @@ export default function EventPrepPlan() {
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // AI Event Planner state — progressive sections
+  // AI Show Planner state — progressive sections
   const [aiSections, setAiSections] = useState({
     testRequirements: null,
     readinessAnalysis: null,
@@ -49,7 +50,7 @@ export default function EventPrepPlan() {
     staleReason: null,
     eventPrepChanged: false,
   });
-  const [aiStep, setAiStep] = useState(0); // 0=idle, 1-4=in-progress, 5=complete
+  const [aiStep, setAiStep] = useState(0);
   const [aiError, setAiError] = useState(null);
   const [failedStep, setFailedStep] = useState(null);
   const cacheLoaded = useRef(false);
@@ -58,7 +59,6 @@ export default function EventPrepPlan() {
     loadPlan();
   }, [id]);
 
-  // Auto-load cached plan when plan data arrives
   useEffect(() => {
     if (plan?.generatedPlan?.generatedAt && !cacheLoaded.current && aiStep === 0 && !aiSections.testRequirements) {
       cacheLoaded.current = true;
@@ -69,7 +69,7 @@ export default function EventPrepPlan() {
   async function loadPlan() {
     if (!id) return;
     setLoading(true);
-    const result = await getEventPrepPlan(id);
+    const result = await getShowPreparation(id);
     if (result.success) {
       setPlan(result.data);
     }
@@ -80,7 +80,7 @@ export default function EventPrepPlan() {
     setAiStep(1);
     setAiError(null);
     try {
-      const result = await getEventPlannerStep({ eventPrepPlanId: id, step: 1 });
+      const result = await getEventPlannerStep({ showPrepPlanId: id, step: 1 });
       if (result.success && result.allSections && result.fromCache) {
         setAiSections({
           testRequirements: result.testRequirements,
@@ -97,11 +97,10 @@ export default function EventPrepPlan() {
         });
         setAiStep(5);
       } else {
-        // No cache available — return to idle
         setAiStep(0);
       }
     } catch (err) {
-      console.warn('No cached event plan:', err.message);
+      console.warn('No cached show plan:', err.message);
       setAiStep(0);
     }
   }
@@ -110,7 +109,6 @@ export default function EventPrepPlan() {
     setAiError(null);
     setFailedStep(null);
 
-    // Accumulate results across steps
     let accumulated = startFromStep === 1
       ? { testRequirements: null, readinessAnalysis: null, preparationPlan: null, showDayGuidance: null }
       : { ...aiSections };
@@ -123,7 +121,7 @@ export default function EventPrepPlan() {
       setAiStep(step);
 
       try {
-        const payload = { eventPrepPlanId: id, step };
+        const payload = { showPrepPlanId: id, step };
 
         if (step === 1) {
           payload.forceRefresh = forceRefresh;
@@ -139,14 +137,13 @@ export default function EventPrepPlan() {
 
         if (!result.success) {
           if (result.error === 'insufficient_data') {
-            setAiError(result.message || 'Not enough data to generate an event plan.');
+            setAiError(result.message || 'Not enough data to generate a show plan.');
             setAiStep(0);
             return;
           }
           throw new Error(result.message || `Step ${step} failed.`);
         }
 
-        // Cache hit on step 1 — all sections returned at once
         if (result.allSections && result.fromCache) {
           setAiSections({
             testRequirements: result.testRequirements,
@@ -165,7 +162,6 @@ export default function EventPrepPlan() {
           return;
         }
 
-        // Update accumulated and displayed state progressively
         if (step === 1) {
           accumulated.testRequirements = result.testRequirements;
           setAiMeta({ generatedAt: null, fromCache: false, stale: false, staleReason: null, eventPrepChanged: false });
@@ -180,7 +176,7 @@ export default function EventPrepPlan() {
 
         setAiSections({ ...accumulated });
       } catch (err) {
-        console.error(`Event Planner step ${step} error:`, err);
+        console.error(`Show Planner step ${step} error:`, err);
         setAiError(err.message || `An error occurred at step ${step}.`);
         setFailedStep(step);
         setAiStep(0);
@@ -193,17 +189,17 @@ export default function EventPrepPlan() {
 
   async function toggleTask(index) {
     if (!plan) return;
-    const updated = [...plan.prepTasks];
+    const updated = [...(plan.prepTasks || [])];
     updated[index] = { ...updated[index], completed: !updated[index].completed };
     setPlan(prev => ({ ...prev, prepTasks: updated }));
-    await updateEventPrepPlan(id, { prepTasks: updated });
+    await updateShowPreparation(id, { prepTasks: updated });
   }
 
-  function daysUntilEvent() {
-    if (!plan?.eventDate) return null;
+  function daysUntilShow() {
+    if (!plan?.showDateStart) return null;
     const now = new Date();
-    const event = new Date(plan.eventDate + 'T00:00:00');
-    return Math.ceil((event - now) / (1000 * 60 * 60 * 24));
+    const show = new Date(plan.showDateStart + 'T00:00:00');
+    return Math.ceil((show - now) / (1000 * 60 * 60 * 24));
   }
 
   function formatDate(dateStr) {
@@ -218,38 +214,39 @@ export default function EventPrepPlan() {
   const isGenerating = aiStep >= 1 && aiStep <= 4;
 
   if (loading) {
-    return <div className="loading-state">Loading preparation plan...</div>;
+    return <div className="loading-state">Loading show preparation plan...</div>;
   }
 
   if (!plan) {
     return (
       <div className="empty-state">
         <h3>Plan not found</h3>
-        <Link to="/event-prep" className="btn-new">Back to Event Preps</Link>
+        <Link to="/show-prep" className="btn-new">Back to Show Preps</Link>
       </div>
     );
   }
 
-  const days = daysUntilEvent();
+  const days = daysUntilShow();
   const completedTasks = (plan.prepTasks || []).filter(t => t.completed).length;
   const totalTasks = (plan.prepTasks || []).length;
+  const testNames = resolveTestNames(plan.testsSelected);
 
-  const eventTypeLabel = plan.eventType === 'other'
-    ? (plan.eventTypeOther || 'Other')
-    : (TYPE_LABELS[plan.eventType] || plan.eventType);
+  const showTypeLabel = plan.showType === 'other'
+    ? (plan.showTypeOther || 'Other')
+    : (TYPE_LABELS[plan.showType] || plan.showType);
 
   return (
     <div className="form-page">
       <div className="form-page-header">
-        <h1>{plan.eventName}</h1>
+        <h1>{plan.showName}</h1>
         <p>
-          {eventTypeLabel}
-          {plan.location && ` at ${plan.location}`}
+          {showTypeLabel}
+          {plan.showLocation && ` at ${plan.showLocation}`}
         </p>
       </div>
 
       <div className="form-card">
-        {/* Event Overview */}
+        {/* Show Overview */}
         <div className="form-section">
           <div style={{
             display: 'flex',
@@ -261,18 +258,14 @@ export default function EventPrepPlan() {
           }}>
             <div>
               <div style={{ fontSize: '1.1rem', fontWeight: 600, color: '#3A3A3A' }}>
-                {formatDate(plan.eventDate)}
+                {formatDate(plan.showDateStart)}
+                {plan.showDateEnd && ` \u2013 ${formatDate(plan.showDateEnd)}`}
               </div>
-              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
-                {plan.horses && plan.horses.length > 0 && (
-                  <span style={{ fontSize: '0.9rem', color: '#7A7A7A' }}>
-                    {plan.horses.map(h => h.horseName).filter(Boolean).join(', ')}
-                  </span>
-                )}
-                {plan.horses && plan.horses[0]?.currentLevel && (
-                  <span style={{ fontSize: '0.9rem', color: '#7A7A7A' }}>{plan.horses[0].currentLevel}</span>
-                )}
-                <span className={`status-badge status-${plan.status === 'completed' ? 'resolved' : plan.status === 'planning' ? 'active' : 'ongoing'}`}>
+              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                {plan.horseName && <span style={{ fontSize: '0.9rem', color: '#7A7A7A' }}>{plan.horseName}</span>}
+                {plan.currentLevel && <span style={{ fontSize: '0.9rem', color: '#7A7A7A' }}>{plan.currentLevel}</span>}
+                <span className={`show-type-badge ${plan.showType}`}>{showTypeLabel}</span>
+                <span className={`status-badge status-${plan.status === 'completed' ? 'resolved' : plan.status === 'active' ? 'ongoing' : 'active'}`}>
                   {STATUS_LABELS[plan.status] || plan.status}
                 </span>
               </div>
@@ -284,14 +277,24 @@ export default function EventPrepPlan() {
               </div>
             )}
           </div>
+
+          {/* Tests */}
+          {testNames.length > 0 && (
+            <div style={{ marginBottom: '1rem' }}>
+              <strong style={{ fontSize: '0.9rem' }}>Tests:</strong>
+              <div className="tests-list">
+                {testNames.map((name, i) => (
+                  <span key={i} className="test-chip">{name}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <Link to={`/event-prep/${id}/edit`} className="btn btn-secondary" style={{ textDecoration: 'none', fontSize: '0.9rem', padding: '8px 16px' }}>Edit Details</Link>
+            <Link to={`/show-prep/${id}/edit`} className="btn btn-secondary" style={{ textDecoration: 'none', fontSize: '0.9rem', padding: '8px 16px' }}>Edit Details</Link>
             {aiStep === 0 && !hasAnySections && (
-              <button
-                className="btn-generate-plan"
-                onClick={() => generatePlan()}
-              >
-                Generate AI Event Plan
+              <button className="btn-generate-plan" onClick={() => generatePlan()}>
+                Generate AI Show Plan
               </button>
             )}
             {aiStep === 5 && (
@@ -340,7 +343,7 @@ export default function EventPrepPlan() {
           </div>
         )}
 
-        {/* Progressive AI Event Planner Output */}
+        {/* Progressive AI Output */}
         {hasAnySections && (
           <EventPlannerOutput
             data={{
@@ -357,67 +360,61 @@ export default function EventPrepPlan() {
           />
         )}
 
-        {/* Per-Horse Context, Goals & Concerns */}
-        {plan.horses && plan.horses.length > 0 && plan.horses.map((horse, hIdx) => {
-          const hasContext = horse.targetLevel || horse.challenges || horse.progress || horse.experience;
-          const hasGoals = horse.goals && horse.goals.length > 0;
-          const hasConcerns = horse.concerns && horse.concerns.length > 0;
-          if (!hasContext && !hasGoals && !hasConcerns) return null;
-
-          return (
-            <div key={hIdx} className="form-section">
-              <div className="form-section-header">
-                <h2 className="form-section-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span className="horse-icon" style={{ width: '30px', height: '30px', background: '#D4A574', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.9em' }}>&#x1F40E;</span>
-                  {horse.horseName || `Horse ${hIdx + 1}`}
-                </h2>
-              </div>
-
-              {/* Horse Context */}
-              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
-                {horse.currentLevel && <span style={{ fontSize: '0.9rem', color: '#7A7A7A' }}><strong>Level:</strong> {horse.currentLevel}</span>}
-                {horse.targetLevel && <span style={{ fontSize: '0.9rem', color: '#7A7A7A' }}><strong>Target:</strong> {horse.targetLevel}</span>}
-                {horse.experience && <span style={{ fontSize: '0.9rem', color: '#7A7A7A' }}><strong>Experience:</strong> {EXP_LABELS[horse.experience] || horse.experience}</span>}
-              </div>
-              {horse.challenges && <div style={{ marginBottom: '0.75rem' }}><strong>Current Challenges:</strong><p style={{ marginTop: '0.25rem', color: '#3A3A3A', lineHeight: 1.6 }}>{horse.challenges}</p></div>}
-              {horse.progress && <div style={{ marginBottom: '0.75rem' }}><strong>Recent Progress:</strong><p style={{ marginTop: '0.25rem', color: '#3A3A3A', lineHeight: 1.6 }}>{horse.progress}</p></div>}
-
-              {/* Horse Goals */}
-              {hasGoals && (
-                <div style={{ marginTop: '1rem' }}>
-                  <div style={{ fontWeight: 600, color: '#8B7355', marginBottom: '0.5rem' }}>Goals</div>
-                  {horse.goals.map((goal, i) => (
-                    <div key={i} style={{
-                      display: 'flex', alignItems: 'center', gap: '10px',
-                      padding: '8px 0',
-                      borderBottom: i < horse.goals.length - 1 ? '1px solid #F0EBE3' : 'none'
-                    }}>
-                      <div className="goal-number-badge">{i + 1}</div>
-                      <span>{goal}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Horse Concerns */}
-              {hasConcerns && (
-                <div style={{ marginTop: '1rem' }}>
-                  <div style={{ fontWeight: 600, color: '#C67B5C', marginBottom: '0.5rem' }}>Concerns</div>
-                  {horse.concerns.map((concern, i) => (
-                    <div key={i} style={{
-                      display: 'flex', alignItems: 'center', gap: '10px',
-                      padding: '8px 0',
-                      borderBottom: i < horse.concerns.length - 1 ? '1px solid #F0EBE3' : 'none'
-                    }}>
-                      <div className="concern-number-badge">{i + 1}</div>
-                      <span>{concern}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
+        {/* Horse Context */}
+        {(plan.showExperience || plan.currentChallenges || plan.recentProgress) && (
+          <div className="form-section">
+            <div className="form-section-header">
+              <h2 className="form-section-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ width: '30px', height: '30px', background: '#D4A574', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.9em' }}>&#x1F40E;</span>
+                {plan.horseName}
+              </h2>
             </div>
-          );
-        })}
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+              {plan.currentLevel && <span style={{ fontSize: '0.9rem', color: '#7A7A7A' }}><strong>Level:</strong> {plan.currentLevel}</span>}
+              {plan.showExperience && <span style={{ fontSize: '0.9rem', color: '#7A7A7A' }}><strong>Experience:</strong> {EXP_LABELS[plan.showExperience] || plan.showExperience}</span>}
+            </div>
+            {plan.currentChallenges && <div style={{ marginBottom: '0.75rem' }}><strong>Current Challenges:</strong><p style={{ marginTop: '0.25rem', color: '#3A3A3A', lineHeight: 1.6 }}>{plan.currentChallenges}</p></div>}
+            {plan.recentProgress && <div style={{ marginBottom: '0.75rem' }}><strong>Recent Progress:</strong><p style={{ marginTop: '0.25rem', color: '#3A3A3A', lineHeight: 1.6 }}>{plan.recentProgress}</p></div>}
+          </div>
+        )}
+
+        {/* Goals */}
+        {plan.goals && plan.goals.length > 0 && (
+          <div className="form-section">
+            <div className="form-section-header">
+              <h2 className="form-section-title">Goals</h2>
+            </div>
+            {plan.goals.map((goal, i) => (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'center', gap: '10px',
+                padding: '8px 0',
+                borderBottom: i < plan.goals.length - 1 ? '1px solid #F0EBE3' : 'none'
+              }}>
+                <div className="goal-number-badge">{i + 1}</div>
+                <span>{goal}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Concerns */}
+        {plan.concerns && plan.concerns.length > 0 && (
+          <div className="form-section">
+            <div className="form-section-header">
+              <h2 className="form-section-title">Concerns</h2>
+            </div>
+            {plan.concerns.map((concern, i) => (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'center', gap: '10px',
+                padding: '8px 0',
+                borderBottom: i < plan.concerns.length - 1 ? '1px solid #F0EBE3' : 'none'
+              }}>
+                <div className="concern-number-badge">{i + 1}</div>
+                <span>{concern}</span>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Resources */}
         {(plan.ridingFrequency || plan.coachAccess || (plan.availableResources && plan.availableResources.length > 0)) && (
@@ -440,14 +437,12 @@ export default function EventPrepPlan() {
         )}
 
         {/* Additional Info */}
-        {(plan.eventDescription || plan.additionalInfo || plan.preferredCoach) && (
+        {plan.additionalInfo && (
           <div className="form-section">
             <div className="form-section-header">
               <h2 className="form-section-title">Additional Details</h2>
             </div>
-            {plan.eventDescription && <div style={{ marginBottom: '0.75rem' }}><strong>Event Details:</strong><p style={{ marginTop: '0.25rem', color: '#3A3A3A', lineHeight: 1.6 }}>{plan.eventDescription}</p></div>}
-            {plan.additionalInfo && <div style={{ marginBottom: '0.75rem' }}><strong>Additional Context:</strong><p style={{ marginTop: '0.25rem', color: '#3A3A3A', lineHeight: 1.6 }}>{plan.additionalInfo}</p></div>}
-            {plan.preferredCoach && <div><strong>Coaching Voice:</strong> {VOICE_LABELS[plan.preferredCoach] || plan.preferredCoach}</div>}
+            <div><strong>Additional Context:</strong><p style={{ marginTop: '0.25rem', color: '#3A3A3A', lineHeight: 1.6 }}>{plan.additionalInfo}</p></div>
           </div>
         )}
 
@@ -457,7 +452,7 @@ export default function EventPrepPlan() {
             <div className="form-section-header">
               <h2 className="form-section-title">Preparation Tasks ({completedTasks}/{totalTasks})</h2>
             </div>
-            {plan.prepTasks.map((task, index) => (
+            {(plan.prepTasks || []).map((task, index) => (
               <div key={index} style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -480,7 +475,7 @@ export default function EventPrepPlan() {
         )}
 
         <div className="form-actions">
-          <button type="button" className="btn btn-secondary" onClick={() => navigate('/event-prep')}>
+          <button type="button" className="btn btn-secondary" onClick={() => navigate('/show-prep')}>
             Back to List
           </button>
         </div>

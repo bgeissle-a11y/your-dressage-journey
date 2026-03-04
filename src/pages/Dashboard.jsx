@@ -7,7 +7,7 @@ import {
   getAllReflections,
   getAllObservations,
   getAllJourneyEvents,
-  getAllEventPrepPlans,
+  getAllShowPreparations,
   getAllHealthEntries
 } from '../services';
 import { getAdminStats } from '../services/aiService';
@@ -29,7 +29,7 @@ const sections = [
   {
     title: 'Plan',
     items: [
-      { label: 'Event Preparation', description: 'Create a personalized preparation roadmap', to: '/event-prep/new', color: '#C67B5C' },
+      { label: 'Show Preparation', description: 'Create a personalized show preparation roadmap', to: '/show-prep/new', color: '#C67B5C' },
       { label: 'Journey Event', description: 'Track life changes that affect your riding', to: '/events/new', color: '#6B8E5F' },
     ]
   },
@@ -40,7 +40,7 @@ const sections = [
       { label: 'All Reflections', description: 'Review your reflection library', to: '/reflections' },
       { label: 'All Observations', description: 'View observation notes', to: '/observations' },
       { label: 'Journey Events', description: 'View your timeline', to: '/events' },
-      { label: 'Event Preps', description: 'View preparation plans', to: '/event-prep' },
+      { label: 'Show Preps', description: 'View show preparation plans', to: '/show-prep' },
       { label: 'Health & Soundness Log', description: 'View health records', to: '/horse-health' },
     ]
   },
@@ -98,7 +98,7 @@ export default function Dashboard() {
         getAllReflections(currentUser.uid),
         getAllObservations(currentUser.uid),
         getAllJourneyEvents(currentUser.uid),
-        getAllEventPrepPlans(currentUser.uid),
+        getAllShowPreparations(currentUser.uid),
         getAllHealthEntries(currentUser.uid)
       ]);
 
@@ -109,7 +109,7 @@ export default function Dashboard() {
       if (refRes.success && refRes.data.length) exportFn(refRes.data, `ydj-reflections-${today}`, EXPORT_COLUMNS.reflections);
       if (obsRes.success && obsRes.data.length) exportFn(obsRes.data, `ydj-observations-${today}`, EXPORT_COLUMNS.observations);
       if (evtRes.success && evtRes.data.length) exportFn(evtRes.data, `ydj-journey-events-${today}`, EXPORT_COLUMNS.journeyEvents);
-      if (prepRes.success && prepRes.data.length) exportFn(prepRes.data, `ydj-event-preps-${today}`, EXPORT_COLUMNS.eventPrepPlans);
+      if (prepRes.success && prepRes.data.length) exportFn(prepRes.data, `ydj-show-preps-${today}`, EXPORT_COLUMNS.showPreparations);
       if (healthRes.success && healthRes.data.length) exportFn(healthRes.data, `ydj-horse-health-${today}`, EXPORT_COLUMNS.horseHealthEntries);
     } catch (err) {
       console.error('Export failed:', err);
@@ -201,17 +201,17 @@ export default function Dashboard() {
           <Link to="/debriefs/new" className="action-btn"><span>+</span> New Debrief</Link>
           <Link to="/reflections/new" className="action-btn"><span>+</span> New Reflection</Link>
           <Link to="/observations/new" className="action-btn"><span>+</span> New Observation</Link>
-          <Link to="/event-prep/new" className="action-btn"><span>+</span> Event Prep</Link>
+          <Link to="/show-prep/new" className="action-btn"><span>+</span> Show Prep</Link>
           <Link to="/events/new" className="action-btn"><span>+</span> Journey Event</Link>
           <Link to="/horse-health/new" className="action-btn"><span>+</span> Health Entry</Link>
 
           {upcomingEvents.length > 0 && (
             <div className="dashboard-upcoming">
-              <h3>Upcoming Events</h3>
+              <h3>Upcoming Shows</h3>
               {upcomingEvents.map(evt => (
                 <div key={evt.id} className="upcoming-item">
-                  <span className="upcoming-name">{evt.eventName}</span>
-                  <span className="upcoming-date">{formatDate(evt.eventDate)}</span>
+                  <span className="upcoming-name">{evt.showName || evt.eventName}</span>
+                  <span className="upcoming-date">{formatDate(evt.showDateStart || evt.eventDate)}</span>
                 </div>
               ))}
             </div>

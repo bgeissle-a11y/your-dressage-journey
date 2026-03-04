@@ -20,11 +20,11 @@ export default function EventPlannerOutput({ data, isGenerating = false, current
     <div className="ep-output">
       <div className="ep-output__header">
         <div>
-          <h2>AI Event Preparation Plan</h2>
+          <h2>AI Show Preparation Plan</h2>
           <p>
             {isGenerating
               ? `Generating... (${currentStep - 1} of 4 sections complete)`
-              : 'Personalized guidance for your event'
+              : 'Personalized guidance for your show'
             }
           </p>
         </div>
@@ -45,7 +45,7 @@ export default function EventPlannerOutput({ data, isGenerating = false, current
         <div className="ep-stale-banner">
           <div className="ep-stale-banner__text">
             {eventPrepChanged
-              ? 'Your event details have changed since this plan was generated.'
+              ? 'Your show details have changed since this plan was generated.'
               : 'You have new training data since this plan was generated.'}
           </div>
           {onRegenerate && (

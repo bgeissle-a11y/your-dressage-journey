@@ -3,7 +3,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   createJourneyEvent, getJourneyEvent, updateJourneyEvent,
-  getAllEventPrepPlans,
+  getAllShowPreparations,
   EVENT_TYPES, EVENT_MAGNITUDES, IMPACT_DURATIONS, EVENT_STATUSES
 } from '../../services';
 import FormSection from '../Forms/FormSection';
@@ -50,7 +50,7 @@ export default function JourneyEventForm() {
   }, [id, currentUser]);
 
   async function loadEventPreps() {
-    const result = await getAllEventPrepPlans(currentUser.uid);
+    const result = await getAllShowPreparations(currentUser.uid);
     if (result.success) {
       setEventPreps(result.data);
     }
@@ -177,16 +177,16 @@ export default function JourneyEventForm() {
               </select>
             </FormField>
             {formData.entryMode === 'planned' && eventPreps.length > 0 && (
-              <FormField label="Event Preparation Reference" optional helpText="Link to an Event Preparation you created for this event">
+              <FormField label="Show Preparation Reference" optional helpText="Link to a Show Preparation you created for this event">
                 <select name="prepReference" value={formData.prepReference} onChange={handleChange} disabled={loading}>
-                  <option value="">Select a prepared event or leave blank...</option>
+                  <option value="">Select a show prep or leave blank...</option>
                   {eventPreps.map(prep => {
-                    const dateLabel = prep.eventDate
-                      ? new Date(prep.eventDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                    const dateLabel = prep.showDateStart
+                      ? new Date(prep.showDateStart + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
                       : '';
                     return (
                       <option key={prep.id} value={prep.id}>
-                        {prep.eventName}{dateLabel ? ` — ${dateLabel}` : ''}
+                        {prep.showName}{dateLabel ? ` — ${dateLabel}` : ''}
                       </option>
                     );
                   })}

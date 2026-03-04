@@ -1946,24 +1946,68 @@ function condenseEPPriorResults(priorResults) {
 function buildEventPlannerPrompt(callIndex, riderData, eventPrepPlan, detailedTestContext, priorResults) {
   let system, userMessage;
 
-  const preferredVoice = resolvePreferredVoice(eventPrepPlan.preferredCoach);
+  // Detect show prep vs legacy event prep format
+  const isShowPrep = Boolean(eventPrepPlan.showName);
 
-  // Support multi-horse (v2) and single-horse (v1) formats
-  const horses = (eventPrepPlan.horses && eventPrepPlan.horses.length > 0)
-    ? eventPrepPlan.horses
-    : [{
+  // For show preps: no preferredCoach field; default to The Practical Strategist
+  const preferredVoice = isShowPrep
+    ? "The Practical Strategist"
+    : resolvePreferredVoice(eventPrepPlan.preferredCoach);
+
+  // Normalize to a single-horse block for show preps, or multi-horse for legacy
+  const horses = isShowPrep
+    ? [{
         horseName: eventPrepPlan.horseName || riderData.horseSummaries?.[0]?.name || "the horse",
         currentLevel: eventPrepPlan.currentLevel || "",
-        targetLevel: eventPrepPlan.targetLevel || "",
-        experience: eventPrepPlan.eventExperience || "",
+        targetLevel: eventPrepPlan.currentLevel || "",
+        experience: eventPrepPlan.showExperience || "",
         challenges: eventPrepPlan.currentChallenges || "",
         progress: eventPrepPlan.recentProgress || "",
         goals: eventPrepPlan.goals || [],
         concerns: eventPrepPlan.concerns || []
-      }];
+      }]
+    : (eventPrepPlan.horses && eventPrepPlan.horses.length > 0)
+      ? eventPrepPlan.horses
+      : [{
+          horseName: eventPrepPlan.horseName || riderData.horseSummaries?.[0]?.name || "the horse",
+          currentLevel: eventPrepPlan.currentLevel || "",
+          targetLevel: eventPrepPlan.targetLevel || "",
+          experience: eventPrepPlan.eventExperience || "",
+          challenges: eventPrepPlan.currentChallenges || "",
+          progress: eventPrepPlan.recentProgress || "",
+          goals: eventPrepPlan.goals || [],
+          concerns: eventPrepPlan.concerns || []
+        }];
   const primaryHorse = horses[0];
   const horseName = primaryHorse.horseName || "the horse";
   const isMultiHorse = horses.length > 1;
+
+  // Show prep: show type context
+  const showTypeContext = isShowPrep ? (() => {
+    const showType = eventPrepPlan.showType || "recognized";
+    if (showType === "recognized") {
+      return `SHOW TYPE: USDF/USEF Recognized Show
+This is a rated competition. Scores count toward year-end awards, median scores, and qualifying scores for championships. Judging follows strict USEF/USDF standards. The rider should expect a formal atmosphere, precise timing, and official scoring.`;
+    } else if (showType === "schooling") {
+      return `SHOW TYPE: Schooling Show
+This is an unrated show designed for practice and experience. While judging follows dressage standards, the atmosphere is typically more relaxed. This is an excellent venue for building confidence, practicing show routines, and getting feedback without the pressure of official scores.`;
+    } else {
+      return `SHOW TYPE: ${eventPrepPlan.showTypeOther || "Other"}
+Adapt guidance to fit this specific show context.`;
+    }
+  })() : "";
+
+  // Show prep: tests context for prompts
+  const testsContext = isShowPrep && (eventPrepPlan.testsSelected || []).length > 0
+    ? `SELECTED TESTS: ${(eventPrepPlan.testsSelected || []).join(", ")}
+Test Type: ${eventPrepPlan.testType === "freestyle" ? "Freestyle" : "Standard"}`
+    : "";
+
+  // Show prep: multi-day context
+  const multiDayContext = isShowPrep && eventPrepPlan.showDuration === "multi"
+    ? `MULTI-DAY SHOW: ${eventPrepPlan.showDateStart} through ${eventPrepPlan.showDateEnd}
+This is a multi-day show. Consider: travel/stabling logistics, daily warm-up adjustments, horse energy management across days, and which tests to ride on which days.`
+    : "";
 
   // Format a text block for a single horse entry (used in user messages)
   function formatHorseBlock(h, idx) {
@@ -1971,7 +2015,7 @@ function buildEventPlannerPrompt(callIndex, riderData, eventPrepPlan, detailedTe
     return `${label}
 Current Level: ${h.currentLevel || "not specified"}
 Target Level: ${h.targetLevel || h.currentLevel || "not specified"}
-Experience: ${h.experience || "not specified"}
+Show Experience: ${h.experience || "not specified"}
 Current Challenges: ${h.challenges || "none noted"}
 Recent Progress: ${h.progress || "none noted"}
 Goals: ${(h.goals || []).filter(Boolean).join("; ") || "none specified"}
@@ -1982,9 +2026,10 @@ Concerns: ${(h.concerns || []).filter(Boolean).join("; ") || "none specified"}`;
   const allGoals = horses.flatMap(h => h.goals || []).filter(Boolean);
   const allConcerns = horses.flatMap(h => h.concerns || []).filter(Boolean);
 
-  const isFreestyle =
-    (eventPrepPlan.eventDescription || "").toLowerCase().includes("freestyle") ||
-    (primaryHorse.targetLevel || primaryHorse.currentLevel || "").toLowerCase().includes("freestyle");
+  const isFreestyle = isShowPrep
+    ? eventPrepPlan.testType === "freestyle"
+    : (eventPrepPlan.eventDescription || "").toLowerCase().includes("freestyle") ||
+      (primaryHorse.targetLevel || primaryHorse.currentLevel || "").toLowerCase().includes("freestyle");
 
   const tierContext = riderData.dataTier === 1
     ? "This rider has limited data (Tier 1). Acknowledge gaps and focus on available data."
@@ -2062,7 +2107,22 @@ Respond in JSON format:
 
 For FEI tests without a full movement sequence, structure the movements field from the required_movements data grouped by gait. Note any movements where the database lacks specific sequence information.`;
 
-    userMessage = `Analyze the test requirements for this rider's upcoming event:
+    userMessage = isShowPrep
+      ? `Analyze the test requirements for this rider's upcoming show:
+
+Show: ${eventPrepPlan.showName}
+${showTypeContext ? showTypeContext.split("\n")[0] : ""}
+Date: ${eventPrepPlan.showDateStart}${eventPrepPlan.showDateEnd ? ` through ${eventPrepPlan.showDateEnd}` : ""}
+${eventPrepPlan.showLocation ? `Location: ${eventPrepPlan.showLocation}` : ""}
+Target Level: ${detailedTestContext.levelName}
+${testsContext}
+
+${allHorseBlocks}
+
+${tierContext}
+
+Enrich the test data provided in the system context with common errors, geometry notes, and scoring strategy. Be specific to ${detailedTestContext.levelName} Level — what judges particularly reward or penalize.`
+      : `Analyze the test requirements for this rider's upcoming event:
 
 Event: ${eventPrepPlan.eventName}
 Type: ${eventPrepPlan.eventType}
@@ -2205,7 +2265,27 @@ Respond in JSON format:
   }` : ""}
 }`;
 
-    userMessage = `Here are the enriched test requirements from EP-1:
+    userMessage = isShowPrep
+      ? `Here are the enriched test requirements from EP-1:
+
+${JSON.stringify(priorResults.testRequirements, null, 2)}
+
+Here is the rider's show preparation plan:
+Show: ${eventPrepPlan.showName} on ${eventPrepPlan.showDateStart}${eventPrepPlan.showDateEnd ? ` through ${eventPrepPlan.showDateEnd}` : ""}
+${showTypeContext}
+${eventPrepPlan.showLocation ? `Location: ${eventPrepPlan.showLocation}` : ""}
+${testsContext}
+
+${allHorseBlocks}
+
+Here is the complete rider data:
+
+${buildUserDataMessage(riderData)}
+
+${tierContext}
+
+Evaluate this rider's readiness. Be honest and specific — cite actual data from their debriefs and assessments. Use ${horseName}'s name throughout.`
+      : `Here are the enriched test requirements from EP-1:
 
 ${JSON.stringify(priorResults.testRequirements, null, 2)}
 
@@ -2225,17 +2305,21 @@ Evaluate this rider's readiness${isMultiHorse ? " with each horse" : ""}. Be hon
 
   } else if (callIndex === 3) {
     // EP-3: Preparation Plan Generation
-    const eventDate = new Date(eventPrepPlan.eventDate + "T00:00:00");
+    const eventDateStr = isShowPrep ? eventPrepPlan.showDateStart : eventPrepPlan.eventDate;
+    const eventDate = new Date((eventDateStr || "") + "T00:00:00");
     const today = new Date();
     const msPerWeek = 7 * 24 * 60 * 60 * 1000;
     const weeksUntilEvent = Math.max(1, Math.round((eventDate - today) / msPerWeek));
 
     system = `${BASE_CONTEXT}
 
-You are creating a personalized, week-by-week preparation plan for a rider's upcoming dressage event.
+You are creating a personalized, week-by-week preparation plan for a rider's upcoming dressage show.
 
-EVENT TIMELINE:
-- Event Date: ${eventPrepPlan.eventDate}
+${showTypeContext}
+${multiDayContext}
+
+SHOW TIMELINE:
+- Show Date: ${eventDateStr}
 - Weeks Until Event: approximately ${weeksUntilEvent}
 - Training Days/Week: ${eventPrepPlan.ridingFrequency || "3-4"} days
 - Coach Access: ${eventPrepPlan.coachAccess || "not specified"}
@@ -2387,7 +2471,34 @@ Respond in JSON format:
   }` : ""}
 }`;
 
-    userMessage = `Here is the condensed analysis from prior calls:
+    userMessage = isShowPrep
+      ? `Here is the condensed analysis from prior calls:
+
+${condenseEPPriorResults(priorResults)}
+
+Full readiness analysis (EP-2):
+
+${JSON.stringify(priorResults.readinessAnalysis, null, 2)}
+
+Rider's show preparation details:
+Show: ${eventPrepPlan.showName} on ${eventPrepPlan.showDateStart}${eventPrepPlan.showDateEnd ? ` through ${eventPrepPlan.showDateEnd}` : ""} (${weeksUntilEvent} weeks away)
+${showTypeContext ? showTypeContext.split("\n")[0] : ""}
+${testsContext}
+
+${allHorseBlocks}
+
+Riding Frequency: ${eventPrepPlan.ridingFrequency || "3-4"} days/week
+Coach Access: ${eventPrepPlan.coachAccess || "not specified"}
+Resources: ${(eventPrepPlan.availableResources || []).join(", ") || "standard"}
+Additional Info: ${eventPrepPlan.additionalInfo || "none"}
+
+Rider's learning style: ${riderData.profile?.learningStyle || "not specified"}
+Rider name: ${riderData.displayName || "Rider"}
+
+${tierContext}
+
+Create a detailed preparation plan personalized to this rider and ${horseName}. Address the specific gaps identified in the readiness analysis. Make every exercise reference a specific test movement.`
+      : `Here is the condensed analysis from prior calls:
 
 ${condenseEPPriorResults(priorResults)}
 
@@ -2416,11 +2527,14 @@ Create a detailed preparation plan personalized to this rider and ${isMultiHorse
     // EP-4: Show-Day Guidance
     system = `${BASE_CONTEXT}
 
-You are creating a comprehensive show-day timeline and strategy for a rider's upcoming dressage event.
+You are creating a comprehensive show-day timeline and strategy for a rider's upcoming dressage show.
+
+${showTypeContext}
+${multiDayContext}
 
 RIDER CONTEXT:
-- Event Experience: ${primaryHorse.experience || eventPrepPlan.eventExperience || "not specified"}
-- ${isMultiHorse ? `Horses: ${horses.map(h => h.horseName).filter(Boolean).join(", ")}` : `Horse: ${horseName}`}
+- Show Experience: ${primaryHorse.experience || eventPrepPlan.showExperience || eventPrepPlan.eventExperience || "not specified"}
+- Horse: ${horseName}
 - Concerns: ${allConcerns.join("; ") || "none"}
 
 VENUE ARRIVAL LANGUAGE:
@@ -2566,22 +2680,27 @@ Confidence strategies from EP-3:
 ${priorResults.preparationPlan?.confidence_strategies ? JSON.stringify(priorResults.preparationPlan.confidence_strategies, null, 2) : "None specified."}
 
 Event details:
-Event: ${eventPrepPlan.eventName} on ${eventPrepPlan.eventDate}
+${isShowPrep
+  ? `Show: ${eventPrepPlan.showName} on ${eventPrepPlan.showDateStart}${eventPrepPlan.showDateEnd ? " through " + eventPrepPlan.showDateEnd : ""}
+Type: ${showTypeContext.split("\n")[0] || "Show"}
+Location: ${eventPrepPlan.showLocation || "not specified"}
+${testsContext}`
+  : `Event: ${eventPrepPlan.eventName} on ${eventPrepPlan.eventDate}
 Type: ${eventPrepPlan.eventType}
-Location: ${eventPrepPlan.location || "not specified"}
+Location: ${eventPrepPlan.location || "not specified"}`}
 
 ${allHorseBlocks}
 
 ${horses.map(h => {
   const temperament = riderData.horseSummaries?.find((s) => s.name === h.horseName)?.temperament || "not specified";
-  return `${h.horseName} temperament: ${temperament}`;
+  return h.horseName + " temperament: " + temperament;
 }).join("\n")}
 
 Rider: ${riderData.displayName || "Rider"}
 
 ${tierContext}
 
-Create a comprehensive show-day plan personalized to ${riderData.displayName || "this rider"} and ${isMultiHorse ? "each horse" : horseName}. Adapt the detail level to their experience (${primaryHorse.experience || "not specified"}). Address their specific concerns.`;
+Create a comprehensive show-day plan personalized to ${riderData.displayName || "this rider"} and ${horseName}. Adapt the detail level to their experience (${primaryHorse.experience || "not specified"}). Address their specific concerns.`;
 
   } else {
     throw new Error(`Invalid Event Planner call index: ${callIndex}`);

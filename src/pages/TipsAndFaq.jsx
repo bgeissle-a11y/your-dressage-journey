@@ -65,11 +65,11 @@ export default function TipsAndFaq() {
             <div className="tips-card-desc">Deeper exploration across six categories with curated prompts to guide your thinking.</div>
             <span className="tips-card-freq">Weekly+ (anytime!)</span>
           </Link>
-          <Link to="/event-prep/new" className="tips-form-card">
+          <Link to="/show-prep/new" className="tips-form-card">
             <div className="tips-card-icon">&#x1F4CB;</div>
-            <div className="tips-card-title">Event Preparation</div>
-            <div className="tips-card-desc">Plan ahead for shows, clinics, and competitions within the next six months.</div>
-            <span className="tips-card-freq">Before events</span>
+            <div className="tips-card-title">Show Preparation</div>
+            <div className="tips-card-desc">Plan ahead for your next dressage show within the next six months.</div>
+            <span className="tips-card-freq">Before shows</span>
           </Link>
           <Link to="/events/new" className="tips-form-card">
             <div className="tips-card-icon">&#x1F4C5;</div>
@@ -266,13 +266,13 @@ export default function TipsAndFaq() {
           Two forms work together to help you get the most from shows, clinics, lessons, and other significant moments in your dressage journey.
         </p>
 
-        <h3>Event Preparation Form</h3>
-        <p>Use this <strong>before</strong> an upcoming show, clinic, or significant lesson that&#39;s <strong>within the next six months</strong>. (Beyond six months, plans change too much to be practical.) It helps you think through your goals, preparation plan, potential challenges, and what you want to focus on. Structured preparation leads to better performance and—just as importantly—better learning from the experience afterward.</p>
+        <h3>Show Preparation Form</h3>
+        <p>Use this <strong>before</strong> an upcoming dressage show that&#39;s <strong>within the next six months</strong>. (Beyond six months, plans change too much to be practical.) It helps you think through your goals, select the tests you&#39;re riding, plan your preparation timeline, and address concerns proactively. Structured preparation leads to better performance and&#8212;just as importantly&#8212;better learning from the experience afterward.</p>
 
         <ul className="tips-bullets">
-          <li><strong>Shows &amp; competitions:</strong> Define your goals beyond just scores—what do you want to demonstrate? What are you testing?</li>
-          <li><strong>Clinics:</strong> Identify specific questions and focus areas so you arrive with clarity</li>
-          <li><strong>Significant lessons:</strong> Prepare when you&#39;re working on something new or challenging with your instructor</li>
+          <li><strong>Recognized shows:</strong> Higher stakes&#8212;scores count toward year-end awards. The plan emphasizes consistency and accuracy.</li>
+          <li><strong>Schooling shows:</strong> Lower stakes, higher learning. The plan frames this as a valuable experience-gathering opportunity.</li>
+          <li><strong>Test selection:</strong> Choose your specific tests so the AI can reference exact movements and requirements in your preparation plan.</li>
         </ul>
 
         <h3>Journey Event Log</h3>
@@ -406,7 +406,7 @@ export default function TipsAndFaq() {
         <p>Adding comparison takes 5 seconds but multiplies value: "More balanced than last Tuesday" or "Stiffer than warmup" or "Better after the walk break." Context creates patterns.</p>
 
         <h3>Pair Preparation with Follow-Up</h3>
-        <p>Use the Event Preparation form before shows and clinics, then log the event and complete a debrief afterward. This before/after pairing is one of the richest sources of insight the AI can work with.</p>
+        <p>Use the Show Preparation form before shows, then log the event and complete a debrief afterward. This before/after pairing is one of the richest sources of insight the AI can work with.</p>
 
         <div className="tips-tip-box">
           <h4>The 2-Minute Rule</h4>

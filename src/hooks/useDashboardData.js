@@ -5,7 +5,7 @@ import {
   getAllReflections,
   getAllObservations,
   getAllJourneyEvents,
-  getAllEventPrepPlans,
+  getAllShowPreparations,
   getAllHorseProfiles,
   REFLECTION_CATEGORIES
 } from '../services';
@@ -90,7 +90,7 @@ export default function useDashboardData() {
         getAllReflections(currentUser.uid),
         getAllObservations(currentUser.uid),
         getAllJourneyEvents(currentUser.uid),
-        getAllEventPrepPlans(currentUser.uid),
+        getAllShowPreparations(currentUser.uid),
         getAllHorseProfiles(currentUser.uid)
       ]);
 
@@ -100,7 +100,7 @@ export default function useDashboardData() {
       const reflections = refRes.success ? refRes.data : [];
       const observations = obsRes.success ? obsRes.data : [];
       const journeyEvents = evtRes.success ? evtRes.data : [];
-      const eventPreps = prepRes.success ? prepRes.data : [];
+      const showPreps = prepRes.success ? prepRes.data : [];
       const horses = horseRes.success ? horseRes.data : [];
 
       // Sort debriefs by rideDate descending
@@ -111,11 +111,11 @@ export default function useDashboardData() {
       // Active journey events (not resolved)
       const activeEvents = journeyEvents.filter(e => e.status !== 'resolved');
 
-      // Upcoming event preps (future date, not completed/cancelled)
+      // Upcoming show preps (future date, not completed)
       const today = new Date().toISOString().split('T')[0];
-      const upcoming = eventPreps
-        .filter(p => p.eventDate >= today && !['completed', 'cancelled'].includes(p.status))
-        .sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
+      const upcoming = showPreps
+        .filter(p => (p.showDateStart || '') >= today && p.status !== 'completed')
+        .sort((a, b) => (a.showDateStart || '').localeCompare(b.showDateStart || ''));
 
       const categoryCoverage = computeCategoryCoverage(reflections);
       const streak = computeStreak(debriefs);
@@ -126,7 +126,7 @@ export default function useDashboardData() {
         observationCount: observations.length,
         journeyEventCount: journeyEvents.length,
         activeEventCount: activeEvents.length,
-        eventPrepCount: eventPreps.length,
+        showPrepCount: showPreps.length,
         horseCount: horses.length,
         categoryCoverage,
         streak

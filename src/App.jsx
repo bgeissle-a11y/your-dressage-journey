@@ -29,9 +29,9 @@ import ObservationForm from './components/Observation/ObservationForm';
 // Plan
 import JourneyEventList from './components/JourneyEvent/JourneyEventList';
 import JourneyEventForm from './components/JourneyEvent/JourneyEventForm';
-import EventPrepList from './components/EventPrep/EventPrepList';
-import EventPrepForm from './components/EventPrep/EventPrepForm';
-import EventPrepPlan from './components/EventPrep/EventPrepPlan';
+import ShowPrepList from './components/ShowPrep/ShowPrepList';
+import ShowPrepForm from './components/ShowPrep/ShowPrepForm';
+import ShowPrepPlan from './components/ShowPrep/ShowPrepPlan';
 
 // Horse Health
 import HealthEntryList from './components/HorseHealth/HealthEntryList';
@@ -106,11 +106,11 @@ function App() {
             <Route path="/horse-health/new" element={<HealthEntryForm />} />
             <Route path="/horse-health/:id/edit" element={<HealthEntryForm />} />
 
-            {/* Event Prep */}
-            <Route path="/event-prep" element={<EventPrepList />} />
-            <Route path="/event-prep/new" element={<EventPrepForm />} />
-            <Route path="/event-prep/:id/edit" element={<EventPrepForm />} />
-            <Route path="/event-prep/:id/plan" element={<EventPrepPlan />} />
+            {/* Show Prep */}
+            <Route path="/show-prep" element={<ShowPrepList />} />
+            <Route path="/show-prep/new" element={<ShowPrepForm />} />
+            <Route path="/show-prep/:id/edit" element={<ShowPrepForm />} />
+            <Route path="/show-prep/:id/plan" element={<ShowPrepPlan />} />
 
             {/* Assessments */}
             <Route path="/physical-assessments" element={<PhysicalAssessmentList />} />

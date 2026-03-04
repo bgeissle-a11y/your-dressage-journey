@@ -80,7 +80,7 @@ export {
   CONTEXT_TYPES
 } from './observationService';
 
-// Event preparation planner
+// Event preparation planner (legacy — kept for backward compatibility)
 export {
   createEventPrepPlan,
   getEventPrepPlan,
@@ -92,13 +92,31 @@ export {
   deleteEventPrepPlan,
   EVENT_PREP_TYPES,
   EXPERIENCE_LEVELS,
-  RIDING_FREQUENCIES,
-  COACH_ACCESS_OPTIONS,
-  AVAILABLE_RESOURCES,
   COACHING_VOICES,
   EVENT_PREP_STATUSES,
   DEFAULT_EQUIPMENT
 } from './eventPrepPlannerService';
+
+// Show preparation planner (replaces Event Prep for new submissions)
+export {
+  createShowPreparation,
+  getShowPreparation,
+  getAllShowPreparations,
+  getUpcomingShows,
+  getCompletedShows,
+  updateShowPreparation,
+  deleteShowPreparation,
+  resolveTestNames,
+  SHOW_TYPES,
+  SHOW_EXPERIENCE_LEVELS,
+  SHOW_PREP_STATUSES,
+  RIDING_FREQUENCIES,
+  COACH_ACCESS_OPTIONS,
+  AVAILABLE_RESOURCES,
+  STANDARD_TESTS,
+  FREESTYLE_TESTS,
+  TEST_DISPLAY_NAMES
+} from './showPreparationService';
 
 // Physical self-assessments
 export {
