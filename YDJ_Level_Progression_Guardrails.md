@@ -237,5 +237,24 @@ The AI should factor in horse-specific variables when projecting timelines:
 
 ---
 
+## USDF Award Alignment with Level Progression
+
+USDF Rider Awards provide concrete milestone markers that align naturally with level progression guidance:
+
+| Award | Levels Required | Progression Context |
+|---|---|---|
+| Rider Performance | Training–Second | Entry-level milestone; reasonable for riders in first 2-3 years of showing |
+| Bronze Medal | First, Second, Third | Represents genuine lower-level competency; Third Level requires collection readiness |
+| Silver Medal | Fourth + Prix St. Georges | A significant bridge; Fourth Level demands true collection, PSG requires FEI quality |
+| Gold Medal | Intermediate + Grand Prix | Elite achievement; passage/piaffe must be confirmed before meaningful Gold pursuit |
+| Bronze Bar | First + Second Freestyle | Requires musical choreography skill on top of technical competency |
+| Silver Bar | Third + Fourth Freestyle | Freestyle at Fourth Level is demanding; choreography must highlight strengths |
+| Gold Bar | Intermediate I + Grand Prix Freestyle | Grand Prix Freestyle is among the most demanding athletic and artistic challenges in sport |
+| Diamond Achievement | All six above | Career-pinnacle recognition for riders who have achieved across the full spectrum |
+
+When a rider's goals include a specific USDF award, use the Level Progression Guardrails to ensure the levels required for that award are realistically within reach given their current training foundation and timeline. A rider at Second Level hoping for a Silver Medal (which requires Fourth Level and PSG) has a significant multi-year journey ahead — validate the goal enthusiastically while providing honest timeline context.
+
+---
+
 *Version 1.0 — February 2026*
 *Review annually or when USEF/FEI test requirements change*

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   createHealthEntry, getHealthEntry, updateHealthEntry,
+  getAllHorseProfiles,
   ISSUE_TYPES, PROFESSIONAL_TYPES, HEALTH_STATUSES
 } from '../../services';
 import FormSection from '../Forms/FormSection';
@@ -33,13 +34,22 @@ export default function HealthEntryForm() {
     status: '',
     resolvedDate: ''
   });
+  const [horseNames, setHorseNames] = useState([]);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
 
   useEffect(() => {
+    loadHorseNames();
     if (id) loadExisting();
   }, [id]);
+
+  async function loadHorseNames() {
+    const result = await getAllHorseProfiles(currentUser.uid);
+    if (result.success) {
+      setHorseNames(result.data.map(h => h.horseName).filter(Boolean));
+    }
+  }
 
   async function loadExisting() {
     setLoadingData(true);
@@ -183,15 +193,22 @@ export default function HealthEntryForm() {
           <FormSection title="Who & When">
             <div className="form-row">
               <FormField label="Horse Name" error={errors.horseName}>
-                <input
-                  type="text"
-                  name="horseName"
-                  value={formData.horseName}
-                  onChange={handleChange}
-                  disabled={loading}
-                  className={errors.horseName ? 'error' : ''}
-                  placeholder="e.g. Ravel, Weltino, Beau"
-                />
+                {horseNames.length > 0 ? (
+                  <select name="horseName" value={formData.horseName} onChange={handleChange} disabled={loading} className={errors.horseName ? 'error' : ''}>
+                    <option value="">Select a horse...</option>
+                    {horseNames.map(name => <option key={name} value={name}>{name}</option>)}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    name="horseName"
+                    value={formData.horseName}
+                    onChange={handleChange}
+                    disabled={loading}
+                    className={errors.horseName ? 'error' : ''}
+                    placeholder="e.g. Ravel, Weltino, Beau"
+                  />
+                )}
               </FormField>
               <FormField label="Date of visit or observation" error={errors.date}>
                 <input
