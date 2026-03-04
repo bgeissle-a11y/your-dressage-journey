@@ -1088,6 +1088,26 @@
   margin-bottom: 0;
 }
 
+.pelvic-select-group textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #E0D5C7;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.95rem;
+  color: #3A3A3A;
+  background: white;
+  transition: all 0.2s ease;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.pelvic-select-group textarea:focus {
+  outline: none;
+  border-color: #8B7355;
+  box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+}
+
 .pelvic-select-group > label {
   display: block;
   font-weight: 600;

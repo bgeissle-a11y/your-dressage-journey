@@ -445,7 +445,12 @@ export default function DebriefForm() {
                           cursor: 'pointer',
                           fontSize: '0.85rem',
                           fontWeight: 600,
-                          transition: 'all 0.15s ease'
+                          transition: 'all 0.15s ease',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: 0,
+                          lineHeight: 1
                         }}
                       >
                         {rating}

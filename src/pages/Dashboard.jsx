@@ -127,7 +127,6 @@ export default function Dashboard() {
       {/* Welcome */}
       <div className="dashboard-welcome">
         <h1>Welcome back, {currentUser?.displayName || 'Rider'}!</h1>
-        <p>What would you like to do today?</p>
       </div>
 
       {/* Getting Started banner — shown when user has no debriefs yet */}
@@ -153,7 +152,7 @@ export default function Dashboard() {
             <div className="stat-value">
               {stats.categoryCoverage.covered}/{stats.categoryCoverage.total}
             </div>
-            <div className="stat-label">Categories</div>
+            <div className="stat-label">Reflection Categories</div>
           </div>
           <div className="stat-card">
             <div className="stat-value">{stats.streak}<span style={{ fontSize: '0.6em', fontWeight: 400 }}>wk</span></div>

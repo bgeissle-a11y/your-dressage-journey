@@ -13,6 +13,8 @@ export default function SignUp() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [accountCreated, setAccountCreated] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const { signup } = useAuth();
   const navigate = useNavigate();
@@ -101,16 +103,26 @@ export default function SignUp() {
     setLoading(false);
 
     if (result.success) {
-      setMessage(result.message);
-      // Redirect to sign in after 3 seconds
-      setTimeout(() => {
-        navigate('/signin', {
-          state: { message: 'Account created! Please verify your email and sign in.' }
-        });
-      }, 3000);
+      setAccountCreated(true);
     } else {
       setErrors({ submit: result.error });
     }
+  }
+
+  if (accountCreated) {
+    return (
+      <div className="auth-container">
+        <div className="auth-card">
+          <div className="auth-header">
+            <h1>Account Created</h1>
+            <p>Check your email to verify your account and get started.</p>
+          </div>
+          <Link to="/signin" className="btn btn-primary" style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}>
+            Sign In
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -118,7 +130,7 @@ export default function SignUp() {
       <div className="auth-card">
         <div className="auth-header">
           <h1>Create Your Account</h1>
-          <p>Join Your Dressage Journey to start tracking your progress</p>
+          <p>Start tracking your progress with Your Dressage Journey.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
@@ -175,16 +187,27 @@ export default function SignUp() {
           {/* Password */}
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="At least 6 characters"
-              disabled={loading}
-              className={errors.password ? 'error' : ''}
-            />
+            <div className="password-input-wrapper">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="At least 6 characters"
+                disabled={loading}
+                className={errors.password ? 'error' : ''}
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword(prev => !prev)}
+                tabIndex={-1}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
             {errors.password && (
               <span className="error-message">{errors.password}</span>
             )}
@@ -210,16 +233,18 @@ export default function SignUp() {
           {/* Confirm Password */}
           <div className="form-group">
             <label htmlFor="confirmPassword">Confirm Password</label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="Re-enter your password"
-              disabled={loading}
-              className={errors.confirmPassword ? 'error' : ''}
-            />
+            <div className="password-input-wrapper">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="Re-enter your password"
+                disabled={loading}
+                className={errors.confirmPassword ? 'error' : ''}
+              />
+            </div>
             {errors.confirmPassword && (
               <span className="error-message">{errors.confirmPassword}</span>
             )}

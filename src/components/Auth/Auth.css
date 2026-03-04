@@ -82,6 +82,35 @@
   opacity: 0.7;
 }
 
+/* Password Input with Toggle */
+.password-input-wrapper {
+  position: relative;
+}
+
+.password-input-wrapper input {
+  width: 100%;
+  padding-right: 3.5rem;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #8B7355;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.25rem;
+  font-family: 'Work Sans', sans-serif;
+}
+
+.password-toggle:hover {
+  color: #6F5C44;
+}
+
 /* Error Message */
 .error-message {
   color: #D0021B;
