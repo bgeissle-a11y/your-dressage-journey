@@ -1544,7 +1544,9 @@ Respond in JSON format with this exact structure:
   "overall_connection_narrative": "2-3 sentences about how this rider's daily work connects to the art of Grand Prix dressage. Make it inspiring and personally relevant."
 }
 
-Generate 4-8 movement maps based on the movements most frequently appearing in the rider's debriefs.`;
+Generate 4-8 movement maps based on the movements most frequently appearing in the rider's debriefs.
+
+IMPORTANT: You MUST always respond with valid JSON matching the structure above — even if the rider has no recent debriefs or insufficient data. In that case, infer likely training focus from the rider's profile and horse level, and return movement maps based on those inferences. Set "current" to the inferred focus area with a note like "(inferred from profile)". Never respond with prose, markdown, or explanatory text outside of JSON.`;
 
   const userMessage = `Here is the rider's training data for movement mapping:
 

@@ -360,7 +360,7 @@ async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerC
   const { system: sys2, userMessage: msg2 } = buildTrajectoryCall2Prompt(riderData, currentStateAnalysis, testContext, crossLayerContext);
   const { system: sys3, userMessage: msg3 } = buildTrajectoryCall3Prompt(riderData, currentStateAnalysis, testContext);
 
-  const [trajectoryPaths, movementMaps] = await Promise.all([
+  const settled = await Promise.allSettled([
     callClaude({
       system: sys2,
       userMessage: msg2,
@@ -377,8 +377,28 @@ async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerC
       context: "trajectory-call3-movement-maps",
     }),
   ]);
+
+  // L2-2 (trajectory paths) is critical — if it fails, the whole layer fails
+  if (settled[0].status === "rejected") {
+    throw settled[0].reason || new Error("Failed to generate trajectory paths (L2-2).");
+  }
+  const trajectoryPaths = settled[0].value;
   logHorseNameUsage("L2-2", trajectoryPaths, riderData);
-  logHorseNameUsage("L2-3", movementMaps, riderData);
+
+  // L2-3 (movement maps) is non-critical — use fallback if it fails
+  let movementMaps;
+  let movementMapsError = false;
+  if (settled[1].status === "fulfilled") {
+    movementMaps = settled[1].value;
+    logHorseNameUsage("L2-3", movementMaps, riderData);
+  } else {
+    console.error("[trajectory] L2-3 movement maps failed, using fallback:", settled[1].reason?.message || settled[1].reason);
+    movementMapsError = true;
+    movementMaps = {
+      movement_maps: [],
+      overall_connection_narrative: "Movement mapping is temporarily unavailable. Your trajectory paths and narratives are still fully personalized.",
+    };
+  }
 
   // --- L2-4: Path Narratives (Sonnet, depends on all 3 prior) ---
   console.log("[trajectory] Starting L2-4: Path Narratives (Sonnet)");
@@ -400,14 +420,17 @@ async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerC
     trajectoryPaths,
     movementMaps,
     pathNarratives,
+    ...(movementMapsError && { partialResults: true, failedComponents: ["movementMaps"] }),
   };
 
-  // Cache
-  await setCache(uid, OUTPUT_TYPE_TRAJECTORY, result, {
-    dataSnapshotHash: hash,
-    tierLabel: riderData.tier?.label || "unknown",
-    dataTier: riderData.dataTier,
-  });
+  // Only cache if all calls succeeded (don't cache partial results)
+  if (!movementMapsError) {
+    await setCache(uid, OUTPUT_TYPE_TRAJECTORY, result, {
+      dataSnapshotHash: hash,
+      tierLabel: riderData.tier?.label || "unknown",
+      dataTier: riderData.dataTier,
+    });
+  }
 
   return {
     success: true,

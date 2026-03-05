@@ -20,12 +20,12 @@ const COACH_LABELS = Object.fromEntries(COACH_ACCESS_OPTIONS.map(c => [c.value, 
 const RESOURCE_LABELS = Object.fromEntries(AVAILABLE_RESOURCES.map(r => [r.value, r.label]));
 const STATUS_LABELS = Object.fromEntries(SHOW_PREP_STATUSES.map(s => [s.value, s.label]));
 
-const STEP_LABELS = [
-  '',
-  'Analyzing test requirements...',
-  'Evaluating readiness...',
-  'Building preparation plan...',
-  'Creating show-day guidance...',
+const STEP_INFO = [
+  null,
+  { label: 'Analyzing test requirements...', estimate: '~1-2 min' },
+  { label: 'Evaluating readiness...', estimate: '~1 min' },
+  { label: 'Building preparation plan...', estimate: '~2-3 min' },
+  { label: 'Creating show-day guidance...', estimate: '~1-2 min' },
 ];
 
 export default function ShowPrepPlan() {
@@ -53,11 +53,32 @@ export default function ShowPrepPlan() {
   const [aiStep, setAiStep] = useState(0);
   const [aiError, setAiError] = useState(null);
   const [failedStep, setFailedStep] = useState(null);
+  const [checkingCache, setCheckingCache] = useState(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const cacheLoaded = useRef(false);
+  const generationStartTime = useRef(null);
+  const elapsedInterval = useRef(null);
 
   useEffect(() => {
     loadPlan();
   }, [id]);
+
+  // Elapsed time counter during generation
+  useEffect(() => {
+    if (aiStep >= 1 && aiStep <= 4) {
+      if (!generationStartTime.current) {
+        generationStartTime.current = Date.now();
+        setElapsedSeconds(0);
+      }
+      elapsedInterval.current = setInterval(() => {
+        setElapsedSeconds(Math.floor((Date.now() - generationStartTime.current) / 1000));
+      }, 1000);
+    } else {
+      if (elapsedInterval.current) clearInterval(elapsedInterval.current);
+      if (aiStep === 5 || aiStep === 0) generationStartTime.current = null;
+    }
+    return () => { if (elapsedInterval.current) clearInterval(elapsedInterval.current); };
+  }, [aiStep]);
 
   useEffect(() => {
     if (plan?.generatedPlan?.generatedAt && !cacheLoaded.current && aiStep === 0 && !aiSections.testRequirements) {
@@ -77,7 +98,7 @@ export default function ShowPrepPlan() {
   }
 
   async function loadCachedPlan() {
-    setAiStep(1);
+    setCheckingCache(true);
     setAiError(null);
     try {
       const result = await getEventPlannerStep({ showPrepPlanId: id, step: 1 });
@@ -96,12 +117,11 @@ export default function ShowPrepPlan() {
           eventPrepChanged: result.eventPrepChanged || false,
         });
         setAiStep(5);
-      } else {
-        setAiStep(0);
       }
     } catch (err) {
       console.warn('No cached show plan:', err.message);
-      setAiStep(0);
+    } finally {
+      setCheckingCache(false);
     }
   }
 
@@ -177,7 +197,12 @@ export default function ShowPrepPlan() {
         setAiSections({ ...accumulated });
       } catch (err) {
         console.error(`Show Planner step ${step} error:`, err);
-        setAiError(err.message || `An error occurred at step ${step}.`);
+        const isTimeout = err.code === 'deadline-exceeded' ||
+          (err.message && (err.message.includes('deadline') || err.message.includes('DEADLINE') || err.message.includes('timed out')));
+        const friendlyMessage = isTimeout
+          ? 'The AI is taking longer than expected to generate this section. This can happen with complex test requirements. Please try again — it often works on the second attempt.'
+          : (err.message || `An error occurred at step ${step}.`);
+        setAiError(friendlyMessage);
         setFailedStep(step);
         setAiStep(0);
         return;
@@ -212,6 +237,12 @@ export default function ShowPrepPlan() {
   const hasAnySections = aiSections.testRequirements || aiSections.readinessAnalysis ||
     aiSections.preparationPlan || aiSections.showDayGuidance;
   const isGenerating = aiStep >= 1 && aiStep <= 4;
+
+  function formatElapsed(secs) {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  }
 
   if (loading) {
     return <div className="loading-state">Loading show preparation plan...</div>;
@@ -292,7 +323,7 @@ export default function ShowPrepPlan() {
 
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
             <Link to={`/show-prep/${id}/edit`} className="btn btn-secondary" style={{ textDecoration: 'none', fontSize: '0.9rem', padding: '8px 16px' }}>Edit Details</Link>
-            {aiStep === 0 && !hasAnySections && (
+            {aiStep === 0 && !hasAnySections && !checkingCache && (
               <button className="btn-generate-plan" onClick={() => generatePlan()}>
                 Generate AI Show Plan
               </button>
@@ -309,12 +340,21 @@ export default function ShowPrepPlan() {
           </div>
         </div>
 
-        {/* Step Progress Indicator */}
+        {/* Cache loading state — lightweight, no step progress */}
+        {checkingCache && !isGenerating && (
+          <div className="ep-cache-loading">
+            <div className="spinner" style={{ width: '24px', height: '24px' }} />
+            <p>Loading your plan...</p>
+          </div>
+        )}
+
+        {/* Step Progress Indicator — full generation */}
         {isGenerating && (
           <div className="ep-loading">
             <div className="spinner" />
-            <p>{STEP_LABELS[aiStep]}</p>
+            <p>{STEP_INFO[aiStep]?.label}</p>
             <p className="ep-loading__detail">Step {aiStep} of 4</p>
+            <p className="ep-elapsed">{formatElapsed(elapsedSeconds)} elapsed {STEP_INFO[aiStep]?.estimate && <span className="ep-estimate">({STEP_INFO[aiStep].estimate} for this step)</span>}</p>
             <div className="ep-step-progress">
               {[1, 2, 3, 4].map(s => (
                 <div
@@ -323,6 +363,7 @@ export default function ShowPrepPlan() {
                 />
               ))}
             </div>
+            <p className="ep-leave-hint">This takes a few minutes. You can leave this page and return — once complete, your plan will load instantly.</p>
           </div>
         )}
 

@@ -122,7 +122,7 @@ export async function getPhysicalGuidance(options = {}) {
  * @returns {Promise<object>} Step result
  */
 export async function getEventPlannerStep(options = {}) {
-  const fn = httpsCallable(functions, 'getEventPlanner', { timeout: 300_000 });
+  const fn = httpsCallable(functions, 'getEventPlanner', { timeout: 540_000 });
   const result = await fn(options);
   return result.data;
 }

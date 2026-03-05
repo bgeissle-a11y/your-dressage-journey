@@ -252,6 +252,45 @@
   margin-top: 5px;
 }
 
+/* Cache loading — lightweight spinner for checking cached plan */
+.ep-cache-loading {
+  text-align: center;
+  padding: 2rem;
+  margin-top: 1rem;
+}
+
+.ep-cache-loading p {
+  color: #7A7A7A;
+  font-size: 0.9rem;
+  margin-top: 0.75rem;
+}
+
+/* Elapsed time during generation */
+.ep-elapsed {
+  font-size: 0.85rem;
+  color: #8B7355;
+  font-weight: 500;
+  margin-top: 0.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.ep-estimate {
+  font-weight: 400;
+  color: #999;
+}
+
+/* "You can leave" hint */
+.ep-leave-hint {
+  font-size: 0.82rem;
+  color: #999;
+  font-style: italic;
+  margin-top: 1.25rem;
+  max-width: 360px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.5;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .date-fields {

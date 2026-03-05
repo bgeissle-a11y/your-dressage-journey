@@ -99,10 +99,11 @@ exports.getDataVisualizations = onCall(
   dataVisualizations.handler
 );
 
-// Event Planner: 4-call pipeline for event preparation
-// Input: { eventPrepPlanId: string, forceRefresh?: boolean }
+// Event Planner: 4-call pipeline for event preparation (per-step, client-orchestrated)
+// Each step makes a single Claude call; step 3 (preparation plan) can generate ~24K tokens.
+// Input: { eventPrepPlanId|showPrepPlanId: string, step: 1-4, priorResults?: object, forceRefresh?: boolean }
 exports.getEventPlanner = onCall(
-  { secrets: [anthropicKey], timeoutSeconds: 300, memory: "512MiB" },
+  { secrets: [anthropicKey], timeoutSeconds: 540, memory: "512MiB" },
   eventPlanner.handler
 );
 
