@@ -103,6 +103,7 @@ export default function ShowPrepPlan() {
     try {
       const result = await getEventPlannerStep({ showPrepPlanId: id, step: 1 });
       if (result.success && result.allSections && result.fromCache) {
+        // Full cached plan — show instantly
         setAiSections({
           testRequirements: result.testRequirements,
           readinessAnalysis: result.readinessAnalysis,
@@ -117,6 +118,12 @@ export default function ShowPrepPlan() {
           eventPrepChanged: result.eventPrepChanged || false,
         });
         setAiStep(5);
+      } else if (result.success && result.testRequirements && !result.fromCache) {
+        // Cache miss but step 1 already completed — continue from step 2
+        setCheckingCache(false);
+        setAiMeta({ generatedAt: null, fromCache: false, stale: false, staleReason: null, eventPrepChanged: false });
+        generatePlan(false, 2, { testRequirements: result.testRequirements });
+        return; // skip finally setting checkingCache again
       }
     } catch (err) {
       console.warn('No cached show plan:', err.message);
@@ -125,16 +132,23 @@ export default function ShowPrepPlan() {
     }
   }
 
-  async function generatePlan(forceRefresh = false, startFromStep = 1) {
+  async function generatePlan(forceRefresh = false, startFromStep = 1, initialData = null) {
     setAiError(null);
     setFailedStep(null);
 
-    let accumulated = startFromStep === 1
-      ? { testRequirements: null, readinessAnalysis: null, preparationPlan: null, showDayGuidance: null }
-      : { ...aiSections };
+    let accumulated;
+    if (initialData) {
+      accumulated = { testRequirements: null, readinessAnalysis: null, preparationPlan: null, showDayGuidance: null, ...initialData };
+    } else if (startFromStep === 1) {
+      accumulated = { testRequirements: null, readinessAnalysis: null, preparationPlan: null, showDayGuidance: null };
+    } else {
+      accumulated = { ...aiSections };
+    }
 
     if (startFromStep === 1) {
       setAiSections(accumulated);
+    } else {
+      setAiSections({ ...accumulated });
     }
 
     for (let step = startFromStep; step <= 4; step++) {
