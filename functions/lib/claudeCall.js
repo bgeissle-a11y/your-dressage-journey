@@ -72,9 +72,16 @@ async function callClaude({
  * @private
  */
 async function _callClaudeOnce(client, { system, userMessage, model, jsonMode, maxTokens, context }) {
+  // Build messages array; when jsonMode is true, add an assistant prefill
+  // with "{" to force Claude to respond with JSON (most reliable technique)
+  const messages = [{ role: "user", content: userMessage }];
+  if (jsonMode) {
+    messages.push({ role: "assistant", content: "{" });
+  }
+
   // Use streaming to avoid SDK timeout on large max_tokens requests
   const response = await client.messages
-    .stream({ model, max_tokens: maxTokens, system, messages: [{ role: "user", content: userMessage }] })
+    .stream({ model, max_tokens: maxTokens, system, messages })
     .finalMessage();
 
   // Log token usage and stop reason for debugging
@@ -96,11 +103,15 @@ async function _callClaudeOnce(client, { system, userMessage, model, jsonMode, m
     throw new Error(`[${context}] No text content in Claude response`);
   }
 
-  const text = textBlock.text;
+  let text = textBlock.text;
 
   if (!jsonMode) {
     return text;
   }
+
+  // Prepend the "{" we used as assistant prefill, since the response
+  // continues from where the prefill left off
+  text = "{" + text;
 
   // JSON mode: extract and parse JSON from response
   return extractJSON(text, context, stopReason === "max_tokens");

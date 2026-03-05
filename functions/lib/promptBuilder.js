@@ -1702,7 +1702,9 @@ Return the top 15-20 themes maximum, ordered by frequency. For sentiment_trend, 
 
 ${buildUserDataMessage(riderData)}
 
-Analyze all debrief narrative content (wins, challenges, workFocus, ahaRealization, horseNotices) to extract themes, sentiment trends, and focus area categorization. Be thorough — this drives multiple visualization charts.`;
+Analyze all debrief narrative content (wins, challenges, workFocus, ahaRealization, horseNotices) to extract themes, sentiment trends, and focus area categorization. Be thorough — this drives multiple visualization charts.
+
+IMPORTANT: Respond ONLY with the JSON object described in your instructions. Do not include any markdown, headers, or explanatory text — just the raw JSON.`;
 
   } else if (callIndex === 2) {
     // DV-2: Goal Mapping
@@ -1751,7 +1753,9 @@ Be conservative with progress percentages — 100% means the goal is fully achie
 
 ${buildUserDataMessage(riderData)}
 
-Map all available data against the rider's goals. Include evidence and milestone citations. Be specific and honest about progress.`;
+Map all available data against the rider's goals. Include evidence and milestone citations. Be specific and honest about progress.
+
+IMPORTANT: Respond ONLY with the JSON object described in your instructions. Do not include any markdown, headers, or explanatory text — just the raw JSON.`;
 
   } else if (callIndex === 3) {
     // DV-3: Insight Narratives
@@ -1827,7 +1831,9 @@ Horses: ${riderData.horseSummaries?.map(h => h.name).join(", ") || "none"}
 Total Rides: ${riderData.rideHistory?.totalRides || 0}
 Tier: ${riderData.tier?.label || "unknown"} | Data Tier: ${riderData.dataTier}
 
-Generate chart insights for all 10 charts. Reference the rider's specific data. Make insights actionable and encouraging.`;
+Generate chart insights for all 10 charts. Reference the rider's specific data. Make insights actionable and encouraging.
+
+IMPORTANT: Respond ONLY with the JSON object described in your instructions. Do not include any markdown, headers, or explanatory text — just the raw JSON.`;
 
   } else {
     throw new Error(`Invalid Data Visualization call index: ${callIndex}`);
