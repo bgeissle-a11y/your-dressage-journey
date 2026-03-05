@@ -93,6 +93,7 @@ async function handler(request) {
       step,
       priorResults = {},
       forceRefresh = false,
+      cacheOnly = false,
     } = request.data || {};
 
     // Determine which collection/ID to use
@@ -218,6 +219,12 @@ async function handler(request) {
             generatedAt: staleCache.generatedAt,
           };
         }
+      }
+
+      // cacheOnly mode: return immediately if no cache found (don't call Claude)
+      if (cacheOnly) {
+        console.log("[eventPlanner] Step 1: cacheOnly=true, no cache found, returning early");
+        return { success: true, step: 1, noCache: true };
       }
 
       console.log("[eventPlanner] Step 1: Test Requirements Assembly");

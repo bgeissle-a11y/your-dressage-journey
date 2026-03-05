@@ -101,7 +101,7 @@ export default function ShowPrepPlan() {
     setCheckingCache(true);
     setAiError(null);
     try {
-      const result = await getEventPlannerStep({ showPrepPlanId: id, step: 1 });
+      const result = await getEventPlannerStep({ showPrepPlanId: id, step: 1, cacheOnly: true });
       if (result.success && result.allSections && result.fromCache) {
         // Full cached plan — show instantly
         setAiSections({
@@ -118,13 +118,8 @@ export default function ShowPrepPlan() {
           eventPrepChanged: result.eventPrepChanged || false,
         });
         setAiStep(5);
-      } else if (result.success && result.testRequirements && !result.fromCache) {
-        // Cache miss but step 1 already completed — continue from step 2
-        setCheckingCache(false);
-        setAiMeta({ generatedAt: null, fromCache: false, stale: false, staleReason: null, eventPrepChanged: false });
-        generatePlan(false, 2, { testRequirements: result.testRequirements });
-        return; // skip finally setting checkingCache again
       }
+      // noCache or non-cached step 1 result: fall through to show Generate button
     } catch (err) {
       console.warn('No cached show plan:', err.message);
     } finally {
