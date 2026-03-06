@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Technical & Philosophical Self-Assessment | Your Dressage Journey</title>
+    <title>Technical &amp; Philosophical Self-Assessment | Your Dressage Journey</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -69,11 +69,11 @@
         .mini-scale-value { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: var(--color-primary); color: white; font-weight: 600; font-size: 0.85em; margin-top: 6px; }
         input[type="range"].mini { height: 6px; }
         input[type="range"].mini::-webkit-slider-thumb { width: 20px; height: 20px; }
-        .scenario-box { background: rgba(139,115,85,0.05); border-left: 4px solid var(--color-primary); padding: 20px; border-radius: 8px; margin-bottom: 0; }
+        .scenario-box { background: rgba(139,115,85,0.05); border-left: 4px solid var(--color-primary); padding: 20px; border-radius: 8px; }
         .scenario-title { font-family: 'Playfair Display', serif; font-size: 1.15em; color: var(--color-primary); margin-bottom: 14px; font-weight: 600; }
         .concept-check { background: rgba(212,165,116,0.08); border: 1px solid rgba(212,165,116,0.4); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
         .concept-check-title { font-size: 0.9em; font-weight: 600; color: var(--color-accent); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
-        .concept-check p { font-size: 0.95em; color: var(--color-text); margin-bottom: 10px; line-height: 1.6; }
+        .concept-check p { font-size: 0.95em; color: var(--color-text); margin-bottom: 0; line-height: 1.6; }
         .button-group { display: flex; gap: 15px; justify-content: center; padding: 40px; background: var(--color-bg-secondary); }
         button { padding: 16px 32px; border: none; border-radius: 10px; font-family: 'Work Sans', sans-serif; font-size: 1.05em; font-weight: 500; cursor: pointer; transition: all 0.3s ease; letter-spacing: 0.3px; }
         .btn-primary { background: var(--color-primary); color: white; box-shadow: 0 4px 12px rgba(139,115,85,0.25); }
@@ -85,15 +85,27 @@
         .completion-screen h2 { font-family: 'Playfair Display', serif; font-size: 2.5em; color: var(--color-primary); margin-bottom: 20px; }
         .completion-screen p { font-size: 1.1em; color: var(--color-text-light); margin-bottom: 30px; line-height: 1.8; }
         .completion-icon { font-size: 4em; margin-bottom: 20px; }
-        @media (max-width: 768px) { h1 { font-size: 1.8em; } .section { padding: 30px 20px; } .button-group { flex-direction: column; padding: 30px 20px; } button { width: 100%; } .pillar-grid { grid-template-columns: 1fr; } .dual-scale { grid-template-columns: 1fr; } .scale-anchor { min-width: 54px; font-size: 0.72em; } }
+        .optional-badge { display: inline-block; font-size: 0.75em; font-weight: 500; color: var(--color-text-light); background: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: 20px; padding: 2px 10px; margin-left: 10px; vertical-align: middle; letter-spacing: 0.3px; }
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8em; }
+            .section { padding: 30px 20px; }
+            .button-group { flex-direction: column; padding: 30px 20px; }
+            button { width: 100%; }
+            .pillar-grid { grid-template-columns: 1fr; }
+            .dual-scale { grid-template-columns: 1fr; }
+            .scale-anchor { min-width: 54px; font-size: 0.72em; }
+        }
     </style>
 </head>
 <body>
 <div class="container">
+
   <header>
     <h1>Technical &amp; Philosophical<br>Self-Assessment</h1>
     <p class="subtitle">Understanding the "why" and "how" beneath every movement</p>
-    <div class="intro-text">Great riding is built on two foundations: what you know, and what you can feel. This assessment explores your theoretical understanding of the arena, the horse's movement, dressage principles, and your own body as an instrument of communication. Your honest reflection here helps your coaching voices offer guidance that meets you exactly where you are — not where you think you should be.</div>
+    <div class="intro-text">
+      Great riding is built on two foundations: what you know, and what you can feel. This assessment explores your theoretical understanding of the arena, the horse's movement, dressage principles, and your own body as an instrument of communication. Your honest reflection here helps your coaching voices offer guidance that meets you exactly where you are — not where you think you should be.
+    </div>
   </header>
 
   <div class="form-container" id="mainForm">
@@ -101,9 +113,10 @@
     <!-- SECTION 1: ARENA GEOMETRY -->
     <div class="section">
       <div class="section-header">
-        <h2 class="section-title">🏟️ The Arena as Your Canvas</h2>
+        <h2 class="section-title">&#127967; The Arena as Your Canvas</h2>
         <p class="section-description">Spatial awareness and geometric precision — the invisible infrastructure of every movement.</p>
       </div>
+
       <div class="question-group">
         <div class="scale-group">
           <div class="scale-label">How confident are you with your knowledge of arena geometry overall?</div>
@@ -119,34 +132,34 @@
           </div>
         </div>
       </div>
+
       <div class="question-group">
         <div class="concept-check">
-          <div class="concept-check-title">🔍 Concept Check</div>
-          <p>Without looking it up, describe where the quarterlines are in a standard arena and name two movements typically ridden on them.</p>
+          <div class="concept-check-title">&#128269; Concept Check</div>
+          <p>Without looking it up, describe where the quarterlines are in a standard arena and name at least one movement that touches one or both.</p>
         </div>
-        <textarea id="quarterlines" placeholder="Describe the quarterlines and two movements typically ridden there..."></textarea>
+        <textarea id="quarterlines" placeholder="Describe the quarterlines and at least one movement that uses them..."></textarea>
       </div>
+
       <div class="question-group">
-        <label class="question-label">How do you use the geometry of the arena to set up and improve the quality of your movements?</label>
+        <label class="question-label">How do you use the geometry of the arena and movements within the space to set up and improve the quality of your movements?</label>
         <div class="help-text">For example: how does approaching a corner help collection? Why does the size of a circle matter?</div>
         <textarea id="geometryUsage" placeholder="How does arena geometry actively support your training..."></textarea>
       </div>
-      <div class="question-group">
-        <label class="question-label">Describe what "off the track" means to you and when or why you ride there.</label>
-        <textarea id="offTheTrack" class="short" placeholder="What does being off the track accomplish for the horse and rider..."></textarea>
-      </div>
+
       <div class="question-group">
         <label class="question-label">Which aspect of arena geometry is most confusing or least instinctive for you right now?</label>
-        <textarea id="geometryGap" class="short" placeholder="Angles, distances, lines, figure sizing — where do you still feel uncertain..."></textarea>
+        <textarea id="geometryGap" class="short" placeholder="Distances, lines, figure sizing — where do you still feel uncertain..."></textarea>
       </div>
     </div>
 
     <!-- SECTION 2: GAIT MECHANICS -->
     <div class="section">
       <div class="section-header">
-        <h2 class="section-title">🐴 Reading the Movement Beneath You</h2>
+        <h2 class="section-title">&#128020; Reading the Movement Beneath You</h2>
         <p class="section-description">Understanding gait mechanics is the bridge between riding and communication — you can only influence what you understand.</p>
       </div>
+
       <div class="question-group">
         <label class="question-label">Rate your understanding of the footfall sequence and mechanics of each gait:</label>
         <div style="margin-top:20px;">
@@ -191,20 +204,18 @@
           </div>
         </div>
       </div>
+
       <div class="question-group">
         <div class="concept-check">
-          <div class="concept-check-title">🔍 Concept Check</div>
+          <div class="concept-check-title">&#128269; Concept Check</div>
           <p>To influence the flight path of a horse's leg, the aid must be applied at the moment that leg is <em>leaving the ground</em>. In your own words, describe how you think about catching the correct moment — in trot and in canter.</p>
         </div>
         <textarea id="timingConcept" placeholder="How do you feel or identify the right moment — in trot? In canter?"></textarea>
       </div>
+
       <div class="question-group">
-        <label class="question-label">Which gait do you feel most connected to, and which feels least legible to you?</label>
-        <textarea id="gaitConnection" class="short" placeholder="Where do you feel most tuned in — and where does the horse's movement still feel unclear..."></textarea>
-      </div>
-      <div class="question-group">
-        <label class="question-label">Has a specific insight about gait mechanics changed how you ride? Describe it.</label>
-        <div class="help-text">A moment when understanding how the horse moves shifted how you applied your aids, sat, or planned your work.</div>
+        <label class="question-label">What movement concept in the timing of your aids has been hardest to develop — and what has helped?</label>
+        <div class="help-text">A moment when understanding footfall or gait mechanics shifted how you applied your aids.</div>
         <textarea id="gaitInsight" class="short" placeholder="The insight and how it changed something in your riding..."></textarea>
       </div>
     </div>
@@ -212,16 +223,18 @@
     <!-- SECTION 3: MOVEMENT UNDERSTANDING -->
     <div class="section">
       <div class="section-header">
-        <h2 class="section-title">🎯 Understanding the Movements</h2>
+        <h2 class="section-title">&#127919; Understanding the Movements</h2>
         <p class="section-description">Knowing what a movement requires — of horse and rider — transforms execution from guesswork into intention.</p>
       </div>
+
       <div class="question-group">
         <div class="scenario-box">
-          <div class="scenario-title">Turn on the Haunches vs. Canter Pirouette</div>
-          <div class="sub-question">In your own words, what is the key difference between a turn on the haunches and a canter pirouette? How is the horse positioned differently, and what additional qualities must the pirouette have?</div>
-          <textarea id="pirouetteDiff" placeholder="Describe the difference in position, hind leg activity, gait quality, and degree of collection required..."></textarea>
+          <div class="scenario-title">Canter with Haunches In vs. Canter Pirouette</div>
+          <div class="sub-question">In your own words, what is the key difference between canter with haunches in and a canter pirouette? How is the horse positioned differently, and what additional qualities must the pirouette have? <em>(Note: the same concepts apply to haunches in at walk and the walk pirouette.)</em></div>
+          <textarea id="pirouetteDiff" placeholder="Describe the difference in horse position, hind leg activity, gait quality, and degree of collection required..."></textarea>
         </div>
       </div>
+
       <div class="question-group">
         <div class="scenario-box">
           <div class="scenario-title">Shoulder-In, Travers &amp; Renvers</div>
@@ -229,6 +242,7 @@
           <textarea id="lateralMovements" placeholder="Describe each movement — where the forehand and haunches are, which way the horse is bent, which tracks the feet follow..."></textarea>
         </div>
       </div>
+
       <div class="question-group">
         <label class="question-label">Choose one movement you are currently working on. What does high-quality execution look like?</label>
         <div class="sub-question">Movement you are working on:</div>
@@ -236,6 +250,7 @@
         <div class="sub-question" style="margin-top:15px;">What defines high quality in this movement?</div>
         <textarea id="movementQuality" placeholder="Describe the ideal: the horse's frame, energy, straightness, rhythm, expression, collection..."></textarea>
       </div>
+
       <div class="question-group">
         <label class="question-label">What movement concept has been hardest to understand intellectually — even before getting on the horse?</label>
         <textarea id="hardestConcept" class="short" placeholder="Is there a movement whose requirements feel unclear or confusing when you try to picture them..."></textarea>
@@ -245,10 +260,12 @@
     <!-- SECTION 4: TRAINING SCALE -->
     <div class="section">
       <div class="section-header">
-        <h2 class="section-title">⚖️ The Training Scale</h2>
+        <h2 class="section-title">&#9878;&#65039; The Training Scale</h2>
         <p class="section-description">The six pillars of classical dressage — rate both your understanding of each concept and your current ability to apply it with your horse.</p>
       </div>
-      <p class="help-text" style="margin-bottom:24px;"><strong>Understanding</strong> = how well you can explain and recognize each pillar. &nbsp; <strong>Application</strong> = how consistently you can produce or influence it in your rides.</p>
+
+      <p class="help-text" style="margin-bottom:24px;"><strong>Understanding</strong> = how well you can explain and recognize each pillar. &nbsp;<strong>Application</strong> = how consistently you can produce or influence it in your rides.</p>
+
       <div class="pillar-grid">
         <div class="pillar-card">
           <div class="pillar-name">1. Rhythm</div>
@@ -299,32 +316,26 @@
           </div>
         </div>
       </div>
-      <div class="question-group">
-        <label class="question-label">Which Training Scale element is your current primary focus? What does working on it look like in practice?</label>
-        <textarea id="trainingScaleFocus" placeholder="Which pillar is most present in your mind right now, and how does it show up in your daily rides..."></textarea>
-      </div>
+
       <div class="question-group">
         <label class="question-label">Where is the largest gap between your understanding and your ability to apply a Training Scale element? What creates that gap?</label>
         <textarea id="trainingScaleGap" placeholder="The pillar where knowing and doing feel furthest apart, and why you think that is..."></textarea>
-      </div>
-      <div class="question-group">
-        <label class="question-label">Do you experience the Training Scale as a linear sequence or as a web of qualities that must always be present together? What has shaped this view?</label>
-        <textarea id="trainingScalePhilosophy" placeholder="Your working philosophy about how the six elements relate to each other in practice..."></textarea>
       </div>
     </div>
 
     <!-- SECTION 5: RIDER SKILLS -->
     <div class="section">
       <div class="section-header">
-        <h2 class="section-title">🧘 The Rider as an Instrument</h2>
+        <h2 class="section-title">&#129510; The Rider as an Instrument</h2>
         <p class="section-description">Your body is the primary tool of communication. These three skills determine the clarity and honesty of every aid you give.</p>
       </div>
+
       <div class="question-group">
         <div class="scenario-box">
           <div class="scenario-title">Independent Seat</div>
           <p class="help-text" style="margin-top:0;margin-bottom:12px;">The ability to remain balanced and deep in the saddle without using the reins for stability, allowing the hips to follow the horse's three-dimensional movement.</p>
           <div class="scale-group">
-            <div class="scale-label">How would you rate your independent seat right now?</div>
+            <div class="scale-label">How would you rate the independence of your seat right now?</div>
             <div class="scale-wrapper">
               <span class="scale-anchor left">I rely on<br>the reins often</span>
               <div class="scale-track">
@@ -335,12 +346,9 @@
               <span class="scale-anchor right">Completely<br>independent</span>
             </div>
           </div>
-          <div class="sub-question">When does your seat lose independence? Describe specific triggers or situations:</div>
-          <textarea id="seatLossMoments" class="short" placeholder="e.g. downward transitions, lateral work, spooks, when concentrating hard on something..."></textarea>
-          <div class="sub-question">What does following the horse's three-dimensional movement feel like when it's working well?</div>
-          <textarea id="seatFeel" class="xshort" placeholder="Describe the sensation in your body when your seat is truly following..."></textarea>
         </div>
       </div>
+
       <div class="question-group">
         <div class="scenario-box">
           <div class="scenario-title">Unilateral Aids</div>
@@ -357,12 +365,9 @@
               <span class="scale-anchor right">Each side<br>fully independent</span>
             </div>
           </div>
-          <div class="sub-question">Which aid tends to "leak" tension to the other side — hands, legs, or seat? What does it feel like?</div>
-          <textarea id="unilateralLeak" class="short" placeholder="Where does tension cross from one side of your body to the other, and what triggers it..."></textarea>
-          <div class="sub-question">Describe any asymmetry between your left and right sides and how it shows up in your riding:</div>
-          <textarea id="bodyAsymmetry" class="xshort" placeholder="Left vs. right — which side is stiffer, stronger, more active, or more passive..."></textarea>
         </div>
       </div>
+
       <div class="question-group">
         <div class="scenario-box">
           <div class="scenario-title">Timing of the Aid</div>
@@ -379,12 +384,9 @@
               <span class="scale-anchor right">I feel and<br>catch the moment</span>
             </div>
           </div>
-          <div class="sub-question">In which gait and which type of aid is your timing sharpest? And least reliable?</div>
-          <textarea id="timingBestWorst" class="short" placeholder="Where your timing is most refined — and where it tends to be late, early, or untethered from the footfall..."></textarea>
-          <div class="sub-question">How do you currently practice or develop better timing? What has helped?</div>
-          <textarea id="timingPractice" class="xshort" placeholder="Exercises, cues from your trainer, proprioceptive awareness — what has sharpened your timing..."></textarea>
         </div>
       </div>
+
       <div class="question-group">
         <label class="question-label">Of these three rider skills — Independent Seat, Unilateral Aids, and Timing — which limits your effectiveness most right now? What would become possible if you improved it?</label>
         <textarea id="riderSkillPriority" placeholder="The skill holding you back most, and what you imagine your riding would feel like if that limitation were removed..."></textarea>
@@ -394,35 +396,35 @@
     <!-- SECTION 6: SYNTHESIS -->
     <div class="section">
       <div class="section-header">
-        <h2 class="section-title">🌟 The Bigger Picture</h2>
-        <p class="section-description">Stepping back to see the whole.</p>
+        <h2 class="section-title">&#127775; The Bigger Picture</h2>
+        <p class="section-description">Stepping back to see the whole. All questions in this section are optional — answer what resonates.</p>
       </div>
       <div class="question-group">
-        <label class="question-label">What is your philosophy of what dressage is for? Not what the rulebook says — what do <em>you</em> believe it is at its core?</label>
+        <label class="question-label">What is your philosophy of what dressage is for? Not what the rulebook says — what do <em>you</em> believe it is at its core? <span class="optional-badge">Optional</span></label>
         <textarea id="dressagePhilosophy" placeholder="What is dressage, at its deepest level, to you..."></textarea>
       </div>
       <div class="question-group">
-        <label class="question-label">Where is the largest gap between your technical knowledge and your ability to embody that knowledge in the saddle?</label>
+        <label class="question-label">Where is the largest gap between your technical knowledge and your ability to embody that knowledge in the saddle? <span class="optional-badge">Optional</span></label>
         <div class="help-text">You understand something intellectually — but it hasn't yet become feeling. Where does that disconnect live?</div>
         <textarea id="knowledgeBodyGap" placeholder="The thing you understand but can't yet feel — or feel but can't yet explain..."></textarea>
       </div>
       <div class="question-group">
-        <label class="question-label">What concept, author, trainer, or experience has most shaped your technical and philosophical understanding of dressage?</label>
+        <label class="question-label">What concept, author, trainer, or experience has most shaped your technical and philosophical understanding of dressage? <span class="optional-badge">Optional</span></label>
         <textarea id="formativeInfluences" class="short" placeholder="A book, a trainer's phrase, a ride, a clinic, a video — the source of an insight that changed how you think..."></textarea>
       </div>
       <div class="question-group">
-        <label class="question-label">What is the one question you keep returning to — the mystery at the center of your journey right now?</label>
+        <label class="question-label">What is the one question you keep returning to — the mystery at the center of your journey right now? <span class="optional-badge">Optional</span></label>
         <textarea id="burningQuestion" class="short" placeholder="The concept, skill, or puzzle you most want to understand better..."></textarea>
       </div>
     </div>
 
     <div class="button-group">
-      <button class="btn-secondary" onclick="downloadAssessment()">⬇ Download as Text</button>
+      <button class="btn-secondary" onclick="downloadAssessment()">&#11015; Download as Text</button>
       <button class="btn-primary" onclick="saveAssessment()">Save Assessment</button>
     </div>
 
     <div class="completion-screen" id="completionScreen">
-      <div class="completion-icon">🎓</div>
+      <div class="completion-icon">&#127891;</div>
       <h2>Assessment Complete</h2>
       <p>Your technical and philosophical self-assessment has been saved. The insights you've shared here will help your coaching voices offer guidance rooted in your actual understanding — not assumptions about where you are.<br><br>This is a living document. Revisit it as your knowledge and feel deepen over time.</p>
       <button class="btn-primary" onclick="location.reload()">Complete a New Assessment</button>
@@ -430,52 +432,93 @@
 
   </div>
 </div>
+
 <script>
   function saveAssessment() {
     const assessment = {
       timestamp: new Date().toISOString(),
-      arenaGeometry: { confidenceRating: parseInt(document.getElementById('scaleArenaGeometry').value), quarterlines: document.getElementById('quarterlines').value, geometryUsage: document.getElementById('geometryUsage').value, offTheTrack: document.getElementById('offTheTrack').value, geometryGap: document.getElementById('geometryGap').value },
-      gaitMechanics: { walkUnderstanding: parseInt(document.getElementById('scaleWalk').value), trotUnderstanding: parseInt(document.getElementById('scaleTrot').value), canterUnderstanding: parseInt(document.getElementById('scaleCanter').value), timingConcept: document.getElementById('timingConcept').value, gaitConnection: document.getElementById('gaitConnection').value, gaitInsight: document.getElementById('gaitInsight').value },
-      movements: { pirouetteDiff: document.getElementById('pirouetteDiff').value, lateralMovements: document.getElementById('lateralMovements').value, currentMovement: document.getElementById('currentMovement').value, movementQuality: document.getElementById('movementQuality').value, hardestConcept: document.getElementById('hardestConcept').value },
-      trainingScale: { rhythm: { understanding: parseInt(document.getElementById('scaleRhythmU').value), application: parseInt(document.getElementById('scaleRhythmA').value) }, suppleness: { understanding: parseInt(document.getElementById('scaleSupU').value), application: parseInt(document.getElementById('scaleSupA').value) }, contact: { understanding: parseInt(document.getElementById('scaleConU').value), application: parseInt(document.getElementById('scaleConA').value) }, impulsion: { understanding: parseInt(document.getElementById('scaleImpU').value), application: parseInt(document.getElementById('scaleImpA').value) }, straightness: { understanding: parseInt(document.getElementById('scaleStrU').value), application: parseInt(document.getElementById('scaleStrA').value) }, collection: { understanding: parseInt(document.getElementById('scaleColU').value), application: parseInt(document.getElementById('scaleColA').value) }, currentFocus: document.getElementById('trainingScaleFocus').value, biggestGap: document.getElementById('trainingScaleGap').value, philosophy: document.getElementById('trainingScalePhilosophy').value },
-      riderSkills: { independentSeat: { rating: parseInt(document.getElementById('scaleSeat').value), lossMoments: document.getElementById('seatLossMoments').value, seatFeel: document.getElementById('seatFeel').value }, unilateralAids: { rating: parseInt(document.getElementById('scaleUnilateral').value), leak: document.getElementById('unilateralLeak').value, asymmetry: document.getElementById('bodyAsymmetry').value }, timingOfAid: { rating: parseInt(document.getElementById('scaleTiming').value), bestWorst: document.getElementById('timingBestWorst').value, practice: document.getElementById('timingPractice').value }, prioritySkill: document.getElementById('riderSkillPriority').value },
-      synthesis: { dressagePhilosophy: document.getElementById('dressagePhilosophy').value, knowledgeBodyGap: document.getElementById('knowledgeBodyGap').value, formativeInfluences: document.getElementById('formativeInfluences').value, burningQuestion: document.getElementById('burningQuestion').value }
+      arenaGeometry: {
+        confidenceRating: parseInt(document.getElementById('scaleArenaGeometry').value),
+        quarterlines: document.getElementById('quarterlines').value,
+        geometryUsage: document.getElementById('geometryUsage').value,
+        geometryGap: document.getElementById('geometryGap').value
+      },
+      gaitMechanics: {
+        walkUnderstanding: parseInt(document.getElementById('scaleWalk').value),
+        trotUnderstanding: parseInt(document.getElementById('scaleTrot').value),
+        canterUnderstanding: parseInt(document.getElementById('scaleCanter').value),
+        timingConcept: document.getElementById('timingConcept').value,
+        gaitInsight: document.getElementById('gaitInsight').value
+      },
+      movements: {
+        pirouetteDiff: document.getElementById('pirouetteDiff').value,
+        lateralMovements: document.getElementById('lateralMovements').value,
+        currentMovement: document.getElementById('currentMovement').value,
+        movementQuality: document.getElementById('movementQuality').value,
+        hardestConcept: document.getElementById('hardestConcept').value
+      },
+      trainingScale: {
+        rhythm:       { understanding: parseInt(document.getElementById('scaleRhythmU').value), application: parseInt(document.getElementById('scaleRhythmA').value) },
+        suppleness:   { understanding: parseInt(document.getElementById('scaleSupU').value),    application: parseInt(document.getElementById('scaleSupA').value) },
+        contact:      { understanding: parseInt(document.getElementById('scaleConU').value),    application: parseInt(document.getElementById('scaleConA').value) },
+        impulsion:    { understanding: parseInt(document.getElementById('scaleImpU').value),    application: parseInt(document.getElementById('scaleImpA').value) },
+        straightness: { understanding: parseInt(document.getElementById('scaleStrU').value),    application: parseInt(document.getElementById('scaleStrA').value) },
+        collection:   { understanding: parseInt(document.getElementById('scaleColU').value),    application: parseInt(document.getElementById('scaleColA').value) },
+        biggestGap:   document.getElementById('trainingScaleGap').value
+      },
+      riderSkills: {
+        independentSeat: { rating: parseInt(document.getElementById('scaleSeat').value) },
+        unilateralAids:  { rating: parseInt(document.getElementById('scaleUnilateral').value) },
+        timingOfAid:     { rating: parseInt(document.getElementById('scaleTiming').value) },
+        prioritySkill:   document.getElementById('riderSkillPriority').value
+      },
+      synthesis: {
+        dressagePhilosophy:  document.getElementById('dressagePhilosophy').value,
+        knowledgeBodyGap:    document.getElementById('knowledgeBodyGap').value,
+        formativeInfluences: document.getElementById('formativeInfluences').value,
+        burningQuestion:     document.getElementById('burningQuestion').value
+      }
     };
     localStorage.setItem('technicalPhilosophicalAssessment', JSON.stringify(assessment));
     document.getElementById('mainForm').style.display = 'none';
     document.getElementById('completionScreen').classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
+
   function downloadAssessment() {
     const g = id => document.getElementById(id) ? document.getElementById(id).value : '';
     const r = id => document.getElementById(id) ? document.getElementById(id).value : '?';
-    const bar = v => '\u2588'.repeat(parseInt(v)) + '\u2591'.repeat(10-parseInt(v));
-    const ts = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    const bar = v => '\u2588'.repeat(parseInt(v)) + '\u2591'.repeat(10 - parseInt(v));
+    const ts = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' });
     let txt = 'TECHNICAL & PHILOSOPHICAL SELF-ASSESSMENT\nYour Dressage Journey\n' + '='.repeat(80) + '\nDate: ' + ts + '\n\n';
     txt += 'ARENA GEOMETRY\n' + '-'.repeat(40) + '\n';
     txt += 'Confidence: ' + bar(r('scaleArenaGeometry')) + ' ' + r('scaleArenaGeometry') + '/10\n\n';
-    txt += 'Quarterlines:\n' + g('quarterlines') + '\n\nHow I use geometry:\n' + g('geometryUsage') + '\n\nOff the track:\n' + g('offTheTrack') + '\n\nGeometry gap:\n' + g('geometryGap') + '\n\n';
+    txt += 'Quarterlines:\n' + g('quarterlines') + '\n\nHow I use geometry:\n' + g('geometryUsage') + '\n\nGeometry gap:\n' + g('geometryGap') + '\n\n';
     txt += 'GAIT MECHANICS\n' + '-'.repeat(40) + '\n';
-    txt += 'Walk: ' + bar(r('scaleWalk')) + ' ' + r('scaleWalk') + '/10\n';
-    txt += 'Trot: ' + bar(r('scaleTrot')) + ' ' + r('scaleTrot') + '/10\n';
+    txt += 'Walk:   ' + bar(r('scaleWalk'))   + ' ' + r('scaleWalk')   + '/10\n';
+    txt += 'Trot:   ' + bar(r('scaleTrot'))   + ' ' + r('scaleTrot')   + '/10\n';
     txt += 'Canter: ' + bar(r('scaleCanter')) + ' ' + r('scaleCanter') + '/10\n\n';
-    txt += 'Timing concept:\n' + g('timingConcept') + '\n\nGait connection:\n' + g('gaitConnection') + '\n\nGait insight:\n' + g('gaitInsight') + '\n\n';
+    txt += 'Timing concept:\n' + g('timingConcept') + '\n\nGait insight:\n' + g('gaitInsight') + '\n\n';
     txt += 'MOVEMENT UNDERSTANDING\n' + '-'.repeat(40) + '\n';
-    txt += 'Haunches vs pirouette:\n' + g('pirouetteDiff') + '\n\nLateral movements:\n' + g('lateralMovements') + '\n\nCurrent movement: ' + g('currentMovement') + '\nHigh quality means:\n' + g('movementQuality') + '\n\nHardest concept:\n' + g('hardestConcept') + '\n\n';
+    txt += 'Haunches vs. pirouette:\n' + g('pirouetteDiff') + '\n\nLateral movements:\n' + g('lateralMovements') + '\n\nCurrent movement: ' + g('currentMovement') + '\nHigh quality means:\n' + g('movementQuality') + '\n\nHardest concept:\n' + g('hardestConcept') + '\n\n';
     txt += 'TRAINING SCALE\n' + '-'.repeat(40) + '\n';
-    [['Rhythm','scaleRhythmU','scaleRhythmA'],['Suppleness','scaleSupU','scaleSupA'],['Contact','scaleConU','scaleConA'],['Impulsion','scaleImpU','scaleImpA'],['Straightness','scaleStrU','scaleStrA'],['Collection','scaleColU','scaleColA']].forEach(([n,u,a]) => { txt += n + '\n  Understanding: ' + bar(r(u)) + ' ' + r(u) + '/10\n  Application:   ' + bar(r(a)) + ' ' + r(a) + '/10\n'; });
-    txt += '\nCurrent focus:\n' + g('trainingScaleFocus') + '\n\nLargest gap:\n' + g('trainingScaleGap') + '\n\nPhilosophy:\n' + g('trainingScalePhilosophy') + '\n\n';
+    [['Rhythm','scaleRhythmU','scaleRhythmA'],['Suppleness','scaleSupU','scaleSupA'],['Contact','scaleConU','scaleConA'],['Impulsion','scaleImpU','scaleImpA'],['Straightness','scaleStrU','scaleStrA'],['Collection','scaleColU','scaleColA']].forEach(([n,u,a]) => {
+      txt += n + '\n  Understanding: ' + bar(r(u)) + ' ' + r(u) + '/10\n  Application:   ' + bar(r(a)) + ' ' + r(a) + '/10\n';
+    });
+    txt += '\nLargest gap:\n' + g('trainingScaleGap') + '\n\n';
     txt += 'RIDER SKILLS\n' + '-'.repeat(40) + '\n';
-    txt += 'Independent Seat: ' + bar(r('scaleSeat')) + ' ' + r('scaleSeat') + '/10\n  Loss moments: ' + g('seatLossMoments') + '\n  Feeling: ' + g('seatFeel') + '\n\n';
-    txt += 'Unilateral Aids: ' + bar(r('scaleUnilateral')) + ' ' + r('scaleUnilateral') + '/10\n  Leak: ' + g('unilateralLeak') + '\n  Asymmetry: ' + g('bodyAsymmetry') + '\n\n';
-    txt += 'Timing of Aid: ' + bar(r('scaleTiming')) + ' ' + r('scaleTiming') + '/10\n  Best/worst: ' + g('timingBestWorst') + '\n  Practice: ' + g('timingPractice') + '\n\nPriority skill:\n' + g('riderSkillPriority') + '\n\n';
+    txt += 'Independent Seat: ' + bar(r('scaleSeat')) + ' ' + r('scaleSeat') + '/10\n\n';
+    txt += 'Unilateral Aids: ' + bar(r('scaleUnilateral')) + ' ' + r('scaleUnilateral') + '/10\n\n';
+    txt += 'Timing of Aid: ' + bar(r('scaleTiming')) + ' ' + r('scaleTiming') + '/10\n\nPriority skill:\n' + g('riderSkillPriority') + '\n\n';
     txt += 'THE BIGGER PICTURE\n' + '-'.repeat(40) + '\n';
     txt += 'Philosophy:\n' + g('dressagePhilosophy') + '\n\nKnowledge-body gap:\n' + g('knowledgeBodyGap') + '\n\nFormative influences:\n' + g('formativeInfluences') + '\n\nBurning question:\n' + g('burningQuestion') + '\n';
-    const blob = new Blob([txt], {type:'text/plain'});
+    const blob = new Blob([txt], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = 'technical-philosophical-assessment-' + new Date().toISOString().split('T')[0] + '.txt';
-    a.click(); URL.revokeObjectURL(url);
+    a.href = url;
+    a.download = 'technical-philosophical-assessment-' + new Date().toISOString().split('T')[0] + '.txt';
+    a.click();
+    URL.revokeObjectURL(url);
   }
 </script>
 </body>

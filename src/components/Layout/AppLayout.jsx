@@ -126,7 +126,7 @@ export default function AppLayout() {
             <div className="nav-dropdown">
               <button
                 className={`nav-link dropdown-trigger ${
-                  isActive('/profile') || isActive('/horses') || isActive('/physical-assessments') || isActive('/rider-assessments') ? 'active' : ''
+                  isActive('/profile') || isActive('/horses') || isActive('/physical-assessments') || isActive('/rider-assessments') || isActive('/technical-assessments') ? 'active' : ''
                 }`}
                 onClick={() => toggleDropdown('profile')}
               >
@@ -139,9 +139,11 @@ export default function AppLayout() {
                   <div className="dropdown-divider" />
                   <Link to="/physical-assessments/new" className="dropdown-item">Physical Self-Assessment</Link>
                   <Link to="/rider-assessments/new" className="dropdown-item">Rider Self-Assessment</Link>
+                  <Link to="/technical-assessments/new" className="dropdown-item">Technical &amp; Philosophical Assessment</Link>
                   <div className="dropdown-divider" />
                   <Link to="/physical-assessments" className="dropdown-item">All Physical Assessments</Link>
                   <Link to="/rider-assessments" className="dropdown-item">All Rider Assessments</Link>
+                  <Link to="/technical-assessments" className="dropdown-item">All Technical Assessments</Link>
                 </div>
               )}
             </div>

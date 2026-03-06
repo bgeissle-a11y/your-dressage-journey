@@ -42,6 +42,8 @@ import PhysicalAssessmentList from './components/PhysicalAssessment/PhysicalAsse
 import PhysicalAssessmentForm from './components/PhysicalAssessment/PhysicalAssessmentForm';
 import RiderAssessmentList from './components/RiderAssessment/RiderAssessmentList';
 import RiderAssessmentForm from './components/RiderAssessment/RiderAssessmentForm';
+import TechnicalPhilosophicalList from './components/TechnicalPhilosophical/TechnicalPhilosophicalList';
+import TechnicalPhilosophicalForm from './components/TechnicalPhilosophical/TechnicalPhilosophicalForm';
 
 import './App.css';
 
@@ -119,6 +121,9 @@ function App() {
             <Route path="/rider-assessments" element={<RiderAssessmentList />} />
             <Route path="/rider-assessments/new" element={<RiderAssessmentForm />} />
             <Route path="/rider-assessments/:id/edit" element={<RiderAssessmentForm />} />
+            <Route path="/technical-assessments" element={<TechnicalPhilosophicalList />} />
+            <Route path="/technical-assessments/new" element={<TechnicalPhilosophicalForm />} />
+            <Route path="/technical-assessments/:id/edit" element={<TechnicalPhilosophicalForm />} />
           </Route>
 
           {/* Default Route */}

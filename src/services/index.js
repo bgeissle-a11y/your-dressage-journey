@@ -140,6 +140,18 @@ export {
   SELF_RATING_SCALES
 } from './riderAssessmentService';
 
+// Technical & philosophical self-assessments
+export {
+  createTechnicalAssessment,
+  getTechnicalAssessment,
+  getAllTechnicalAssessments,
+  updateTechnicalAssessment,
+  deleteTechnicalAssessment,
+  TRAINING_SCALE_PILLARS,
+  GAIT_UNDERSTANDING_SCALES,
+  RIDER_SKILL_SCALES
+} from './technicalPhilosophicalService';
+
 // Horse health & soundness
 export {
   createHealthEntry,

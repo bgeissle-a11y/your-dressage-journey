@@ -182,6 +182,7 @@ async function prepareRiderData(uid, outputType = null) {
     showPreparations,
     physicalAssessments,
     riderAssessments,
+    technicalAssessments,
     horseHealthEntries,
   ] = await Promise.all([
     fetchUserDoc(uid),
@@ -195,6 +196,7 @@ async function prepareRiderData(uid, outputType = null) {
     fetchCollection("showPreparations", uid),
     fetchCollection("physicalAssessments", uid),
     fetchCollection("riderAssessments", uid),
+    fetchCollection("technicalPhilosophicalAssessments", uid),
     fetchCollection("horseHealthEntries", uid),
   ]);
 
@@ -202,6 +204,7 @@ async function prepareRiderData(uid, outputType = null) {
   const nonDraftDebriefs = debriefs.filter((d) => !d.isDraft);
   const nonDraftPhysical = physicalAssessments.filter((d) => !d.isDraft);
   const nonDraftRider = riderAssessments.filter((d) => !d.isDraft);
+  const nonDraftTechnical = technicalAssessments.filter((d) => !d.isDraft);
 
   // Raw counts for stats and snapshot
   const rawCounts = {
@@ -214,6 +217,7 @@ async function prepareRiderData(uid, outputType = null) {
     horses: horseProfiles.length,
     physicalAssessments: nonDraftPhysical.length,
     riderAssessments: nonDraftRider.length,
+    technicalAssessments: nonDraftTechnical.length,
     horseHealthEntries: horseHealthEntries.length,
   };
 
@@ -229,7 +233,7 @@ async function prepareRiderData(uid, outputType = null) {
   const observationsSummary = aggregateObservations(observations);
   const eventPrep = aggregateEventPrep(eventPrepPlans);
   const showPrep = aggregateShowPrep(showPreparations);
-  const selfAssessments = aggregateSelfAssessments(nonDraftPhysical, nonDraftRider);
+  const selfAssessments = aggregateSelfAssessments(nonDraftPhysical, nonDraftRider, nonDraftTechnical);
   const horseHealth = aggregateHorseHealth(horseHealthEntries);
 
   // Cross-cut aggregator: mental patterns

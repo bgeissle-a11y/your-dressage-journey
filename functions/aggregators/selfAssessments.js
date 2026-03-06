@@ -1,10 +1,12 @@
 /**
  * Self-Assessments Aggregator
  *
- * Combines physicalAssessments + riderAssessments into a coaching-ready
- * self-awareness summary. Uses the most recent non-draft entry for each type.
- * Pure function — no Firestore reads.
+ * Combines physicalAssessments + riderAssessments + technicalPhilosophicalAssessments
+ * into a coaching-ready self-awareness summary. Uses the most recent non-draft entry
+ * for each type. Pure function — no Firestore reads.
  */
+
+const { aggregateTechnicalPhilosophical } = require("./technicalPhilosophical");
 
 /**
  * Extract the most recent document by createdAt.
@@ -19,11 +21,13 @@ function getMostRecent(docs) {
 /**
  * @param {Object[]} physicalAssessments - Array of physical assessment documents (non-draft)
  * @param {Object[]} riderAssessments - Array of rider assessment documents (non-draft)
+ * @param {Object[]} technicalAssessments - Array of technical/philosophical assessment documents (non-draft)
  * @returns {Object} Aggregated self-assessment summary
  */
-function aggregateSelfAssessments(physicalAssessments, riderAssessments) {
+function aggregateSelfAssessments(physicalAssessments, riderAssessments, technicalAssessments) {
   const physicals = physicalAssessments || [];
   const riders = riderAssessments || [];
+  const technicals = technicalAssessments || [];
 
   // Physical assessment — most recent only
   const latestPhysical = getMostRecent(physicals);
@@ -104,12 +108,17 @@ function aggregateSelfAssessments(physicalAssessments, riderAssessments) {
     mental = { hasAssessment: false };
   }
 
+  // Technical & philosophical assessment
+  const technical = aggregateTechnicalPhilosophical(technicals);
+
   return {
     physical,
     mental,
+    technical,
     assessmentCount: {
       physical: physicals.length,
       rider: riders.length,
+      technical: technicals.length,
     },
   };
 }
