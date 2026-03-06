@@ -31,10 +31,26 @@ const OUTPUT_TYPE = "journeyMap";
 async function handler(request) {
   try {
     const uid = validateAuth(request);
-    const { forceRefresh = false } = request.data || {};
+    const { forceRefresh = false, staleOk = false } = request.data || {};
+
+    // Fast path: return cached data immediately without preparing rider data.
+    // Used by frontend two-phase load to show results instantly on mount.
+    if (staleOk && !forceRefresh) {
+      const cached = await getStaleCache(uid, OUTPUT_TYPE, { maxAgeDays: 30 });
+      if (cached) {
+        return {
+          success: true,
+          ...cached.result,
+          fromCache: true,
+          stale: cached._stale !== false,
+          generatedAt: cached.generatedAt,
+        };
+      }
+      // No cache at all — fall through to full generation
+    }
 
     // Prepare rider data
-    const riderData = await prepareRiderData(uid);
+    const riderData = await prepareRiderData(uid, "journeyMap");
     const hash = riderData.dataSnapshot?.hash;
 
     // Check data tier

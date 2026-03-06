@@ -27,6 +27,36 @@ const { aggregateMentalPatterns } = require("../aggregators/mentalPatterns");
 const { aggregateHorseHealth } = require("../aggregators/horseHealth");
 
 /**
+ * Output-type → required aggregators map.
+ * null means "run ALL aggregators" (unchanged behavior).
+ * horseSummaries is always built when both profile and rideHistory are present.
+ */
+const OUTPUT_DATA_NEEDS = {
+  coaching: null,
+  coaching_insights: null,
+  journeyMap: {
+    aggregators: ["profile", "rideHistory", "reflections", "journey", "observations",
+      "selfAssessments", "mentalPatterns"],
+  },
+  dataVisualizations: {
+    aggregators: ["profile", "rideHistory", "reflections"],
+  },
+  grandPrixMental: {
+    aggregators: ["profile", "rideHistory", "reflections", "selfAssessments", "mentalPatterns"],
+  },
+  grandPrixTrajectory: {
+    aggregators: ["profile", "rideHistory", "reflections", "selfAssessments",
+      "mentalPatterns", "horseHealth"],
+  },
+  physicalGuidance: {
+    aggregators: ["profile", "rideHistory", "selfAssessments", "horseHealth"],
+  },
+  eventPlanner: {
+    aggregators: ["profile", "rideHistory", "reflections", "eventPrep", "showPrep"],
+  },
+};
+
+/**
  * Convert Firestore Timestamp fields to ISO strings.
  */
 function convertTimestamps(doc) {
@@ -132,9 +162,13 @@ function buildDataSnapshot(rawCounts) {
  * Main orchestrator — fetches all user data and produces a structured summary.
  *
  * @param {string} uid - Firebase Auth UID
+ * @param {string|null} outputType - Optional output type for tiered data inclusion.
+ *   When provided, only aggregators needed for that output are run,
+ *   reducing the JSON payload sent to Claude. Collections are always
+ *   fetched (for accurate hash computation).
  * @returns {Promise<Object>} Complete aggregated rider data for prompt injection
  */
-async function prepareRiderData(uid) {
+async function prepareRiderData(uid, outputType = null) {
   // Fetch all 12 collections in parallel
   const [
     userDoc,
@@ -183,7 +217,10 @@ async function prepareRiderData(uid) {
     horseHealthEntries: horseHealthEntries.length,
   };
 
-  // Run all 9 base sub-aggregators
+  // Run all sub-aggregators (they're pure functions, fast — no I/O).
+  // All are needed for tier classification. Tiered data inclusion works by
+  // nulling out unneeded sections in the return object, so buildUserDataMessage
+  // serializes a smaller JSON payload to Claude.
   const riderProfile = riderProfiles[0] || null;
   const profile = aggregateProfile(riderProfile, horseProfiles);
   const rideHistory = aggregateRideHistory(nonDraftDebriefs);
@@ -216,6 +253,12 @@ async function prepareRiderData(uid) {
   const tier = classifyTier(aggregatedData);
   const dataTier = classifyDataTier(aggregatedData);
 
+  // Tiered data inclusion: determine which sections to include in the output.
+  // Sections not needed for this output type are set to null, so
+  // buildUserDataMessage() omits them → smaller JSON payload to Claude.
+  const needs = outputType ? OUTPUT_DATA_NEEDS[outputType] : null;
+  const shouldInclude = (name) => !needs || needs.aggregators.includes(name);
+
   // Overall stats and data snapshot
   const overallStats = buildOverallStats(rawCounts, rideHistory, reflectionsSummary, profile);
   const dataSnapshot = buildDataSnapshot(rawCounts);
@@ -229,18 +272,19 @@ async function prepareRiderData(uid) {
     tier,
     dataTier,
 
-    // Aggregated sections (per Platform Outputs spec)
+    // Aggregated sections — null out sections not needed for this output type.
+    // buildUserDataMessage() filters nulls → smaller JSON payload to Claude.
     profile,
     horseSummaries,
-    rideHistory,
-    mentalPatterns,
-    reflections: reflectionsSummary,
-    journey,
-    observations: observationsSummary,
-    eventPrep,
-    showPrep,
-    selfAssessments,
-    horseHealth,
+    rideHistory: shouldInclude("rideHistory") ? rideHistory : null,
+    mentalPatterns: shouldInclude("mentalPatterns") ? mentalPatterns : null,
+    reflections: shouldInclude("reflections") ? reflectionsSummary : null,
+    journey: shouldInclude("journey") ? journey : null,
+    observations: shouldInclude("observations") ? observationsSummary : null,
+    eventPrep: shouldInclude("eventPrep") ? eventPrep : null,
+    showPrep: shouldInclude("showPrep") ? showPrep : null,
+    selfAssessments: shouldInclude("selfAssessments") ? selfAssessments : null,
+    horseHealth: shouldInclude("horseHealth") ? horseHealth : null,
 
     // Quick-reference stats and staleness detection
     overallStats,

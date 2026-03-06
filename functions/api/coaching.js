@@ -166,7 +166,7 @@ async function handler(request) {
     }
 
     // Prepare rider data
-    const riderData = await prepareRiderData(uid);
+    const riderData = await prepareRiderData(uid, "coaching");
 
     // Check data tier — need at least Tier 1 (Starter)
     if (riderData.dataTier < 1) {

@@ -759,9 +759,16 @@ const QUICK_INSIGHTS_INSTRUCTIONS = `Respond in JSON format with this exact stru
  * Format rider data into a readable user message.
  */
 function buildUserDataMessage(riderData) {
-  // Strip internal fields not useful for the AI
+  // Strip internal fields not useful for the AI, and filter out null sections
+  // (from tiered data inclusion — sections not needed for this output type)
   const { uid, ...relevantData } = riderData;
-  return JSON.stringify(relevantData, null, 2);
+  const filtered = {};
+  for (const [key, value] of Object.entries(relevantData)) {
+    if (value !== null) {
+      filtered[key] = value;
+    }
+  }
+  return JSON.stringify(filtered, null, 2);
 }
 
 /**

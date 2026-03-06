@@ -122,6 +122,14 @@ export default function MultiVoicePanel({ generationStatus }) {
     fetchCoaching();
   }, [fetchCoaching]);
 
+  // Auto-refresh when stale data is detected on initial load
+  useEffect(() => {
+    if (isStale && hasRealVoiceData && !refreshing && !loading) {
+      fetchCoaching(true);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isStale]);
+
   // Auto-refresh when background generation completes
   useEffect(() => {
     if (generationStatus?.justCompleted && hasRealVoiceData) {
@@ -191,8 +199,9 @@ export default function MultiVoicePanel({ generationStatus }) {
         </div>
         <div className="multi-voice-panel__actions">
           {meta?.generatedAt && (
-            <span className={`multi-voice-panel__timestamp${isStale ? ' multi-voice-panel__timestamp--stale' : ''}`}>
-              {isStale ? 'Cached \u00b7 ' : ''}
+            <span className={`panel-timestamp${isStale ? ' panel-timestamp--stale' : ''}`}>
+              {isStale && refreshing ? 'Updating... \u00b7 ' : ''}
+              {isStale && !refreshing ? 'Updated ' : ''}
               {new Date(meta.generatedAt).toLocaleDateString('en-US', {
                 month: 'short', day: 'numeric', year: 'numeric'
               })}

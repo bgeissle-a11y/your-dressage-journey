@@ -20,7 +20,7 @@ const { wrapError } = require("../lib/errors");
 const { prepareRiderData } = require("../lib/prepareRiderData");
 const { callClaude } = require("../lib/claudeCall");
 const { buildPhysicalGuidancePrompt } = require("../lib/promptBuilder");
-const { getCache, setCache } = require("../lib/cacheManager");
+const { getCache, setCache, getStaleCache } = require("../lib/cacheManager");
 
 const OUTPUT_TYPE = "physicalGuidance";
 
@@ -33,10 +33,25 @@ const OUTPUT_TYPE = "physicalGuidance";
 async function handler(request) {
   try {
     const uid = validateAuth(request);
-    const { forceRefresh = false } = request.data || {};
+    const { forceRefresh = false, staleOk = false } = request.data || {};
+
+    // Fast path: return cached data immediately without preparing rider data.
+    // Used by frontend two-phase load to show results instantly on mount.
+    if (staleOk && !forceRefresh) {
+      const cached = await getStaleCache(uid, OUTPUT_TYPE, { maxAgeDays: 14 });
+      if (cached) {
+        return {
+          success: true,
+          ...cached.result,
+          fromCache: true,
+          stale: cached._stale !== false,
+          generatedAt: cached.generatedAt,
+        };
+      }
+    }
 
     // Prepare rider data
-    const riderData = await prepareRiderData(uid);
+    const riderData = await prepareRiderData(uid, "physicalGuidance");
     const hash = riderData.dataSnapshot?.hash;
 
     // Check data tier — need Tier 1+ (rider profile + horse + 3 debriefs)

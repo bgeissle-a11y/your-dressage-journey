@@ -45,6 +45,10 @@ for (const cat of MOVEMENT_CATEGORIES) {
 
 const ELITE_MOVEMENTS = new Set(["piaffe", "passage", "tempi-changes"]);
 
+// Data windowing constants
+const RECENT_WINDOW = 15;          // Full detail for last 15 rides
+const RECENT_CHALLENGES_MAX = 5;   // Max challenge excerpts from recent window
+
 /**
  * Compute weekly riding streak.
  * Ported from src/hooks/useDashboardData.js computeStreak().
@@ -150,7 +154,8 @@ function aggregateRideHistory(debriefs) {
       totalRides: 0,
       dateRange: { earliest: null, latest: null },
       recentRides: [],
-      averages: { overallQuality: 0, confidence: 0, riderEffort: 0, horseEffort: 0 },
+      historicalSummary: null,
+      averages: { recentQuality: 0, recentConfidence: 0, recentRiderEffort: 0, recentHorseEffort: 0, overallQuality: 0, overallConfidence: 0 },
       trends: {
         qualityTrend: "insufficient-data",
         confidenceTrend: "insufficient-data",
@@ -194,8 +199,12 @@ function aggregateRideHistory(debriefs) {
     latest: dates[0] || null,
   };
 
-  // Recent rides — last 10 with full qualitative data
-  const recentRides = sorted.slice(0, 10).map((d) => ({
+  // Split into recent window (full detail) and historical (compressed stats)
+  const recentSlice = sorted.slice(0, RECENT_WINDOW);
+  const historicalSlice = sorted.slice(RECENT_WINDOW);
+
+  // Recent rides — last 15 with full qualitative data
+  const recentRides = recentSlice.map((d) => ({
     date: d.rideDate || "",
     horse: d.horseName || "",
     sessionType: d.sessionType || "",
@@ -214,12 +223,27 @@ function aggregateRideHistory(debriefs) {
     workFocus: d.workFocus || "",
   }));
 
-  // Averages across all rides
+  // Historical summary — compressed stats for rides outside recent window
+  const historicalSummary = historicalSlice.length > 0 ? {
+    rideCount: historicalSlice.length,
+    dateRange: {
+      earliest: dates[dates.length - 1] || null,
+      latest: historicalSlice[0]?.rideDate || null,
+    },
+    avgQuality: avg(historicalSlice, "overallQuality"),
+    avgConfidence: avg(historicalSlice, "confidenceLevel"),
+    sessionTypeDistribution: distribution(historicalSlice, "sessionType"),
+    mentalStateDistribution: distribution(historicalSlice, "mentalState"),
+  } : null;
+
+  // Averages — split into recent and overall
   const averages = {
+    recentQuality: avg(recentSlice, "overallQuality"),
+    recentConfidence: avg(recentSlice, "confidenceLevel"),
+    recentRiderEffort: avg(recentSlice, "riderEffort"),
+    recentHorseEffort: avg(recentSlice, "horseEffort"),
     overallQuality: avg(debriefs, "overallQuality"),
-    confidence: avg(debriefs, "confidenceLevel"),
-    riderEffort: avg(debriefs, "riderEffort"),
-    horseEffort: avg(debriefs, "horseEffort"),
+    overallConfidence: avg(debriefs, "confidenceLevel"),
   };
 
   // Trends — compare last 10 vs prior 10
@@ -290,12 +314,12 @@ function aggregateRideHistory(debriefs) {
   // Riding streak
   const ridingStreak = computeStreak(debriefs);
 
-  // Celebration vs Challenge ratio (wins vs challenges content analysis)
+  // Celebration vs Challenge ratio — computed from recent window only
   let totalWinsLength = 0;
   let totalChallengesLength = 0;
   let ridesWithWins = 0;
   let ridesWithChallenges = 0;
-  for (const d of debriefs) {
+  for (const d of recentSlice) {
     const winsLen = (d.wins || "").trim().length;
     const challLen = (d.challenges || "").trim().length;
     totalWinsLength += winsLen;
@@ -313,11 +337,11 @@ function aggregateRideHistory(debriefs) {
       totalChallengesLength > totalWinsLength * 2 ? "challenge-heavy" : "balanced",
   };
 
-  // Recurring challenges — extract from challenge text across all rides
-  const challengeTexts = debriefs
+  // Recurring challenges — recent window only
+  const recurringChallenges = recentSlice
     .map((d) => d.challenges)
-    .filter((t) => t && t.trim().length > 0);
-  const recurringChallenges = challengeTexts.slice(0, 10);
+    .filter((t) => t && t.trim().length > 0)
+    .slice(0, RECENT_CHALLENGES_MAX);
 
   // Per-horse summary
   const perHorseSummary = {};
@@ -357,6 +381,7 @@ function aggregateRideHistory(debriefs) {
     totalRides: debriefs.length,
     dateRange,
     recentRides,
+    historicalSummary,
     averages,
     trends,
     sessionTypeDistribution,

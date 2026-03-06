@@ -449,15 +449,32 @@ async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerC
 async function handler(request) {
   try {
     const uid = validateAuth(request);
-    const { forceRefresh = false, layer = "mental" } = request.data || {};
+    const { forceRefresh = false, layer = "mental", staleOk = false } = request.data || {};
+
+    // Fast path: return cached data immediately without preparing rider data.
+    // Used by frontend two-phase load to show results instantly on mount.
+    if (staleOk && !forceRefresh) {
+      const cacheType = layer === "trajectory" ? OUTPUT_TYPE_TRAJECTORY : OUTPUT_TYPE_MENTAL;
+      const cached = await getStaleCache(uid, cacheType, { maxAgeDays: 30 });
+      if (cached) {
+        return {
+          success: true,
+          ...cached.result,
+          fromCache: true,
+          stale: cached._stale !== false,
+          generatedAt: cached.generatedAt,
+        };
+      }
+    }
 
     // Fetch rider data and cross-layer cache in parallel
     const crossLayerType = layer === "trajectory"
       ? OUTPUT_TYPE_MENTAL
       : OUTPUT_TYPE_TRAJECTORY;
 
+    const gpOutputType = layer === "trajectory" ? "grandPrixTrajectory" : "grandPrixMental";
     const [riderData, crossLayerCache] = await Promise.all([
-      prepareRiderData(uid),
+      prepareRiderData(uid, gpOutputType),
       getCache(uid, crossLayerType, { maxAgeDays: 9999 }),
     ]);
 

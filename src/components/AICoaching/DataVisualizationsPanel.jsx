@@ -68,6 +68,7 @@ export default function DataVisualizationsPanel({ generationStatus }) {
     aiData,
     aiLoading,
     aiError,
+    aiStale,
     insufficientData,
     refreshAiData,
   } = useVisualizationData();
@@ -132,8 +133,9 @@ export default function DataVisualizationsPanel({ generationStatus }) {
         </div>
         <div className="dv-panel__actions">
           {aiData?.generatedAt && (
-            <span className="panel-timestamp">
-              {aiData.fromCache && 'Cached \u00B7 '}
+            <span className={`panel-timestamp${aiStale ? ' panel-timestamp--stale' : ''}`}>
+              {aiStale && aiLoading ? 'Updating... \u00B7 ' : ''}
+              {aiStale && !aiLoading ? 'Updated ' : ''}
               {new Date(aiData.generatedAt).toLocaleDateString('en-US', {
                 month: 'short', day: 'numeric', year: 'numeric',
               })}
@@ -141,7 +143,7 @@ export default function DataVisualizationsPanel({ generationStatus }) {
           )}
           <button
             className="btn-refresh"
-            onClick={() => refreshAiData(true)}
+            onClick={() => refreshAiData({ forceRefresh: true })}
             disabled={aiLoading}
           >
             {aiLoading ? 'Analyzing...' : 'Refresh AI Insights'}

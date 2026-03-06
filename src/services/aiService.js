@@ -63,10 +63,13 @@ export async function getMultiVoiceCoaching(options = {}) {
  *
  * @param {object} [options]
  * @param {boolean} [options.forceRefresh] - Skip cache
+ * @param {boolean} [options.staleOk] - Return cached data instantly (even if stale)
  * @returns {Promise<object>} { success, synthesis, narrative, visualization, ... }
  */
 export async function getJourneyMap(options = {}) {
-  const fn = httpsCallable(functions, 'getJourneyMap', { timeout: 300_000 });
+  // staleOk fast path uses a shorter timeout — only reads cache, no Claude calls
+  const timeout = options.staleOk ? 30_000 : 300_000;
+  const fn = httpsCallable(functions, 'getJourneyMap', { timeout });
   const result = await fn(options);
   return result.data;
 }
@@ -76,11 +79,13 @@ export async function getJourneyMap(options = {}) {
  *
  * @param {object} [options]
  * @param {boolean} [options.forceRefresh] - Skip cache
+ * @param {boolean} [options.staleOk] - Return cached data instantly (even if stale)
  * @param {string} [options.layer] - "mental" (default) or "trajectory"
  * @returns {Promise<object>} { success, paths, recommendedPath, ... }
  */
 export async function getGrandPrixThinking(options = {}) {
-  const fn = httpsCallable(functions, 'getGrandPrixThinking', { timeout: 300_000 });
+  const timeout = options.staleOk ? 30_000 : 300_000;
+  const fn = httpsCallable(functions, 'getGrandPrixThinking', { timeout });
   const result = await fn(options);
   return result.data;
 }
@@ -90,10 +95,12 @@ export async function getGrandPrixThinking(options = {}) {
  *
  * @param {object} [options]
  * @param {boolean} [options.forceRefresh] - Skip cache
+ * @param {boolean} [options.staleOk] - Return cached data instantly (even if stale)
  * @returns {Promise<object>} { success, patternExtraction, goalMapping, insightNarratives, ... }
  */
 export async function getDataVisualizations(options = {}) {
-  const fn = httpsCallable(functions, 'getDataVisualizations', { timeout: 300_000 });
+  const timeout = options.staleOk ? 30_000 : 300_000;
+  const fn = httpsCallable(functions, 'getDataVisualizations', { timeout });
   const result = await fn(options);
   return result.data;
 }
@@ -103,10 +110,12 @@ export async function getDataVisualizations(options = {}) {
  *
  * @param {object} [options]
  * @param {boolean} [options.forceRefresh] - Skip cache
+ * @param {boolean} [options.staleOk] - Return cached data instantly (even if stale)
  * @returns {Promise<object>} { success, patternAnalysis, exercisePrescription, ... }
  */
 export async function getPhysicalGuidance(options = {}) {
-  const fn = httpsCallable(functions, 'getPhysicalGuidance', { timeout: 300_000 });
+  const timeout = options.staleOk ? 30_000 : 300_000;
+  const fn = httpsCallable(functions, 'getPhysicalGuidance', { timeout });
   const result = await fn(options);
   return result.data;
 }

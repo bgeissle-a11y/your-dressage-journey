@@ -271,19 +271,22 @@ export default function PhysicalGuidancePanel() {
   const [error, setError] = useState(null);
   const [insufficientData, setInsufficientData] = useState(null);
   const [loadStartedAt, setLoadStartedAt] = useState(null);
+  const [isStale, setIsStale] = useState(false);
 
-  const fetchData = useCallback(async (forceRefresh = false) => {
-    if (forceRefresh && data) {
+  const fetchData = useCallback(async ({ forceRefresh = false, staleOk = false } = {}) => {
+    if ((forceRefresh || (data && !staleOk)) && data) {
       setRefreshing(true);
-    } else {
+    } else if (!staleOk) {
       setLoading(true);
       setLoadStartedAt(Date.now());
     }
-    setError(null);
-    setInsufficientData(null);
+    if (!staleOk) {
+      setError(null);
+      setInsufficientData(null);
+    }
 
     try {
-      const result = await getPhysicalGuidance({ forceRefresh });
+      const result = await getPhysicalGuidance({ forceRefresh, staleOk });
 
       if (!result.success) {
         if (
@@ -291,14 +294,24 @@ export default function PhysicalGuidancePanel() {
           result.error === 'missing_assessment'
         ) {
           setInsufficientData(result);
-        } else {
+        } else if (!staleOk) {
           setError({ message: 'Failed to generate your Physical Guidance.' });
         }
         return;
       }
 
       setData(result);
+      setIsStale(!!result.stale);
+
+      // If stale data returned from fast path, trigger background refresh
+      if (result.stale && staleOk) {
+        fetchData({ forceRefresh: false });
+      }
     } catch (err) {
+      if (staleOk) {
+        fetchData({ forceRefresh: false });
+        return;
+      }
       console.error('Physical Guidance error:', err);
       const details = err?.details || err?.customData || {};
       const parsed = {
@@ -306,7 +319,7 @@ export default function PhysicalGuidancePanel() {
         retryable: details.retryable !== false,
         message: err?.message || 'An error occurred.',
       };
-      if (forceRefresh && data) {
+      if (data) {
         setError({
           ...parsed,
           message: 'Could not refresh. Showing previous results.',
@@ -315,13 +328,16 @@ export default function PhysicalGuidancePanel() {
         setError(parsed);
       }
     } finally {
-      setLoading(false);
-      setRefreshing(false);
+      if (!staleOk) {
+        setLoading(false);
+        setRefreshing(false);
+      }
     }
   }, [data]);
 
+  // Phase 1: Fast cache fetch on mount
   useEffect(() => {
-    fetchData();
+    fetchData({ staleOk: true });
   }, []);  // eslint-disable-line react-hooks/exhaustive-deps
 
   // --- Insufficient Data State ---
@@ -383,7 +399,7 @@ export default function PhysicalGuidancePanel() {
           message={error.message}
           category={error.category}
           retryable={error.retryable !== false}
-          onRetry={() => fetchData(true)}
+          onRetry={() => fetchData({ forceRefresh: true })}
           retrying={loading}
         />
       </div>
@@ -406,8 +422,9 @@ export default function PhysicalGuidancePanel() {
         </div>
         <div className="pg-panel__actions">
           {data.generatedAt && (
-            <span className="panel-timestamp">
-              {data.fromCache && 'Cached \u00B7 '}
+            <span className={`panel-timestamp${isStale ? ' panel-timestamp--stale' : ''}`}>
+              {isStale && refreshing ? 'Updating... \u00B7 ' : ''}
+              {isStale && !refreshing ? 'Updated ' : ''}
               {new Date(data.generatedAt).toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric',
@@ -417,7 +434,7 @@ export default function PhysicalGuidancePanel() {
           )}
           <button
             className="btn-refresh"
-            onClick={() => fetchData(true)}
+            onClick={() => fetchData({ forceRefresh: true })}
             disabled={loading || refreshing}
           >
             {refreshing ? 'Regenerating...' : 'Regenerate'}
@@ -439,7 +456,7 @@ export default function PhysicalGuidancePanel() {
           message={error.message}
           category={error.category}
           retryable={error.retryable !== false}
-          onRetry={() => fetchData(true)}
+          onRetry={() => fetchData({ forceRefresh: true })}
           retrying={loading}
           compact
         />

@@ -15,32 +15,46 @@ export default function JourneyMapPanel({ generationStatus }) {
   const [error, setError] = useState(null);
   const [insufficientData, setInsufficientData] = useState(null);
   const [loadStartedAt, setLoadStartedAt] = useState(null);
+  const [isStale, setIsStale] = useState(false);
 
-  const fetchJourneyMap = useCallback(async (forceRefresh = false) => {
+  const fetchJourneyMap = useCallback(async ({ forceRefresh = false, staleOk = false } = {}) => {
     // Stale-while-revalidate: keep existing data visible during refresh
-    if (forceRefresh && data) {
+    if ((forceRefresh || (data && !staleOk)) && data) {
       setRefreshing(true);
-    } else {
+    } else if (!staleOk) {
       setLoading(true);
       setLoadStartedAt(Date.now());
     }
-    setError(null);
-    setInsufficientData(null);
+    if (!staleOk) {
+      setError(null);
+      setInsufficientData(null);
+    }
 
     try {
-      const result = await getJourneyMap({ forceRefresh });
+      const result = await getJourneyMap({ forceRefresh, staleOk });
 
       if (!result.success) {
         if (result.error === 'insufficient_data') {
           setInsufficientData(result);
-        } else {
+        } else if (!staleOk) {
           setError({ message: 'Failed to generate your Journey Map.' });
         }
         return;
       }
 
       setData(result);
+      setIsStale(!!result.stale);
+
+      // If we got stale data from the fast path, trigger background refresh
+      if (result.stale && staleOk) {
+        fetchJourneyMap({ forceRefresh: false });
+      }
     } catch (err) {
+      // Silently ignore errors on the staleOk fast path — will fall through to full load
+      if (staleOk) {
+        fetchJourneyMap({ forceRefresh: false });
+        return;
+      }
       console.error('Journey Map error:', err);
       const details = err?.details || err?.customData || {};
       const parsed = {
@@ -50,7 +64,7 @@ export default function JourneyMapPanel({ generationStatus }) {
       };
 
       // If refreshing with existing data, show non-destructive error
-      if (forceRefresh && data) {
+      if (data) {
         setError({
           ...parsed,
           message: 'Could not refresh your Journey Map. Showing previous results.',
@@ -59,14 +73,17 @@ export default function JourneyMapPanel({ generationStatus }) {
         setError(parsed);
       }
     } finally {
-      setLoading(false);
-      setRefreshing(false);
+      if (!staleOk) {
+        setLoading(false);
+        setRefreshing(false);
+      }
     }
   }, [data]);
 
+  // Phase 1: Fast cache fetch on mount
   useEffect(() => {
-    fetchJourneyMap();
-  }, [fetchJourneyMap]);
+    fetchJourneyMap({ staleOk: true });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto-refresh when background generation completes
   useEffect(() => {
@@ -119,7 +136,7 @@ export default function JourneyMapPanel({ generationStatus }) {
           message={error.message}
           category={error.category}
           retryable={error.retryable !== false}
-          onRetry={() => fetchJourneyMap(true)}
+          onRetry={() => fetchJourneyMap({ forceRefresh: true })}
           retrying={loading}
         />
       </div>
@@ -128,7 +145,7 @@ export default function JourneyMapPanel({ generationStatus }) {
 
   if (!data) return null;
 
-  const { synthesis, narrative, visualization, generatedAt, fromCache, dataSnapshot } = data;
+  const { synthesis, narrative, visualization, generatedAt } = data;
 
   // Derive at-a-glance stats
   const timelineCount = visualization?.timeline_events?.length || 0;
@@ -146,8 +163,9 @@ export default function JourneyMapPanel({ generationStatus }) {
         </div>
         <div className="journey-map-panel__actions">
           {generatedAt && (
-            <span className="panel-timestamp">
-              {fromCache && 'Cached \u00B7 '}
+            <span className={`panel-timestamp${isStale ? ' panel-timestamp--stale' : ''}`}>
+              {isStale && refreshing ? 'Updating... \u00B7 ' : ''}
+              {isStale && !refreshing ? 'Updated ' : ''}
               {new Date(generatedAt).toLocaleDateString('en-US', {
                 month: 'short', day: 'numeric', year: 'numeric'
               })}
@@ -155,7 +173,7 @@ export default function JourneyMapPanel({ generationStatus }) {
           )}
           <button
             className="btn-refresh"
-            onClick={() => fetchJourneyMap(true)}
+            onClick={() => fetchJourneyMap({ forceRefresh: true })}
             disabled={loading || refreshing}
           >
             {loading || refreshing ? 'Regenerating...' : 'Regenerate'}
@@ -177,7 +195,7 @@ export default function JourneyMapPanel({ generationStatus }) {
           message={error.message}
           category={error.category}
           retryable={error.retryable !== false}
-          onRetry={() => fetchJourneyMap(true)}
+          onRetry={() => fetchJourneyMap({ forceRefresh: true })}
           retrying={loading}
           compact
         />

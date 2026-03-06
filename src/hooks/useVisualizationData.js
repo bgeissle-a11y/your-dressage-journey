@@ -31,6 +31,7 @@ export default function useVisualizationData() {
   const [aiData, setAiData] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState(null);
+  const [aiStale, setAiStale] = useState(false);
   const [insufficientData, setInsufficientData] = useState(null);
 
   // Phase 1: Fetch raw data and compute charts client-side
@@ -84,24 +85,37 @@ export default function useVisualizationData() {
   }, [currentUser]);
 
   // Phase 2: Fetch AI-derived data
-  const fetchAiData = useCallback(async (forceRefresh = false) => {
-    setAiLoading(true);
-    setAiError(null);
+  const fetchAiData = useCallback(async ({ forceRefresh = false, staleOk = false } = {}) => {
+    if (!staleOk) {
+      setAiLoading(true);
+      setAiError(null);
+    }
 
     try {
-      const result = await getDataVisualizations({ forceRefresh });
+      const result = await getDataVisualizations({ forceRefresh, staleOk });
 
       if (!result.success) {
         if (result.error === 'insufficient_data') {
           setInsufficientData(result);
-        } else {
+        } else if (!staleOk) {
           setAiError('Failed to generate AI visualizations.');
         }
         return;
       }
 
       setAiData(result);
+      setAiStale(!!result.stale);
+
+      // If stale data returned from fast path, trigger background refresh
+      if (result.stale && staleOk) {
+        fetchAiData({ forceRefresh: false });
+      }
     } catch (err) {
+      // Silently fall through to full load on staleOk errors
+      if (staleOk) {
+        fetchAiData({ forceRefresh: false });
+        return;
+      }
       console.error('Data Visualizations AI error:', err);
       const details = err?.details || err?.customData || {};
       setAiError({
@@ -110,14 +124,16 @@ export default function useVisualizationData() {
         retryable: details.retryable !== false,
       });
     } finally {
-      setAiLoading(false);
+      if (!staleOk) {
+        setAiLoading(false);
+      }
     }
   }, []);
 
-  // Auto-fetch AI data once client data is ready
+  // Auto-fetch AI data once client data is ready (fast path first)
   useEffect(() => {
     if (clientData && !aiData && !aiLoading) {
-      fetchAiData();
+      fetchAiData({ staleOk: true });
     }
   }, [clientData, aiData, aiLoading, fetchAiData]);
 
@@ -127,6 +143,7 @@ export default function useVisualizationData() {
     aiData,
     aiLoading,
     aiError,
+    aiStale,
     insufficientData,
     refreshAiData: fetchAiData,
   };

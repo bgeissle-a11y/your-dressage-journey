@@ -52,36 +52,50 @@ export default function GrandPrixPanel({ generationStatus }) {
   const [mentalRefreshing, setMentalRefreshing] = useState(false);
   const [trajectoryRefreshing, setTrajectoryRefreshing] = useState(false);
   const [loadStartedAt, setLoadStartedAt] = useState(null);
+  const [mentalStale, setMentalStale] = useState(false);
+  const [trajectoryStale, setTrajectoryStale] = useState(false);
 
   // Fetch mental layer
-  const fetchMental = useCallback(async (forceRefresh = false) => {
-    if (forceRefresh && mentalData) {
+  const fetchMental = useCallback(async ({ forceRefresh = false, staleOk = false } = {}) => {
+    if ((forceRefresh || (mentalData && !staleOk)) && mentalData) {
       setMentalRefreshing(true);
-    } else {
+    } else if (!staleOk) {
       setMentalLoading(true);
       setLoadStartedAt(Date.now());
     }
-    setMentalError(null);
-    setInsufficientData(null);
+    if (!staleOk) {
+      setMentalError(null);
+      setInsufficientData(null);
+    }
 
     try {
-      const result = await getGrandPrixThinking({ forceRefresh, layer: 'mental' });
+      const result = await getGrandPrixThinking({ forceRefresh, staleOk, layer: 'mental' });
 
       if (!result.success) {
         if (result.error === 'insufficient_data') {
           setInsufficientData(result);
-        } else {
+        } else if (!staleOk) {
           setMentalError({ message: 'Failed to generate your Grand Prix Thinking dashboard.' });
         }
         return;
       }
 
       setMentalData(result);
+      setMentalStale(!!result.stale);
       if (result.recommendedPath && !initialExpandDone.current) {
         setExpandedPath(result.recommendedPath);
         initialExpandDone.current = true;
       }
+
+      // If stale data returned from fast path, trigger background refresh
+      if (result.stale && staleOk) {
+        fetchMental({ forceRefresh: false });
+      }
     } catch (err) {
+      if (staleOk) {
+        fetchMental({ forceRefresh: false });
+        return;
+      }
       console.error('Grand Prix Thinking error:', err);
       const details = err?.details || err?.customData || {};
       const parsed = {
@@ -89,41 +103,54 @@ export default function GrandPrixPanel({ generationStatus }) {
         retryable: details.retryable !== false,
         message: err?.message || 'An error occurred.',
       };
-      if (forceRefresh && mentalData) {
+      if (mentalData) {
         setMentalError({ ...parsed, message: 'Could not refresh. Showing previous results.' });
       } else {
         setMentalError(parsed);
       }
     } finally {
-      setMentalLoading(false);
-      setMentalRefreshing(false);
+      if (!staleOk) {
+        setMentalLoading(false);
+        setMentalRefreshing(false);
+      }
     }
   }, [mentalData]);
 
   // Fetch trajectory layer (lazy — only on first tab switch)
-  const fetchTrajectory = useCallback(async (forceRefresh = false) => {
-    if (forceRefresh && trajectoryData) {
+  const fetchTrajectory = useCallback(async ({ forceRefresh = false, staleOk = false } = {}) => {
+    if ((forceRefresh || (trajectoryData && !staleOk)) && trajectoryData) {
       setTrajectoryRefreshing(true);
-    } else {
+    } else if (!staleOk) {
       setTrajectoryLoading(true);
       setLoadStartedAt(Date.now());
     }
-    setTrajectoryError(null);
+    if (!staleOk) {
+      setTrajectoryError(null);
+    }
 
     try {
-      const result = await getGrandPrixThinking({ forceRefresh, layer: 'trajectory' });
+      const result = await getGrandPrixThinking({ forceRefresh, staleOk, layer: 'trajectory' });
 
       if (!result.success) {
         if (result.error === 'insufficient_data') {
           setInsufficientData(result);
-        } else {
+        } else if (!staleOk) {
           setTrajectoryError({ message: 'Failed to generate training trajectory paths.' });
         }
         return;
       }
 
       setTrajectoryData(result);
+      setTrajectoryStale(!!result.stale);
+
+      if (result.stale && staleOk) {
+        fetchTrajectory({ forceRefresh: false });
+      }
     } catch (err) {
+      if (staleOk) {
+        fetchTrajectory({ forceRefresh: false });
+        return;
+      }
       console.error('Training trajectory error:', err);
       const details = err?.details || err?.customData || {};
       const parsed = {
@@ -131,28 +158,28 @@ export default function GrandPrixPanel({ generationStatus }) {
         retryable: details.retryable !== false,
         message: err?.message || 'An error occurred.',
       };
-      if (forceRefresh && trajectoryData) {
+      if (trajectoryData) {
         setTrajectoryError({ ...parsed, message: 'Could not refresh. Showing previous results.' });
       } else {
         setTrajectoryError(parsed);
       }
     } finally {
-      setTrajectoryLoading(false);
-      setTrajectoryRefreshing(false);
+      if (!staleOk) {
+        setTrajectoryLoading(false);
+        setTrajectoryRefreshing(false);
+      }
     }
   }, [trajectoryData]);
 
-  // Load mental layer on mount (guard prevents infinite loop from fetchMental dependency cycle)
+  // Phase 1: Fast cache fetch on mount
   useEffect(() => {
-    if (!mentalData && !mentalLoading) {
-      fetchMental();
-    }
-  }, [mentalData, mentalLoading, fetchMental]);
+    fetchMental({ staleOk: true });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Load trajectory on first tab switch
+  // Load trajectory on first tab switch (with staleOk fast path)
   useEffect(() => {
     if (activeLayer === 'trajectory' && !trajectoryData && !trajectoryLoading) {
-      fetchTrajectory();
+      fetchTrajectory({ staleOk: true });
     }
   }, [activeLayer, trajectoryData, trajectoryLoading, fetchTrajectory]);
 
@@ -220,8 +247,9 @@ export default function GrandPrixPanel({ generationStatus }) {
         </div>
         <div className="gpt-panel__actions">
           {currentData?.generatedAt && (
-            <span className="panel-timestamp">
-              {currentData.fromCache && 'Cached \u00B7 '}
+            <span className={`panel-timestamp${(activeLayer === 'mental' ? mentalStale : trajectoryStale) ? ' panel-timestamp--stale' : ''}`}>
+              {(activeLayer === 'mental' ? mentalRefreshing : trajectoryRefreshing) && (activeLayer === 'mental' ? mentalStale : trajectoryStale) ? 'Updating... \u00B7 ' : ''}
+              {(activeLayer === 'mental' ? mentalStale : trajectoryStale) && !(activeLayer === 'mental' ? mentalRefreshing : trajectoryRefreshing) ? 'Updated ' : ''}
               {new Date(currentData.generatedAt).toLocaleDateString('en-US', {
                 month: 'short', day: 'numeric', year: 'numeric'
               })}
@@ -229,7 +257,7 @@ export default function GrandPrixPanel({ generationStatus }) {
           )}
           <button
             className="btn-refresh"
-            onClick={() => activeLayer === 'mental' ? fetchMental(true) : fetchTrajectory(true)}
+            onClick={() => activeLayer === 'mental' ? fetchMental({ forceRefresh: true }) : fetchTrajectory({ forceRefresh: true })}
             disabled={isLoading || mentalRefreshing || trajectoryRefreshing}
           >
             {isLoading || mentalRefreshing || trajectoryRefreshing ? 'Regenerating...' : 'Regenerate'}
@@ -273,14 +301,15 @@ export default function GrandPrixPanel({ generationStatus }) {
             message={err.message}
             category={err.category}
             retryable={err.retryable !== false}
-            onRetry={() => activeLayer === 'mental' ? fetchMental(true) : fetchTrajectory(true)}
+            onRetry={() => activeLayer === 'mental' ? fetchMental({ forceRefresh: true }) : fetchTrajectory({ forceRefresh: true })}
             retrying={isLoading}
           />
         );
       })()}
 
       {/* Staleness banner */}
-      {currentData?.fromCache && currentData?.dataSnapshot && (
+      {(activeLayer === 'mental' ? mentalStale : trajectoryStale) &&
+        !(activeLayer === 'mental' ? mentalRefreshing : trajectoryRefreshing) && (
         <div className="gpt-staleness-banner">
           Your dashboard reflects your data as of {new Date(currentData.generatedAt).toLocaleDateString()}.
           {' '}Click "Regenerate" to update with your latest rides and reflections.

@@ -117,7 +117,7 @@ async function handler(request) {
     // Fetch prep plan + rider data in parallel (needed by every step)
     const [eventPrepPlan, riderData] = await Promise.all([
       validateOwnership(collectionName, planId, uid),
-      prepareRiderData(uid),
+      prepareRiderData(uid, "eventPlanner"),
     ]);
 
     const hash = riderData.dataSnapshot?.hash;

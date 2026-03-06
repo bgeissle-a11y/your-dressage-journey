@@ -87,7 +87,7 @@ function aggregateMentalPatterns(rideHistory, selfAssessments, reflections) {
   // Cross-reference: does the rider's self-assessment match their ride data?
   let selfPerceptionAlignment = null;
   if (mental.hasAssessment && rideHistory.totalRides >= 5) {
-    const avgConfidence = rideHistory.averages.confidence;
+    const avgConfidence = rideHistory.averages.recentConfidence || rideHistory.averages.overallConfidence;
     const selfRatedMental = mental.selfRatings.mentalGame;
     const gap = Math.abs(avgConfidence - selfRatedMental);
     if (gap <= 1) {
