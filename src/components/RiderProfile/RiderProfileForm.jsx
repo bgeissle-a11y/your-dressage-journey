@@ -130,7 +130,7 @@ export default function RiderProfileForm() {
 
   function handleNumberChange(e) {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: parseInt(value, 10) || 1 }));
+    setFormData(prev => ({ ...prev, [name]: value === '' ? '' : (parseInt(value, 10) || 1) }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   }
 
@@ -144,7 +144,7 @@ export default function RiderProfileForm() {
     if (!formData.trainingTime) newErrors.trainingTime = 'Please select available training time';
     if (!formData.compLevel) newErrors.compLevel = 'Please select competition history';
     if (formData.ownership.length === 0) newErrors.ownership = 'Please select at least one';
-    if (!formData.numHorses || formData.numHorses < 1) newErrors.numHorses = 'Please enter number of horses';
+    if (formData.numHorses === '' || !formData.numHorses || formData.numHorses < 1) newErrors.numHorses = 'Please enter number of horses';
     if (!formData.whyRide.trim()) newErrors.whyRide = 'Please share why you ride';
     if (!formData.longTermGoals.trim()) newErrors.longTermGoals = 'Please share your long-term goals';
     setErrors(newErrors);

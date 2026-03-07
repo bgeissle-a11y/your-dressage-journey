@@ -95,6 +95,8 @@ export default function DebriefForm() {
     const result = await getAllHorseProfiles(currentUser.uid);
     if (result.success) {
       setHorseNames(result.data.map(h => h.horseName).filter(Boolean));
+    } else {
+      console.error('Failed to load horse profiles:', result.error);
     }
   }
 
@@ -267,19 +269,30 @@ export default function DebriefForm() {
                 <input type="date" name="rideDate" value={formData.rideDate} onChange={handleChange} disabled={loading} />
               </FormField>
               <FormField label="Horse" error={errors.horseName} helpText="Which horse did you ride?">
-                <input
-                  type="text"
-                  name="horseName"
-                  value={formData.horseName}
-                  onChange={handleChange}
-                  disabled={loading}
-                  className={errors.horseName ? 'error' : ''}
-                  placeholder="Horse name"
-                  list="horse-names"
-                />
-                <datalist id="horse-names">
-                  {horseNames.map(name => <option key={name} value={name} />)}
-                </datalist>
+                {horseNames.length > 0 ? (
+                  <select
+                    name="horseName"
+                    value={formData.horseName}
+                    onChange={handleChange}
+                    disabled={loading}
+                    className={errors.horseName ? 'error' : ''}
+                  >
+                    <option value="">Select a horse</option>
+                    {horseNames.map(name => (
+                      <option key={name} value={name}>{name}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    name="horseName"
+                    value={formData.horseName}
+                    onChange={handleChange}
+                    disabled={loading}
+                    className={errors.horseName ? 'error' : ''}
+                    placeholder="Horse name"
+                  />
+                )}
               </FormField>
             </div>
             <FormField label="Type of Session" error={errors.sessionType}>
