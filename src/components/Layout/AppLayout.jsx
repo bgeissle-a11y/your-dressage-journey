@@ -76,6 +76,13 @@ export default function AppLayout() {
               Insights
             </Link>
 
+            <Link
+              to="/quickstart"
+              className={`nav-link ${location.pathname === '/quickstart' ? 'active' : ''}`}
+            >
+              Quick Start
+            </Link>
+
             {/* Record Dropdown */}
             <div className="nav-dropdown">
               <button

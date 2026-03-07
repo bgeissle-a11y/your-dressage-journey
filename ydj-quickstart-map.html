@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Dressage Journey — Quick Start Map</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --parchment: #f5ede0;
+    --parchment-dark: #e8d9c4;
+    --ink: #2c1f14;
+    --ink-mid: #4a3220;
+    --ink-light: #5a3e2b;
+    --gold: #b8862a;
+    --gold-light: #d4a84b;
+    --gold-pale: #f0d89a;
+    --track: #8b6340;
+    --track-light: #c4956a;
+    /* OPTIONAL: warm plum — clearly not green, strong contrast on parchment */
+    --opt: #7a3f72;
+    --opt-bg: rgba(122,63,114,0.08);
+    --opt-border: rgba(122,63,114,0.35);
+    --branch-blue: #2e5c82;
+    --branch-purple: #5b3282;
+    --branch-rust: #7a3020;
+    --output-teal: #1e6b5a;
+    --node-size: 20px;
+    --you-are-here: #c83030;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--parchment);
+    color: var(--ink);
+    font-family: 'Work Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 840px;
+    margin: 0 auto;
+    padding: 40px 20px 60px;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    margin-bottom: 44px;
+    padding-bottom: 26px;
+    border-bottom: 2px solid var(--gold);
+    position: relative;
+  }
+  .header::after {
+    content: '✦';
+    position: absolute; bottom: -12px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--parchment); padding: 0 12px;
+    color: var(--gold); font-size: 16px;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(26px, 5vw, 38px); font-weight: 700;
+    color: var(--ink); letter-spacing: 0.5px; line-height: 1.2;
+  }
+  .header .subtitle {
+    font-size: 13px; font-weight: 500;
+    color: var(--ink-mid); letter-spacing: 2.5px;
+    text-transform: uppercase; margin-top: 8px;
+  }
+
+  /* LEGEND */
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 10px 22px;
+    justify-content: center; margin-bottom: 28px;
+    padding: 14px 20px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 8px; border: 1px solid var(--parchment-dark);
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 12.5px; font-weight: 500; color: var(--ink-mid);
+  }
+  .legend-dot  { width:13px; height:13px; border-radius:50%; flex-shrink:0; }
+  .legend-line { width:24px; height:3px; border-radius:2px; flex-shrink:0; }
+  .legend-dashed { width:24px; height:0; border-top:2.5px dashed; flex-shrink:0; }
+
+  /* YOU ARE HERE */
+  .yah-bar {
+    display: flex; align-items: center; gap: 10px; justify-content: center;
+    margin-bottom: 28px; padding: 10px 18px;
+    background: rgba(200,48,48,0.07);
+    border-radius: 8px; border: 1.5px solid rgba(200,48,48,0.25);
+    font-size: 13.5px; font-weight: 600; color: var(--you-are-here);
+  }
+  .yah-pin {
+    width:18px; height:18px;
+    background: var(--you-are-here);
+    border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
+    border: 2px solid white; box-shadow: 0 2px 6px rgba(200,48,48,0.4);
+    flex-shrink: 0; animation: pulse-pin 2s ease-in-out infinite;
+  }
+  @keyframes pulse-pin {
+    0%,100% { box-shadow: 0 2px 6px rgba(200,48,48,0.4); }
+    50%      { box-shadow: 0 2px 14px rgba(200,48,48,0.65); }
+  }
+
+  /* PROGRESS */
+  .progress-row { display:flex; align-items:center; gap:12px; margin-bottom:32px; }
+  .progress-label {
+    font-size:12px; font-weight:600; color:var(--ink-mid);
+    letter-spacing:1px; text-transform:uppercase; white-space:nowrap; width:110px;
+  }
+  .progress-bar { flex:1; height:7px; background:var(--parchment-dark); border-radius:4px; overflow:hidden; }
+  .progress-fill { height:100%; background:linear-gradient(90deg,var(--gold),var(--gold-light)); border-radius:4px; transition:width 0.4s ease; }
+  .progress-pct { font-size:13px; font-weight:700; color:var(--gold); width:40px; text-align:right; }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-size:10.5px; font-weight:700;
+    letter-spacing:2.5px; text-transform:uppercase;
+    color:var(--ink-light); text-align:center;
+    margin:8px 0 14px; opacity:0.65;
+  }
+
+  /* STATION */
+  .station { display:flex; align-items:flex-start; gap:0; position:relative; }
+  .station-col {
+    display:flex; flex-direction:column; align-items:center;
+    width:60px; flex-shrink:0; padding-top:14px;
+  }
+  .station-node {
+    width:var(--node-size); height:var(--node-size);
+    border-radius:50%; border:3px solid var(--track);
+    background:var(--parchment);
+    transition:all 0.25s ease; position:relative;
+    flex-shrink:0; cursor:pointer; z-index:2;
+  }
+  .station-node.done { background:var(--gold); border-color:var(--gold); }
+  .station-node.done::after {
+    content:'✓'; position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:10px; color:white; font-weight:700; line-height:1;
+  }
+  .station-node:hover { transform:scale(1.2); }
+  .down-line { width:4px; background:var(--track); border-radius:0 0 2px 2px; flex:1; min-height:20px; }
+
+  /* STATION CARD */
+  .station-card {
+    flex:1; margin-bottom:8px;
+    padding:15px 18px 14px;
+    background:white; border-radius:10px;
+    border:1.5px solid var(--parchment-dark);
+    transition:border-color 0.2s, box-shadow 0.2s;
+    box-shadow:0 1px 4px rgba(44,31,20,0.06);
+    cursor:pointer; user-select:none;
+  }
+  .station-card:hover { border-color:var(--gold-light); box-shadow:0 3px 12px rgba(184,134,42,0.14); }
+  .station-card.done { background:#faf8f4; border-color:var(--gold-pale); }
+
+  .step-tag {
+    font-size:10.5px; font-weight:700;
+    letter-spacing:1.8px; text-transform:uppercase;
+    color:var(--gold); margin-bottom:5px;
+  }
+  .step-tag.out-tag { color:var(--output-teal); }
+  .card-title {
+    font-family:'Playfair Display', serif;
+    font-size:17px; font-weight:600;
+    color:var(--ink); margin-bottom:5px; line-height:1.25;
+  }
+  .card-desc { font-size:13px; color:var(--ink-mid); line-height:1.55; }
+
+  /* Link button */
+  .card-link {
+    display:inline-flex; align-items:center; gap:5px;
+    margin-top:10px; font-size:12px; font-weight:600;
+    color:var(--gold); text-decoration:none;
+    padding:4px 10px;
+    border:1.5px solid var(--gold); border-radius:20px;
+    transition:background 0.2s, color 0.2s;
+  }
+  .card-link:hover { background:var(--gold); color:white; }
+  .card-link.out-link { color:var(--output-teal); border-color:var(--output-teal); }
+  .card-link.out-link:hover { background:var(--output-teal); color:white; }
+
+  /* TRACK CONNECTOR */
+  .connector { height:32px; position:relative; }
+  .connector::before {
+    content:''; position:absolute; left:50%; transform:translateX(-50%);
+    width:4px; top:0; bottom:0; background:var(--track); border-radius:2px;
+  }
+
+  /* OPTIONAL CLUSTER */
+  .opt-cluster { display:flex; gap:12px; margin-left:60px; margin-bottom:10px; flex-wrap:wrap; }
+  .opt-card {
+    flex:1; min-width:145px;
+    padding:12px 14px;
+    background:var(--opt-bg); border-radius:8px;
+    border:1.5px dashed var(--opt-border);
+    cursor:pointer; transition:all 0.2s; user-select:none;
+  }
+  .opt-card:hover { background:rgba(122,63,114,0.13); border-color:var(--opt); }
+  .opt-card.done { background:rgba(122,63,114,0.15); border-color:var(--opt); border-style:solid; }
+
+  .opt-node {
+    display:inline-block; width:11px; height:11px; border-radius:50%;
+    border:2px solid var(--opt); background:transparent;
+    vertical-align:middle; margin-right:6px;
+    transition:all 0.2s; flex-shrink:0;
+  }
+  .opt-node.done { background:var(--opt); }
+  .opt-title {
+    font-family:'Playfair Display', serif;
+    font-size:13.5px; font-weight:600; color:var(--opt); margin-bottom:3px;
+  }
+  .opt-desc { font-size:12px; color:var(--ink-mid); line-height:1.45; }
+  .opt-link-sm {
+    display:inline-flex; align-items:center; gap:4px;
+    margin-top:8px; font-size:11.5px; font-weight:600;
+    color:var(--opt); text-decoration:none;
+    padding:3px 9px;
+    border:1.5px solid var(--opt-border); border-radius:20px;
+    transition:background 0.2s, color 0.2s;
+  }
+  .opt-link-sm:hover { background:var(--opt); color:white; border-color:var(--opt); }
+
+  /* DUAL TRACK */
+  .dual-wrap { margin-left:60px; margin-bottom:8px; }
+  .dual-row { display:flex; gap:14px; }
+  .dual-card {
+    flex:1; padding:14px 16px;
+    border-radius:10px; border:2px solid var(--gold);
+    background:rgba(184,134,42,0.04);
+    cursor:pointer; transition:all 0.2s; user-select:none;
+  }
+  .dual-card:hover { background:rgba(184,134,42,0.09); box-shadow:0 3px 12px rgba(184,134,42,0.15); }
+  .dual-card.done { background:rgba(184,134,42,0.12); }
+
+  .dual-node {
+    display:inline-block; width:13px; height:13px;
+    border-radius:50%; border:2px solid var(--gold);
+    background:var(--parchment); vertical-align:middle;
+    margin-right:6px; transition:all 0.2s; cursor:pointer;
+  }
+  .dual-node.done { background:var(--gold); }
+  .dual-title {
+    font-family:'Playfair Display', serif;
+    font-size:15px; font-weight:600; color:var(--ink);
+    display:inline; vertical-align:middle;
+  }
+  .dual-count { font-size:28px; font-weight:700; color:var(--gold); font-family:'Playfair Display', serif; line-height:1; margin:6px 0 2px; }
+  .dual-sublabel { font-size:11.5px; color:var(--ink-mid); margin-bottom:8px; }
+  .dual-desc { font-size:12.5px; color:var(--ink-mid); line-height:1.5; }
+  .dual-note { margin-top:8px; padding:6px 10px; background:rgba(184,134,42,0.1); border-radius:5px; font-size:11.5px; color:#7a5a10; font-style:italic; }
+
+  /* TICKS */
+  .ticks { display:flex; gap:5px; margin-top:10px; flex-wrap:wrap; }
+  .tick {
+    width:26px; height:26px; border-radius:5px;
+    border:2px solid var(--gold); background:transparent;
+    cursor:pointer; transition:all 0.2s;
+    display:flex; align-items:center; justify-content:center;
+    font-size:10px; font-weight:600; color:var(--gold);
+  }
+  .tick.checked { background:var(--gold); color:white; }
+  .tick:hover { border-color:var(--gold-light); }
+
+  /* OUTPUTS ZONE */
+  .outputs-zone {
+    margin-left:60px; padding:18px 18px 16px;
+    background:linear-gradient(135deg,rgba(30,107,90,0.07) 0%,rgba(30,107,90,0.03) 100%);
+    border-radius:12px; border:2px solid rgba(30,107,90,0.3);
+    margin-bottom:8px; position:relative;
+  }
+  .outputs-zone::before {
+    content:'✦  REVIEW YOUR OUTPUTS  ✦';
+    position:absolute; top:-11px; left:50%; transform:translateX(-50%);
+    background:var(--parchment); padding:2px 14px;
+    font-size:9.5px; font-weight:700; letter-spacing:2px;
+    color:var(--output-teal); white-space:nowrap;
+  }
+  .outputs-row { display:flex; gap:10px; flex-wrap:wrap; }
+  .out-card {
+    flex:1; min-width:130px; padding:12px 13px;
+    background:white; border-radius:8px;
+    border:1.5px solid rgba(30,107,90,0.25);
+    box-shadow:0 2px 6px rgba(30,107,90,0.07);
+    text-decoration:none; display:block; transition:all 0.2s;
+  }
+  .out-card:hover {
+    border-color:var(--output-teal);
+    box-shadow:0 4px 14px rgba(30,107,90,0.15);
+    transform:translateY(-1px);
+  }
+  .out-icon { font-size:20px; margin-bottom:5px; }
+  .out-title { font-family:'Playfair Display', serif; font-size:14px; font-weight:600; color:var(--output-teal); margin-bottom:3px; }
+  .out-desc { font-size:12px; color:var(--ink-mid); line-height:1.45; }
+
+  /* CONTINUE LOOP */
+  .loop-box {
+    margin-left:60px; margin-bottom:0;
+    padding:12px 16px;
+    background:rgba(255,255,255,0.55);
+    border-radius:8px; border:1.5px dashed var(--track-light);
+    font-size:13px; color:var(--ink-mid);
+    display:flex; align-items:flex-start; gap:10px;
+  }
+  .loop-icon { font-size:22px; color:var(--track-light); margin-top:1px; flex-shrink:0; }
+
+  /* DIVERGE — uses border-top separation instead of a connecting line.
+     This is intentional: the three branch paths are NOT a continuation of the
+     main spine, so there is no track line connecting them. */
+  .diverge-wrap {
+    margin-top:36px; padding-top:28px;
+    border-top:2px solid var(--parchment-dark);
+    position:relative;
+  }
+  .diverge-wrap::before {
+    content:'EXPLORE FURTHER — CHOOSE YOUR PATH';
+    position:absolute; top:-11px; left:50%; transform:translateX(-50%);
+    background:var(--parchment); padding:2px 18px;
+    font-size:9.5px; font-weight:700; letter-spacing:2.5px;
+    color:var(--ink-mid); white-space:nowrap;
+  }
+  .diverge-note { text-align:center; font-size:13px; color:var(--ink-mid); margin-bottom:18px; line-height:1.5; }
+
+  /* BRANCHES */
+  .branches { display:flex; gap:14px; align-items:flex-start; }
+  .branch { flex:1; border-radius:12px; overflow:hidden; border:2px solid transparent; transition:all 0.2s; }
+  .branch:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.1); }
+
+  .branch-hdr { padding:12px 14px; display:flex; align-items:center; gap:8px; cursor:pointer; user-select:none; }
+  .branch-node {
+    width:14px; height:14px; border-radius:50%;
+    background:rgba(255,255,255,0.35); border:2px solid rgba(255,255,255,0.7);
+    flex-shrink:0; transition:all 0.2s; cursor:pointer;
+  }
+  .branch-node.done { background:rgba(255,255,255,0.85); }
+  .branch-title-txt { font-family:'Playfair Display', serif; font-size:14px; font-weight:700; color:white; line-height:1.2; }
+
+  .branch-body { padding:13px 14px; background:white; }
+  .branch-req { font-size:12px; color:var(--ink-mid); padding:7px 10px; background:var(--parchment); border-radius:6px; margin-bottom:10px; border-left:3px solid; line-height:1.45; }
+  .branch-desc { font-size:12.5px; color:var(--ink-mid); margin-bottom:10px; line-height:1.5; }
+  .branch-out { padding:10px 12px; border-radius:8px; display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+  .branch-out-icon { font-size:20px; }
+  .branch-out-title { font-family:'Playfair Display', serif; font-size:13.5px; font-weight:600; line-height:1.3; }
+  .branch-out-desc { font-size:11.5px; color:var(--ink-mid); margin-top:2px; line-height:1.4; }
+  .branch-link {
+    display:inline-flex; align-items:center; gap:5px;
+    font-size:12px; font-weight:600; text-decoration:none;
+    padding:5px 12px; border-radius:20px; border:2px solid;
+    transition:background 0.2s, color 0.2s;
+  }
+
+  /* Branch themes */
+  .b-purple { border-color:var(--branch-purple); }
+  .b-purple .branch-hdr  { background:var(--branch-purple); }
+  .b-purple .branch-req  { border-color:var(--branch-purple); }
+  .b-purple .branch-out  { background:rgba(91,50,130,0.07); }
+  .b-purple .branch-out-title { color:var(--branch-purple); }
+  .b-purple .branch-link { color:var(--branch-purple); border-color:var(--branch-purple); }
+  .b-purple .branch-link:hover { background:var(--branch-purple); color:white; }
+
+  .b-blue { border-color:var(--branch-blue); }
+  .b-blue .branch-hdr  { background:var(--branch-blue); }
+  .b-blue .branch-req  { border-color:var(--branch-blue); }
+  .b-blue .branch-out  { background:rgba(46,92,130,0.07); }
+  .b-blue .branch-out-title { color:var(--branch-blue); }
+  .b-blue .branch-link { color:var(--branch-blue); border-color:var(--branch-blue); }
+  .b-blue .branch-link:hover { background:var(--branch-blue); color:white; }
+
+  .b-rust { border-color:var(--branch-rust); }
+  .b-rust .branch-hdr  { background:var(--branch-rust); }
+  .b-rust .branch-req  { border-color:var(--branch-rust); }
+  .b-rust .branch-out  { background:rgba(122,48,32,0.07); }
+  .b-rust .branch-out-title { color:var(--branch-rust); }
+  .b-rust .branch-link { color:var(--branch-rust); border-color:var(--branch-rust); }
+  .b-rust .branch-link:hover { background:var(--branch-rust); color:white; }
+
+  /* FOOTER */
+  .footer-note { text-align:center; margin-top:36px; padding:16px 24px; background:rgba(255,255,255,0.5); border-radius:10px; border:1px solid var(--parchment-dark); font-size:13px; color:var(--ink-mid); line-height:1.6; }
+  .footer-note strong { color:var(--gold); font-weight:600; }
+
+  @media (max-width:600px) {
+    .dual-row, .branches, .opt-cluster, .outputs-row { flex-direction:column; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="subtitle">Quick Start Guide</div>
+    <h1>Your Dressage Journey</h1>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-line" style="background:var(--track)"></div>Required path
+    </div>
+    <div class="legend-item">
+      <div class="legend-dashed" style="border-color:var(--opt)"></div>
+      <span style="color:var(--opt)">Optional / any time</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--gold)"></div>Completed
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--you-are-here)"></div>You are here
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--output-teal)"></div>Output unlocked
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-row">
+    <div class="progress-label">Your progress</div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-pct" id="progressPct">0%</div>
+  </div>
+
+  <!-- YOU ARE HERE -->
+  <div class="yah-bar">
+    <div class="yah-pin"></div>
+    <span id="yahText">Start your journey — create your Rider Profile</span>
+  </div>
+
+
+  <!-- ════════════════ FOUNDATION ════════════════ -->
+  <div class="section-label">Foundation</div>
+
+  <!-- Step 1 -->
+  <div class="station" onclick="toggleStep('step1')">
+    <div class="station-col">
+      <div class="station-node" id="node-step1"></div>
+      <div class="down-line"></div>
+    </div>
+    <div class="station-card" id="card-step1">
+      <div class="step-tag">Step 1 · Required</div>
+      <div class="card-title">Create Your Rider Profile</div>
+      <div class="card-desc">Your background, goals, training history, and learning style. This context shapes everything that follows.</div>
+      <a class="card-link" href="rider-profile.html" target="_blank" onclick="event.stopPropagation()">→ Open Rider Profile</a>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="station" onclick="toggleStep('step2')">
+    <div class="station-col">
+      <div class="station-node" id="node-step2"></div>
+      <div class="down-line"></div>
+    </div>
+    <div class="station-card" id="card-step2">
+      <div class="step-tag">Step 2 · Required</div>
+      <div class="card-title">Create Your Horse Profile(s)</div>
+      <div class="card-desc">One profile per horse. Include movement tendencies, asymmetries, and your partnership history.</div>
+      <a class="card-link" href="horse-profile.html" target="_blank" onclick="event.stopPropagation()">→ Open Horse Profile</a>
+    </div>
+  </div>
+
+  <!-- Optional: Horse Health -->
+  <div class="opt-cluster">
+    <div class="opt-card" onclick="toggleOpt('optHealth')">
+      <div class="opt-title">
+        <span class="opt-node" id="opt-optHealth"></span>
+        Horse Health &amp; Soundness Log
+      </div>
+      <div class="opt-desc">Track health events, vet visits, bodywork, and soundness observations. Use at any time throughout your journey.</div>
+      <a class="opt-link-sm" href="#" onclick="event.stopPropagation()">→ Open Health Log</a>
+    </div>
+  </div>
+
+  <!-- Optional section header -->
+  <div style="margin-left:60px; margin-top:10px; margin-bottom:8px;">
+    <div style="font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--opt);">Optional · Available at any time</div>
+  </div>
+
+  <!-- Optional: Self-assessments -->
+  <div class="opt-cluster">
+    <div class="opt-card" onclick="toggleOpt('optAssessRider')">
+      <div class="opt-title">
+        <span class="opt-node" id="opt-optAssessRider"></span>
+        Rider Self-Assessment
+      </div>
+      <div class="opt-desc">Mental state, focus, and rider patterns.<br><strong style="color:var(--opt)">Required for Grand Prix Thinking path.</strong></div>
+      <a class="opt-link-sm" href="rider-self-assessment.html" target="_blank" onclick="event.stopPropagation()">→ Open Assessment</a>
+    </div>
+    <div class="opt-card" onclick="toggleOpt('optAssessPhys')">
+      <div class="opt-title">
+        <span class="opt-node" id="opt-optAssessPhys"></span>
+        Physical Self-Assessment
+      </div>
+      <div class="opt-desc">Body awareness and asymmetry mapping.<br><strong style="color:var(--opt)">Required for Physical Insights path.</strong></div>
+      <a class="opt-link-sm" href="physical-self-assessment.html" target="_blank" onclick="event.stopPropagation()">→ Open Assessment</a>
+    </div>
+  </div>
+  <!-- Row 2: Tech/Phil + Observations -->
+  <div class="opt-cluster" style="margin-top:8px;">
+    <div class="opt-card" onclick="toggleOpt('optTechPhil')">
+      <div class="opt-title">
+        <span class="opt-node" id="opt-optTechPhil"></span>
+        Technical &amp; Philosophical Assessment
+      </div>
+      <div class="opt-desc">Explore your riding philosophy, training values, and technical self-perception. Deepens the coaching dialogue.</div>
+      <a class="opt-link-sm" href="technical-philosophical-self-assessment.html" target="_blank" onclick="event.stopPropagation()">→ Open Assessment</a>
+    </div>
+    <div class="opt-card" onclick="toggleOpt('optObs')">
+      <div class="opt-title">
+        <span class="opt-node" id="opt-optObs"></span>
+        Observations of Others
+      </div>
+      <div class="opt-desc">Log insights from watching lessons, clinics, or other riders. Patterns here inform your coaching.</div>
+      <a class="opt-link-sm" href="observation-form.html" target="_blank" onclick="event.stopPropagation()">→ Open Form</a>
+    </div>
+  </div>
+  <!-- Row 3: Journey Event Log — centered -->
+  <div class="opt-cluster" style="margin-top:8px; margin-bottom:4px;">
+    <div class="opt-card" style="max-width:calc(50% - 6px);" onclick="toggleOpt('optEvents')">
+      <div class="opt-title">
+        <span class="opt-node" id="opt-optEvents"></span>
+        Journey Event Log
+      </div>
+      <div class="opt-desc">Record significant events shaping your journey — injury, life changes, breakthroughs, setbacks.</div>
+      <a class="opt-link-sm" href="journey-event-log.html" target="_blank" onclick="event.stopPropagation()">→ Open Log</a>
+    </div>
+  </div>
+
+  <!-- CONNECTOR -->
+  <div class="connector" style="margin-top:8px;"></div>
+
+  <!-- ════════════════ CORE PRACTICE ════════════════ -->
+  <div class="section-label">Core Practice — Two Parallel Tracks</div>
+
+  <div style="display:flex; align-items:flex-start; gap:0; margin-bottom:4px;">
+    <div class="station-col" style="padding-top:10px;">
+      <div class="station-node" id="node-dualtrack" style="border-color:var(--gold);"></div>
+      <div class="down-line"></div>
+    </div>
+    <div style="flex:1; padding-top:7px; padding-bottom:4px;">
+      <div class="step-tag">Step 3 · Required — Complete Both Tracks</div>
+      <div style="font-size:13px; color:var(--ink-mid);">These run in parallel. Work both as part of your regular training.</div>
+    </div>
+  </div>
+
+  <div class="dual-wrap">
+    <div class="dual-row">
+      <!-- Reflections -->
+      <div class="dual-card" id="dual-ref" onclick="toggleDual('ref')">
+        <div>
+          <span class="dual-node" id="dualnode-ref"></span>
+          <span class="dual-title">Journey Reflections</span>
+        </div>
+        <div class="dual-count">6</div>
+        <div class="dual-sublabel">one in each category</div>
+        <div class="dual-desc">Personal Milestone · External Validation · Aha Moment · Obstacle · Connection · Feel/Body Awareness</div>
+        <div class="ticks">
+          <div class="tick" title="Personal Milestone"  onclick="event.stopPropagation();toggleTick('ref',0)" id="tick-ref-0">PM</div>
+          <div class="tick" title="External Validation" onclick="event.stopPropagation();toggleTick('ref',1)" id="tick-ref-1">EV</div>
+          <div class="tick" title="Aha Moment"          onclick="event.stopPropagation();toggleTick('ref',2)" id="tick-ref-2">AH</div>
+          <div class="tick" title="Obstacle"            onclick="event.stopPropagation();toggleTick('ref',3)" id="tick-ref-3">OB</div>
+          <div class="tick" title="Connection"          onclick="event.stopPropagation();toggleTick('ref',4)" id="tick-ref-4">CO</div>
+          <div class="tick" title="Feel/Body"           onclick="event.stopPropagation();toggleTick('ref',5)" id="tick-ref-5">FB</div>
+        </div>
+        <a class="card-link" style="margin-top:10px; font-size:11.5px;" href="dressage-reflection-form.html" target="_blank" onclick="event.stopPropagation()">→ Open Reflection Form</a>
+      </div>
+      <!-- Debriefs -->
+      <div class="dual-card" id="dual-deb" onclick="toggleDual('deb')">
+        <div>
+          <span class="dual-node" id="dualnode-deb"></span>
+          <span class="dual-title">Ride Debriefs</span>
+        </div>
+        <div class="dual-count">5</div>
+        <div class="dual-sublabel">minimum to unlock outputs</div>
+        <div class="dual-desc">Post-ride reflection with intentions. Captures what you felt, noticed, and are working toward.</div>
+        <div class="dual-note">✎ Customize your intentions — don't keep the defaults. Make them specific to your current goals.</div>
+        <div class="ticks">
+          <div class="tick" onclick="event.stopPropagation();toggleTick('deb',0)" id="tick-deb-0">1</div>
+          <div class="tick" onclick="event.stopPropagation();toggleTick('deb',1)" id="tick-deb-1">2</div>
+          <div class="tick" onclick="event.stopPropagation();toggleTick('deb',2)" id="tick-deb-2">3</div>
+          <div class="tick" onclick="event.stopPropagation();toggleTick('deb',3)" id="tick-deb-3">4</div>
+          <div class="tick" onclick="event.stopPropagation();toggleTick('deb',4)" id="tick-deb-4">5</div>
+        </div>
+        <a class="card-link" style="margin-top:10px; font-size:11.5px;" href="post-ride-debrief-with-intentions.html" target="_blank" onclick="event.stopPropagation()">→ Open Debrief Form</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONNECTOR -->
+  <div class="connector" style="margin-top:8px;"></div>
+
+  <!-- ════════════════ OUTPUTS ════════════════ -->
+  <div class="section-label">Your First Outputs Unlocked</div>
+
+  <!-- Outputs station node — NO down-line; the main spine ends here -->
+  <div style="display:flex; align-items:flex-start; gap:0; margin-bottom:8px;">
+    <div class="station-col" style="padding-top:10px;">
+      <div class="station-node" id="node-outputs" style="border-color:var(--output-teal);"></div>
+      <!-- intentionally no .down-line here -->
+    </div>
+    <div style="flex:1; padding-top:7px;">
+      <div class="step-tag out-tag">Review Point — Pause &amp; Reflect</div>
+      <div style="font-size:13px; color:var(--ink-mid); margin-bottom:10px;">Three outputs are now available. Take time with each before continuing.</div>
+    </div>
+  </div>
+
+  <div class="outputs-zone">
+    <div class="outputs-row">
+      <a class="out-card" href="ydj-outputs-tips-and-faq.html" target="_blank">
+        <div class="out-icon">🗺</div>
+        <div class="out-title">Journey Map</div>
+        <div class="out-desc">Where you have been — a narrative arc of your training history.</div>
+      </a>
+      <a class="out-card" href="ydj-outputs-tips-and-faq.html" target="_blank">
+        <div class="out-icon">🧭</div>
+        <div class="out-title">Coaching Output</div>
+        <div class="out-desc">Four coaching voices offering insight and direction for what comes next.</div>
+      </a>
+      <a class="out-card" href="ydj-outputs-tips-and-faq.html" target="_blank">
+        <div class="out-icon">📊</div>
+        <div class="out-title">Data Visualization</div>
+        <div class="out-desc">A quantitative picture of your patterns and what the numbers reveal.</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Continue loop — sits below outputs, above the diverge section -->
+  <div class="loop-box" style="margin-top:12px;">
+    <div class="loop-icon">↺</div>
+    <div>
+      <strong style="color:var(--ink); font-size:13.5px;">Keep going — this is your ongoing practice.</strong>
+      <div style="margin-top:3px; font-size:12.5px; line-height:1.55;">Continue adding reflections, debriefs, observations, and events. Update your self-assessments as you evolve. Request updated outputs as your data grows — the more you add, the richer the analysis becomes.</div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════ DIVERGE — clean border separation, no spine line ════════════════ -->
+  <div class="diverge-wrap">
+
+    <div class="diverge-note">
+      These paths can be taken at any time once you have established your practice.<br>Each is independent of the others.
+    </div>
+
+    <div class="branches">
+
+      <!-- Mental -->
+      <div class="branch b-purple">
+        <div class="branch-hdr" onclick="toggleBranch('mental')">
+          <div class="branch-node" id="bnode-mental"></div>
+          <div class="branch-title-txt">Mental Skills Path</div>
+        </div>
+        <div class="branch-body">
+          <div class="branch-req">
+            <strong>Requires:</strong> Rider Self-Assessment (mental state) completed
+          </div>
+          <div class="branch-desc">Explore focus, nerves, competition mindset, and the inner game of riding.</div>
+          <div class="branch-out">
+            <div class="branch-out-icon">🏆</div>
+            <div>
+              <div class="branch-out-title">Grand Prix Thinking</div>
+              <div class="branch-out-desc">Mental performance paths + training trajectory — think like a Grand Prix rider at every level.</div>
+            </div>
+          </div>
+          <a class="branch-link" href="rider-self-assessment.html" target="_blank" onclick="event.stopPropagation()">→ Complete Assessment</a>
+        </div>
+      </div>
+
+      <!-- Physical -->
+      <div class="branch b-blue">
+        <div class="branch-hdr" onclick="toggleBranch('physical')">
+          <div class="branch-node" id="bnode-physical"></div>
+          <div class="branch-title-txt">Physical Insights Path</div>
+        </div>
+        <div class="branch-body">
+          <div class="branch-req">
+            <strong>Requires:</strong> Physical Self-Assessment completed
+          </div>
+          <div class="branch-desc">Understand how your body affects your riding — asymmetries, position patterns, physical development.</div>
+          <div class="branch-out">
+            <div class="branch-out-icon">⚖️</div>
+            <div>
+              <div class="branch-out-title">Physical Guidance</div>
+              <div class="branch-out-desc">Targeted insights on how your physical patterns show up in your riding and how to address them.</div>
+            </div>
+          </div>
+          <a class="branch-link" href="physical-self-assessment.html" target="_blank" onclick="event.stopPropagation()">→ Complete Assessment</a>
+        </div>
+      </div>
+
+      <!-- Show Planning -->
+      <div class="branch b-rust">
+        <div class="branch-hdr" onclick="toggleBranch('show')">
+          <div class="branch-node" id="bnode-show"></div>
+          <div class="branch-title-txt">Show Planning Path</div>
+        </div>
+        <div class="branch-body">
+          <div class="branch-req">
+            <strong>Requires:</strong> Basic rider &amp; horse profiles complete
+          </div>
+          <div class="branch-desc">Prepare for competition with structured show preparation — from schedule to mental readiness.</div>
+          <div class="branch-out">
+            <div class="branch-out-icon">📋</div>
+            <div>
+              <div class="branch-out-title">Detailed Show Plan</div>
+              <div class="branch-out-desc">Personalized competition plan: test strategy, warm-up, packing list, and readiness assessment.</div>
+            </div>
+          </div>
+          <a class="branch-link" href="event-preparation-form.html" target="_blank" onclick="event.stopPropagation()">→ Open Show Planner</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer-note">
+    <strong>Tap any step to mark it complete.</strong> Your "You Are Here" marker updates automatically.
+    Come back to this map any time you need a sense of where you stand and what comes next.
+  </div>
+
+</div>
+
+<script>
+  const state = {
+    step1:false, step2:false, outputs:false,
+    optHealth:false, optAssessRider:false, optAssessPhys:false, optTechPhil:false, optObs:false, optEvents:false,
+    ref:[false,false,false,false,false,false],
+    deb:[false,false,false,false,false],
+    mental:false, physical:false, show:false,
+  };
+
+  function toggleStep(id)     { state[id] = !state[id]; render(); }
+  function toggleOpt(id)      { state[id] = !state[id]; render(); }
+  function toggleBranch(id)   { state[id] = !state[id]; render(); }
+
+  function toggleDual(t) {
+    const all = state[t].every(Boolean);
+    state[t] = state[t].map(() => !all);
+    render();
+  }
+  function toggleTick(t, i) { state[t][i] = !state[t][i]; render(); }
+
+  const refDone  = () => state.ref.every(Boolean);
+  const debDone  = () => state.deb.every(Boolean);
+  const coreDone = () => refDone() && debDone();
+
+  function setNC(id, done, nodeColor) {
+    const n = document.getElementById('node-' + id);
+    const c = document.getElementById('card-' + id);
+    if (n) {
+      n.classList.toggle('done', done);
+      if (nodeColor) n.style.borderColor = nodeColor;
+    }
+    if (c) c.classList.toggle('done', done);
+  }
+
+  function render() {
+    if (coreDone()) state.outputs = true;
+
+    setNC('step1',    state.step1);
+    setNC('step2',    state.step2);
+    setNC('dualtrack',coreDone(), 'var(--gold)');
+    setNC('outputs',  state.outputs, 'var(--output-teal)');
+
+    ['optHealth','optAssessRider','optAssessPhys','optTechPhil','optObs','optEvents'].forEach(id => {
+      document.getElementById('opt-' + id)?.classList.toggle('done', state[id]);
+    });
+
+    ['ref','deb'].forEach(t => {
+      const done = t === 'ref' ? refDone() : debDone();
+      document.getElementById('dualnode-' + t)?.classList.toggle('done', done);
+      document.getElementById('dual-' + t)?.classList.toggle('done', done);
+    });
+
+    for (let i=0;i<6;i++) document.getElementById('tick-ref-'+i)?.classList.toggle('checked', state.ref[i]);
+    for (let i=0;i<5;i++) document.getElementById('tick-deb-'+i)?.classList.toggle('checked', state.deb[i]);
+
+    ['mental','physical','show'].forEach(b =>
+      document.getElementById('bnode-'+b)?.classList.toggle('done', state[b])
+    );
+
+    // YAH
+    let txt;
+    if (!state.step1)       txt = 'Start your journey — create your Rider Profile';
+    else if (!state.step2)  txt = 'Next: create your Horse Profile(s)';
+    else if (!coreDone()) {
+      const r = state.ref.filter(Boolean).length;
+      const d = state.deb.filter(Boolean).length;
+      txt = `Core practice in progress: ${r}/6 reflections · ${d}/5 debriefs`;
+    } else {
+      const paths = [state.mental && 'Grand Prix Thinking', state.physical && 'Physical Insights', state.show && 'Show Planning'].filter(Boolean);
+      txt = paths.length
+        ? 'Exploring: ' + paths.join(' · ')
+        : 'Outputs unlocked — keep riding and building your data, or explore a new path';
+    }
+    document.getElementById('yahText').textContent = txt;
+
+    // Progress
+    let done = (state.step1?1:0) + (state.step2?1:0) + state.ref.filter(Boolean).length + state.deb.filter(Boolean).length;
+    const pct = Math.round((done/14)*100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressPct').textContent = pct + '%';
+  }
+
+  render();
+</script>
+</body>
+</html>

@@ -129,10 +129,10 @@ export default function Dashboard() {
         <h1>Welcome back, {currentUser?.displayName || 'Rider'}!</h1>
       </div>
 
-      {/* Getting Started banner — shown when user has no debriefs yet */}
-      {stats && stats.debriefCount === 0 && (
-        <Link to="/tips-and-faq" className="dashboard-getting-started">
-          <strong>New here?</strong> Check out our Tips &amp; FAQ for a quick guide to getting the most from your journey.
+      {/* Quick Start Map banner — shown when core practice not yet complete */}
+      {stats && (stats.debriefCount < 5 || stats.categoryCoverage.covered < 6) && (
+        <Link to="/quickstart" className="dashboard-getting-started">
+          <strong>Quick Start Map</strong> See your progress and what to do next — a visual guide to your journey.
           <span className="getting-started-arrow">&rarr;</span>
         </Link>
       )}

@@ -11,6 +11,7 @@ import Dashboard from './pages/Dashboard';
 import Insights from './pages/Insights';
 import TipsAndFaq from './pages/TipsAndFaq';
 import OutputsTipsAndFaq from './pages/OutputsTipsAndFaq';
+import QuickStartMap from './components/QuickStartMap/QuickStartMap';
 import Home from './pages/Home';
 
 // Profile
@@ -76,6 +77,7 @@ function App() {
             <Route path="/insights" element={<Insights />} />
             <Route path="/tips-and-faq" element={<TipsAndFaq />} />
             <Route path="/outputs-tips-and-faq" element={<OutputsTipsAndFaq />} />
+            <Route path="/quickstart" element={<QuickStartMap />} />
 
             {/* Profile */}
             <Route path="/profile/rider" element={<RiderProfileForm />} />
