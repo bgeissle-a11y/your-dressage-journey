@@ -51,7 +51,8 @@ export {
   RIDER_ENERGY_LEVELS,
   HORSE_ENERGY_LEVELS,
   MENTAL_STATES,
-  MOVEMENT_CATEGORIES
+  MOVEMENT_CATEGORIES,
+  RIDE_ARC_OPTIONS
 } from './debriefService';
 
 // Journey events

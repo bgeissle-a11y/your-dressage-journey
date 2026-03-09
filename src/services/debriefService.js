@@ -23,6 +23,8 @@ const base = createBaseService(COLLECTION);
  *   horseNotices:     string  - optional, connection and feel observations
  *   challenges:       string  - optional, obstacles encountered
  *   workFocus:        string  - optional, what was specifically worked on
+ *   rideArc:          string  - required, "consistent"|"built"|"faded"|"peak"|"valley"|"variable"
+ *   rideArcNote:      string  - optional, what caused the shift
  *   isDraft:          boolean - true if saved as draft
  * }
  */
@@ -135,6 +137,16 @@ export const MOVEMENT_CATEGORIES = [
   }
 ];
 
+// Ride arc options (how the ride unfolded over time)
+export const RIDE_ARC_OPTIONS = [
+  { value: 'consistent', label: 'Consistent throughout', color: '#8B7355' },
+  { value: 'built', label: 'Rough start, finished strong', color: '#6B8E5F' },
+  { value: 'faded', label: 'Strong start, faded', color: '#C67B5C' },
+  { value: 'peak', label: 'Strong in the middle', color: '#D4A574' },
+  { value: 'valley', label: 'Rough patch, then recovered', color: '#D4A574' },
+  { value: 'variable', label: 'All over the place', color: '#9B8EC4' }
+];
+
 /**
  * Create a new post-ride debrief
  */
@@ -157,6 +169,8 @@ export async function createDebrief(userId, debriefData) {
     horseNotices: debriefData.horseNotices || '',
     challenges: debriefData.challenges || '',
     workFocus: debriefData.workFocus || '',
+    rideArc: debriefData.rideArc || null,
+    rideArcNote: debriefData.rideArcNote || null,
     isDraft: debriefData.isDraft || false
   });
 }

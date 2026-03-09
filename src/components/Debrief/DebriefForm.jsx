@@ -5,7 +5,7 @@ import {
   createDebrief, getDebrief, updateDebrief,
   getAllHorseProfiles,
   SESSION_TYPES, RIDER_ENERGY_LEVELS, HORSE_ENERGY_LEVELS, MENTAL_STATES,
-  MOVEMENT_CATEGORIES
+  MOVEMENT_CATEGORIES, RIDE_ARC_OPTIONS
 } from '../../services';
 import FormSection from '../Forms/FormSection';
 import FormField from '../Forms/FormField';
@@ -49,6 +49,23 @@ function saveIntentions(intentions) {
   } catch { /* ignore */ }
 }
 
+const ARC_SVGS = {
+  consistent: (color) => <polyline points="4,20 68,20" stroke={color} strokeWidth="3" strokeLinecap="round" fill="none"/>,
+  built: (color) => <polyline points="4,34 68,6" stroke={color} strokeWidth="3" strokeLinecap="round" fill="none"/>,
+  faded: (color) => <polyline points="4,6 68,34" stroke={color} strokeWidth="3" strokeLinecap="round" fill="none"/>,
+  peak: (color) => <polyline points="4,34 36,6 68,34" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none"/>,
+  valley: (color) => <polyline points="4,6 36,34 68,6" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none"/>,
+  variable: (color) => <path d="M4,20 C12,6 20,6 28,20 C36,34 44,34 52,20 C60,6 68,14 68,20" stroke={color} strokeWidth="3" strokeLinecap="round" fill="none"/>
+};
+
+function ArcSvg({ type, color }) {
+  return (
+    <svg className="arc-svg" viewBox="0 0 72 40" width="72" height="40">
+      {ARC_SVGS[type]?.(color)}
+    </svg>
+  );
+}
+
 export default function DebriefForm() {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
@@ -75,6 +92,8 @@ export default function DebriefForm() {
     mentalState: '',
     movements: [],
     intentionRatings: {},
+    rideArc: '',
+    rideArcNote: '',
     wins: '',
     ahaRealization: '',
     horseNotices: '',
@@ -83,6 +102,7 @@ export default function DebriefForm() {
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [overallQualityTouched, setOverallQualityTouched] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
 
   useEffect(() => {
@@ -119,12 +139,15 @@ export default function DebriefForm() {
         mentalState: d.mentalState || '',
         movements: d.movements || [],
         intentionRatings: d.intentionRatings || {},
+        rideArc: d.rideArc || '',
+        rideArcNote: d.rideArcNote || '',
         wins: d.wins || '',
         ahaRealization: d.ahaRealization || '',
         horseNotices: d.horseNotices || '',
         challenges: d.challenges || '',
         workFocus: d.workFocus || ''
       });
+      if (d.overallQuality != null) setOverallQualityTouched(true);
       // Merge any intentions from the saved debrief
       if (d.intentionRatings) {
         const debriefIntentions = Object.keys(d.intentionRatings);
@@ -220,6 +243,7 @@ export default function DebriefForm() {
     if (!formData.rideDate) newErrors.rideDate = 'Date is required';
     if (!formData.horseName.trim()) newErrors.horseName = 'Horse name is required';
     if (!formData.sessionType) newErrors.sessionType = 'Please select session type';
+    if (!formData.rideArc) newErrors.rideArc = 'Please select how your ride unfolded.';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
@@ -229,7 +253,11 @@ export default function DebriefForm() {
     if (!isDraft && !validateForm()) return;
 
     setLoading(true);
-    const data = { ...formData, isDraft };
+    const data = {
+      ...formData,
+      overallQuality: overallQualityTouched ? formData.overallQuality : null,
+      isDraft
+    };
 
     let result;
     if (isEdit) {
@@ -302,14 +330,17 @@ export default function DebriefForm() {
 
           {/* Section 2: Quick Ratings */}
           <FormSection title="Quick Ratings" description="Your immediate impressions -- there are no wrong answers.">
-            <FormField label={`Overall Ride Quality: ${formData.overallQuality}/10`}>
+            <FormField label={`Overall Ride Quality: ${formData.overallQuality}/10`} optional>
               <input
                 type="range"
                 name="overallQuality"
                 min="1"
                 max="10"
                 value={formData.overallQuality}
-                onChange={e => setFormData(prev => ({ ...prev, overallQuality: parseInt(e.target.value, 10) }))}
+                onChange={e => {
+                  setOverallQualityTouched(true);
+                  setFormData(prev => ({ ...prev, overallQuality: parseInt(e.target.value, 10) }));
+                }}
                 disabled={loading}
                 style={{ width: '100%', accentColor: '#8B7355' }}
               />
@@ -317,7 +348,48 @@ export default function DebriefForm() {
                 <span>Challenging/Frustrating</span><span>Excellent/Breakthrough</span>
               </div>
             </FormField>
-            <FormField label={`Confidence Level: ${formData.confidenceLevel}/10`} optional>
+
+            {/* Ride Arc Picker */}
+            <FormField label="How did the ride unfold?" error={errors.rideArc} helpText="Rides rarely stay the same from start to finish. Tap the shape that best describes your ride's arc.">
+              <div className="arc-grid">
+                {RIDE_ARC_OPTIONS.map(opt => (
+                  <label className={`arc-option${formData.rideArc === opt.value ? ' selected' : ''}`} key={opt.value}>
+                    <input
+                      type="radio"
+                      name="rideArc"
+                      value={opt.value}
+                      checked={formData.rideArc === opt.value}
+                      onChange={e => {
+                        setFormData(prev => ({ ...prev, rideArc: e.target.value }));
+                        if (errors.rideArc) setErrors(prev => ({ ...prev, rideArc: '' }));
+                      }}
+                      disabled={loading}
+                    />
+                    <div className="arc-card">
+                      <ArcSvg type={opt.value} color={opt.color} />
+                      <span className="arc-label">{opt.label}</span>
+                    </div>
+                  </label>
+                ))}
+              </div>
+              {formData.rideArc && formData.rideArc !== 'consistent' && (
+                <div className="shift-explain-wrapper">
+                  <label style={{ fontSize: '0.92em', color: '#7A7A7A', fontStyle: 'italic', fontWeight: 400, marginBottom: '0.5rem', display: 'block' }}>
+                    What caused the shift? <em style={{ fontWeight: 400 }}>(optional)</em>
+                  </label>
+                  <textarea
+                    name="rideArcNote"
+                    value={formData.rideArcNote}
+                    onChange={handleChange}
+                    disabled={loading}
+                    placeholder="e.g. We lost connection after the canter transition, but got it back once I softened my hip..."
+                    rows={3}
+                  />
+                </div>
+              )}
+            </FormField>
+
+            <FormField label={`Confidence in Your Ability to Execute: ${formData.confidenceLevel}/10`} optional helpText="Did your body follow through on what you asked? Rate how decisively you rode as intended — hesitation can come from many places.">
               <input
                 type="range"
                 name="confidenceLevel"
@@ -329,7 +401,7 @@ export default function DebriefForm() {
                 style={{ width: '100%', accentColor: '#8B7355' }}
               />
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#7A7A7A' }}>
-                <span>Very Low</span><span>Very High</span>
+                <span>Hesitant / unsure</span><span>Clear and committed</span>
               </div>
             </FormField>
             <FormField label="Energy/Effort Level" optional helpText="Rate the physical effort/energy for trend tracking.">

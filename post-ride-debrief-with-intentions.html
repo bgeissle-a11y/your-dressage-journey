@@ -846,6 +846,111 @@
         .debrief-library {
             animation: fadeIn 0.5s ease-out;
         }
+
+        /* ── Ride Arc Picker ── */
+        .arc-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 4px;
+        }
+        @media (max-width: 520px) {
+            .arc-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        .arc-option {
+            position: relative;
+            cursor: pointer;
+        }
+        .arc-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .arc-card {
+            border: 2px solid var(--color-border);
+            border-radius: 14px;
+            padding: 18px 12px 14px;
+            text-align: center;
+            transition: all 0.18s ease;
+            background: var(--color-bg);
+            user-select: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .arc-card:hover {
+            border-color: var(--color-secondary);
+            background: #FFFAF5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(139,115,85,0.12);
+        }
+        .arc-option input:checked + .arc-card {
+            border-color: var(--color-accent);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(198,123,92,0.18), 0 4px 18px rgba(139,115,85,0.14);
+            transform: translateY(-2px);
+        }
+        .arc-option input:checked + .arc-card .arc-label {
+            color: var(--color-accent);
+            font-weight: 600;
+        }
+        .arc-svg {
+            width: 72px;
+            height: 40px;
+            display: block;
+        }
+        .arc-label {
+            font-size: 0.82em;
+            color: var(--color-text);
+            font-weight: 500;
+            line-height: 1.3;
+            transition: color 0.18s;
+        }
+        .arc-check {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+            background: var(--color-accent);
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .arc-check svg { width: 12px; height: 12px; }
+        .arc-option input:checked ~ .arc-check {
+            display: flex;
+        }
+        .shift-explain-wrapper {
+            margin-top: 20px;
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.35s ease, opacity 0.25s ease;
+        }
+        .shift-explain-wrapper.visible {
+            max-height: 160px;
+            opacity: 1;
+        }
+        .shift-explain-inner {
+            padding-top: 4px;
+        }
+        .shift-explain-inner label {
+            font-size: 0.92em;
+            color: var(--color-text-light);
+            font-style: italic;
+            font-weight: 400;
+            margin-bottom: 8px;
+        }
+        .optional-tag {
+            font-size: 0.8em;
+            color: var(--color-text-light);
+            font-weight: 400;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -974,15 +1079,79 @@
                 </div>
 
                 <div class="question">
-                    <label>Overall ride quality <span class="required">*</span></label>
+                    <label>Overall ride quality <span class="optional-tag">(optional)</span></label>
                     <div class="scale-container">
                         <div class="scale-wrapper">
-                            <input type="range" id="overallQuality" min="1" max="10" value="5" required>
+                            <input type="range" id="overallQuality" min="1" max="10" value="5">
                             <span class="scale-value" id="qualityValue">5</span>
                         </div>
                         <div class="scale-labels">
                             <span class="scale-label">Challenging/Frustrating</span>
                             <span class="scale-label">Excellent/Breakthrough</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ride Arc Picker -->
+                <div class="question" id="arcQuestion">
+                    <label>How did the ride unfold? <span class="required">*</span></label>
+                    <div class="prompt-box">
+                        Rides rarely stay the same from start to finish. Tap the shape that best describes your ride's arc — did it build, fade, or surprise you?
+                    </div>
+                    <div class="arc-grid">
+                        <label class="arc-option">
+                            <input type="radio" name="rideArc" value="consistent">
+                            <div class="arc-card">
+                                <svg class="arc-svg" viewBox="0 0 72 40"><polyline points="4,20 68,20" stroke="#8B7355" stroke-width="3" stroke-linecap="round" fill="none"/></svg>
+                                <span class="arc-label">Consistent throughout</span>
+                            </div>
+                            <div class="arc-check"><svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                        </label>
+                        <label class="arc-option">
+                            <input type="radio" name="rideArc" value="built">
+                            <div class="arc-card">
+                                <svg class="arc-svg" viewBox="0 0 72 40"><polyline points="4,34 68,6" stroke="#6B8E5F" stroke-width="3" stroke-linecap="round" fill="none"/></svg>
+                                <span class="arc-label">Rough start, finished strong</span>
+                            </div>
+                            <div class="arc-check"><svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                        </label>
+                        <label class="arc-option">
+                            <input type="radio" name="rideArc" value="faded">
+                            <div class="arc-card">
+                                <svg class="arc-svg" viewBox="0 0 72 40"><polyline points="4,6 68,34" stroke="#C67B5C" stroke-width="3" stroke-linecap="round" fill="none"/></svg>
+                                <span class="arc-label">Strong start, faded</span>
+                            </div>
+                            <div class="arc-check"><svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                        </label>
+                        <label class="arc-option">
+                            <input type="radio" name="rideArc" value="peak">
+                            <div class="arc-card">
+                                <svg class="arc-svg" viewBox="0 0 72 40"><polyline points="4,34 36,6 68,34" stroke="#D4A574" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+                                <span class="arc-label">Strong in the middle</span>
+                            </div>
+                            <div class="arc-check"><svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                        </label>
+                        <label class="arc-option">
+                            <input type="radio" name="rideArc" value="valley">
+                            <div class="arc-card">
+                                <svg class="arc-svg" viewBox="0 0 72 40"><polyline points="4,6 36,34 68,6" stroke="#D4A574" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+                                <span class="arc-label">Rough patch, then recovered</span>
+                            </div>
+                            <div class="arc-check"><svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                        </label>
+                        <label class="arc-option">
+                            <input type="radio" name="rideArc" value="variable">
+                            <div class="arc-card">
+                                <svg class="arc-svg" viewBox="0 0 72 40"><path d="M4,20 C12,6 20,6 28,20 C36,34 44,34 52,20 C60,6 68,14 68,20" stroke="#9B8EC4" stroke-width="3" stroke-linecap="round" fill="none"/></svg>
+                                <span class="arc-label">All over the place</span>
+                            </div>
+                            <div class="arc-check"><svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                        </label>
+                    </div>
+                    <div class="shift-explain-wrapper" id="shiftExplainWrapper">
+                        <div class="shift-explain-inner">
+                            <label for="shiftExplain">What caused the shift? <em style="font-weight:400">(optional)</em></label>
+                            <textarea id="shiftExplain" placeholder="e.g. We lost connection after the canter transition, but got it back once I softened my hip…"></textarea>
                         </div>
                     </div>
                 </div>
@@ -1496,8 +1665,23 @@
         const qualitySlider = document.getElementById('overallQuality');
         const qualityValue = document.getElementById('qualityValue');
         
+        let overallQualityTouched = false;
         qualitySlider.addEventListener('input', function() {
             qualityValue.textContent = this.value;
+            overallQualityTouched = true;
+        });
+
+        // Ride arc picker
+        const arcRadios = document.querySelectorAll('input[name="rideArc"]');
+        const shiftWrapper = document.getElementById('shiftExplainWrapper');
+        arcRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                if (radio.value === 'consistent') {
+                    shiftWrapper.classList.remove('visible');
+                } else {
+                    shiftWrapper.classList.add('visible');
+                }
+            });
         });
 
         // Load horse names from previous debriefs
@@ -1531,7 +1715,7 @@
                 rideDate: document.getElementById('rideDate'),
                 horseName: document.getElementById('horseName'),
                 sessionType: document.querySelector('input[name="sessionType"]:checked'),
-                overallQuality: document.getElementById('overallQuality'),
+                rideArc: document.querySelector('input[name="rideArc"]:checked'),
                 riderEnergy: document.querySelector('input[name="riderEnergy"]:checked'),
                 horseEnergy: document.querySelector('input[name="horseEnergy"]:checked'),
                 mentalState: document.querySelector('input[name="mentalState"]:checked')
@@ -1540,8 +1724,12 @@
             if (!isDraft) {
                 for (let [key, field] of Object.entries(requiredFields)) {
                     if (!field || (field.tagName === 'INPUT' && field.type === 'text' && !field.value.trim())) {
-                        alert('Please fill in all required fields.');
-                        field.focus();
+                        if (key === 'rideArc') {
+                            alert('Please select how your ride unfolded.');
+                        } else {
+                            alert('Please fill in all required fields.');
+                        }
+                        if (field && field.focus) field.focus();
                         return false;
                     }
                 }
@@ -1559,7 +1747,9 @@
                 rideDate: document.getElementById('rideDate').value,
                 horseName: document.getElementById('horseName').value,
                 sessionType: document.querySelector('input[name="sessionType"]:checked')?.value || '',
-                overallQuality: document.getElementById('overallQuality').value,
+                overallQuality: overallQualityTouched ? document.getElementById('overallQuality').value : null,
+                rideArc: document.querySelector('input[name="rideArc"]:checked')?.value || null,
+                rideArcNote: document.getElementById('shiftExplain')?.value.trim() || null,
                 riderEnergy: document.querySelector('input[name="riderEnergy"]:checked')?.value || '',
                 horseEnergy: document.querySelector('input[name="horseEnergy"]:checked')?.value || '',
                 mentalState: document.querySelector('input[name="mentalState"]:checked')?.value || '',
@@ -1625,7 +1815,12 @@
                 qualitySlider.value = 5;
             }
             document.getElementById('qualityValue').textContent = '5';
-            
+            overallQualityTouched = false;
+
+            // Reset arc picker
+            document.getElementById('shiftExplainWrapper').classList.remove('visible');
+            document.getElementById('shiftExplain').value = '';
+
             // Show main form, hide other screens
             document.getElementById('mainForm').style.display = 'block';
             document.getElementById('completionScreen').classList.remove('active');
