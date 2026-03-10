@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson Notes | Your Dressage Journey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #8B7355;
+            --color-secondary: #D4A574;
+            --color-accent: #C67B5C;
+            --color-success: #6B8E5F;
+            --color-bg: #FAF8F5;
+            --color-bg-secondary: #F5F1EB;
+            --color-text: #3A3A3A;
+            --color-text-light: #7A7A7A;
+            --color-border: #E0D5C7;
+            --color-amber-bg: #FFF8EC;
+            --color-amber-border: #E8C97A;
+            --color-amber-text: #7A5C1E;
+            --shadow-soft: 0 2px 12px rgba(139, 115, 85, 0.08);
+            --shadow-medium: 0 4px 24px rgba(139, 115, 85, 0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background: linear-gradient(to bottom, var(--color-bg) 0%, var(--color-bg-secondary) 100%);
+            color: var(--color-text);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container { max-width: 800px; margin: 0 auto; }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 32px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--color-border);
+        }
+
+        .header-eyebrow {
+            font-size: 0.8em;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--color-secondary);
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.6em;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 1em;
+            color: var(--color-text-light);
+            font-weight: 400;
+            max-width: 480px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* Quick Access Nav */
+        .quick-access {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            padding: 9px 18px;
+            border: 2px solid var(--color-border);
+            border-radius: 50px;
+            background: white;
+            cursor: pointer;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.88em;
+            font-weight: 500;
+            color: var(--color-primary);
+            transition: all 0.25s ease;
+        }
+
+        .quick-btn:hover, .quick-btn.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        /* Form Container */
+        .form-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--color-border);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .section {
+            padding: 40px;
+            border-bottom: 2px solid var(--color-bg-secondary);
+        }
+
+        .section:last-of-type { border-bottom: none; }
+
+        .section-header {
+            margin-bottom: 30px;
+            padding-bottom: 18px;
+            border-bottom: 3px solid var(--color-secondary);
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.65em;
+            color: var(--color-primary);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .section-description {
+            color: var(--color-text-light);
+            font-size: 0.93em;
+            font-style: italic;
+        }
+
+        /* Questions */
+        .question { margin-bottom: 32px; }
+        .question:last-child { margin-bottom: 0; }
+
+        label {
+            display: block;
+            font-weight: 500;
+            font-size: 1.02em;
+            margin-bottom: 8px;
+            color: var(--color-text);
+        }
+
+        .required { color: var(--color-accent); margin-left: 3px; }
+
+        .help-text {
+            font-size: 0.88em;
+            color: var(--color-text-light);
+            margin-top: 6px;
+            font-style: italic;
+        }
+
+        /* Two-column grid for metadata */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .full-col { grid-column: 1 / -1; }
+
+        /* Inputs */
+        input[type="date"],
+        input[type="text"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 13px 16px;
+            border: 2px solid var(--color-border);
+            border-radius: 10px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1em;
+            background: white;
+            transition: all 0.3s ease;
+            color: var(--color-text);
+        }
+
+        input[type="date"]:focus,
+        input[type="text"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+        }
+
+        textarea {
+            min-height: 140px;
+            resize: vertical;
+            line-height: 1.65;
+        }
+
+        textarea.large { min-height: 220px; }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238B7355' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 40px;
+        }
+
+        /* Datalist input with suggestion indicator */
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon input {
+            padding-right: 42px;
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-secondary);
+            font-size: 0.9em;
+            pointer-events: none;
+        }
+
+        /* Prompt Box — warm amber, collapsible */
+        .prompt-box {
+            background: var(--color-amber-bg);
+            border: 1.5px solid var(--color-amber-border);
+            border-radius: 10px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .prompt-box-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .prompt-box-toggle span {
+            font-size: 0.88em;
+            font-weight: 600;
+            color: var(--color-amber-text);
+            letter-spacing: 0.03em;
+        }
+
+        .prompt-box-chevron {
+            font-size: 0.75em;
+            color: var(--color-amber-text);
+            transition: transform 0.25s ease;
+        }
+
+        .prompt-box.open .prompt-box-chevron { transform: rotate(180deg); }
+
+        .prompt-box-body {
+            display: none;
+            padding: 0 16px 14px;
+        }
+
+        .prompt-box.open .prompt-box-body { display: block; }
+
+        .prompt-box-body ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .prompt-box-body li {
+            font-size: 0.87em;
+            color: var(--color-amber-text);
+            padding-left: 14px;
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .prompt-box-body li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            font-size: 0.85em;
+        }
+
+        /* Voice Input */
+        .voice-input-container { position: relative; }
+
+        .voice-btn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--color-border);
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .voice-btn:hover { border-color: var(--color-primary); background: rgba(139, 115, 85, 0.05); }
+
+        .voice-btn.recording {
+            background: var(--color-accent);
+            border-color: var(--color-accent);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .voice-btn.recording svg { fill: white; }
+        .voice-btn svg { width: 20px; height: 20px; fill: var(--color-primary); }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .voice-input-container textarea { padding-right: 60px; }
+
+        .voice-status {
+            font-size: 0.85em;
+            color: var(--color-accent);
+            margin-top: 5px;
+            font-style: italic;
+            display: none;
+        }
+
+        .voice-status.active { display: block; }
+
+        /* Takeaways */
+        .takeaway-list { display: flex; flex-direction: column; gap: 14px; }
+
+        .takeaway-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .takeaway-number {
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+            border-radius: 50%;
+            background: var(--color-secondary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .takeaway-row input[type="text"] { flex: 1; }
+
+        /* Linked debrief section — subtle, optional */
+        .optional-link {
+            background: var(--color-bg-secondary);
+            border: 1.5px dashed var(--color-border);
+            border-radius: 10px;
+            padding: 18px 20px;
+        }
+
+        .optional-link-label {
+            font-size: 0.88em;
+            font-weight: 600;
+            color: var(--color-text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 10px;
+        }
+
+        /* Character counter */
+        .char-counter {
+            text-align: right;
+            font-size: 0.82em;
+            color: var(--color-text-light);
+            margin-top: 5px;
+        }
+
+        /* Lesson type chips */
+        .lesson-type-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .lesson-chip {
+            padding: 10px 16px;
+            border: 2px solid var(--color-border);
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.9em;
+            font-weight: 500;
+            color: var(--color-text);
+            background: white;
+            transition: all 0.25s ease;
+        }
+
+        .lesson-chip:hover { border-color: var(--color-secondary); }
+
+        .lesson-chip.selected {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 16px;
+            justify-content: flex-end;
+            padding: 30px 40px;
+            background: var(--color-bg-secondary);
+            border-top: 2px solid var(--color-border);
+        }
+
+        button {
+            padding: 14px 28px;
+            border-radius: 10px;
+            border: none;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(139, 115, 85, 0.25);
+        }
+
+        .btn-primary:hover {
+            background: #6F5C44;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(139, 115, 85, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--color-primary);
+            border: 2px solid var(--color-border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--color-primary);
+            background: rgba(139, 115, 85, 0.05);
+        }
+
+        /* Completion Screen */
+        .completion-screen {
+            display: none;
+            text-align: center;
+            padding: 60px 40px;
+        }
+
+        .completion-screen.active { display: block; }
+
+        .completion-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-secondary), var(--color-accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 2em;
+        }
+
+        .completion-screen h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2em;
+            color: var(--color-primary);
+            margin-bottom: 14px;
+            font-weight: 600;
+        }
+
+        .completion-screen p {
+            font-size: 1em;
+            color: var(--color-text-light);
+            margin-bottom: 10px;
+            line-height: 1.8;
+            max-width: 440px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .completion-meta {
+            background: var(--color-bg-secondary);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin: 24px auto;
+            max-width: 440px;
+            text-align: left;
+        }
+
+        .completion-meta-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.92em;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .completion-meta-row:last-child { border-bottom: none; }
+        .completion-meta-row span:first-child { color: var(--color-text-light); }
+        .completion-meta-row span:last-child { font-weight: 600; color: var(--color-primary); }
+
+        .completion-actions {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            margin-top: 28px;
+            flex-wrap: wrap;
+        }
+
+        /* Library View */
+        .library-view { display: none; animation: fadeIn 0.4s ease-out; }
+        .library-view.active { display: block; }
+
+        .library-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .library-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
+            color: var(--color-primary);
+        }
+
+        .library-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 2px solid var(--color-border);
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2em;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 4px;
+        }
+
+        .stat-label { color: var(--color-text-light); font-size: 0.88em; }
+
+        .note-card {
+            background: white;
+            border: 2px solid var(--color-border);
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .note-card:hover {
+            box-shadow: var(--shadow-soft);
+            border-color: var(--color-secondary);
+        }
+
+        .note-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 14px;
+        }
+
+        .note-card-meta h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2em;
+            color: var(--color-primary);
+            margin-bottom: 4px;
+        }
+
+        .note-card-meta p { font-size: 0.88em; color: var(--color-text-light); }
+
+        .lesson-type-badge {
+            padding: 5px 12px;
+            border-radius: 50px;
+            background: var(--color-bg-secondary);
+            font-size: 0.8em;
+            font-weight: 600;
+            color: var(--color-primary);
+            white-space: nowrap;
+        }
+
+        .note-takeaways {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .note-takeaway-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 0.9em;
+            color: var(--color-text);
+        }
+
+        .note-takeaway-num {
+            width: 20px;
+            height: 20px;
+            min-width: 20px;
+            border-radius: 50%;
+            background: var(--color-secondary);
+            color: white;
+            font-size: 0.75em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 30px;
+            color: var(--color-text-light);
+        }
+
+        .empty-state p { font-size: 1em; line-height: 1.8; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 640px) {
+            h1 { font-size: 2em; }
+            .section { padding: 28px 20px; }
+            .two-col { grid-template-columns: 1fr; gap: 16px; }
+            .button-group { flex-direction: column; padding: 24px 20px; }
+            .button-group button { width: 100%; }
+            .library-stats { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+            .stat-number { font-size: 1.7em; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <header>
+        <div class="header-eyebrow">Your Dressage Journey</div>
+        <h1>Lesson Notes</h1>
+        <p class="subtitle">Capture instructor guidance, transcribe lesson summaries, and reflect on what to carry into your next ride.</p>
+    </header>
+
+    <div class="quick-access">
+        <button class="quick-btn active" id="btnNew" onclick="showView('new')">+ New Entry</button>
+        <button class="quick-btn" id="btnLibrary" onclick="showView('library')">My Notes</button>
+    </div>
+
+    <!-- ==================== NEW ENTRY FORM ==================== -->
+    <div id="newEntryView">
+
+        <div class="form-container" id="mainForm">
+
+            <!-- Section 1: About This Lesson -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">About This Lesson</div>
+                    <div class="section-description">A few quick details so your notes stay organized and searchable over time.</div>
+                </div>
+
+                <div class="two-col">
+                    <div class="question">
+                        <label for="lessonDate">Date <span class="required">*</span></label>
+                        <input type="date" id="lessonDate">
+                    </div>
+
+                    <div class="question">
+                        <label for="horseSelect">Horse <span class="required">*</span></label>
+                        <select id="horseSelect">
+                            <option value="">Select horse...</option>
+                            <option value="rocket-star">Rocket Star</option>
+                            <option value="pony">Pony</option>
+                            <option value="astrid">Astrid</option>
+                            <option value="d">D</option>
+                        </select>
+                    </div>
+
+                    <div class="question">
+                        <label for="instructorName">Instructor <span class="required">*</span></label>
+                        <div class="input-with-icon">
+                            <input type="text" id="instructorName" list="instructorSuggestions" placeholder="e.g. Jane Smith" autocomplete="off">
+                            <span class="input-icon">↓</span>
+                        </div>
+                        <datalist id="instructorSuggestions"></datalist>
+                        <p class="help-text">Previous instructors will appear as suggestions.</p>
+                    </div>
+
+                    <div class="question full-col">
+                        <label>Lesson Type <span class="required">*</span></label>
+                        <div class="lesson-type-chips" id="lessonTypeChips">
+                            <button type="button" class="lesson-chip" data-value="in-person">In-person lesson</button>
+                            <button type="button" class="lesson-chip" data-value="clinic">Clinic</button>
+                            <button type="button" class="lesson-chip" data-value="video-lesson">Video lesson</button>
+                            <button type="button" class="lesson-chip" data-value="video-review">Video review of my ride</button>
+                            <button type="button" class="lesson-chip" data-value="other">Other</button>
+                        </div>
+                        <input type="hidden" id="lessonType" value="">
+                    </div>
+                </div>
+
+                <!-- Optional: Link to a debrief -->
+                <div class="question" style="margin-bottom:0;">
+                    <div class="optional-link">
+                        <div class="optional-link-label">Optional — Link to a Debrief Entry</div>
+                        <label for="linkedDebrief" style="font-size:0.93em; font-weight:400; color:var(--color-text-light); margin-bottom:8px;">Was this the same ride as a post-ride debrief you already logged?</label>
+                        <select id="linkedDebrief">
+                            <option value="">No linked debrief</option>
+                            <!-- Populated from localStorage debriefs -->
+                        </select>
+                        <p class="help-text">When linked, your coaching analysis can cross-reference what you felt with what your instructor saw.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Instructor Guidance -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">Instructor Guidance</div>
+                    <div class="section-description">Paste a transcription, type from memory, or dictate — whatever gets the guidance captured.</div>
+                </div>
+
+                <!-- Bucket 1: Movement Instructions -->
+                <div class="question">
+                    <label for="movementInstructions">Movement Instructions <span class="required">*</span></label>
+
+                    <div class="prompt-box open" id="movementsPromptBox">
+                        <div class="prompt-box-toggle" onclick="togglePromptBox('movementsPromptBox')">
+                            <span>✦ What to include</span>
+                            <span class="prompt-box-chevron">▼</span>
+                        </div>
+                        <div class="prompt-box-body">
+                            <ul>
+                                <li>Which movements and exercises you worked on (e.g. shoulder-in, half-pass, tempi changes, piaffe)</li>
+                                <li>Specific directions for performing each movement better (e.g. "leg yield out, really bend him on the right side")</li>
+                                <li>Figures, sequences, or patterns the instructor asked for (e.g. "travers out of a 10-meter circle")</li>
+                                <li>Any movements that were repeated or emphasized more than once</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="voice-input-container">
+                        <textarea class="large" id="movementInstructions" placeholder="e.g. Leg yield: told to really bend him during the right-side leg yield. Half-pass: maintain the movement all the way to the center line. Tempi changes: practiced 1s, 2s, and 3s..."></textarea>
+                        <button type="button" class="voice-btn" data-target="movementInstructions" title="Voice input">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                            </svg>
+                        </button>
+                        <div class="voice-status" id="movementInstructions-status">Listening...</div>
+                    </div>
+                    <div class="char-counter"><span id="movementInstructionsCount">0</span> characters</div>
+                </div>
+
+                <!-- Bucket 2: Instructional Cues & Corrections -->
+                <div class="question" style="margin-bottom:0;">
+                    <label for="cuesCorrections">Instructional Cues &amp; Corrections</label>
+
+                    <div class="prompt-box" id="cuesPromptBox">
+                        <div class="prompt-box-toggle" onclick="togglePromptBox('cuesPromptBox')">
+                            <span>✦ What to include</span>
+                            <span class="prompt-box-chevron">▼</span>
+                        </div>
+                        <div class="prompt-box-body">
+                            <ul>
+                                <li>Short verbal cues and reminders (e.g. "be accurate," "thumbs up," "inside leg to outside rein")</li>
+                                <li>Corrections to your position or aids (e.g. "hold with your back," "give the inside rein," "softer hand")</li>
+                                <li>Anything the instructor repeated — repetition is a pattern signal</li>
+                                <li>Positive feedback, even brief ("nice," "yes," "that's it") — these are data too</li>
+                                <li>Questions asked of you (e.g. "Did you feel that?")</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="voice-input-container">
+                        <textarea id="cuesCorrections" placeholder="e.g. Inside leg to outside rein. Hold with your back. Take your leg off and kick for the changes. Did you feel that?..."></textarea>
+                        <button type="button" class="voice-btn" data-target="cuesCorrections" title="Voice input">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                            </svg>
+                        </button>
+                        <div class="voice-status" id="cuesCorrections-status">Listening...</div>
+                    </div>
+                    <div class="char-counter"><span id="cuesCorrectionsCount">0</span> characters</div>
+                </div>
+            </div>
+
+            <!-- Section 3: Your Reflections -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">Your Reflections</div>
+                    <div class="section-description">Now that you've reviewed the guidance — what does it mean to you? What do you want to carry forward?</div>
+                </div>
+
+                <div class="question">
+                    <label for="riderReflections">What stands out as you review this?</label>
+
+                    <div class="prompt-box" id="reflectionsPromptBox">
+                        <div class="prompt-box-toggle" onclick="togglePromptBox('reflectionsPromptBox')">
+                            <span>✦ Prompts to get you thinking</span>
+                            <span class="prompt-box-chevron">▼</span>
+                        </div>
+                        <div class="prompt-box-body">
+                            <ul>
+                                <li>What surprised you when you read this back?</li>
+                                <li>What correction came up more than once — and does that feel familiar?</li>
+                                <li>Is there a gap between what the instructor described and what you felt in the moment?</li>
+                                <li>What are you most curious or uncertain about from this session?</li>
+                                <li>What do you want to remember to try on your own before the next lesson?</li>
+                                <li>Did any of the instructor's cues connect to something you've been working on for a long time?</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="voice-input-container">
+                        <textarea id="riderReflections" placeholder="Your thoughts, reactions, and intentions after reviewing this guidance..."></textarea>
+                        <button type="button" class="voice-btn" data-target="riderReflections" title="Voice input">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                            </svg>
+                        </button>
+                        <div class="voice-status" id="riderReflections-status">Listening...</div>
+                    </div>
+                </div>
+
+                <!-- Top 3 Takeaways -->
+                <div class="question" style="margin-bottom:0;">
+                    <label>My Top 3 Takeaways <span style="font-weight:400; color:var(--color-text-light);">(optional but powerful)</span></label>
+                    <p class="help-text" style="margin-bottom: 14px;">Distilling to three makes these actionable — and gives your AI coaching a clear signal about your priorities.</p>
+
+                    <div class="takeaway-list">
+                        <div class="takeaway-row">
+                            <div class="takeaway-number">1</div>
+                            <input type="text" id="takeaway1" placeholder="e.g. Timing of the kick in tempi changes">
+                        </div>
+                        <div class="takeaway-row">
+                            <div class="takeaway-number">2</div>
+                            <input type="text" id="takeaway2" placeholder="e.g. More bend in the right jaw during leg yield">
+                        </div>
+                        <div class="takeaway-row">
+                            <div class="takeaway-number">3</div>
+                            <input type="text" id="takeaway3" placeholder="e.g. Hold with the back through collection transitions">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Button group -->
+            <div class="button-group">
+                <button type="button" class="btn-secondary" onclick="saveDraft()">Save Draft</button>
+                <button type="button" class="btn-primary" onclick="submitForm()">Save Lesson Notes</button>
+            </div>
+        </div>
+
+        <!-- Completion Screen -->
+        <div class="form-container completion-screen" id="completionScreen">
+            <div class="completion-icon">✓</div>
+            <h2>Lesson Notes Saved</h2>
+            <p>Your instructor guidance and reflections have been added to your journey data and are ready for coaching analysis.</p>
+
+            <div class="completion-meta" id="completionMeta">
+                <!-- Populated by JS -->
+            </div>
+
+            <div class="completion-actions">
+                <button class="btn-secondary" onclick="resetForm()">Log Another</button>
+                <button class="btn-primary" onclick="showView('library')">View My Notes</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ==================== LIBRARY VIEW ==================== -->
+    <div id="libraryView" class="library-view">
+
+        <div class="library-header">
+            <div class="library-title">My Lesson Notes</div>
+            <button class="btn-primary" onclick="showView('new')" style="padding: 10px 20px; font-size:0.9em;">+ New Entry</button>
+        </div>
+
+        <div class="library-stats" id="libraryStats">
+            <div class="stat-card">
+                <div class="stat-number" id="statTotal">0</div>
+                <div class="stat-label">Total Entries</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="statInstructors">0</div>
+                <div class="stat-label">Instructors</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="statHorses">0</div>
+                <div class="stat-label">Horses</div>
+            </div>
+        </div>
+
+        <div id="notesList"></div>
+
+    </div>
+
+</div>
+
+<script>
+    // ========== STATE ==========
+    let lessonTypeSelected = '';
+    let currentVoiceTarget = null;
+    let recognition = null;
+
+    // ========== INIT ==========
+    document.addEventListener('DOMContentLoaded', () => {
+        // Set today's date
+        document.getElementById('lessonDate').value = new Date().toISOString().split('T')[0];
+
+        // Load instructor suggestions from localStorage
+        populateInstructorSuggestions();
+
+        // Populate linked debrief options from localStorage debriefs
+        populateLinkedDebriefs();
+
+        // Lesson type chips
+        document.querySelectorAll('.lesson-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                document.querySelectorAll('.lesson-chip').forEach(c => c.classList.remove('selected'));
+                chip.classList.add('selected');
+                lessonTypeSelected = chip.dataset.value;
+                document.getElementById('lessonType').value = lessonTypeSelected;
+            });
+        });
+
+        // Character counters
+        document.getElementById('movementInstructions').addEventListener('input', function() {
+            document.getElementById('movementInstructionsCount').textContent = this.value.length;
+        });
+        document.getElementById('cuesCorrections').addEventListener('input', function() {
+            document.getElementById('cuesCorrectionsCount').textContent = this.value.length;
+        });
+
+        // Voice buttons
+        setupVoiceInput();
+
+        // Load draft if exists
+        loadDraft();
+
+        // Check for view param
+        renderLibrary();
+    });
+
+    // ========== VIEW MANAGEMENT ==========
+    function showView(view) {
+        document.getElementById('newEntryView').style.display = view === 'new' ? 'block' : 'none';
+        document.getElementById('libraryView').style.display = view === 'library' ? 'block' : 'none';
+
+        document.getElementById('btnNew').classList.toggle('active', view === 'new');
+        document.getElementById('btnLibrary').classList.toggle('active', view === 'library');
+
+        if (view === 'library') renderLibrary();
+    }
+
+    // ========== PROMPT BOX TOGGLE ==========
+    function togglePromptBox(id) {
+        const box = document.getElementById(id);
+        box.classList.toggle('open');
+    }
+
+    // ========== VOICE INPUT ==========
+    function setupVoiceInput() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            document.querySelectorAll('.voice-btn').forEach(b => b.style.display = 'none');
+            return;
+        }
+
+        document.querySelectorAll('.voice-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const targetId = this.dataset.target;
+                if (currentVoiceTarget === targetId) {
+                    stopVoice();
+                    return;
+                }
+                if (recognition) recognition.stop();
+                startVoice(targetId, btn);
+            });
+        });
+    }
+
+    function startVoice(targetId, btn) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        currentVoiceTarget = targetId;
+        btn.classList.add('recording');
+        document.getElementById(targetId + '-status').classList.add('active');
+
+        recognition.onresult = (e) => {
+            const transcript = Array.from(e.results).map(r => r[0].transcript).join(' ');
+            const el = document.getElementById(targetId);
+            el.value = (el.value ? el.value + ' ' : '') + transcript;
+            if (targetId === 'transcript') {
+                document.getElementById('transcriptCount').textContent = el.value.length;
+            }
+        };
+
+        recognition.onend = () => {
+            btn.classList.remove('recording');
+            document.getElementById(targetId + '-status').classList.remove('active');
+            currentVoiceTarget = null;
+        };
+
+        recognition.start();
+    }
+
+    function stopVoice() {
+        if (recognition) recognition.stop();
+    }
+
+    // ========== INSTRUCTOR SUGGESTIONS ==========
+    function populateInstructorSuggestions() {
+        const notes = getLessonNotes();
+        const instructors = [...new Set(notes.map(n => n.instructorName).filter(Boolean))];
+        const datalist = document.getElementById('instructorSuggestions');
+        datalist.innerHTML = instructors.map(i => `<option value="${i}">`).join('');
+    }
+
+    // ========== LINKED DEBRIEFS ==========
+    function populateLinkedDebriefs() {
+        try {
+            const debriefs = JSON.parse(localStorage.getItem('ydj_debriefs') || '[]');
+            const select = document.getElementById('linkedDebrief');
+            debriefs.slice(0, 30).forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d.id || d.date;
+                opt.textContent = `${d.date || 'Unknown date'} — ${d.horseName || d.horse || 'Unknown horse'}`;
+                select.appendChild(opt);
+            });
+        } catch(e) {}
+    }
+
+    // ========== DRAFT SAVE/LOAD ==========
+    function saveDraft() {
+        const data = collectFormData();
+        data.isDraft = true;
+        localStorage.setItem('ydj_lesson_notes_draft', JSON.stringify(data));
+        showToast('Draft saved');
+    }
+
+    function loadDraft() {
+        try {
+            const draft = JSON.parse(localStorage.getItem('ydj_lesson_notes_draft') || 'null');
+            if (!draft || !draft.isDraft) return;
+            populateForm(draft);
+        } catch(e) {}
+    }
+
+    function populateForm(data) {
+        if (data.lessonDate) document.getElementById('lessonDate').value = data.lessonDate;
+        if (data.horseId) document.getElementById('horseSelect').value = data.horseId;
+        if (data.instructorName) document.getElementById('instructorName').value = data.instructorName;
+        if (data.lessonType) {
+            lessonTypeSelected = data.lessonType;
+            document.querySelectorAll('.lesson-chip').forEach(c => {
+                c.classList.toggle('selected', c.dataset.value === data.lessonType);
+            });
+            document.getElementById('lessonType').value = data.lessonType;
+        }
+        if (data.linkedDebriefId) document.getElementById('linkedDebrief').value = data.linkedDebriefId;
+        if (data.movementInstructions) {
+            document.getElementById('movementInstructions').value = data.movementInstructions;
+            document.getElementById('movementInstructionsCount').textContent = data.movementInstructions.length;
+        }
+        if (data.cuesCorrections) {
+            document.getElementById('cuesCorrections').value = data.cuesCorrections;
+            document.getElementById('cuesCorrectionsCount').textContent = data.cuesCorrections.length;
+        }
+        if (data.riderReflections) document.getElementById('riderReflections').value = data.riderReflections;
+        if (data.takeaways) {
+            data.takeaways.forEach((t, i) => {
+                const el = document.getElementById(`takeaway${i + 1}`);
+                if (el) el.value = t;
+            });
+        }
+    }
+
+    // ========== FORM SUBMISSION ==========
+    function collectFormData() {
+        return {
+            lessonDate: document.getElementById('lessonDate').value,
+            horseId: document.getElementById('horseSelect').value,
+            horseName: document.getElementById('horseSelect').options[document.getElementById('horseSelect').selectedIndex]?.text || '',
+            instructorName: document.getElementById('instructorName').value.trim(),
+            lessonType: document.getElementById('lessonType').value,
+            linkedDebriefId: document.getElementById('linkedDebrief').value || null,
+            movementInstructions: document.getElementById('movementInstructions').value.trim(),
+            cuesCorrections: document.getElementById('cuesCorrections').value.trim(),
+            riderReflections: document.getElementById('riderReflections').value.trim(),
+            takeaways: [
+                document.getElementById('takeaway1').value.trim(),
+                document.getElementById('takeaway2').value.trim(),
+                document.getElementById('takeaway3').value.trim(),
+            ].filter(Boolean),
+            createdAt: new Date().toISOString(),
+        };
+    }
+
+    function validateForm(data) {
+        if (!data.lessonDate) return 'Please enter the lesson date.';
+        if (!data.horseId) return 'Please select a horse.';
+        if (!data.instructorName) return 'Please enter the instructor\'s name.';
+        if (!data.lessonType) return 'Please select a lesson type.';
+        if (!data.movementInstructions) return 'Please add movement instructions before saving.';
+        return null;
+    }
+
+    function submitForm() {
+        const data = collectFormData();
+        const error = validateForm(data);
+        if (error) { showToast(error, true); return; }
+
+        // Generate ID
+        data.id = 'lesson_' + Date.now();
+
+        // Save to localStorage
+        const notes = getLessonNotes();
+        notes.unshift(data);
+        localStorage.setItem('ydj_lesson_notes', JSON.stringify(notes));
+
+        // Save instructor to history
+        saveInstructorToHistory(data.instructorName);
+
+        // Clear draft
+        localStorage.removeItem('ydj_lesson_notes_draft');
+
+        // Show completion screen
+        showCompletionScreen(data);
+    }
+
+    function showCompletionScreen(data) {
+        document.getElementById('mainForm').style.display = 'none';
+        const screen = document.getElementById('completionScreen');
+        screen.classList.add('active');
+
+        const lessonTypeLabels = {
+            'in-person': 'In-person lesson',
+            'clinic': 'Clinic',
+            'video-lesson': 'Video lesson',
+            'video-review': 'Video review of my ride',
+            'other': 'Other'
+        };
+
+        document.getElementById('completionMeta').innerHTML = `
+            <div class="completion-meta-row">
+                <span>Date</span>
+                <span>${formatDate(data.lessonDate)}</span>
+            </div>
+            <div class="completion-meta-row">
+                <span>Horse</span>
+                <span>${data.horseName}</span>
+            </div>
+            <div class="completion-meta-row">
+                <span>Instructor</span>
+                <span>${data.instructorName}</span>
+            </div>
+            <div class="completion-meta-row">
+                <span>Type</span>
+                <span>${lessonTypeLabels[data.lessonType] || data.lessonType}</span>
+            </div>
+            ${data.takeaways.length ? `
+            <div class="completion-meta-row">
+                <span>Takeaways captured</span>
+                <span>${data.takeaways.length}</span>
+            </div>` : ''}
+        `;
+    }
+
+    function resetForm() {
+        document.getElementById('mainForm').style.display = 'block';
+        document.getElementById('completionScreen').classList.remove('active');
+        document.getElementById('mainForm').reset();
+        document.querySelectorAll('.lesson-chip').forEach(c => c.classList.remove('selected'));
+        lessonTypeSelected = '';
+        document.getElementById('lessonType').value = '';
+        document.getElementById('lessonDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('movementInstructionsCount').textContent = '0';
+        document.getElementById('cuesCorrectionsCount').textContent = '0';
+        populateInstructorSuggestions();
+    }
+
+    // ========== LOCAL STORAGE HELPERS ==========
+    function getLessonNotes() {
+        try { return JSON.parse(localStorage.getItem('ydj_lesson_notes') || '[]'); }
+        catch(e) { return []; }
+    }
+
+    function saveInstructorToHistory(name) {
+        if (!name) return;
+        const notes = getLessonNotes();
+        // Already saved in notes; autocomplete is derived from notes so nothing extra needed
+    }
+
+    // ========== LIBRARY ==========
+    function renderLibrary() {
+        const notes = getLessonNotes();
+        const lessonTypeLabels = {
+            'in-person': 'In-person lesson',
+            'clinic': 'Clinic',
+            'video-lesson': 'Video lesson',
+            'video-review': 'Video review',
+            'other': 'Other'
+        };
+
+        // Stats
+        const instructors = new Set(notes.map(n => n.instructorName).filter(Boolean));
+        const horses = new Set(notes.map(n => n.horseId).filter(Boolean));
+        document.getElementById('statTotal').textContent = notes.length;
+        document.getElementById('statInstructors').textContent = instructors.size;
+        document.getElementById('statHorses').textContent = horses.size;
+
+        const list = document.getElementById('notesList');
+
+        if (notes.length === 0) {
+            list.innerHTML = `
+                <div class="empty-state">
+                    <p>No lesson notes yet.<br>Add your first entry to start building your coaching library.</p>
+                </div>`;
+            return;
+        }
+
+        list.innerHTML = notes.map(n => `
+            <div class="note-card">
+                <div class="note-card-header">
+                    <div class="note-card-meta">
+                        <h3>${formatDate(n.lessonDate)} — ${escHtml(n.instructorName)}</h3>
+                        <p>${escHtml(n.horseName)}${n.linkedDebriefId ? ' · Linked to debrief' : ''}</p>
+                    </div>
+                    <span class="lesson-type-badge">${lessonTypeLabels[n.lessonType] || n.lessonType}</span>
+                </div>
+                ${n.takeaways && n.takeaways.length ? `
+                <div class="note-takeaways">
+                    ${n.takeaways.map((t, i) => `
+                        <div class="note-takeaway-item">
+                            <div class="note-takeaway-num">${i + 1}</div>
+                            <span>${escHtml(t)}</span>
+                        </div>`).join('')}
+                </div>` : n.movementInstructions ? `<p style="font-size:0.9em; color:var(--color-text-light); margin-top:4px;">${escHtml(n.movementInstructions.substring(0, 160))}${n.movementInstructions.length > 160 ? '...' : ''}</p>` : ''}
+            </div>
+        `).join('');
+    }
+
+    // ========== TOAST ==========
+    function showToast(msg, isError = false) {
+        const existing = document.querySelector('.toast');
+        if (existing) existing.remove();
+
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = msg;
+        toast.style.cssText = `
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+            background: ${isError ? '#C67B5C' : '#6B8E5F'}; color: white;
+            padding: 12px 24px; border-radius: 50px; font-family: 'Work Sans', sans-serif;
+            font-size: 0.92em; font-weight: 500; box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            z-index: 9999; animation: fadeIn 0.3s ease-out;
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3200);
+    }
+
+    // ========== UTILS ==========
+    function formatDate(dateStr) {
+        if (!dateStr) return '';
+        const [y, m, d] = dateStr.split('-');
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        return `${months[parseInt(m) - 1]} ${parseInt(d)}, ${y}`;
+    }
+
+    function escHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+</script>
+</body>
+</html>
