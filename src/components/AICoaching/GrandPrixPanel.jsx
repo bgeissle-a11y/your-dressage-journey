@@ -109,10 +109,8 @@ export default function GrandPrixPanel({ generationStatus }) {
         setMentalError(parsed);
       }
     } finally {
-      if (!staleOk) {
-        setMentalLoading(false);
-        setMentalRefreshing(false);
-      }
+      setMentalLoading(false);
+      setMentalRefreshing(false);
     }
   }, [mentalData]);
 
@@ -164,10 +162,8 @@ export default function GrandPrixPanel({ generationStatus }) {
         setTrajectoryError(parsed);
       }
     } finally {
-      if (!staleOk) {
-        setTrajectoryLoading(false);
-        setTrajectoryRefreshing(false);
-      }
+      setTrajectoryLoading(false);
+      setTrajectoryRefreshing(false);
     }
   }, [trajectoryData]);
 

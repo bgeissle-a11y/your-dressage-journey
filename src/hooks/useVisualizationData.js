@@ -124,9 +124,7 @@ export default function useVisualizationData() {
         retryable: details.retryable !== false,
       });
     } finally {
-      if (!staleOk) {
-        setAiLoading(false);
-      }
+      setAiLoading(false);
     }
   }, []);
 

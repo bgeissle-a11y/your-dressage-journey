@@ -73,10 +73,8 @@ export default function JourneyMapPanel({ generationStatus }) {
         setError(parsed);
       }
     } finally {
-      if (!staleOk) {
-        setLoading(false);
-        setRefreshing(false);
-      }
+      setLoading(false);
+      setRefreshing(false);
     }
   }, [data]);
 
