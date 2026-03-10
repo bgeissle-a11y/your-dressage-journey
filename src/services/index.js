@@ -153,6 +153,18 @@ export {
   RIDER_SKILL_SCALES
 } from './technicalPhilosophicalService';
 
+// Lesson notes
+export {
+  createLessonNote,
+  getLessonNote,
+  getAllLessonNotes,
+  getLessonNotesByHorse,
+  getLessonNotesByInstructor,
+  updateLessonNote,
+  deleteLessonNote,
+  LESSON_TYPES
+} from './lessonNotesService';
+
 // Horse health & soundness
 export {
   createHealthEntry,

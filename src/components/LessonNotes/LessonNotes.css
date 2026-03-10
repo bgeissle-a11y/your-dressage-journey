@@ -1,0 +1,366 @@
+/* Lesson Notes — specific styles */
+
+/* Lesson type chips */
+.lesson-type-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.lesson-chip {
+  padding: 10px 16px;
+  border: 2px solid #E0D5C7;
+  border-radius: 50px;
+  cursor: pointer;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.9em;
+  font-weight: 500;
+  color: #3A3A3A;
+  background: white;
+  transition: all 0.25s ease;
+}
+
+.lesson-chip:hover {
+  border-color: #D4A574;
+}
+
+.lesson-chip.selected {
+  background: #8B7355;
+  color: white;
+  border-color: #8B7355;
+}
+
+/* Prompt box — warm amber, collapsible */
+.prompt-box {
+  background: #FFF8EC;
+  border: 1.5px solid #E8C97A;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.prompt-box-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+  user-select: none;
+  border: none;
+  background: transparent;
+  width: 100%;
+  font-family: 'Work Sans', sans-serif;
+}
+
+.prompt-box-toggle span {
+  font-size: 0.88em;
+  font-weight: 600;
+  color: #7A5C1E;
+  letter-spacing: 0.03em;
+}
+
+.prompt-box-chevron {
+  font-size: 0.75em;
+  color: #7A5C1E;
+  transition: transform 0.25s ease;
+}
+
+.prompt-box.open .prompt-box-chevron {
+  transform: rotate(180deg);
+}
+
+.prompt-box-body {
+  display: none;
+  padding: 0 16px 14px;
+}
+
+.prompt-box.open .prompt-box-body {
+  display: block;
+}
+
+.prompt-box-body ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.prompt-box-body li {
+  font-size: 0.87em;
+  color: #7A5C1E;
+  padding-left: 14px;
+  position: relative;
+  line-height: 1.5;
+}
+
+.prompt-box-body li::before {
+  content: '\2192';
+  position: absolute;
+  left: 0;
+  font-size: 0.85em;
+}
+
+/* Character counter */
+.char-counter {
+  text-align: right;
+  font-size: 0.82em;
+  color: #7A7A7A;
+  margin-top: 5px;
+}
+
+/* Takeaway rows */
+.takeaway-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.takeaway-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.takeaway-number {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 50%;
+  background: #D4A574;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9em;
+}
+
+.takeaway-row input[type="text"] {
+  flex: 1;
+}
+
+/* Optional linked debrief box */
+.optional-link {
+  background: #F5F1EB;
+  border: 1.5px dashed #E0D5C7;
+  border-radius: 10px;
+  padding: 18px 20px;
+}
+
+.optional-link-label {
+  font-size: 0.88em;
+  font-weight: 600;
+  color: #7A7A7A;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+
+/* Completion screen */
+.completion-screen {
+  text-align: center;
+  padding: 60px 40px;
+  animation: lessonFadeIn 0.5s ease-out;
+}
+
+.completion-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #D4A574, #C67B5C);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  font-size: 2em;
+  color: white;
+}
+
+.completion-screen h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2em;
+  color: #8B7355;
+  margin-bottom: 14px;
+  font-weight: 600;
+}
+
+.completion-screen p {
+  font-size: 1em;
+  color: #7A7A7A;
+  margin-bottom: 10px;
+  line-height: 1.8;
+  max-width: 440px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.completion-meta {
+  background: #F5F1EB;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin: 24px auto;
+  max-width: 440px;
+  text-align: left;
+}
+
+.completion-meta-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.92em;
+  padding: 6px 0;
+  border-bottom: 1px solid #E0D5C7;
+}
+
+.completion-meta-row:last-child {
+  border-bottom: none;
+}
+
+.completion-meta-row span:first-child {
+  color: #7A7A7A;
+}
+
+.completion-meta-row span:last-child {
+  font-weight: 600;
+  color: #8B7355;
+}
+
+.completion-actions {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  margin-top: 28px;
+  flex-wrap: wrap;
+}
+
+/* Library stats */
+.lesson-library-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.lesson-stat-card {
+  background: white;
+  border: 2px solid #E0D5C7;
+  border-radius: 14px;
+  padding: 18px;
+  text-align: center;
+}
+
+.lesson-stat-number {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2em;
+  font-weight: 700;
+  color: #8B7355;
+  margin-bottom: 4px;
+}
+
+.lesson-stat-label {
+  color: #7A7A7A;
+  font-size: 0.88em;
+}
+
+/* Note cards in library */
+.lesson-note-card {
+  background: white;
+  border: 2px solid #E0D5C7;
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.lesson-note-card:hover {
+  box-shadow: 0 2px 12px rgba(139, 115, 85, 0.08);
+  border-color: #D4A574;
+}
+
+.lesson-note-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.lesson-note-card-meta h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2em;
+  color: #8B7355;
+  margin-bottom: 4px;
+}
+
+.lesson-note-card-meta p {
+  font-size: 0.88em;
+  color: #7A7A7A;
+}
+
+.lesson-type-badge {
+  padding: 5px 12px;
+  border-radius: 50px;
+  background: #F5F1EB;
+  font-size: 0.8em;
+  font-weight: 600;
+  color: #8B7355;
+  white-space: nowrap;
+}
+
+.lesson-note-takeaways {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lesson-note-takeaway-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.9em;
+  color: #3A3A3A;
+}
+
+.lesson-note-takeaway-num {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border-radius: 50%;
+  background: #D4A574;
+  color: white;
+  font-size: 0.75em;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+
+.lesson-note-preview {
+  font-size: 0.9em;
+  color: #7A7A7A;
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
+@keyframes lessonFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 640px) {
+  .lesson-library-stats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .lesson-stat-number {
+    font-size: 1.7em;
+  }
+
+  .completion-screen {
+    padding: 40px 20px;
+  }
+}

@@ -212,15 +212,23 @@ export default function QuickStartMap() {
         </div>
       </div>
 
-      {/* Optional: Journey Event Log — centered */}
+      {/* Optional: Journey Event Log + Lesson Notes */}
       <div className="qsm-opt-cluster" style={{ marginTop: '8px', marginBottom: '4px' }}>
-        <div className={`qsm-opt-card ${progress.hasEventLog ? 'done' : ''}`} style={{ maxWidth: 'calc(50% - 6px)' }}>
+        <div className={`qsm-opt-card ${progress.hasEventLog ? 'done' : ''}`}>
           <div className="qsm-opt-title">
             <span className={`qsm-opt-node ${progress.hasEventLog ? 'done' : ''}`} />
             Journey Event Log
           </div>
           <div className="qsm-opt-desc">Record significant events shaping your journey — injury, life changes, breakthroughs, setbacks.</div>
           <Link to="/events/new" className="qsm-opt-link-sm" onClick={(e) => e.stopPropagation()}>→ Open Log</Link>
+        </div>
+        <div className={`qsm-opt-card ${progress.hasLessonNotes ? 'done' : ''}`}>
+          <div className="qsm-opt-title">
+            <span className={`qsm-opt-node ${progress.hasLessonNotes ? 'done' : ''}`} />
+            Lesson Notes
+          </div>
+          <div className="qsm-opt-desc">Capture instructor guidance, cues, corrections, and your takeaways after lessons or clinics.</div>
+          <Link to="/lesson-notes/new" className="qsm-opt-link-sm" onClick={(e) => e.stopPropagation()}>→ Open Lesson Notes</Link>
         </div>
       </div>
 

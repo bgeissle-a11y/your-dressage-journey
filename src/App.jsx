@@ -26,6 +26,8 @@ import DebriefList from './components/Debrief/DebriefList';
 import DebriefForm from './components/Debrief/DebriefForm';
 import ObservationList from './components/Observation/ObservationList';
 import ObservationForm from './components/Observation/ObservationForm';
+import LessonNoteList from './components/LessonNotes/LessonNoteList';
+import LessonNoteForm from './components/LessonNotes/LessonNoteForm';
 
 // Plan
 import JourneyEventList from './components/JourneyEvent/JourneyEventList';
@@ -99,6 +101,11 @@ function App() {
             <Route path="/observations" element={<ObservationList />} />
             <Route path="/observations/new" element={<ObservationForm />} />
             <Route path="/observations/:id/edit" element={<ObservationForm />} />
+
+            {/* Lesson Notes */}
+            <Route path="/lesson-notes" element={<LessonNoteList />} />
+            <Route path="/lesson-notes/new" element={<LessonNoteForm />} />
+            <Route path="/lesson-notes/:id/edit" element={<LessonNoteForm />} />
 
             {/* Journey Events */}
             <Route path="/events" element={<JourneyEventList />} />

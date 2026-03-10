@@ -87,7 +87,7 @@ export default function AppLayout() {
             <div className="nav-dropdown">
               <button
                 className={`nav-link dropdown-trigger ${
-                  isActive('/debriefs') || isActive('/reflections') || isActive('/observations') || isActive('/horse-health') ? 'active' : ''
+                  isActive('/debriefs') || isActive('/reflections') || isActive('/observations') || isActive('/horse-health') || isActive('/lesson-notes') ? 'active' : ''
                 }`}
                 onClick={() => toggleDropdown('record')}
               >
@@ -99,11 +99,13 @@ export default function AppLayout() {
                   <Link to="/reflections/new" className="dropdown-item">New Reflection</Link>
                   <Link to="/observations/new" className="dropdown-item">New Observation</Link>
                   <Link to="/horse-health/new" className="dropdown-item">New Health Entry</Link>
+                  <Link to="/lesson-notes/new" className="dropdown-item">New Lesson Notes</Link>
                   <div className="dropdown-divider" />
                   <Link to="/debriefs" className="dropdown-item">All Debriefs</Link>
                   <Link to="/reflections" className="dropdown-item">All Reflections</Link>
                   <Link to="/observations" className="dropdown-item">All Observations</Link>
                   <Link to="/horse-health" className="dropdown-item">Health & Soundness Log</Link>
+                  <Link to="/lesson-notes" className="dropdown-item">All Lesson Notes</Link>
                 </div>
               )}
             </div>

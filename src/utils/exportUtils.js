@@ -114,6 +114,11 @@ export const EXPORT_COLUMNS = {
     'date', 'horseName', 'issueType', 'title', 'notes',
     'professionals', 'results', 'nextSteps', 'status', 'resolvedDate'
   ],
+  lessonNotes: [
+    'lessonDate', 'horseName', 'instructorName', 'lessonType',
+    'movementInstructions', 'cuesCorrections', 'riderReflections',
+    'takeaways', 'linkedDebriefId', 'isDraft'
+  ],
   showPreparations: [
     'showName', 'showDateStart', 'showDateEnd', 'showType', 'horseName',
     'currentLevel', 'testsSelected', 'goals', 'concerns', 'ridingFrequency',

@@ -1,0 +1,518 @@
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import {
+  createLessonNote, getLessonNote, updateLessonNote,
+  getAllLessonNotes, getAllHorseProfiles, getAllDebriefs,
+  LESSON_TYPES
+} from '../../services';
+import FormSection from '../Forms/FormSection';
+import FormField from '../Forms/FormField';
+import VoiceInput from '../Forms/VoiceInput';
+import '../Forms/Forms.css';
+import './LessonNotes.css';
+
+const LESSON_TYPE_LABELS = Object.fromEntries(LESSON_TYPES.map(t => [t.value, t.label]));
+
+const MOVEMENT_PROMPTS = [
+  'Which movements and exercises you worked on (e.g. shoulder-in, half-pass, tempi changes, piaffe)',
+  'Specific directions for performing each movement better (e.g. "leg yield out, really bend him on the right side")',
+  'Figures, sequences, or patterns the instructor asked for (e.g. "travers out of a 10-meter circle")',
+  'Any movements that were repeated or emphasized more than once'
+];
+
+const CUES_PROMPTS = [
+  'Short verbal cues and reminders (e.g. "be accurate," "thumbs up," "inside leg to outside rein")',
+  'Corrections to your position or aids (e.g. "hold with your back," "give the inside rein," "softer hand")',
+  'Anything the instructor repeated \u2014 repetition is a pattern signal',
+  'Positive feedback, even brief ("nice," "yes," "that\'s it") \u2014 these are data too',
+  'Questions asked of you (e.g. "Did you feel that?")'
+];
+
+const REFLECTION_PROMPTS = [
+  'What surprised you when you read this back?',
+  'What correction came up more than once \u2014 and does that feel familiar?',
+  'Is there a gap between what the instructor described and what you felt in the moment?',
+  'What are you most curious or uncertain about from this session?',
+  'What do you want to remember to try on your own before the next lesson?',
+  'Did any of the instructor\'s cues connect to something you\'ve been working on for a long time?'
+];
+
+function PromptBox({ title, items, defaultOpen = false }) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className={`prompt-box${open ? ' open' : ''}`}>
+      <button type="button" className="prompt-box-toggle" onClick={() => setOpen(prev => !prev)}>
+        <span>{title}</span>
+        <span className="prompt-box-chevron">{'\u25BC'}</span>
+      </button>
+      <div className="prompt-box-body">
+        <ul>
+          {items.map((item, i) => <li key={i}>{item}</li>)}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+export default function LessonNoteForm() {
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const isEdit = Boolean(id);
+  const textareaRefs = useRef({});
+
+  const [horses, setHorses] = useState([]);
+  const [instructorSuggestions, setInstructorSuggestions] = useState([]);
+  const [debriefs, setDebriefs] = useState([]);
+  const [draftId, setDraftId] = useState(null);
+  const [showCompletion, setShowCompletion] = useState(false);
+  const [savedData, setSavedData] = useState(null);
+
+  const [formData, setFormData] = useState({
+    lessonDate: new Date().toISOString().split('T')[0],
+    horseId: '',
+    horseName: '',
+    instructorName: '',
+    lessonType: '',
+    linkedDebriefId: '',
+    movementInstructions: '',
+    cuesCorrections: '',
+    riderReflections: '',
+    takeaway1: '',
+    takeaway2: '',
+    takeaway3: ''
+  });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(false);
+
+  useEffect(() => {
+    loadReferenceData();
+    if (id) loadExisting();
+  }, [id, currentUser]);
+
+  async function loadReferenceData() {
+    if (!currentUser) return;
+
+    // Load horses
+    const horsesResult = await getAllHorseProfiles(currentUser.uid);
+    if (horsesResult.success) {
+      setHorses(horsesResult.data.filter(h => h.horseName));
+    }
+
+    // Load instructor suggestions from existing lesson notes
+    const notesResult = await getAllLessonNotes(currentUser.uid);
+    if (notesResult.success) {
+      const names = [...new Set(notesResult.data.map(n => n.instructorName).filter(Boolean))];
+      setInstructorSuggestions(names);
+
+      // Load draft if not editing
+      if (!id) {
+        const draft = notesResult.data.find(n => n.isDraft);
+        if (draft) {
+          setDraftId(draft.id);
+          populateForm(draft);
+        }
+      }
+    }
+
+    // Load debriefs for linking
+    const debriefsResult = await getAllDebriefs(currentUser.uid);
+    if (debriefsResult.success) {
+      setDebriefs(debriefsResult.data.slice(0, 30));
+    }
+  }
+
+  async function loadExisting() {
+    setLoadingData(true);
+    const result = await getLessonNote(id);
+    if (result.success) {
+      populateForm(result.data);
+    }
+    setLoadingData(false);
+  }
+
+  function populateForm(data) {
+    setFormData({
+      lessonDate: data.lessonDate || '',
+      horseId: data.horseId || '',
+      horseName: data.horseName || '',
+      instructorName: data.instructorName || '',
+      lessonType: data.lessonType || '',
+      linkedDebriefId: data.linkedDebriefId || '',
+      movementInstructions: data.movementInstructions || '',
+      cuesCorrections: data.cuesCorrections || '',
+      riderReflections: data.riderReflections || '',
+      takeaway1: (data.takeaways && data.takeaways[0]) || '',
+      takeaway2: (data.takeaways && data.takeaways[1]) || '',
+      takeaway3: (data.takeaways && data.takeaways[2]) || ''
+    });
+  }
+
+  function handleChange(e) {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+  }
+
+  function handleHorseChange(e) {
+    const selectedId = e.target.value;
+    const horse = horses.find(h => h.id === selectedId);
+    setFormData(prev => ({
+      ...prev,
+      horseId: selectedId,
+      horseName: horse ? horse.horseName : ''
+    }));
+    if (errors.horseId) setErrors(prev => ({ ...prev, horseId: '' }));
+  }
+
+  function handleLessonTypeSelect(value) {
+    setFormData(prev => ({ ...prev, lessonType: value }));
+    if (errors.lessonType) setErrors(prev => ({ ...prev, lessonType: '' }));
+  }
+
+  function getRef(key) {
+    if (!textareaRefs.current[key]) {
+      textareaRefs.current[key] = { current: null };
+    }
+    return textareaRefs.current[key];
+  }
+
+  function validateForm() {
+    const newErrors = {};
+    if (!formData.lessonDate) newErrors.lessonDate = 'Please enter the lesson date.';
+    if (!formData.horseId) newErrors.horseId = 'Please select a horse.';
+    if (!formData.instructorName.trim()) newErrors.instructorName = "Please enter the instructor's name.";
+    if (!formData.lessonType) newErrors.lessonType = 'Please select a lesson type.';
+    if (!formData.movementInstructions.trim()) newErrors.movementInstructions = 'Please add movement instructions before saving.';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  }
+
+  function collectData(isDraft = false) {
+    return {
+      lessonDate: formData.lessonDate,
+      horseId: formData.horseId,
+      horseName: formData.horseName,
+      instructorName: formData.instructorName.trim(),
+      lessonType: formData.lessonType,
+      linkedDebriefId: formData.linkedDebriefId || null,
+      movementInstructions: formData.movementInstructions.trim(),
+      cuesCorrections: formData.cuesCorrections.trim(),
+      riderReflections: formData.riderReflections.trim(),
+      takeaways: [
+        formData.takeaway1.trim(),
+        formData.takeaway2.trim(),
+        formData.takeaway3.trim()
+      ].filter(Boolean),
+      isDraft
+    };
+  }
+
+  async function handleSubmit(e) {
+    if (e) e.preventDefault();
+    if (!validateForm()) return;
+
+    setLoading(true);
+    const data = collectData(false);
+
+    const existingId = isEdit ? id : draftId;
+    let result;
+    if (existingId) {
+      result = await updateLessonNote(existingId, data);
+    } else {
+      result = await createLessonNote(currentUser.uid, data);
+    }
+
+    setLoading(false);
+
+    if (result.success) {
+      if (isEdit) {
+        navigate('/lesson-notes');
+      } else {
+        setSavedData(data);
+        setShowCompletion(true);
+      }
+    } else {
+      setErrors({ submit: result.error });
+    }
+  }
+
+  async function handleSaveDraft() {
+    setLoading(true);
+    const data = collectData(true);
+
+    const existingId = isEdit ? id : draftId;
+    let result;
+    if (existingId) {
+      result = await updateLessonNote(existingId, data);
+    } else {
+      result = await createLessonNote(currentUser.uid, data);
+      if (result.success && result.id) setDraftId(result.id);
+    }
+
+    setLoading(false);
+
+    if (result.success) {
+      navigate('/lesson-notes');
+    } else {
+      setErrors({ submit: result.error });
+    }
+  }
+
+  function resetForm() {
+    setFormData({
+      lessonDate: new Date().toISOString().split('T')[0],
+      horseId: '',
+      horseName: '',
+      instructorName: '',
+      lessonType: '',
+      linkedDebriefId: '',
+      movementInstructions: '',
+      cuesCorrections: '',
+      riderReflections: '',
+      takeaway1: '',
+      takeaway2: '',
+      takeaway3: ''
+    });
+    setErrors({});
+    setDraftId(null);
+    setShowCompletion(false);
+    setSavedData(null);
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', {
+      year: 'numeric', month: 'short', day: 'numeric'
+    });
+  }
+
+  if (loadingData) {
+    return <div className="loading-state">Loading lesson note...</div>;
+  }
+
+  // Completion screen (new entry only)
+  if (showCompletion && savedData) {
+    return (
+      <div className="form-page">
+        <div className="form-card">
+          <div className="completion-screen">
+            <div className="completion-icon">{'\u2713'}</div>
+            <h2>Lesson Notes Saved</h2>
+            <p>Your instructor guidance and reflections have been added to your journey data and are ready for coaching analysis.</p>
+
+            <div className="completion-meta">
+              <div className="completion-meta-row">
+                <span>Date</span>
+                <span>{formatDate(savedData.lessonDate)}</span>
+              </div>
+              <div className="completion-meta-row">
+                <span>Horse</span>
+                <span>{savedData.horseName}</span>
+              </div>
+              <div className="completion-meta-row">
+                <span>Instructor</span>
+                <span>{savedData.instructorName}</span>
+              </div>
+              <div className="completion-meta-row">
+                <span>Type</span>
+                <span>{LESSON_TYPE_LABELS[savedData.lessonType] || savedData.lessonType}</span>
+              </div>
+              {savedData.takeaways.length > 0 && (
+                <div className="completion-meta-row">
+                  <span>Takeaways captured</span>
+                  <span>{savedData.takeaways.length}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="completion-actions">
+              <button className="btn btn-secondary" onClick={resetForm}>Log Another</button>
+              <button className="btn btn-primary" onClick={() => navigate('/lesson-notes')}>View My Notes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="form-page">
+      <div className="form-page-header">
+        <h1>{isEdit ? 'Edit Lesson Notes' : 'Lesson Notes'}</h1>
+        <p>Capture instructor guidance, transcribe lesson summaries, and reflect on what to carry into your next ride.</p>
+      </div>
+
+      <form onSubmit={handleSubmit} autoComplete="off">
+        <div className="form-card">
+          {errors.submit && <div className="form-section"><div className="form-alert form-alert-error">{errors.submit}</div></div>}
+
+          {/* Section 1: About This Lesson */}
+          <FormSection title="About This Lesson" description="A few quick details so your notes stay organized and searchable over time.">
+            <div className="form-row">
+              <FormField label="Date" error={errors.lessonDate}>
+                <input type="date" name="lessonDate" value={formData.lessonDate} onChange={handleChange} disabled={loading} />
+              </FormField>
+
+              <FormField label="Horse" error={errors.horseId}>
+                {horses.length > 0 ? (
+                  <select name="horseId" value={formData.horseId} onChange={handleHorseChange} disabled={loading}>
+                    <option value="">Select horse...</option>
+                    {horses.map(h => <option key={h.id} value={h.id}>{h.horseName}</option>)}
+                  </select>
+                ) : (
+                  <input type="text" name="horseName" value={formData.horseName} onChange={handleChange} disabled={loading} placeholder="Horse name" />
+                )}
+              </FormField>
+            </div>
+
+            <div className="form-row">
+              <FormField label="Instructor" error={errors.instructorName} helpText="Previous instructors will appear as suggestions.">
+                <input
+                  type="text"
+                  name="instructorName"
+                  list="instructorSuggestions"
+                  value={formData.instructorName}
+                  onChange={handleChange}
+                  disabled={loading}
+                  placeholder="e.g. Jane Smith"
+                />
+                <datalist id="instructorSuggestions">
+                  {instructorSuggestions.map(name => <option key={name} value={name} />)}
+                </datalist>
+              </FormField>
+            </div>
+
+            <FormField label="Lesson Type" error={errors.lessonType}>
+              <div className="lesson-type-chips">
+                {LESSON_TYPES.map(lt => (
+                  <button
+                    key={lt.value}
+                    type="button"
+                    className={`lesson-chip${formData.lessonType === lt.value ? ' selected' : ''}`}
+                    onClick={() => handleLessonTypeSelect(lt.value)}
+                    disabled={loading}
+                  >
+                    {lt.label}
+                  </button>
+                ))}
+              </div>
+            </FormField>
+
+            {/* Optional linked debrief */}
+            <div className="optional-link">
+              <div className="optional-link-label">Optional — Link to a Debrief Entry</div>
+              <FormField label="" helpText="When linked, your coaching analysis can cross-reference what you felt with what your instructor saw.">
+                <select name="linkedDebriefId" value={formData.linkedDebriefId} onChange={handleChange} disabled={loading}>
+                  <option value="">No linked debrief</option>
+                  {debriefs.map(d => (
+                    <option key={d.id} value={d.id}>
+                      {formatDate(d.rideDate)} — {d.horseName || 'Unknown horse'}
+                    </option>
+                  ))}
+                </select>
+              </FormField>
+            </div>
+          </FormSection>
+
+          {/* Section 2: Instructor Guidance */}
+          <FormSection title="Instructor Guidance" description="Paste a transcription, type from memory, or dictate — whatever gets the guidance captured.">
+            <FormField label="Movement Instructions" error={errors.movementInstructions}>
+              <PromptBox title={'\u2726 What to include'} items={MOVEMENT_PROMPTS} defaultOpen={true} />
+              <div style={{ position: 'relative' }}>
+                <textarea
+                  ref={el => { getRef('movementInstructions').current = el; }}
+                  name="movementInstructions"
+                  className="large"
+                  value={formData.movementInstructions}
+                  onChange={handleChange}
+                  disabled={loading}
+                  placeholder="Start typing..."
+                  style={{ paddingRight: '60px' }}
+                />
+                <VoiceInput
+                  textareaRef={getRef('movementInstructions')}
+                  onTranscript={text => setFormData(prev => ({ ...prev, movementInstructions: text }))}
+                />
+              </div>
+              <div className="char-counter">{formData.movementInstructions.length} characters</div>
+            </FormField>
+
+            <FormField label="Instructional Cues & Corrections" optional>
+              <PromptBox title={'\u2726 What to include'} items={CUES_PROMPTS} />
+              <div style={{ position: 'relative' }}>
+                <textarea
+                  ref={el => { getRef('cuesCorrections').current = el; }}
+                  name="cuesCorrections"
+                  value={formData.cuesCorrections}
+                  onChange={handleChange}
+                  disabled={loading}
+                  placeholder="Start typing..."
+                  style={{ paddingRight: '60px' }}
+                />
+                <VoiceInput
+                  textareaRef={getRef('cuesCorrections')}
+                  onTranscript={text => setFormData(prev => ({ ...prev, cuesCorrections: text }))}
+                />
+              </div>
+              <div className="char-counter">{formData.cuesCorrections.length} characters</div>
+            </FormField>
+          </FormSection>
+
+          {/* Section 3: Your Reflections */}
+          <FormSection title="Your Reflections" description="Now that you've reviewed the guidance — what does it mean to you? What do you want to carry forward?">
+            <FormField label="What stands out as you review this?" optional>
+              <PromptBox title={'\u2726 Prompts to get you thinking'} items={REFLECTION_PROMPTS} />
+              <div style={{ position: 'relative' }}>
+                <textarea
+                  ref={el => { getRef('riderReflections').current = el; }}
+                  name="riderReflections"
+                  value={formData.riderReflections}
+                  onChange={handleChange}
+                  disabled={loading}
+                  placeholder="Your thoughts, reactions, and intentions after reviewing this guidance..."
+                  style={{ paddingRight: '60px' }}
+                />
+                <VoiceInput
+                  textareaRef={getRef('riderReflections')}
+                  onTranscript={text => setFormData(prev => ({ ...prev, riderReflections: text }))}
+                />
+              </div>
+            </FormField>
+
+            <FormField label="My Top 3 Takeaways" optional helpText="Distilling to three makes these actionable — and gives your AI coaching a clear signal about your priorities.">
+              <div className="takeaway-list">
+                <div className="takeaway-row">
+                  <div className="takeaway-number">1</div>
+                  <input type="text" name="takeaway1" value={formData.takeaway1} onChange={handleChange} disabled={loading} placeholder="e.g. Timing of the kick in tempi changes" />
+                </div>
+                <div className="takeaway-row">
+                  <div className="takeaway-number">2</div>
+                  <input type="text" name="takeaway2" value={formData.takeaway2} onChange={handleChange} disabled={loading} placeholder="e.g. More bend in the right jaw during leg yield" />
+                </div>
+                <div className="takeaway-row">
+                  <div className="takeaway-number">3</div>
+                  <input type="text" name="takeaway3" value={formData.takeaway3} onChange={handleChange} disabled={loading} placeholder="e.g. Hold with the back through collection transitions" />
+                </div>
+              </div>
+            </FormField>
+          </FormSection>
+
+          <div className="form-actions">
+            <button type="button" className="btn btn-secondary" onClick={() => navigate('/lesson-notes')} disabled={loading}>
+              Cancel
+            </button>
+            <button type="button" className="btn btn-secondary" onClick={handleSaveDraft} disabled={loading}>
+              Save Draft
+            </button>
+            <button type="submit" className="btn btn-primary" disabled={loading}>
+              {loading ? 'Saving...' : (isEdit ? 'Update Lesson Notes' : 'Save Lesson Notes')}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  );
+}

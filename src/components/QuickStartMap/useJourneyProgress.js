@@ -37,6 +37,7 @@ export default function useJourneyProgress() {
     hasObservations: false,
     hasHealthLog: false,
     hasEventLog: false,
+    hasLessonNotes: false,
   });
   const [loading, setLoading] = useState(true);
 
@@ -149,6 +150,13 @@ export default function useJourneyProgress() {
       onSnapshot(userQuery('journeyEvents'), (snap) => {
         setProgress((prev) => ({ ...prev, hasEventLog: snap.size > 0 }));
       }, (err) => console.warn('[useJourneyProgress] journeyEvents:', err.message))
+    );
+
+    // 9. Lesson Notes
+    unsubs.push(
+      onSnapshot(userQuery('lessonNotes'), (snap) => {
+        setProgress((prev) => ({ ...prev, hasLessonNotes: snap.size > 0 }));
+      }, (err) => console.warn('[useJourneyProgress] lessonNotes:', err.message))
     );
 
     return () => unsubs.forEach((u) => u());

@@ -8,7 +8,8 @@ import {
   getAllObservations,
   getAllJourneyEvents,
   getAllShowPreparations,
-  getAllHealthEntries
+  getAllHealthEntries,
+  getAllLessonNotes
 } from '../services';
 import { getAdminStats } from '../services/aiService';
 import { exportToCSV, exportToJSON, EXPORT_COLUMNS } from '../utils/exportUtils';
@@ -24,6 +25,7 @@ const sections = [
       { label: 'Reflection', description: 'Capture personal milestones, aha moments, and growth', to: '/reflections/new', color: '#4A90E2' },
       { label: 'Observation', description: 'Note what you learn watching others ride', to: '/observations/new', color: '#8B5CF6' },
       { label: 'Health & Soundness', description: 'Track vet visits, body work, and soundness concerns', to: '/horse-health/new', color: '#6B8E5F' },
+      { label: 'Lesson Notes', description: 'Capture instructor guidance, cues, and takeaways', to: '/lesson-notes/new', color: '#C67B5C' },
     ]
   },
   {
@@ -42,6 +44,7 @@ const sections = [
       { label: 'Journey Events', description: 'View your timeline', to: '/events' },
       { label: 'Show Preps', description: 'View show preparation plans', to: '/show-prep' },
       { label: 'Health & Soundness Log', description: 'View health records', to: '/horse-health' },
+      { label: 'Lesson Notes', description: 'Browse your lesson library', to: '/lesson-notes' },
     ]
   },
   {
@@ -93,13 +96,14 @@ export default function Dashboard() {
     setExporting(true);
 
     try {
-      const [debRes, refRes, obsRes, evtRes, prepRes, healthRes] = await Promise.all([
+      const [debRes, refRes, obsRes, evtRes, prepRes, healthRes, lessonRes] = await Promise.all([
         getAllDebriefs(currentUser.uid),
         getAllReflections(currentUser.uid),
         getAllObservations(currentUser.uid),
         getAllJourneyEvents(currentUser.uid),
         getAllShowPreparations(currentUser.uid),
-        getAllHealthEntries(currentUser.uid)
+        getAllHealthEntries(currentUser.uid),
+        getAllLessonNotes(currentUser.uid)
       ]);
 
       const exportFn = format === 'csv' ? exportToCSV : exportToJSON;
@@ -111,6 +115,7 @@ export default function Dashboard() {
       if (evtRes.success && evtRes.data.length) exportFn(evtRes.data, `ydj-journey-events-${today}`, EXPORT_COLUMNS.journeyEvents);
       if (prepRes.success && prepRes.data.length) exportFn(prepRes.data, `ydj-show-preps-${today}`, EXPORT_COLUMNS.showPreparations);
       if (healthRes.success && healthRes.data.length) exportFn(healthRes.data, `ydj-horse-health-${today}`, EXPORT_COLUMNS.horseHealthEntries);
+      if (lessonRes.success && lessonRes.data.length) exportFn(lessonRes.data, `ydj-lesson-notes-${today}`, EXPORT_COLUMNS.lessonNotes);
     } catch (err) {
       console.error('Export failed:', err);
     }
@@ -203,6 +208,7 @@ export default function Dashboard() {
           <Link to="/show-prep/new" className="action-btn"><span>+</span> Show Prep</Link>
           <Link to="/events/new" className="action-btn"><span>+</span> Journey Event</Link>
           <Link to="/horse-health/new" className="action-btn"><span>+</span> Health Entry</Link>
+          <Link to="/lesson-notes/new" className="action-btn"><span>+</span> Lesson Notes</Link>
 
           {upcomingEvents.length > 0 && (
             <div className="dashboard-upcoming">
