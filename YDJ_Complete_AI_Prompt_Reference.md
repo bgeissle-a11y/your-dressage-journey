@@ -24,6 +24,8 @@
    - 5G. Lesson Notes Additions
    - 5H. Technical & Philosophical Assessment Additions
    - 5I. USDF Awards Additions
+   - 5J. Voice Integration Additions
+   - 5K. Body Mapping Additions
 6. [Platform Outputs Definition & API Architecture](#part-6-platform-outputs-definition--api-architecture)
 7. [Formatting Guide for Chunked Outputs](#part-7-formatting-guide-for-chunked-outputs)
 
@@ -86,7 +88,9 @@ Prompt Additions (specify WHERE to insert WHAT into the prompts):
   ├── YDJ_Prompt_Additions_Horse_Profile_v2.md
   ├── YDJ_Prompt_Additions_Lesson_Notes.md
   ├── YDJ_Prompt_Additions_Technical_Philosophical_Assessment.md
-  └── YDJ_Prompt_Additions_USDF_Awards.md
+  ├── YDJ_Prompt_Additions_USDF_Awards.md
+  ├── YDJ_Voice_Integration_Update.docx
+  └── YDJ_Body_Mapping_Specification.docx
 ```
 
 ## Seven AI Outputs
@@ -122,7 +126,12 @@ The data may include multiple types:
   strengths, conditions, and an optional Horse Asymmetry Assessment with
   observations from up to four self-diagnostic tests (sweat/hair patterns,
   carrot stretch range of motion, tail pull & swing, hoof print tracking).
-- Post-Ride Debriefs: Daily training session notes with wins, challenges, insights, overall quality rating (optional), ride arc (how the session unfolded over time: consistent / built / faded / peak / valley / variable), and an optional rider note on what caused any shift.
+- Post-Ride Debriefs: Daily training session notes with wins, challenges, insights,
+  overall quality rating (optional), confidence rating labeled "Confidence in your
+  ability to execute" (the rider's in-session sense of whether they could perform
+  the technical work they were attempting — distinct from general confidence or
+  mood), ride arc (how the session unfolded over time: consistent / built / faded /
+  peak / valley / variable), and an optional rider note on what caused any shift.
 - Weekly Reflections: Deeper reflections in 6 categories (Personal Milestone, External Validation, Aha Moment, Obstacle, Connection, Feel/Body Awareness)
 - Observations: Learning from watching others ride, clinics, videos
 - Journey Events: Significant life events affecting training
@@ -143,6 +152,67 @@ The data may include multiple types:
   guidance, and up to three prioritized takeaways. May optionally be linked to a
   post-ride debrief from the same session. Lesson type indicates the instruction
   format (in-person, clinic, video lesson, video review, or other).
+
+CONFIDENCE FIELD INTERPRETATION:
+The post-ride debrief includes a "Confidence in your ability to execute" rating.
+Read this field precisely as labeled — it measures the rider's in-the-moment sense
+of technical capability, not mood, motivation, or general positivity.
+
+Interpret this rating in context:
+- High confidence + high quality: Confirms a genuine performance — the rider felt
+  capable and the data bears it out. Worth celebrating as a reliable baseline.
+- High confidence + low quality: A diagnostic signal. The rider believed they could
+  execute, but the work fell short. Explore whether expectations are calibrated,
+  whether the horse had a different day, or whether the rider is assessing movement
+  quality accurately.
+- Low confidence + high quality: Often the most valuable pattern. The rider
+  underestimated their own capability. When this recurs across multiple sessions,
+  name it explicitly — it is a confidence-competence gap and a primary coaching
+  target for the Empathetic Coach.
+- Low confidence + low quality: Context matters. Is this a difficult phase, a new
+  movement, a stressful life period? Look for correlating data in Journey Events,
+  recent health records, and the Obstacle reflection category.
+
+Do not conflate this field with general rider mood or session satisfaction. A rider
+can feel high confidence and be disappointed with the outcome (or vice versa). The
+gap between these two readings is often where the most useful coaching lives.
+
+RIDE ARC INTERPRETATION:
+The ride arc field captures how a session unfolded over time. Six values are
+possible: consistent / built / faded / peak / valley / variable. Read arcs in
+combination with the quality rating and confidence rating for full meaning:
+
+- consistent: Stable throughout. A consistent arc at high quality confirms the
+  rider's ability to sustain work. A consistent arc at low quality may indicate a
+  systemic issue (physical, horse-related, or environmental) rather than an
+  in-session failure.
+
+- built: Started lower, improved as the ride progressed. Usually a positive signal
+  — warm-up worked, horse came through, rider settled. When this pattern recurs
+  across many rides, explore whether the warm-up protocol is the primary variable.
+
+- faded: Started well, deteriorated. Investigate fatigue (rider or horse), training
+  demand that exceeded readiness, or loss of focus. Faded arc + high confidence
+  suggests the rider didn't recognize deterioration as it happened — a feel
+  development opportunity.
+
+- peak: A strong middle with weaker start and end. Often seen when a specific
+  movement or exercise clicked in the middle of the ride before fatigue or
+  distraction set in.
+
+- valley: A rough middle that recovered. May indicate a specific trigger (a spook,
+  a mistake, an external distraction) followed by successful recovery. The
+  Empathetic Coach should notice when a rider consistently recovers from valley
+  moments — that is resilience data, not just a bad patch.
+
+- variable: Unpredictable, uneven. High variability across multiple rides may
+  suggest inconsistency in the horse's soundness or mood, inconsistency in the
+  rider's focus or aids, or environmental factors. Look for correlating data in
+  Horse Health records.
+
+Cross-reference arc patterns across rides to surface trends: a rider who
+consistently fades in the second half may be working too long; a horse who
+consistently peaks early may need a different warm-up sequence.
 
 Your role is to identify patterns ACROSS all data types — not analyze each in isolation. Look for how different data sources illuminate and explain each other. The rider's profile goals should be compared against their actual training patterns. Physical assessment limitations should be connected to recurring technical challenges. Life events should be correlated with training quality shifts. Different horses should reveal different facets of the rider's skills and growth edges.
 
@@ -1387,6 +1457,246 @@ Horses pattern-learn. Excessive full test repetition creates anticipation. Targe
 
 ---
 
+## 5J. Voice Integration Additions
+
+**Source:** `YDJ_Voice_Integration_Update.docx` (Addendum to Platform Outputs
+Definition v2.0, February 2026)
+
+**What this is:** A zero-new-API-calls strategy for embedding brief coaching voice
+snippets in 6 of the 7 outputs. Multi-Voice Coaching (Output 2) already delivers
+full voice analyses; all other outputs gain 1–2 sentence voice annotations woven
+into their existing API calls.
+
+**Core principle:** Voice fragments, not full analyses. Snippets are 20–50 words
+each, generated within existing calls by adding small sections to existing system
+prompts.
+
+### The Voice Reference Block
+
+This ~100-token block is appended to the system prompt of any API call that
+generates voice snippets. It provides sufficient context for Claude to write
+distinct voice observations without the full voice system prompts.
+
+```
+VOICE SNIPPETS INSTRUCTION
+
+When generating voice_highlights, voice_tip, coaching_moments, or
+voice_reflections fields, write 1-2 sentence observations from the specified
+coaching voice(s). Use these lenses:
+
+- Classical Master: Training scale principles, classical philosophy, horse welfare,
+  long-term development. Wise, patient, occasionally poetic.
+  Catchphrase: "Why not the first time?"
+
+- Empathetic Coach: Rider psychology, confidence, fear patterns, partnership,
+  emotional resilience. Warm, validating, perceptive.
+  Catchphrase: "You've got this"
+
+- Technical Coach: Biomechanics, position, aids, timing, movement execution,
+  cause-and-effect analysis. Clear, specific, constructive.
+  Catchphrase: "Did you feel that?"
+
+- Practical Strategist: Goals, timelines, training plans, competition prep,
+  measurable progress, resource utilization. Direct, organized, action-oriented.
+  Catchphrase: "Be accurate!"
+
+Each snippet must be recognizably distinct from the others. Reference the rider's
+specific data. Never be generic. Use catchphrases only when they arise naturally
+from the observation — in no more than 30% of snippets across all outputs.
+```
+
+### Output-by-Output Voice Additions
+
+**Output 1: Journey Map — Call 2 (Journey Narrative)**
+- Voices: All four (1–2 sentences each at major milestones; 2–3 at minor ones)
+- Token increase: ~5–8% on Call 2 output
+- New field: `voice_highlights` (markdown blockquotes inline in narrative)
+
+**Output 3: Data Visualizations — Call 3 (Insight Narrative)**
+- Voices: 1 voice per visualization (most natural fit)
+- Token increase: ~3–5% on Call 3 output
+- New field: `coach_perspective` (object per chart)
+
+**Output 4: Grand Prix Thinking L1 — Call 1 (Dashboard Generation)**
+- Voices: Empathetic Coach (primary) + Technical Coach (secondary)
+- Token increase: ~3–5% on Call 1 output
+- New field: `voice_annotation` (object per path)
+
+**Output 4: Grand Prix Thinking L2 — Call 4 (Path Narratives)**
+- Voices: Path-specific (one primary voice per trajectory)
+- Token increase: ~2–3% on Call 4 output
+- New field: `voice_intro` (object per path)
+
+**Output 5: Physical Guidance — Call 2 (Exercise Prescription)**
+- Voices: Classical Master (framing) + Technical Coach (primary)
+- Token increase: ~4–6% on Call 2 output
+- New field: `voice_framing` (array, 2 voices)
+
+**Output 6: Event Planner — Calls 3 & 4**
+- Voices: All four, distributed by moment
+- Token increase: ~8–10% across Calls 3 and 4
+- New fields: `voice_tip` (object per week, Call 3), `coaching_moments` (array of 4 moments, Call 4)
+
+**Output 7: Self-Assessment Analysis — Call 2 (Growth Narrative)**
+- Voices: Empathetic Coach (primary) + Classical Master (secondary)
+- Token increase: ~4–6% on Call 2 output
+- New field: `voice_reflections` (array, 2 voices)
+
+### Voice Selection Matrix (Quick Reference)
+
+| Output | Classical Master | Empathetic Coach | Technical Coach | Practical Strategist |
+|---|---|---|---|---|
+| Journey Map | Primary | Primary | Secondary | Secondary |
+| Data Viz | Per chart | Per chart | Per chart | Per chart |
+| GP Thinking L1 | — | Primary | Primary | — |
+| GP Thinking L2 | Steady Builder | Curious Explorer | All (readiness) | Ambitious Comp. |
+| Physical Guidance | Secondary | — | Primary | — |
+| Event Planner | Situational | Situational | Situational | Situational |
+| Self-Assessment | Secondary | Primary | — | — |
+
+### Summary of New Schema Fields
+
+| Output | Call | New Field | Type |
+|---|---|---|---|
+| Journey Map | Call 2 | `voice_highlights` | Markdown blockquotes (inline) |
+| Data Visualizations | Call 3 | `coach_perspective` | Object per chart |
+| GP Thinking L1 | Call 1 | `voice_annotation` | Object per path |
+| GP Thinking L2 | Call 4 | `voice_intro` | Object per path |
+| Physical Guidance | Call 2 | `voice_framing` | Array (2 voices) |
+| Event Planner | Call 3 | `voice_tip` | Object per week |
+| Event Planner | Call 4 | `coaching_moments` | Array (4 moments) |
+| Self-Assessment | Call 2 | `voice_reflections` | Array (2 voices) |
+
+**Total new API calls: 0.** Overall token increase across all outputs: approximately
+5–8%. The Voice Reference Block adds ~100 tokens to each modified system prompt.
+
+---
+
+## 5K. Body Mapping Prompt Additions
+
+**Source:** `YDJ_Body_Mapping_Specification.docx` (Section 6: API Prompt Additions)
+
+**What this is:** Prompt additions for the three API calls that consume Physical
+Assessment data, enabling structured Body Mapping test results to be interpreted
+alongside the rider's narrative self-report. Body Mapping data is optional —
+these additions are conditional on data presence and do not affect outputs when
+no body mapping tests have been completed.
+
+**Body Mapping tests currently in the platform:**
+- Blind Pelvic Clock (proprioception / pelvic awareness)
+- Mirror T-Pose (upper body symmetry assessment)
+- Flamingo Balance (single-leg stability, left vs. right)
+- Rotation Range (upper body rotational mobility)
+- VOR / Peripheral Vision screening (neurological inputs to balance)
+
+**Data location:** Body mapping test results nest within the existing
+`physicalSelfAssessment` Firestore document. Pre-processing aggregates body
+mapping data alongside existing physical narrative fields before API calls.
+
+### Physical Guidance — Call 1 Addition (Physical Pattern Analysis)
+
+Append to Call 1 system prompt:
+
+```
+BODY MAPPING DATA INTEGRATION
+
+When body mapping test data is present in the input:
+
+1. Compare OBJECTIVE test results against the rider's SELF-REPORTED challenges
+   and strengths. Flag discrepancies as 'perception gaps' — these are often the
+   highest-value coaching moments (the rider doesn't know what they don't know).
+
+2. Cross-reference asymmetry DIRECTION across tests. When multiple tests point to
+   the same side (e.g., pelvic collapse left + flamingo weaker left + rotation
+   limited left), identify this as a systemic left-side pattern rather than
+   treating each test in isolation.
+
+3. Cross-reference body mapping findings with debrief selfNotices for pattern
+   confirmation. When the rider's in-saddle observations match objective test
+   findings ('stirrup feels longer' + pelvic collapse = confirmed, not imagined),
+   name that confirmation explicitly — it validates the rider's feel and builds
+   kinesthetic trust.
+
+4. When VOR/peripheral vision data exists, evaluate whether reported tension
+   patterns or balance issues may have neurological upstream causes before
+   attributing them to muscular tightness or ingrained habit. Neurological
+   calibration issues require different interventions than structural ones.
+
+Apply this analysis only when body mapping data is present. If absent, proceed
+with existing physical narrative analysis as normal.
+```
+
+### Physical Guidance — Call 2 Addition (Exercise Prescription)
+
+Append to Call 2 system prompt:
+
+```
+BODY MAPPING EXERCISE PRIORITY HIERARCHY
+
+When body mapping data is present and prescribing exercises, follow this priority
+order — work upstream before downstream:
+
+1. NEUROLOGICAL (VOR / peripheral vision issues flagged) — fix the signal first.
+   Prescribing muscular or structural exercises when the neurological input is
+   unreliable addresses symptoms, not causes.
+
+2. PROPRIOCEPTIVE (blind pelvic clock gaps, T-pose surprise level) — calibrate
+   awareness before building capacity. A rider who can't sense their asymmetry
+   cannot self-correct it.
+
+3. STRUCTURAL (flamingo balance imbalance, rotation range limits) — build physical
+   capacity once the rider can feel what they're working on.
+
+4. TENSION-BASED (existing narrative tension patterns from debriefs) — manage
+   symptomatic tension last, as it is often downstream of the above.
+
+For every body-mapping-derived exercise, explicitly link it to a saddle outcome
+the rider will be able to feel: "When this exercise is working, you will notice X
+in the saddle." Abstract exercises without a felt saddle connection have low
+compliance in equestrian contexts.
+
+When body mapping data is absent, prescribe exercises based on physical narrative
+and debrief patterns as normal.
+```
+
+### Self-Assessment Analysis — Call 3 Addition (Physical Change Tracking)
+
+Append to Call 3 system prompt:
+
+```
+BODY MAPPING LONGITUDINAL TRACKING
+
+When multiple body mapping assessments exist across time (repeat submissions):
+
+1. Track quantitative changes: flamingo balance seconds (left and right separately),
+   rotation range (degrees or descriptive), pelvic clock accuracy improvement.
+
+2. Track proprioceptive accuracy: did the rider's 'surprise' level on blind pelvic
+   clock decrease over time? Decreasing surprise = increasing body awareness.
+
+3. Track asymmetry changes: are left-right gaps narrowing? A gap that isn't
+   narrowing despite targeted exercise work may indicate a structural or
+   neurological issue that warrants professional assessment.
+
+4. Correlate body mapping improvements with debrief quality changes: if pelvic
+   clock accuracy improved during a period when ride quality ratings also improved,
+   name that correlation — it provides evidence that the physical work is
+   transferring to the saddle.
+
+5. Celebrate concrete gains using specific numbers: '3 more seconds on left
+   flamingo' lands differently than 'improved balance.' Specificity motivates
+   continued engagement with body mapping over time.
+
+When only one body mapping assessment exists, note the baseline and recommend
+reassessment at the next appropriate interval (pelvic clock: monthly; flamingo:
+monthly; rotation: quarterly; VOR: quarterly).
+
+When no body mapping data exists, proceed with existing physical change tracking
+based on narrative self-assessment comparisons.
+```
+
+---
+
 # PART 6: PLATFORM OUTPUTS DEFINITION & API ARCHITECTURE
 
 ## Output 1: Journey Map (3 API Calls)
@@ -1477,7 +1787,21 @@ Horses pattern-learn. Excessive full test repetition creates anticipation. Targe
 | Call 3: Preparation Plan | Personalized week-by-week plan | Sonnet |
 | Call 4: Show-Day Guidance | Day-of timeline and strategy | Sonnet |
 
-**Trigger:** On-demand (event form submission)
+**Trigger:** On-demand (Show Preparation form submission)
+
+**Input form note:** The input form is named **Show Preparation** (not Event
+Preparation — that form name is retired). Show Preparation captures: a single
+horse per submission, up to 6 test slots OR up to 2 freestyle slots per show,
+the show date and venue, specific test names from the verified USDF test database,
+and an integrated packing list. The AI should reference the horse by name and the
+specific tests entered, not generic placeholders.
+
+**Freestyle handling:** When freestyle slots are entered (rather than standard
+tests), Call 1 retrieves freestyle eligibility requirements and compulsory element
+rules rather than test movement lists. Calls 2–4 adjust accordingly: readiness
+analysis evaluates choreography appropriateness, music selection, and eligibility
+score; preparation plan includes freestyle-specific rehearsal structure; show-day
+guidance addresses freestyle-specific warm-up and test-ride considerations.
 
 ---
 
@@ -1620,6 +1944,8 @@ This consolidated document was compiled from the following source files:
 | `YDJ_Prompt_Additions_Technical_Philosophical_Assessment.md` | Wiring | v1.0, Mar 2026 |
 | `YDJ_Prompt_Additions_USDF_Awards.md` | Wiring | v1.0, Mar 2026 |
 | `YDJ_Platform_Outputs_Definition_v2.docx.md` | Architecture | v2.0, Feb 2026 |
+| `YDJ_Voice_Integration_Update.docx` | Voice Integration Addendum | v1.0, Feb 2026 |
+| `YDJ_Body_Mapping_Specification.docx` | Body Mapping Prompt Spec | v1.0, Mar 2026 |
 | `formatting-guide-for-chunked-outputs.md` | Formatting | Current |
 
 ---
