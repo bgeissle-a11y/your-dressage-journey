@@ -25,6 +25,7 @@ const { aggregateShowPrep } = require("../aggregators/showPrep");
 const { aggregateSelfAssessments } = require("../aggregators/selfAssessments");
 const { aggregateMentalPatterns } = require("../aggregators/mentalPatterns");
 const { aggregateHorseHealth } = require("../aggregators/horseHealth");
+const { aggregateLessonNotes } = require("../aggregators/lessonNotes");
 
 /**
  * Output-type → required aggregators map.
@@ -36,23 +37,24 @@ const OUTPUT_DATA_NEEDS = {
   coaching_insights: null,
   journeyMap: {
     aggregators: ["profile", "rideHistory", "reflections", "journey", "observations",
-      "selfAssessments", "mentalPatterns"],
+      "selfAssessments", "mentalPatterns", "lessonNotes"],
   },
   dataVisualizations: {
     aggregators: ["profile", "rideHistory", "reflections"],
   },
   grandPrixMental: {
-    aggregators: ["profile", "rideHistory", "reflections", "selfAssessments", "mentalPatterns"],
+    aggregators: ["profile", "rideHistory", "reflections", "selfAssessments", "mentalPatterns",
+      "lessonNotes"],
   },
   grandPrixTrajectory: {
     aggregators: ["profile", "rideHistory", "reflections", "selfAssessments",
-      "mentalPatterns", "horseHealth"],
+      "mentalPatterns", "horseHealth", "lessonNotes"],
   },
   physicalGuidance: {
     aggregators: ["profile", "rideHistory", "selfAssessments", "horseHealth"],
   },
   eventPlanner: {
-    aggregators: ["profile", "rideHistory", "reflections", "eventPrep", "showPrep"],
+    aggregators: ["profile", "rideHistory", "reflections", "eventPrep", "showPrep", "lessonNotes"],
   },
 };
 
@@ -138,6 +140,7 @@ function buildOverallStats(rawCounts, rideHistory, reflections, profile) {
     eventPrepCount: rawCounts.eventPreps,
     horseCount: profile.horseCount,
     horseHealthCount: rawCounts.horseHealthEntries,
+    lessonNoteCount: rawCounts.lessonNotes,
     ridingStreak: rideHistory.ridingStreak,
     categoryCoverage: reflections.categoryCoverage,
   };
@@ -184,6 +187,7 @@ async function prepareRiderData(uid, outputType = null) {
     riderAssessments,
     technicalAssessments,
     horseHealthEntries,
+    lessonNotes,
   ] = await Promise.all([
     fetchUserDoc(uid),
     fetchCollection("riderProfiles", uid),
@@ -198,6 +202,7 @@ async function prepareRiderData(uid, outputType = null) {
     fetchCollection("riderAssessments", uid),
     fetchCollection("technicalPhilosophicalAssessments", uid),
     fetchCollection("horseHealthEntries", uid),
+    fetchCollection("lessonNotes", uid),
   ]);
 
   // Filter out drafts
@@ -205,6 +210,7 @@ async function prepareRiderData(uid, outputType = null) {
   const nonDraftPhysical = physicalAssessments.filter((d) => !d.isDraft);
   const nonDraftRider = riderAssessments.filter((d) => !d.isDraft);
   const nonDraftTechnical = technicalAssessments.filter((d) => !d.isDraft);
+  const nonDraftLessonNotes = lessonNotes.filter((d) => !d.isDraft);
 
   // Raw counts for stats and snapshot
   const rawCounts = {
@@ -219,6 +225,7 @@ async function prepareRiderData(uid, outputType = null) {
     riderAssessments: nonDraftRider.length,
     technicalAssessments: nonDraftTechnical.length,
     horseHealthEntries: horseHealthEntries.length,
+    lessonNotes: nonDraftLessonNotes.length,
   };
 
   // Run all sub-aggregators (they're pure functions, fast — no I/O).
@@ -235,6 +242,7 @@ async function prepareRiderData(uid, outputType = null) {
   const showPrep = aggregateShowPrep(showPreparations);
   const selfAssessments = aggregateSelfAssessments(nonDraftPhysical, nonDraftRider, nonDraftTechnical);
   const horseHealth = aggregateHorseHealth(horseHealthEntries);
+  const lessonNotesSummary = aggregateLessonNotes(nonDraftLessonNotes);
 
   // Cross-cut aggregator: mental patterns
   const mentalPatterns = aggregateMentalPatterns(rideHistory, selfAssessments, reflectionsSummary);
@@ -289,6 +297,7 @@ async function prepareRiderData(uid, outputType = null) {
     showPrep: shouldInclude("showPrep") ? showPrep : null,
     selfAssessments: shouldInclude("selfAssessments") ? selfAssessments : null,
     horseHealth: shouldInclude("horseHealth") ? horseHealth : null,
+    lessonNotes: shouldInclude("lessonNotes") ? lessonNotesSummary : null,
 
     // Quick-reference stats and staleness detection
     overallStats,
