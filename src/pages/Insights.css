@@ -1325,6 +1325,100 @@
 }
 
 /* ============================================
+   Orienting Question (before voices)
+   ============================================ */
+
+.orienting-question {
+  background: #FFF8EC;
+  border: 1.5px solid #E8C97A;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.orienting-question__toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 12px 16px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: 'Work Sans', sans-serif;
+}
+
+.orienting-question__label {
+  font-size: 0.88em;
+  font-weight: 600;
+  color: #7A5C1E;
+  letter-spacing: 0.03em;
+}
+
+.orienting-question__chevron {
+  font-size: 0.75em;
+  color: #7A5C1E;
+  transition: transform 0.25s ease;
+}
+
+.orienting-question__body {
+  padding: 0 16px 14px;
+}
+
+.orienting-question__body p {
+  font-size: 0.9rem;
+  color: #7A5C1E;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ============================================
+   Priority Closer (after voices)
+   ============================================ */
+
+.priority-closer {
+  background: white;
+  border: 1px solid #E0D5C7;
+  border-left: 4px solid #D4A574;
+  border-radius: 12px;
+  padding: 1.5rem 1.75rem;
+  margin-top: 1.5rem;
+}
+
+.priority-closer__title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15em;
+  color: #8B7355;
+  margin: 0 0 1rem 0;
+}
+
+.priority-closer__restatement {
+  font-size: 0.95rem;
+  color: #3A3A3A;
+  line-height: 1.65;
+  margin: 0 0 1.25rem 0;
+}
+
+.priority-closer__prompt {
+  font-size: 0.93rem;
+  color: #5A5A5A;
+  line-height: 1.6;
+  font-style: italic;
+  margin: 0 0 1rem 0;
+  padding-left: 1rem;
+}
+
+.priority-closer__prompt:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .priority-closer {
+    padding: 1.25rem;
+  }
+}
+
+/* ============================================
    Journey Map At-a-Glance
    ============================================ */
 

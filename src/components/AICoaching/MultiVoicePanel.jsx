@@ -4,6 +4,8 @@ import CollapsibleSection from './CollapsibleSection';
 import CoachingVoiceCard from './CoachingVoiceCard';
 import ErrorDisplay from './ErrorDisplay';
 import ElapsedTimer from './ElapsedTimer';
+import OrientingQuestion from './OrientingQuestion';
+import PriorityCloser from './PriorityCloser';
 
 /**
  * Extract error category and retryable flag from a Firebase HttpsError.
@@ -273,6 +275,9 @@ export default function MultiVoicePanel({ generationStatus }) {
         </div>
       )}
 
+      {/* Orienting Question — between Quick Insights and voices */}
+      {quickInsights && hasVoiceEntries && <OrientingQuestion />}
+
       {/* Tabbed Coaching Voices — appears immediately with per-voice loading */}
       {hasVoiceEntries && (
         <div className="coaching-voice-tabs">
@@ -323,6 +328,11 @@ export default function MultiVoicePanel({ generationStatus }) {
             ) : null}
           </div>
         </div>
+      )}
+
+      {/* Priority Closer — after all voices */}
+      {quickInsights?.priority_closer && hasRealVoiceData && (
+        <PriorityCloser closer={quickInsights.priority_closer} />
       )}
 
       {/* Loading state — only shown if no voice entries exist at all */}

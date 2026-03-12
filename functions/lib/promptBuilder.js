@@ -837,10 +837,22 @@ const QUICK_INSIGHTS_INSTRUCTIONS = `Respond in JSON format with this exact stru
 {
   "top_patterns": ["exactly 3 one-sentence pattern observations — specific, actionable, grounded in the rider's data"],
   "priority_this_week": "one clear, achievable focus for the next 7 days with specific context from their data",
-  "celebration": "one genuine breakthrough or success from recent rides — connect it to their broader progress, not empty praise"
+  "celebration": "one genuine breakthrough or success from recent rides — connect it to their broader progress, not empty praise",
+  "priority_closer": {
+    "restatement": "2–3 sentence restatement of the priority as a direct commitment frame in second person. Not 'you should focus on...' but 'This week, your laboratory is...' It should feel like the coaching team has converged and handed the rider one thing to carry out the door.",
+    "strategy_prompt": "→ One specific open-ended question asking how the rider will make this priority real in their specific situation. Must reference something particular from their data — a horse, a movement, a pattern, a context.",
+    "evidence_prompt": "→ One specific open-ended question asking how the rider will know this week whether they actually lived the priority — not whether they got the outcome right, but whether they genuinely made it a focus."
+  }
 }
 
-CRITICAL for priority_this_week: This must be FORWARD-LOOKING. Identify something the rider has NOT yet achieved or is still developing — never recommend something they have already accomplished or that appears as a win/celebration in their recent rides. If their data shows a breakthrough or success in an area, that area should move to the celebration field, not the priority. The priority should address an unresolved challenge, an emerging opportunity, or the logical next step beyond their recent progress.`;
+CRITICAL for priority_this_week: This must be FORWARD-LOOKING. Identify something the rider has NOT yet achieved or is still developing — never recommend something they have already accomplished or that appears as a win/celebration in their recent rides. If their data shows a breakthrough or success in an area, that area should move to the celebration field, not the priority. The priority should address an unresolved challenge, an emerging opportunity, or the logical next step beyond their recent progress.
+
+PRIORITY CLOSER GENERATION RULES:
+- The restatement must reframe priority_this_week as a commitment, not a suggestion.
+- Both prompts must be generated fresh from this rider's specific data — never templated.
+- The strategy prompt asks how they'll keep the priority front of mind.
+- The evidence prompt asks what success feels like from the inside, not the outside.
+- Each prompt string must begin with the arrow character: →`;
 
 // ─── Prompt Builders ────────────────────────────────────────────────
 
