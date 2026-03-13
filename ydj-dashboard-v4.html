@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YDJ Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root {
+  --parchment:      #f5ede0;
+  --parchment-dark: #e8d9c4;
+  --parchment-mid:  #ede1ce;
+  --parchment-off:  #faf6f0;
+  --ink:            #2c1f14;
+  --ink-mid:        #4a3220;
+  --ink-light:      #6b4f38;
+  --gold:           #b8862a;
+  --gold-light:     #d4a84b;
+  --gold-pale:      #f0d89a;
+  --track:          #8b6340;
+  --rust:           #7a3020;
+  --forest-light:   #3d6b46;
+  --opt:            #7a3f72;
+  --sky:            #2e5c82;
+  --sky-border:     rgba(46,92,130,0.28);
+  --done:           #3d6b46;
+
+  /* left-edge accent colours */
+  --c-debrief:  #8B7355;
+  --c-reflect:  #4A90E2;
+  --c-observe:  #8B5CF6;
+  --c-health:   #3d6b46;
+  --c-lesson:   #C67B5C;
+  --c-event:    #6B8E5F;
+  --c-show:     #C67B5C;
+  --c-assess:   #b8862a;
+  --c-review:   #2e5c82;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Work Sans', sans-serif;
+  background: var(--parchment);
+  color: var(--ink);
+  min-height: 100vh;
+  line-height: 1.5;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
+}
+a { text-decoration: none; color: inherit; }
+
+/* ============================================================
+   TOP NAV
+   ============================================================ */
+.top-nav {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--ink);
+  border-bottom: 2px solid var(--gold);
+  padding: 0 1rem;
+  display: flex; align-items: center;
+  overflow-x: auto; scrollbar-width: none;
+}
+.top-nav::-webkit-scrollbar { display: none; }
+
+.nav-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.88rem; font-weight: 700;
+  color: var(--gold-light); letter-spacing: 0.5px;
+  white-space: nowrap; flex-shrink: 0;
+  padding: 0.8rem 0.9rem 0.8rem 0;
+  margin-right: 0.1rem;
+  border-right: 1px solid rgba(255,255,255,0.12);
+}
+.nav-btn {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  padding: 0.8rem 0.65rem;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.72rem; font-weight: 500; letter-spacing: 0.35px;
+  color: rgba(255,255,255,0.58);
+  white-space: nowrap; border: none; background: none;
+  cursor: pointer; transition: color 0.15s; flex-shrink: 0;
+  text-transform: uppercase;
+}
+.nav-btn:hover { color: var(--gold-light); }
+.nav-btn.active { color: white; border-bottom: 2px solid var(--gold-light); margin-bottom: -2px; }
+.nav-btn.nav-special { color: var(--gold-light); opacity: 0.9; font-weight: 600; }
+.nav-btn.nav-special:hover { opacity: 1; }
+.nav-btn.nav-help { color: rgba(255,255,255,0.42); font-size: 0.68rem; }
+.nav-btn.nav-help:hover { color: rgba(255,255,255,0.8); }
+.nav-sep { width: 1px; height: 13px; background: rgba(255,255,255,0.1); flex-shrink: 0; margin: 0 0.05rem; }
+.nav-group-label {
+  font-size: 0.56rem; font-weight: 700; letter-spacing: 1.8px;
+  text-transform: uppercase; color: rgba(255,255,255,0.22);
+  padding: 0 0.25rem 0 0.55rem; flex-shrink: 0; white-space: nowrap;
+}
+
+/* ============================================================
+   PAGE SHELL
+   ============================================================ */
+.page {
+  position: relative; z-index: 1;
+  max-width: 940px; margin: 0 auto;
+  padding: 2rem 1.25rem 5rem;
+  display: flex; flex-direction: column; gap: 0;
+}
+
+/* Welcome */
+.welcome-strip {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--parchment-dark);
+}
+.welcome-strip h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem; font-weight: 700; color: var(--ink);
+}
+.welcome-sub { font-size: 0.78rem; color: var(--ink-light); margin-top: 0.15rem; }
+.welcome-tagline {
+  font-size: 0.66rem; letter-spacing: 3px; font-weight: 600;
+  color: var(--gold); text-transform: uppercase; flex-shrink: 0;
+}
+
+/* ── Shared block styles ── */
+.block {
+  background: white;
+  border: 1.5px solid var(--parchment-dark);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+.block-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.1rem 1.5rem 0.9rem;
+  border-bottom: 1px solid var(--parchment-dark);
+  background: var(--parchment-off);
+}
+.block-header-left { display: flex; align-items: baseline; gap: 0.75rem; }
+.block-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem; font-weight: 700; color: var(--ink);
+}
+.block-subtitle { font-size: 0.74rem; color: var(--ink-light); }
+.block-meta { font-size: 0.72rem; color: var(--ink-light); }
+.block-body { padding: 1.35rem 1.5rem; }
+
+/* ── Shared section-rule ── */
+.rule-line {
+  height: 1px;
+  background: linear-gradient(90deg, var(--parchment-dark), transparent);
+  margin: 1.25rem 0;
+}
+
+/* ============================================================
+   BLOCK 1 — CURRENT STATS
+   ============================================================ */
+
+/* Stat cards */
+.stat-cards {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 0.75rem; margin-bottom: 1rem;
+}
+.stat-card {
+  border: 1.5px solid var(--parchment-dark);
+  border-radius: 12px; padding: 1rem 0.9rem;
+  text-align: center; background: white;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.stat-card:hover { box-shadow: 0 4px 16px rgba(44,31,20,0.08); transform: translateY(-2px); }
+.stat-card.ok    { border-color: rgba(61,107,70,0.3); }
+.stat-card.warn  {
+  border-color: rgba(122,48,32,0.3);
+  background: linear-gradient(145deg,#fdf7f4,white);
+  position: relative;
+}
+.stat-card.warn::after {
+  content: '';
+  position: absolute; top: 8px; right: 9px;
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--rust); opacity: 0.55;
+}
+.stat-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem; font-weight: 700; color: var(--gold);
+  line-height: 1; margin-bottom: 0.22rem;
+}
+.stat-card.warn .stat-value { color: var(--rust); }
+.stat-value small { font-size: 0.5em; font-weight: 400; color: var(--ink-light); }
+.stat-label { font-size: 0.67rem; font-weight: 600; color: var(--ink-light); text-transform: uppercase; letter-spacing: 0.6px; }
+.stat-card.warn .stat-label { color: var(--rust); opacity: 0.75; }
+.stat-hint { font-size: 0.64rem; color: var(--rust); font-style: italic; margin-top: 0.25rem; opacity: 0.8; line-height: 1.2; }
+
+/* Progress nudge */
+.progress-nudge {
+  display: flex; align-items: flex-start; gap: 0.7rem;
+  padding: 0.8rem 1rem;
+  background: rgba(122,48,32,0.05);
+  border: 1.5px solid rgba(122,48,32,0.18);
+  border-left: 4px solid var(--rust);
+  border-radius: 10px;
+  margin-bottom: 1.1rem;
+}
+.nudge-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+.nudge-body { flex: 1; }
+.nudge-title { font-size: 0.8rem; font-weight: 600; color: var(--rust); margin-bottom: 0.18rem; }
+.nudge-text  { font-size: 0.73rem; color: var(--ink-mid); line-height: 1.5; }
+.nudge-text strong { color: var(--rust); }
+.nudge-actions { display: flex; gap: 0.45rem; margin-top: 0.5rem; flex-wrap: wrap; }
+.nudge-btn {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  padding: 0.3rem 0.75rem;
+  background: white; border: 1.5px solid rgba(122,48,32,0.3);
+  border-radius: 6px; color: var(--rust);
+  font-size: 0.72rem; font-weight: 600;
+  cursor: pointer; font-family: 'Work Sans', sans-serif;
+  transition: all 0.15s;
+}
+.nudge-btn:hover { background: rgba(122,48,32,0.07); border-color: var(--rust); }
+
+/* Viz panel */
+.viz-panel {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
+  padding: 1.1rem 1.5rem 1.2rem;
+  background: var(--parchment-off);
+  border-top: 1px solid var(--parchment-dark);
+}
+.viz-col-title {
+  font-size: 0.64rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--track); margin-bottom: 0.85rem;
+}
+.viz-note { font-size: 9.5px; color: var(--ink-light); margin-top: 7px; font-style: italic; }
+
+/* Sparklines */
+.sparkline-wrap { display: flex; flex-direction: column; gap: 7px; }
+.sparkline-row  { display: flex; align-items: center; gap: 8px; }
+.spark-label    { font-size: 10.5px; color: var(--ink-light); width: 68px; flex-shrink: 0; text-align: right; }
+.spark-track    { flex: 1; height: 26px; }
+.spark-track svg{ width: 100%; height: 26px; }
+.spark-val      { font-size: 10.5px; font-weight: 600; color: var(--ink); width: 18px; flex-shrink: 0; }
+
+/* Bar chart */
+.bar-chart  { display: flex; flex-direction: column; gap: 6px; }
+.bar-row    { display: flex; align-items: center; gap: 7px; }
+.bar-label  { font-size: 9.5px; color: var(--ink-light); width: 88px; flex-shrink: 0; text-align: right; line-height: 1.3; }
+.bar-track  { flex: 1; height: 10px; background: var(--parchment-dark); border-radius: 5px; overflow: hidden; }
+.bar-fill   { height: 100%; border-radius: 5px; transition: width 0.9s ease; }
+.bar-val    { font-size: 9.5px; font-weight: 600; color: var(--ink); width: 16px; }
+
+/* ============================================================
+   BLOCK 2 — WEEKLY FOCUS
+   ============================================================ */
+
+/* Celebration card */
+.celebration {
+  background: linear-gradient(135deg,#fdf6e8,#f5ead0);
+  border: 1.5px solid var(--gold-light); border-left: 4px solid var(--gold);
+  border-radius: 10px; padding: 16px 18px; margin-bottom: 16px;
+  position: relative; overflow: hidden;
+  animation: cardIn 0.4s ease both;
+}
+.celebration::before {
+  content: '★'; position: absolute; right: 16px; top: 12px;
+  font-size: 30px; color: var(--gold-pale); line-height: 1;
+}
+.cel-eyebrow { font-size: 9px; font-weight: 700; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; margin-bottom: 6px; }
+.celebration blockquote {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(12px,2.4vw,14px); font-style: italic;
+  color: var(--ink); line-height: 1.65; margin-bottom: 5px;
+}
+.cel-meta { font-size: 10.5px; color: var(--ink-light); }
+.cel-meta em { font-family: 'Playfair Display', serif; font-style: italic; color: var(--gold); }
+
+/* Mode bar */
+.mode-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--parchment-dark); border-radius: 9px;
+  padding: 7px 13px; margin-bottom: 16px;
+  border: 1px solid rgba(184,134,42,0.22); flex-wrap: wrap; gap: 8px;
+}
+.mode-label { font-size: 9.5px; font-weight: 700; letter-spacing: 2px; color: var(--ink-light); text-transform: uppercase; }
+.mode-toggle { display: flex; gap: 5px; }
+.mode-btn {
+  font-family: 'Work Sans', sans-serif; font-size: 9.5px; font-weight: 600;
+  letter-spacing: 1px; padding: 4px 12px; border-radius: 20px;
+  border: 1.5px solid transparent; background: transparent;
+  color: var(--ink-light); text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s;
+}
+.mode-btn.active { background: var(--gold); border-color: var(--gold); color: white; }
+.mode-btn:hover:not(.active) { border-color: var(--gold); color: var(--gold); }
+.progress-summary { font-size: 10.5px; color: var(--ink-light); }
+.progress-summary span { color: var(--gold); font-weight: 600; }
+.mode-hint {
+  opacity: 0; height: 0; overflow: hidden; transition: all 0.3s;
+  font-size: 10px; color: var(--rust); font-weight: 500; text-align: center;
+}
+.mode-hint.visible { opacity: 1; height: auto; margin-bottom: 10px; }
+
+/* Insight card grid */
+.sections-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.full-width { grid-column: 1 / -1; }
+
+.insight-card {
+  background: white; border: 1.5px solid var(--parchment-dark);
+  border-radius: 12px; overflow: hidden;
+  transition: box-shadow 0.25s, opacity 0.3s;
+  animation: cardIn 0.4s ease both;
+}
+.insight-card:nth-child(1){animation-delay:.04s}
+.insight-card:nth-child(2){animation-delay:.10s}
+.insight-card:nth-child(3){animation-delay:.16s}
+.insight-card:nth-child(4){animation-delay:.22s}
+@keyframes cardIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+.insight-card.pinned { border-color: var(--gold-light); box-shadow: 0 2px 16px rgba(184,134,42,0.18); }
+.insight-card.completed { opacity: 0.5; }
+.insight-card.completed .card-title { text-decoration: line-through; opacity: 0.6; }
+.done-stripe { height: 3px; background: linear-gradient(90deg,var(--forest-light),transparent); opacity: 0; transition: opacity 0.3s; }
+.insight-card.completed .done-stripe { opacity: 1; }
+
+.card-header {
+  display: flex; align-items: center; gap: 9px;
+  padding: 11px 13px 9px; border-bottom: 1px solid var(--parchment-dark);
+  background: var(--parchment); cursor: pointer; user-select: none;
+}
+.card-icon {
+  width: 28px; height: 28px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; flex-shrink: 0;
+}
+.icon-coaching { background: rgba(122,63,114,0.12); }
+.icon-gpt      { background: rgba(46,92,130,0.10); }
+.icon-physical { background: rgba(42,74,48,0.10); }
+.icon-show     { background: rgba(122,48,32,0.10); }
+
+.card-title-block { flex: 1; min-width: 0; }
+.card-label { font-size: 8.5px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 2px; }
+.label-coaching { color: var(--opt); }
+.label-gpt      { color: var(--sky); }
+.label-physical { color: var(--forest-light); }
+.label-show     { color: var(--rust); }
+.card-title {
+  font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 600;
+  color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.card-actions { display: flex; gap: 3px; flex-shrink: 0; }
+.pin-btn, .check-btn {
+  width: 24px; height: 24px; border-radius: 50%; border: none;
+  background: transparent; cursor: pointer; display: flex; align-items: center;
+  justify-content: center; font-size: 11px; transition: background 0.2s, transform 0.15s;
+  color: var(--ink-light);
+}
+.pin-btn:hover   { background: rgba(184,134,42,0.10); }
+.check-btn:hover { background: rgba(61,107,70,0.10); }
+.pin-btn.active  { color: var(--gold); transform: rotate(-45deg); }
+.check-btn.active{ color: var(--done); }
+
+.card-body { padding: 13px; }
+.card-body.collapsed { display: none; }
+
+.voice-tag {
+  display: inline-block; font-size: 8.5px; font-weight: 600; letter-spacing: 1.5px;
+  text-transform: uppercase; padding: 2px 8px; border-radius: 10px; margin-bottom: 8px;
+}
+.voice-2 { background: rgba(46,92,130,0.10); color: var(--sky); }
+.voice-0 { background: rgba(122,63,114,0.10); color: var(--opt); }
+
+.insight-text {
+  font-family: 'Playfair Display', serif; font-size: 12.5px; font-style: italic;
+  color: var(--ink); line-height: 1.65; margin-bottom: 10px;
+}
+.insight-link {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10.5px; font-weight: 600; color: var(--opt);
+  border-bottom: 1.5px solid rgba(122,63,114,0.28); padding-bottom: 1px; transition: color 0.2s;
+}
+.insight-link:hover { color: var(--gold); border-color: var(--gold); }
+.reflection-nudge {
+  background: var(--parchment-dark); border-radius: 7px;
+  padding: 7px 10px; margin-top: 10px;
+  font-size: 10px; color: var(--ink-light); line-height: 1.5;
+  border-left: 3px solid var(--gold-pale); font-style: italic;
+}
+
+.gpt-list { list-style: none; }
+.gpt-item { display: flex; align-items: flex-start; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--parchment-mid); }
+.gpt-item:last-child { border-bottom: none; padding-bottom: 0; }
+.gpt-check {
+  width: 18px; height: 18px; border: 2px solid var(--sky-border); border-radius: 4px;
+  flex-shrink: 0; margin-top: 1px; display: flex; align-items: center;
+  justify-content: center; cursor: pointer; transition: all 0.2s; font-size: 9px; color: transparent;
+}
+.gpt-check.done { background: var(--sky); border-color: var(--sky); color: white; }
+.gpt-title { font-size: 11.5px; font-weight: 600; color: var(--ink); margin-bottom: 2px; line-height: 1.3; }
+.gpt-desc  { font-size: 10px; color: var(--ink-light); line-height: 1.4; }
+.gpt-note  { font-size: 9px; color: var(--sky); font-weight: 500; margin-top: 2px; }
+
+.phys-list { list-style: none; }
+.phys-item { display: flex; align-items: flex-start; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--parchment-mid); }
+.phys-item:last-child { border-bottom: none; padding-bottom: 0; }
+.phys-dot  { width: 7px; height: 7px; border-radius: 50%; background: var(--forest-light); margin-top: 4px; flex-shrink: 0; }
+.phys-text { flex: 1; font-size: 11.5px; color: var(--ink); line-height: 1.4; }
+.phys-sub  { font-size: 9.5px; color: var(--ink-light); margin-top: 1px; font-style: italic; }
+.phys-check {
+  width: 18px; height: 18px; border: 2px solid rgba(61,107,70,0.28); border-radius: 50%;
+  flex-shrink: 0; display: flex; align-items: center;
+  justify-content: center; cursor: pointer; transition: all 0.2s; font-size: 9px; color: transparent;
+}
+.phys-check.done { background: var(--forest-light); border-color: var(--forest-light); color: white; }
+
+.no-show-state {
+  text-align: center; padding: 18px 10px;
+  font-size: 11.5px; color: var(--ink-light); font-style: italic; line-height: 1.6;
+}
+.no-show-icon { font-size: 22px; margin-bottom: 6px; opacity: 0.35; }
+
+body.priority-mode .insight-card:not(.pinned) { opacity: 0.22; pointer-events: none; }
+body.priority-mode .insight-card.pinned       { opacity: 1; pointer-events: all; }
+
+.focus-footer {
+  text-align: center; padding-top: 0.75rem;
+  font-size: 9.5px; color: var(--ink-light); letter-spacing: 0.8px;
+}
+.focus-footer em { font-family: 'Playfair Display', serif; font-style: italic; color: var(--gold); }
+
+/* ============================================================
+   BLOCK 3 — DATA MANAGEMENT
+   ============================================================ */
+.dm-sections {
+  display: flex; flex-direction: column; gap: 1.4rem;
+}
+
+/* Section label + card grid */
+.dm-group {}
+.dm-group-label {
+  font-size: 0.64rem; font-weight: 700; letter-spacing: 2.5px;
+  text-transform: uppercase; color: var(--track);
+  margin-bottom: 0.55rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.dm-group-label::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, var(--parchment-dark), transparent);
+}
+
+.dm-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+  gap: 0.5rem;
+}
+
+/* Base card */
+.dm-card {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.65rem 0.85rem;
+  background: white;
+  border: 1.5px solid var(--parchment-dark);
+  border-left: 4px solid var(--c-debrief);
+  border-radius: 9px;
+  cursor: pointer; transition: all 0.17s;
+  text-decoration: none;
+}
+.dm-card:hover {
+  box-shadow: 0 3px 12px rgba(44,31,20,0.08);
+  transform: translateX(3px);
+  background: var(--parchment-off);
+}
+.dm-icon  { font-size: 1rem; flex-shrink: 0; opacity: 0.82; }
+.dm-text  { min-width: 0; flex: 1; }
+.dm-label { font-weight: 600; font-size: 0.84rem; color: var(--ink); line-height: 1.2; }
+.dm-desc  { font-size: 0.7rem; color: var(--ink-light); margin-top: 0.07rem; line-height: 1.25; }
+.dm-arrow {
+  font-size: 0.95rem; font-weight: 700; color: var(--gold);
+  flex-shrink: 0; opacity: 0.45; transition: opacity 0.15s;
+}
+.dm-card:hover .dm-arrow { opacity: 1; }
+
+/* Review cards get a softer blue tint */
+.dm-card.review {
+  background: rgba(46,92,130,0.03);
+  border-left-color: var(--c-review);
+}
+.dm-card.review:hover { background: rgba(46,92,130,0.07); }
+.dm-card.review .dm-label { color: var(--sky); }
+.dm-card.review .dm-arrow { color: var(--sky); }
+
+/* Assess cards — gold tint */
+.dm-card.assess { border-left-color: var(--c-assess); }
+.dm-card.assess .dm-arrow { color: var(--c-assess); }
+
+/* Export strip */
+.export-strip {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; flex-wrap: wrap;
+  padding: 0.9rem 1.1rem;
+  background: var(--parchment-dark);
+  border: 1px solid var(--parchment-mid);
+  border-radius: 10px;
+  margin-top: 0.25rem;
+}
+.export-label strong { display: block; font-size: 0.84rem; color: var(--ink); margin-bottom: 0.1rem; }
+.export-label span   { font-size: 0.73rem; color: var(--ink-light); }
+.export-btns { display: flex; gap: 0.45rem; flex-wrap: wrap; }
+.btn-export {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  padding: 0.42rem 1rem;
+  background: white; border: 1.5px solid var(--parchment-dark);
+  border-radius: 7px; color: var(--ink-mid);
+  font-size: 0.78rem; font-weight: 500;
+  cursor: pointer; font-family: 'Work Sans', sans-serif;
+  transition: all 0.17s;
+}
+.btn-export:hover { border-color: var(--gold); color: var(--ink); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 700px) {
+  .stat-cards    { grid-template-columns: repeat(2,1fr); }
+  .sections-grid { grid-template-columns: 1fr; }
+  .viz-panel     { grid-template-columns: 1fr; gap: 1.5rem; }
+  .dm-cards      { grid-template-columns: 1fr; }
+}
+@media (max-width: 440px) {
+  .page { padding: 1.25rem 0.9rem 3.5rem; }
+  .block-body { padding: 1rem; }
+}
+
+/* ============================================================
+   ARRANGE MODE
+   ============================================================ */
+
+/* Arrange toggle button — sits in welcome strip */
+.arrange-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.38rem 0.85rem;
+  background: white;
+  border: 1.5px solid var(--parchment-dark);
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.74rem; font-weight: 600;
+  color: var(--ink-light);
+  cursor: pointer; transition: all 0.18s;
+  flex-shrink: 0;
+}
+.arrange-btn:hover { border-color: var(--gold); color: var(--gold); }
+.arrange-btn.active {
+  background: var(--gold); border-color: var(--gold);
+  color: white;
+}
+.arrange-btn .arrange-icon { font-size: 0.85em; }
+
+/* Drag handle — hidden by default, shown in arrange mode */
+.drag-handle {
+  display: none;
+  align-items: center; gap: 0.4rem;
+  padding: 0.3rem 0.65rem;
+  background: var(--gold);
+  color: white;
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; cursor: grab;
+  border-radius: 6px;
+  user-select: none;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.drag-handle:active { cursor: grabbing; background: var(--gold-light); }
+.drag-handle .grip { font-size: 1rem; opacity: 0.8; letter-spacing: -1px; }
+
+/* Arrange mode active states */
+body.arrange-mode .block {
+  cursor: default;
+  outline: 2px dashed rgba(184,134,42,0.35);
+  outline-offset: 2px;
+  transition: outline 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+body.arrange-mode .block:hover {
+  outline-color: var(--gold);
+  box-shadow: 0 4px 20px rgba(184,134,42,0.15);
+}
+body.arrange-mode .drag-handle { display: inline-flex; }
+
+/* Dragging state */
+.block.dragging {
+  opacity: 0.45;
+  transform: scale(0.985);
+  box-shadow: 0 8px 32px rgba(44,31,20,0.18) !important;
+}
+
+/* Drop target indicator */
+.block.drag-over {
+  outline: 2px solid var(--gold) !important;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px rgba(184,134,42,0.12) !important;
+}
+
+/* Saved confirmation toast */
+.order-toast {
+  position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(60px);
+  background: var(--ink); color: var(--gold-light);
+  padding: 0.55rem 1.25rem; border-radius: 8px;
+  font-size: 0.78rem; font-weight: 500; letter-spacing: 0.3px;
+  box-shadow: 0 4px 18px rgba(44,31,20,0.2);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  opacity: 0; pointer-events: none; z-index: 200;
+  white-space: nowrap;
+}
+.order-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     TOP NAV
+     ══════════════════════════════════════════ -->
+<nav class="top-nav">
+  <div class="nav-brand">YDJ</div>
+
+  <a href="#" class="nav-btn active">⌂ Home</a>
+  <div class="nav-sep"></div>
+
+  <!-- Always-visible utility trio -->
+  <a href="#" class="nav-btn nav-special">◈ Quick Start</a>
+  <a href="#" class="nav-btn nav-special">✦ Insights</a>
+  <a href="#" class="nav-btn nav-help">? Help</a>
+  <div class="nav-sep"></div>
+
+  <!-- Record -->
+  <span class="nav-group-label">Record</span>
+  <a href="#" class="nav-btn">Debrief</a>
+  <a href="#" class="nav-btn">Reflection</a>
+  <a href="#" class="nav-btn">Observation</a>
+  <a href="#" class="nav-btn">Lesson</a>
+  <a href="#" class="nav-btn">Health</a>
+  <a href="#" class="nav-btn">Event</a>
+  <div class="nav-sep"></div>
+
+  <!-- Plan -->
+  <span class="nav-group-label">Plan</span>
+  <a href="#" class="nav-btn">Show Prep</a>
+  <div class="nav-sep"></div>
+
+  <!-- AI Coaching -->
+  <span class="nav-group-label">AI Coaching</span>
+  <a href="#" class="nav-btn">Weekly Focus</a>
+  <a href="#" class="nav-btn">Journey Map</a>
+  <a href="#" class="nav-btn">Multi-Voice</a>
+  <a href="#" class="nav-btn">Grand Prix</a>
+  <div class="nav-sep"></div>
+
+  <!-- Profiles -->
+  <span class="nav-group-label">Profiles</span>
+  <a href="#" class="nav-btn">Rider</a>
+  <a href="#" class="nav-btn">Horses</a>
+</nav>
+
+
+<!-- ══════════════════════════════════════════
+     PAGE
+     ══════════════════════════════════════════ -->
+<div class="page">
+
+  <div class="welcome-strip">
+    <div>
+      <h1>Welcome back, Barb.</h1>
+      <div class="welcome-sub">Thursday, March 12, 2026</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:1rem;flex-shrink:0;">
+      <div class="welcome-tagline">Illuminate Your Journey</div>
+      <button class="arrange-btn" id="arrange-btn" onclick="toggleArrange()">
+        <span class="arrange-icon">⠿</span> Arrange
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast confirmation -->
+  <div class="order-toast" id="order-toast">Layout saved ✓</div>
+
+
+  <!-- ══════════════════════════════════════
+       BLOCK 1 — CURRENT STATS
+       ══════════════════════════════════════ -->
+  <div id="block-container">
+
+  <div class="block" data-block="stats">
+    <div class="block-header">
+      <div class="block-header-left">
+        <div class="block-title">Current Stats</div>
+        <div class="block-subtitle">Your journey so far</div>
+      </div>
+      <div class="drag-handle" title="Drag to reorder"><span class="grip">⠿⠿</span> Drag</div>
+    </div>
+
+    <div class="block-body">
+
+      <!-- Stat cards -->
+      <div class="stat-cards">
+        <div class="stat-card ok">
+          <div class="stat-value">12</div>
+          <div class="stat-label">Rides Logged</div>
+        </div>
+        <div class="stat-card ok">
+          <div class="stat-value">8</div>
+          <div class="stat-label">Reflections</div>
+        </div>
+        <!-- ⚠ categories not fully covered -->
+        <div class="stat-card warn">
+          <div class="stat-value">4<small>/6</small></div>
+          <div class="stat-label">Reflection Categories</div>
+          <div class="stat-hint">2 categories not yet tried</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">3<small>wk</small></div>
+          <div class="stat-label">Riding Streak</div>
+        </div>
+      </div>
+
+      <!-- Progress nudge (hidden once all thresholds met) -->
+      <div class="progress-nudge">
+        <div class="nudge-icon">💡</div>
+        <div class="nudge-body">
+          <div class="nudge-title">Your AI coaching gets richer as you log more</div>
+          <div class="nudge-text">
+            Rides and reflections are looking good. To unlock the full depth of pattern analysis,
+            try logging in <strong>all 6 reflection categories</strong> at least once.
+            Still missing: <strong>External Validation</strong> and <strong>Feel / Body Awareness</strong>.
+          </div>
+          <div class="nudge-actions">
+            <a href="#" class="nudge-btn">＋ Add a Reflection</a>
+            <a href="#" class="nudge-btn">◈ View Quick Start Map</a>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /block-body -->
+
+    <!-- Patterns viz — inset at base of block -->
+    <div class="viz-panel">
+      <div>
+        <div class="viz-col-title">Ride Quality &amp; Confidence · Last 8 Rides</div>
+        <div class="sparkline-wrap" id="sparklines"></div>
+        <div class="viz-note">Mar 2 → Mar 11 · All horses</div>
+      </div>
+      <div>
+        <div class="viz-col-title">Intention Ratings · 4-Week Average</div>
+        <div class="bar-chart" id="bar-chart"></div>
+        <div class="viz-note">5.0 = consistently yes · "allow" score is the one to watch</div>
+      </div>
+    </div>
+
+  </div><!-- /block 1 -->
+
+
+  <!-- ══════════════════════════════════════
+       BLOCK 2 — WEEKLY FOCUS
+       ══════════════════════════════════════ -->
+  <div class="block" data-block="focus">
+    <div class="block-header">
+      <div class="block-header-left">
+        <div class="block-title">Weekly Focus</div>
+        <div class="block-subtitle">March 11–17, 2026</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <div class="block-meta">
+          <span id="done-count">0</span> of <span id="total-count">0</span> items touched
+        </div>
+        <div class="drag-handle" title="Drag to reorder"><span class="grip">⠿⠿</span> Drag</div>
+      </div>
+    </div>
+
+    <div class="block-body">
+
+      <!-- Celebration -->
+      <div class="celebration">
+        <div class="cel-eyebrow">✦ A Moment Worth Keeping</div>
+        <blockquote>
+          "Martin told Cindy we were doing the ones. A bit of an exaggeration — but I appreciated
+          the vote of confidence. You need to move your legs really fast!"
+        </blockquote>
+        <div class="cel-meta">Rocket Star · March 8 Clinic · <em>Personal Milestone</em></div>
+      </div>
+
+      <!-- Mode bar -->
+      <div class="mode-bar">
+        <div class="mode-label">View</div>
+        <div class="mode-toggle">
+          <button class="mode-btn active" onclick="setMode('all',this)">All</button>
+          <button class="mode-btn" onclick="setMode('priority',this)">My Priorities</button>
+        </div>
+      </div>
+      <div class="mode-hint" id="mode-hint">Pin what matters most this week — everything else will step back.</div>
+
+      <!-- Insight cards -->
+      <div class="sections-grid">
+
+        <!-- Coaching -->
+        <div class="insight-card" id="card-coaching">
+          <div class="done-stripe"></div>
+          <div class="card-header" onclick="toggleCollapse('coaching')">
+            <div class="card-icon icon-coaching">🎯</div>
+            <div class="card-title-block">
+              <div class="card-label label-coaching">Key Insight · Multi-Voice</div>
+              <div class="card-title">Doing vs. allowing — still the work</div>
+            </div>
+            <div class="card-actions">
+              <button class="pin-btn" id="pin-coaching" onclick="togglePin(event,'coaching')">📌</button>
+              <button class="check-btn" id="check-coaching" onclick="toggleDone(event,'coaching')">✓</button>
+            </div>
+          </div>
+          <div class="card-body" id="body-coaching">
+            <div class="voice-tag voice-2">The Technical Coach</div>
+            <div class="insight-text">
+              "Your 'Allow more than do' intention has been your most consistently underrated across
+              the past 15 rides — averaging 3.4 out of 5. Your best moments this week happened
+              precisely when you stopped managing and started receiving."
+            </div>
+            <div class="voice-tag voice-0">The Classical Master</div>
+            <div class="insight-text" style="font-size:12px; margin-bottom:10px;">
+              "You wrote it yourself: the blue sky is already there. You are not creating harmony —
+              you are removing what blocks it."
+            </div>
+            <a href="#" class="insight-link">View full Multi-Voice Analysis →</a>
+            <div class="reflection-nudge">
+              After each ride this week: Where did you feel yourself grab the reins — literally or figuratively?
+            </div>
+          </div>
+        </div>
+
+        <!-- Grand Prix Thinking -->
+        <div class="insight-card" id="card-gpt">
+          <div class="done-stripe"></div>
+          <div class="card-header" onclick="toggleCollapse('gpt')">
+            <div class="card-icon icon-gpt">🧠</div>
+            <div class="card-title-block">
+              <div class="card-label label-gpt">Grand Prix Thinking</div>
+              <div class="card-title">This week's assignments</div>
+            </div>
+            <div class="card-actions">
+              <button class="pin-btn" id="pin-gpt" onclick="togglePin(event,'gpt')">📌</button>
+              <button class="check-btn" id="check-gpt" onclick="toggleDone(event,'gpt')">✓</button>
+            </div>
+          </div>
+          <div class="card-body" id="body-gpt">
+            <ul class="gpt-list">
+              <li class="gpt-item">
+                <div class="gpt-check" onclick="toggleItemCheck(this)">✓</div>
+                <div>
+                  <div class="gpt-title">Let Rocket teach you the ones</div>
+                  <div class="gpt-desc">Receive information — not execute. What is he telling you about timing?</div>
+                  <div class="gpt-note">↗ Builds toward: Inter I tempi changes, rider feel</div>
+                </div>
+              </li>
+              <li class="gpt-item">
+                <div class="gpt-check" onclick="toggleItemCheck(this)">✓</div>
+                <div>
+                  <div class="gpt-title">Pirouette: energy up, not out</div>
+                  <div class="gpt-desc">Notice the moment energy escapes forward. Half-steps as the on-ramp.</div>
+                  <div class="gpt-note">↗ Builds toward: GP pirouette quality</div>
+                </div>
+              </li>
+              <li class="gpt-item">
+                <div class="gpt-check" onclick="toggleItemCheck(this)">✓</div>
+                <div>
+                  <div class="gpt-title">One ride: no fixing, only noticing</div>
+                  <div class="gpt-desc">Ideally Pony — ride with the sole intention of observing. Note it after.</div>
+                  <div class="gpt-note">↗ Builds toward: "Allow more than do" pattern</div>
+                </div>
+              </li>
+            </ul>
+            <a href="#" class="insight-link" style="margin-top:10px;display:inline-flex;">View full Grand Prix Thinking →</a>
+          </div>
+        </div>
+
+        <!-- Physical -->
+        <div class="insight-card" id="card-physical">
+          <div class="done-stripe"></div>
+          <div class="card-header" onclick="toggleCollapse('physical')">
+            <div class="card-icon icon-physical">🌿</div>
+            <div class="card-title-block">
+              <div class="card-label label-physical">Physical Awareness</div>
+              <div class="card-title">What your body keeps saying</div>
+            </div>
+            <div class="card-actions">
+              <button class="pin-btn" id="pin-physical" onclick="togglePin(event,'physical')">📌</button>
+              <button class="check-btn" id="check-physical" onclick="toggleDone(event,'physical')">✓</button>
+            </div>
+          </div>
+          <div class="card-body" id="body-physical">
+            <ul class="phys-list">
+              <li class="phys-item">
+                <div class="phys-dot"></div>
+                <div class="phys-text">
+                  <strong>Upper back as the tool, not the hands</strong> — nearly every ride note this month.
+                  <div class="phys-sub">Mentioned: 11 of last 15 rides</div>
+                </div>
+                <div class="phys-check" onclick="togglePhysCheck(this)">✓</div>
+              </li>
+              <li class="phys-item">
+                <div class="phys-dot"></div>
+                <div class="phys-text">
+                  <strong>Right side — strong but less balanced</strong> — right shoulder collapses in right-lead canter on Pony.
+                  <div class="phys-sub">Cross-reference: your own body awareness notes</div>
+                </div>
+                <div class="phys-check" onclick="togglePhysCheck(this)">✓</div>
+              </li>
+              <li class="phys-item">
+                <div class="phys-dot"></div>
+                <div class="phys-text"><strong>Glutes — soft but not absent</strong> — saddle fit changed everything March 6. Notice if you're gripping in pirouettes.</div>
+                <div class="phys-check" onclick="togglePhysCheck(this)">✓</div>
+              </li>
+              <li class="phys-item">
+                <div class="phys-dot" style="background:var(--rust)"></div>
+                <div class="phys-text" style="color:var(--rust)">
+                  <strong>Rocket's body this week</strong> — bilateral gluteal trigger points, tight lumbar and poll.
+                  <div class="phys-sub">Source: Andria's exam, Feb 27</div>
+                </div>
+                <div class="phys-check" onclick="togglePhysCheck(this)">✓</div>
+              </li>
+            </ul>
+            <div class="reflection-nudge">These aren't corrections to force. They're things to feel.</div>
+            <a href="#" class="insight-link" style="margin-top:10px;display:inline-flex;">View full Physical Guidance →</a>
+          </div>
+        </div>
+
+        <!-- Show Planning -->
+        <div class="insight-card" id="card-show">
+          <div class="done-stripe"></div>
+          <div class="card-header" onclick="toggleCollapse('show')">
+            <div class="card-icon icon-show">🏟</div>
+            <div class="card-title-block">
+              <div class="card-label label-show">Show Planning</div>
+              <div class="card-title">Nothing on the calendar yet</div>
+            </div>
+            <div class="card-actions">
+              <button class="pin-btn" id="pin-show" onclick="togglePin(event,'show')">📌</button>
+              <button class="check-btn" id="check-show" onclick="toggleDone(event,'show')">✓</button>
+            </div>
+          </div>
+          <div class="card-body" id="body-show">
+            <div class="no-show-state">
+              <div class="no-show-icon">🗓</div>
+              No upcoming shows logged. Add an event in the Journey Event Log and your
+              preparation checklist will appear here automatically.
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /sections-grid -->
+
+      <div class="focus-footer" style="padding-top:1rem;">
+        <em>Your job during the ride is to feel. Your job after is to tell the truth about what you felt.</em>
+      </div>
+
+    </div><!-- /block-body -->
+  </div><!-- /block 2 -->
+
+
+  <!-- ══════════════════════════════════════
+       BLOCK 3 — DATA MANAGEMENT
+       ══════════════════════════════════════ -->
+  <div class="block" data-block="data">
+    <div class="block-header">
+      <div class="block-header-left">
+        <div class="block-title">Your Data</div>
+        <div class="block-subtitle">Record · Plan · Assess · Review · Export</div>
+      </div>
+      <div class="drag-handle" title="Drag to reorder"><span class="grip">⠿⠿</span> Drag</div>
+    </div>
+
+    <div class="block-body">
+      <div class="dm-sections">
+
+        <!-- Record -->
+        <div class="dm-group">
+          <div class="dm-group-label">Record</div>
+          <div class="dm-cards">
+            <a href="#" class="dm-card" style="border-left-color:var(--c-debrief)">
+              <div class="dm-icon">🏇</div>
+              <div class="dm-text">
+                <div class="dm-label">Post-Ride Debrief</div>
+                <div class="dm-desc">Log your ride &amp; intentions</div>
+              </div>
+              <div class="dm-arrow">＋</div>
+            </a>
+            <a href="#" class="dm-card" style="border-left-color:var(--c-reflect)">
+              <div class="dm-icon">◇</div>
+              <div class="dm-text">
+                <div class="dm-label">Reflection</div>
+                <div class="dm-desc">Milestones, aha moments, growth</div>
+              </div>
+              <div class="dm-arrow">＋</div>
+            </a>
+            <a href="#" class="dm-card" style="border-left-color:var(--c-observe)">
+              <div class="dm-icon">◎</div>
+              <div class="dm-text">
+                <div class="dm-label">Observation</div>
+                <div class="dm-desc">What you learned watching others</div>
+              </div>
+              <div class="dm-arrow">＋</div>
+            </a>
+            <a href="#" class="dm-card" style="border-left-color:var(--c-lesson)">
+              <div class="dm-icon">📝</div>
+              <div class="dm-text">
+                <div class="dm-label">Lesson Notes</div>
+                <div class="dm-desc">Instructor guidance &amp; cues</div>
+              </div>
+              <div class="dm-arrow">＋</div>
+            </a>
+            <a href="#" class="dm-card" style="border-left-color:var(--c-health)">
+              <div class="dm-icon">🌿</div>
+              <div class="dm-text">
+                <div class="dm-label">Health &amp; Soundness</div>
+                <div class="dm-desc">Vet visits, bodywork, concerns</div>
+              </div>
+              <div class="dm-arrow">＋</div>
+            </a>
+            <a href="#" class="dm-card" style="border-left-color:var(--c-event)">
+              <div class="dm-icon">📅</div>
+              <div class="dm-text">
+                <div class="dm-label">Journey Event</div>
+                <div class="dm-desc">Life changes affecting riding</div>
+              </div>
+              <div class="dm-arrow">＋</div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Plan -->
+        <div class="dm-group">
+          <div class="dm-group-label">Plan</div>
+          <div class="dm-cards">
+            <a href="#" class="dm-card" style="border-left-color:var(--c-show)">
+              <div class="dm-icon">🏟</div>
+              <div class="dm-text">
+                <div class="dm-label">Show Preparation</div>
+                <div class="dm-desc">Personalized show roadmap</div>
+              </div>
+              <div class="dm-arrow">＋</div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Assess -->
+        <div class="dm-group">
+          <div class="dm-group-label">Assess</div>
+          <div class="dm-cards">
+            <a href="#" class="dm-card assess" style="border-left-color:var(--c-assess)">
+              <div class="dm-icon">🎯</div>
+              <div class="dm-text">
+                <div class="dm-label">Rider Self-Assessment</div>
+                <div class="dm-desc">Broad skills &amp; confidence</div>
+              </div>
+              <div class="dm-arrow">→</div>
+            </a>
+            <a href="#" class="dm-card assess" style="border-left-color:var(--c-assess)">
+              <div class="dm-icon">⚖️</div>
+              <div class="dm-text">
+                <div class="dm-label">Technical &amp; Philosophical</div>
+                <div class="dm-desc">Movement-by-movement ratings</div>
+              </div>
+              <div class="dm-arrow">→</div>
+            </a>
+            <a href="#" class="dm-card assess" style="border-left-color:var(--c-assess)">
+              <div class="dm-icon">🌿</div>
+              <div class="dm-text">
+                <div class="dm-label">Physical Self-Assessment</div>
+                <div class="dm-desc">Body awareness &amp; balance</div>
+              </div>
+              <div class="dm-arrow">→</div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Review -->
+        <div class="dm-group">
+          <div class="dm-group-label">Review</div>
+          <div class="dm-cards">
+            <a href="#" class="dm-card review">
+              <div class="dm-icon">📋</div>
+              <div class="dm-text">
+                <div class="dm-label">All Debriefs</div>
+                <div class="dm-desc">Browse your ride history</div>
+              </div>
+              <div class="dm-arrow">→</div>
+            </a>
+            <a href="#" class="dm-card review">
+              <div class="dm-icon">◇</div>
+              <div class="dm-text">
+                <div class="dm-label">All Reflections</div>
+                <div class="dm-desc">Your reflection library</div>
+              </div>
+              <div class="dm-arrow">→</div>
+            </a>
+            <a href="#" class="dm-card review">
+              <div class="dm-icon">◎</div>
+              <div class="dm-text">
+                <div class="dm-label">Observations</div>
+                <div class="dm-desc">Your observation notes</div>
+              </div>
+              <div class="dm-arrow">→</div>
+            </a>
+            <a href="#" class="dm-card review">
+              <div class="dm-icon">📝</div>
+              <div class="dm-text">
+                <div class="dm-label">Lesson Notes</div>
+                <div class="dm-desc">Your lesson library</div>
+              </div>
+              <div class="dm-arrow">→</div>
+            </a>
+            <a href="#" class="dm-card review">
+              <div class="dm-icon">🌿</div>
+              <div class="dm-text">
+                <div class="dm-label">Health Log</div>
+                <div class="dm-desc">Full soundness records</div>
+              </div>
+              <div class="dm-arrow">→</div>
+            </a>
+            <a href="#" class="dm-card review">
+              <div class="dm-icon">📅</div>
+              <div class="dm-text">
+                <div class="dm-label">Journey Events</div>
+                <div class="dm-desc">Your timeline</div>
+              </div>
+              <div class="dm-arrow">→</div>
+            </a>
+            <a href="#" class="dm-card review">
+              <div class="dm-icon">🏟</div>
+              <div class="dm-text">
+                <div class="dm-label">Show Preparations</div>
+                <div class="dm-desc">Past show prep plans</div>
+              </div>
+              <div class="dm-arrow">→</div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Export -->
+        <div class="dm-group">
+          <div class="dm-group-label">Export</div>
+          <div class="export-strip">
+            <div class="export-label">
+              <strong>Download My Data</strong>
+              <span>All collections in one go — each as a separate file.</span>
+            </div>
+            <div class="export-btns">
+              <button class="btn-export">⬇ Export as CSV</button>
+              <button class="btn-export">⬇ Export as JSON</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /dm-sections -->
+    </div><!-- /block-body -->
+  </div><!-- /block 3 -->
+
+  </div><!-- /block-container -->
+
+</div><!-- /page -->
+
+<script>
+/* ── WEEKLY FOCUS STATE ── */
+const pinned = new Set(), done = new Set();
+
+function setMode(mode, btn) {
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const hint = document.getElementById('mode-hint');
+  document.body.classList.toggle('priority-mode', mode === 'priority');
+  hint.classList.toggle('visible', mode === 'priority');
+}
+function togglePin(e, id) {
+  e.stopPropagation();
+  const card = document.getElementById('card-'+id), btn = document.getElementById('pin-'+id);
+  pinned.has(id) ? (pinned.delete(id), card.classList.remove('pinned'), btn.classList.remove('active'))
+                 : (pinned.add(id),    card.classList.add('pinned'),    btn.classList.add('active'));
+}
+function toggleDone(e, id) {
+  e.stopPropagation();
+  const card = document.getElementById('card-'+id), btn = document.getElementById('check-'+id);
+  done.has(id) ? (done.delete(id), card.classList.remove('completed'), btn.classList.remove('active'))
+               : (done.add(id),    card.classList.add('completed'),    btn.classList.add('active'));
+  updateProgress();
+}
+function toggleItemCheck(el) { el.classList.toggle('done'); updateProgress(); }
+function togglePhysCheck(el) { el.classList.toggle('done'); updateProgress(); }
+function toggleCollapse(id) {
+  const b = document.getElementById('body-'+id);
+  if (b) b.classList.toggle('collapsed');
+}
+function updateProgress() {
+  const all = document.querySelectorAll('.gpt-check, .phys-check');
+  const n   = [...all].filter(el => el.classList.contains('done')).length;
+  document.getElementById('done-count').textContent  = n;
+  document.getElementById('total-count').textContent = all.length;
+}
+
+/* ── SPARKLINES ── */
+(function() {
+  const series = [
+    { label: 'Quality',    vals: [9,8,8,9,10,8,8,9], color: '#b8862a' },
+    { label: 'Confidence', vals: [9,10,10,9,9,9,10,8], color: '#2e5c82' },
+  ];
+  const W=200, H=26, MIN=4, MAX=10;
+  series.forEach(s => {
+    const pts = s.vals.map((v,i) => {
+      const x = (i/(s.vals.length-1))*(W-12)+6;
+      const y = H - ((v-MIN)/(MAX-MIN))*(H-8) - 4;
+      return `${x},${y}`;
+    }).join(' ');
+    const row = document.createElement('div');
+    row.className = 'sparkline-row';
+    row.innerHTML = `
+      <div class="spark-label">${s.label}</div>
+      <div class="spark-track">
+        <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+          <defs><linearGradient id="g${s.label}" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="${s.color}" stop-opacity=".18"/>
+            <stop offset="100%" stop-color="${s.color}" stop-opacity="1"/>
+          </linearGradient></defs>
+          <polyline points="${pts}" fill="none" stroke="url(#g${s.label})"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          ${s.vals.map((v,i) => {
+            const x=(i/(s.vals.length-1))*(W-12)+6, y=H-((v-MIN)/(MAX-MIN))*(H-8)-4;
+            return `<circle cx="${x}" cy="${y}" r="${i===s.vals.length-1?3.5:2}" fill="${s.color}"/>`;
+          }).join('')}
+        </svg>
+      </div>
+      <div class="spark-val">${s.vals[s.vals.length-1]}</div>`;
+    document.getElementById('sparklines').appendChild(row);
+  });
+})();
+
+/* ── INTENTION BARS ── */
+(function() {
+  const data = [
+    { label: 'Allow more than do', avg: 3.4, color: '#b8862a' },
+    { label: 'Recover quickly',    avg: 4.7, color: '#3d6b46' },
+    { label: 'Adjust position',    avg: 4.6, color: '#2e5c82' },
+    { label: 'Maintain balance',   avg: 4.7, color: '#7a3f72' },
+    { label: 'Smallest aids',      avg: 3.9, color: '#8b6340' },
+  ];
+  data.forEach(d => {
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    row.innerHTML = `
+      <div class="bar-label">${d.label}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(d.avg/5)*100}%;background:${d.color};opacity:.75"></div></div>
+      <div class="bar-val">${d.avg}</div>`;
+    document.getElementById('bar-chart').appendChild(row);
+  });
+})();
+
+updateProgress();
+
+/* ══════════════════════════════════════════
+   ARRANGE MODE — drag-to-reorder blocks
+   Order is saved to localStorage under key 'ydj-block-order'
+   ══════════════════════════════════════════ */
+
+const STORAGE_KEY = 'ydj-block-order';
+const container   = document.getElementById('block-container');
+let   dragged     = null;
+
+/* ── Apply saved order on page load ── */
+(function applySavedOrder() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (!saved) return;
+  try {
+    const order = JSON.parse(saved); // e.g. ['focus','stats','data']
+    order.forEach(id => {
+      const el = container.querySelector(`[data-block="${id}"]`);
+      if (el) container.appendChild(el);
+    });
+  } catch(e) {}
+})();
+
+/* ── Toggle arrange mode on/off ── */
+function toggleArrange() {
+  const active = document.body.classList.toggle('arrange-mode');
+  const btn    = document.getElementById('arrange-btn');
+  btn.classList.toggle('active', active);
+  btn.innerHTML = active
+    ? '<span class="arrange-icon">✓</span> Done'
+    : '<span class="arrange-icon">⠿</span> Arrange';
+
+  // Wire or unwire drag events depending on state
+  const blocks = container.querySelectorAll('.block');
+  blocks.forEach(block => {
+    if (active) {
+      block.setAttribute('draggable', 'true');
+      block.addEventListener('dragstart',  onDragStart);
+      block.addEventListener('dragend',    onDragEnd);
+      block.addEventListener('dragover',   onDragOver);
+      block.addEventListener('dragleave',  onDragLeave);
+      block.addEventListener('drop',       onDrop);
+    } else {
+      block.removeAttribute('draggable');
+      block.removeEventListener('dragstart',  onDragStart);
+      block.removeEventListener('dragend',    onDragEnd);
+      block.removeEventListener('dragover',   onDragOver);
+      block.removeEventListener('dragleave',  onDragLeave);
+      block.removeEventListener('drop',       onDrop);
+      saveOrder();
+    }
+  });
+}
+
+/* ── Drag handlers ── */
+function onDragStart(e) {
+  dragged = this;
+  // Small delay so the element renders before going semi-transparent
+  setTimeout(() => this.classList.add('dragging'), 0);
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function onDragEnd() {
+  this.classList.remove('dragging');
+  container.querySelectorAll('.block').forEach(b => b.classList.remove('drag-over'));
+  dragged = null;
+}
+
+function onDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  if (this === dragged) return;
+  this.classList.add('drag-over');
+}
+
+function onDragLeave() {
+  this.classList.remove('drag-over');
+}
+
+function onDrop(e) {
+  e.preventDefault();
+  this.classList.remove('drag-over');
+  if (!dragged || dragged === this) return;
+
+  // Determine insert position: drop before or after based on midpoint
+  const rect   = this.getBoundingClientRect();
+  const midY   = rect.top + rect.height / 2;
+  const before = e.clientY < midY;
+
+  before
+    ? container.insertBefore(dragged, this)
+    : container.insertBefore(dragged, this.nextSibling);
+}
+
+/* ── Persist order to localStorage ── */
+function saveOrder() {
+  const order = [...container.querySelectorAll('.block')]
+    .map(b => b.dataset.block);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(order));
+  showToast();
+}
+
+/* ── Toast confirmation ── */
+function showToast() {
+  const toast = document.getElementById('order-toast');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2200);
+}
+</script>
+</body>
+</html>

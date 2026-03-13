@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Dressage Journey — This Week</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --parchment: #f5ede0;
+  --parchment-dark: #e8d9c4;
+  --parchment-mid: #ede1ce;
+  --ink: #2c1f14;
+  --ink-mid: #4a3220;
+  --ink-light: #6b4f38;
+  --gold: #b8862a;
+  --gold-light: #d4a84b;
+  --gold-pale: #f0d89a;
+  --track: #8b6340;
+  --rust: #7a3020;
+  --forest: #2a4a30;
+  --forest-light: #3d6b46;
+  --opt: #7a3f72;
+  --opt-bg: rgba(122,63,114,0.07);
+  --sky: #2e5c82;
+  --sky-border: rgba(46,92,130,0.28);
+  --done: #3d6b46;
+  --done-bg: rgba(61,107,70,0.10);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--parchment);
+  color: var(--ink);
+  font-family: 'Work Sans', sans-serif;
+  min-height: 100vh;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
+}
+.page {
+  position: relative; z-index: 1;
+  max-width: 860px; margin: 0 auto;
+  padding: 36px 20px 80px;
+}
+
+/* HEADER */
+.header {
+  text-align: center; margin-bottom: 32px;
+  padding-bottom: 24px; border-bottom: 2px solid var(--gold);
+  position: relative;
+}
+.header::after {
+  content: '✦'; position: absolute; bottom: -11px; left: 50%;
+  transform: translateX(-50%); background: var(--parchment); padding: 0 12px;
+  color: var(--gold); font-size: 15px;
+}
+.week-label { font-size: 11px; font-weight: 600; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; margin-bottom: 6px; }
+.header h1 { font-family: 'Playfair Display', serif; font-size: clamp(24px, 5vw, 36px); font-weight: 700; color: var(--ink); line-height: 1.2; }
+.header .dates { font-size: 13px; color: var(--ink-light); margin-top: 6px; }
+.header .tagline { font-size: 11px; letter-spacing: 2.5px; font-weight: 500; color: var(--track); text-transform: uppercase; margin-top: 8px; }
+
+/* MODE BAR */
+.mode-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--parchment-dark); border-radius: 10px;
+  padding: 10px 16px; margin-bottom: 24px;
+  border: 1px solid rgba(184,134,42,0.25); flex-wrap: wrap; gap: 10px;
+}
+.mode-label { font-size: 11px; font-weight: 600; letter-spacing: 2px; color: var(--ink-light); text-transform: uppercase; }
+.mode-toggle { display: flex; gap: 6px; }
+.mode-btn {
+  font-family: 'Work Sans', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 1px;
+  padding: 5px 14px; border-radius: 20px; cursor: pointer;
+  border: 1.5px solid transparent; background: transparent;
+  color: var(--ink-light); text-transform: uppercase; transition: all 0.2s;
+}
+.mode-btn.active { background: var(--gold); border-color: var(--gold); color: white; }
+.mode-btn:hover:not(.active) { border-color: var(--gold); color: var(--gold); }
+.progress-summary { font-size: 12px; color: var(--ink-light); }
+.progress-summary span { color: var(--gold); font-weight: 600; }
+
+/* MODE HINT */
+.mode-hint {
+  opacity: 0; height: 0; overflow: hidden; transition: all 0.3s;
+  font-size: 11px; color: var(--rust); font-weight: 500; text-align: center;
+}
+.mode-hint.visible { opacity: 1; height: auto; margin-bottom: 10px; }
+
+/* CELEBRATION */
+.celebration {
+  background: linear-gradient(135deg, #fdf6e8 0%, #f5ead0 100%);
+  border: 1.5px solid var(--gold-light); border-left: 4px solid var(--gold);
+  border-radius: 12px; padding: 20px 22px; margin-bottom: 24px;
+  position: relative; overflow: hidden;
+  animation: cardIn 0.35s ease both;
+}
+.celebration::before {
+  content: '★'; position: absolute; right: 18px; top: 14px;
+  font-size: 34px; color: var(--gold-pale); line-height: 1;
+}
+.cel-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; margin-bottom: 8px; }
+.celebration blockquote {
+  font-family: 'Playfair Display', serif; font-size: clamp(14px, 3vw, 16px);
+  font-style: italic; color: var(--ink); line-height: 1.6; margin-bottom: 8px;
+}
+.cel-meta { font-size: 12px; color: var(--ink-light); }
+.cel-meta em { font-family: 'Playfair Display', serif; font-style: italic; color: var(--gold); }
+
+/* GRID */
+.sections-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+@media (max-width: 620px) { .sections-grid { grid-template-columns: 1fr; } }
+.full-width { grid-column: 1 / -1; }
+
+/* CARD */
+.section-card {
+  background: white; border: 1.5px solid var(--parchment-dark);
+  border-radius: 14px; overflow: hidden; transition: box-shadow 0.25s, opacity 0.3s;
+  animation: cardIn 0.4s ease both;
+}
+.section-card:nth-child(1){animation-delay:.05s}
+.section-card:nth-child(2){animation-delay:.12s}
+.section-card:nth-child(3){animation-delay:.19s}
+.section-card:nth-child(4){animation-delay:.26s}
+.section-card:nth-child(5){animation-delay:.33s}
+@keyframes cardIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+.section-card.pinned { border-color: var(--gold-light); box-shadow: 0 2px 18px rgba(184,134,42,0.18); }
+.section-card.completed { opacity: 0.55; }
+.section-card.completed .card-title { text-decoration: line-through; opacity: 0.6; }
+
+.done-stripe { height: 3px; background: linear-gradient(90deg, var(--forest-light), transparent); opacity: 0; transition: opacity 0.3s; }
+.section-card.completed .done-stripe { opacity: 1; }
+
+.card-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 16px 12px; border-bottom: 1px solid var(--parchment-dark);
+  background: var(--parchment); cursor: pointer; user-select: none;
+}
+.card-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; flex-shrink: 0;
+}
+.icon-coaching { background: rgba(122,63,114,0.12); }
+.icon-gpt      { background: rgba(46,92,130,0.10); }
+.icon-physical { background: rgba(42,74,48,0.10); }
+.icon-show     { background: rgba(122,48,32,0.10); }
+.icon-viz      { background: rgba(184,134,42,0.12); }
+
+.card-title-block { flex: 1; min-width: 0; }
+.card-label { font-size: 9.5px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 2px; }
+.label-coaching { color: var(--opt); }
+.label-gpt      { color: var(--sky); }
+.label-physical { color: var(--forest); }
+.label-show     { color: var(--rust); }
+.label-viz      { color: var(--gold); }
+.card-title { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 600; color: var(--ink); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.card-actions { display: flex; gap: 4px; align-items: center; flex-shrink: 0; }
+.pin-btn, .check-btn {
+  width: 28px; height: 28px; border-radius: 50%; border: none;
+  background: transparent; cursor: pointer; display: flex; align-items: center;
+  justify-content: center; font-size: 14px; transition: background 0.2s, transform 0.15s;
+  color: var(--ink-light);
+}
+.pin-btn:hover  { background: rgba(184,134,42,0.10); }
+.check-btn:hover{ background: var(--done-bg); }
+.pin-btn.active { color: var(--gold); transform: rotate(-45deg); }
+.check-btn.active { color: var(--done); }
+
+.card-body { padding: 16px; }
+.card-body.collapsed { display: none; }
+
+/* COACHING */
+.voice-tag {
+  display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 1.5px;
+  text-transform: uppercase; padding: 3px 10px; border-radius: 12px; margin-bottom: 10px;
+}
+.voice-2 { background: rgba(46,92,130,0.10); color: var(--sky); }
+.voice-0 { background: rgba(122,63,114,0.10); color: var(--opt); }
+
+.insight-text {
+  font-family: 'Playfair Display', serif; font-size: 14px; font-style: italic;
+  color: var(--ink); line-height: 1.65; margin-bottom: 12px;
+}
+.insight-link {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 600; color: var(--opt); text-decoration: none;
+  border-bottom: 1.5px solid rgba(122,63,114,0.3); padding-bottom: 1px; transition: color 0.2s;
+}
+.insight-link:hover { color: var(--gold); border-color: var(--gold); }
+
+/* GPT */
+.gpt-list { list-style: none; }
+.gpt-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--parchment-mid); }
+.gpt-item:last-child { border-bottom: none; padding-bottom: 0; }
+.gpt-check {
+  width: 20px; height: 20px; border: 2px solid var(--sky-border); border-radius: 4px;
+  flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s; font-size: 11px; color: transparent;
+}
+.gpt-check.done { background: var(--sky); border-color: var(--sky); color: white; }
+.gpt-title { font-size: 13px; font-weight: 600; color: var(--ink); line-height: 1.35; margin-bottom: 3px; }
+.gpt-desc { font-size: 11.5px; color: var(--ink-light); line-height: 1.45; }
+.gpt-note { font-size: 10.5px; color: var(--sky); font-weight: 500; margin-top: 3px; }
+
+/* PHYSICAL */
+.phys-list { list-style: none; }
+.phys-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--parchment-mid); }
+.phys-item:last-child { border-bottom: none; padding-bottom: 0; }
+.phys-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--forest-light); margin-top: 5px; flex-shrink: 0; }
+.phys-text { flex: 1; font-size: 13px; color: var(--ink); line-height: 1.45; }
+.phys-sub { font-size: 11px; color: var(--ink-light); margin-top: 2px; font-style: italic; }
+.phys-check {
+  width: 20px; height: 20px; border: 2px solid rgba(61,107,70,0.30); border-radius: 50%;
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s; font-size: 11px; color: transparent;
+}
+.phys-check.done { background: var(--forest-light); border-color: var(--forest-light); color: white; }
+
+/* SHOW PLANNING — hidden by default when no show */
+.no-show-state {
+  text-align: center; padding: 20px 12px;
+  font-size: 13px; color: var(--ink-light); font-style: italic; line-height: 1.6;
+}
+.no-show-icon { font-size: 28px; margin-bottom: 8px; opacity: 0.4; }
+
+/* REFLECTION NUDGE */
+.reflection-nudge {
+  background: var(--parchment-dark); border-radius: 8px;
+  padding: 9px 12px; margin-top: 12px;
+  font-size: 11.5px; color: var(--ink-light); line-height: 1.5;
+  border-left: 3px solid var(--gold-pale); font-style: italic;
+}
+
+/* DATA VIZ */
+.viz-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 580px) { .viz-grid { grid-template-columns: 1fr; } }
+.viz-title { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-light); margin-bottom: 12px; }
+
+/* Sparklines */
+.sparkline-wrap { display: flex; flex-direction: column; gap: 8px; }
+.sparkline-row { display: flex; align-items: center; gap: 8px; }
+.spark-label { font-size: 11px; color: var(--ink-light); width: 78px; flex-shrink: 0; text-align: right; }
+.spark-track { flex: 1; height: 30px; }
+.spark-track svg { width: 100%; height: 30px; }
+.spark-val { font-size: 11px; font-weight: 600; color: var(--ink); width: 22px; flex-shrink: 0; }
+
+/* Bar chart (intention ratings) */
+.bar-chart { display: flex; flex-direction: column; gap: 7px; }
+.bar-row { display: flex; align-items: center; gap: 8px; }
+.bar-label { font-size: 10.5px; color: var(--ink-light); width: 96px; flex-shrink: 0; text-align: right; line-height: 1.3; }
+.bar-track { flex: 1; height: 12px; background: var(--parchment-dark); border-radius: 6px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 6px; transition: width 0.8s ease; }
+.bar-val { font-size: 10.5px; font-weight: 600; color: var(--ink); width: 18px; }
+.viz-note { font-size: 10.5px; color: var(--ink-light); margin-top: 10px; font-style: italic; }
+
+/* PRIORITY MODE */
+body.priority-mode .section-card:not(.pinned) { opacity: 0.30; pointer-events: none; }
+body.priority-mode .section-card.pinned { opacity: 1; pointer-events: all; }
+
+/* FOOTER */
+.footer-note { text-align: center; padding-top: 32px; font-size: 11px; color: var(--ink-light); letter-spacing: 1px; }
+.footer-note em { font-family: 'Playfair Display', serif; font-style: italic; color: var(--gold); }
+
+/* ROCKET HEALTH NOTICE */
+.health-notice {
+  display: flex; gap: 8px; align-items: flex-start;
+  background: rgba(122,48,32,0.06); border: 1px solid rgba(122,48,32,0.20);
+  border-radius: 8px; padding: 9px 12px; margin-bottom: 12px;
+  font-size: 11.5px; color: var(--rust); line-height: 1.45;
+}
+.health-notice strong { font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="week-label">Weekly Focus</div>
+    <h1>Your Dressage Journey</h1>
+    <div class="dates">March 11–17, 2026</div>
+    <div class="tagline">Illuminate Your Journey</div>
+  </div>
+
+  <!-- MODE BAR -->
+  <div class="mode-bar">
+    <div class="mode-label">View</div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" onclick="setMode('all',this)">All</button>
+      <button class="mode-btn" onclick="setMode('priority',this)">My Priorities</button>
+    </div>
+    <div class="progress-summary">
+      <span id="done-count">0</span> of <span id="total-count">0</span> items touched
+    </div>
+  </div>
+  <div class="mode-hint" id="mode-hint">Pin what matters most this week — everything else will step back.</div>
+
+  <!-- CELEBRATION -->
+  <div class="celebration">
+    <div class="cel-eyebrow">✦ A Moment Worth Keeping</div>
+    <blockquote>
+      "Martin told Cindy we were doing the ones. A bit of an exaggeration — but I appreciated 
+      the vote of confidence. You need to move your legs really fast!"
+    </blockquote>
+    <div class="cel-meta">Rocket Star · March 8 Clinic · <em>Personal Milestone</em></div>
+  </div>
+
+  <!-- GRID -->
+  <div class="sections-grid">
+
+    <!-- 1. COACHING INSIGHT -->
+    <div class="section-card" id="card-coaching">
+      <div class="done-stripe"></div>
+      <div class="card-header" onclick="toggleCollapse('coaching')">
+        <div class="card-icon icon-coaching">🎯</div>
+        <div class="card-title-block">
+          <div class="card-label label-coaching">Key Insight · Multi-Voice</div>
+          <div class="card-title">Doing vs. allowing — still the work</div>
+        </div>
+        <div class="card-actions">
+          <button class="pin-btn" id="pin-coaching" onclick="togglePin(event,'coaching')" title="Pin as priority">📌</button>
+          <button class="check-btn" id="check-coaching" onclick="toggleDone(event,'coaching')" title="Mark done">✓</button>
+        </div>
+      </div>
+      <div class="card-body" id="body-coaching">
+        <div class="voice-tag voice-2">The Technical Coach</div>
+        <div class="insight-text">
+          "Your 'Allow more than do' intention has been your most consistently underrated 
+          across the past 15 rides — averaging 3.4 out of 5. And yet your best moments 
+          this week — the ones with Rocket, the pirouettes with Pony — happened precisely 
+          when you stopped managing and started receiving. The pattern isn't about trying harder. 
+          It's about recognizing the moment you cross back into doing, and returning."
+        </div>
+        <div class="voice-tag voice-0" style="margin-top:0">The Classical Master</div>
+        <div class="insight-text" style="font-size:13px; margin-bottom:12px;">
+          "You wrote it yourself: the blue sky is already there. You are not creating harmony — 
+          you are removing what blocks it."
+        </div>
+        <a href="#" class="insight-link">View full Multi-Voice Analysis →</a>
+        <div class="reflection-nudge">
+          After each ride this week: Where did you feel yourself grab the reins — literally or figuratively? 
+          What happened when you let go?
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. GPT ASSIGNMENTS -->
+    <div class="section-card" id="card-gpt">
+      <div class="done-stripe"></div>
+      <div class="card-header" onclick="toggleCollapse('gpt')">
+        <div class="card-icon icon-gpt">🧠</div>
+        <div class="card-title-block">
+          <div class="card-label label-gpt">Grand Prix Thinking</div>
+          <div class="card-title">This week's assignments</div>
+        </div>
+        <div class="card-actions">
+          <button class="pin-btn" id="pin-gpt" onclick="togglePin(event,'gpt')">📌</button>
+          <button class="check-btn" id="check-gpt" onclick="toggleDone(event,'gpt')">✓</button>
+        </div>
+      </div>
+      <div class="card-body" id="body-gpt">
+        <ul class="gpt-list">
+          <li class="gpt-item">
+            <div class="gpt-check" onclick="toggleItemCheck(this)">✓</div>
+            <div>
+              <div class="gpt-title">Let Rocket teach you the ones</div>
+              <div class="gpt-desc">Martin said it directly: it is Rocket's job to teach you. This week, get on the ones with the intention of receiving information — not executing a movement. What is he telling you about timing?</div>
+              <div class="gpt-note">↗ Builds toward: Inter I tempi changes, rider feel</div>
+            </div>
+          </li>
+          <li class="gpt-item">
+            <div class="gpt-check" onclick="toggleItemCheck(this)">✓</div>
+            <div>
+              <div class="gpt-title">Pirouette: energy up, not out</div>
+              <div class="gpt-desc">You have the concept — "more up than forward." This week, notice the moment the energy escapes forward and your job is just to catch it earlier. Half-steps as the on-ramp.</div>
+              <div class="gpt-note">↗ Builds toward: GP pirouette quality, half-pirouette precision</div>
+            </div>
+          </li>
+          <li class="gpt-item">
+            <div class="gpt-check" onclick="toggleItemCheck(this)">✓</div>
+            <div>
+              <div class="gpt-title">One ride: no fixing, only noticing</div>
+              <div class="gpt-desc">Pick one schooling session this week — ideally Pony — and ride with the sole intention of observing. No corrections in the moment. Just feel, and note it after. You've shown you can be nonchalant about errors; this formalizes it.</div>
+              <div class="gpt-note">↗ Builds toward: "Allow more than do" pattern, self-coaching</div>
+            </div>
+          </li>
+        </ul>
+        <a href="#" class="insight-link" style="margin-top:12px; display:inline-flex;">View full Grand Prix Thinking →</a>
+      </div>
+    </div>
+
+    <!-- 3. PHYSICAL -->
+    <div class="section-card" id="card-physical">
+      <div class="done-stripe"></div>
+      <div class="card-header" onclick="toggleCollapse('physical')">
+        <div class="card-icon icon-physical">🌿</div>
+        <div class="card-title-block">
+          <div class="card-label label-physical">Physical Awareness</div>
+          <div class="card-title">What your body keeps saying</div>
+        </div>
+        <div class="card-actions">
+          <button class="pin-btn" id="pin-physical" onclick="togglePin(event,'physical')">📌</button>
+          <button class="check-btn" id="check-physical" onclick="toggleDone(event,'physical')">✓</button>
+        </div>
+      </div>
+      <div class="card-body" id="body-physical">
+        <ul class="phys-list">
+          <li class="phys-item">
+            <div class="phys-dot"></div>
+            <div class="phys-text">
+              <strong>Upper back as the tool, not the hands</strong> — this appears in nearly every ride note this month, across all three horses. Your hands are the messenger; your back is the author. Notice specifically when you reach for the rein instead of your back.
+              <div class="phys-sub">Mentioned: 11 of last 15 rides</div>
+            </div>
+            <div class="phys-check" onclick="togglePhysCheck(this)">✓</div>
+          </li>
+          <li class="phys-item">
+            <div class="phys-dot"></div>
+            <div class="phys-text">
+              <strong>Right side — strong but less balanced</strong> — you've named this yourself. Your right leg is the stronger/less subtle one; your right shoulder wants to collapse in right-lead canter on Pony. Off-horse: one-leg balance work before riding if you have 60 seconds.
+              <div class="phys-sub">Cross-reference: your own body awareness notes</div>
+            </div>
+            <div class="phys-check" onclick="togglePhysCheck(this)">✓</div>
+          </li>
+          <li class="phys-item">
+            <div class="phys-dot"></div>
+            <div class="phys-text">
+              <strong>Glutes — soft but not absent</strong> — the saddle fit on Pony changed everything on March 6. You relaxed your glutes and suddenly got more. Notice if you're gripping again, especially in the pirouettes where you want to hold.
+            </div>
+            <div class="phys-check" onclick="togglePhysCheck(this)">✓</div>
+          </li>
+          <li class="phys-item">
+            <div class="phys-dot" style="background:var(--rust)"></div>
+            <div class="phys-text" style="color:var(--rust)">
+              <strong>Rocket's body this week</strong> — bilateral gluteal trigger points, tight lumbar and poll. Saddle fitting is scheduled. Ride with this in mind: he may resist connection not from stubbornness but from discomfort. Reward softness quickly.
+              <div class="phys-sub">Source: Andria's exam, Feb 27</div>
+            </div>
+            <div class="phys-check" onclick="togglePhysCheck(this)">✓</div>
+          </li>
+        </ul>
+        <div class="reflection-nudge">
+          These aren't corrections to force. They're things to feel — and eventually, to stop needing to think about.
+        </div>
+        <a href="#" class="insight-link" style="margin-top:12px; display:inline-flex;">View full Physical Guidance →</a>
+      </div>
+    </div>
+
+    <!-- 4. SHOW PLANNING — no show upcoming -->
+    <div class="section-card" id="card-show">
+      <div class="done-stripe"></div>
+      <div class="card-header" onclick="toggleCollapse('show')">
+        <div class="card-icon icon-show">🏟</div>
+        <div class="card-title-block">
+          <div class="card-label label-show">Show Planning</div>
+          <div class="card-title">Nothing on the calendar yet</div>
+        </div>
+        <div class="card-actions">
+          <button class="pin-btn" id="pin-show" onclick="togglePin(event,'show')">📌</button>
+          <button class="check-btn" id="check-show" onclick="toggleDone(event,'show')">✓</button>
+        </div>
+      </div>
+      <div class="card-body" id="body-show">
+        <div class="no-show-state">
+          <div class="no-show-icon">🗓</div>
+          No upcoming shows logged. When you add an event in the Journey Event Log, 
+          your preparation checklist and timeline will appear here automatically.
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. DATA VIZ (full width) -->
+    <div class="section-card full-width" id="card-viz">
+      <div class="done-stripe"></div>
+      <div class="card-header" onclick="toggleCollapse('viz')">
+        <div class="card-icon icon-viz">📊</div>
+        <div class="card-title-block">
+          <div class="card-label label-viz">At a Glance</div>
+          <div class="card-title">Your recent patterns</div>
+        </div>
+        <div class="card-actions">
+          <button class="pin-btn" id="pin-viz" onclick="togglePin(event,'viz')">📌</button>
+          <button class="check-btn" id="check-viz" onclick="toggleDone(event,'viz')">✓</button>
+        </div>
+      </div>
+      <div class="card-body" id="body-viz">
+        <div class="viz-grid">
+
+          <!-- Sparklines: Quality + Confidence -->
+          <div>
+            <div class="viz-title">Ride Quality · Last 8 Rides</div>
+            <div class="sparkline-wrap" id="sparklines"></div>
+            <div class="viz-note">Mar 2 → Mar 11 · All horses</div>
+          </div>
+
+          <!-- Bar: Intention Ratings avg -->
+          <div>
+            <div class="viz-title">Intention Ratings · 4-Week Average</div>
+            <div class="bar-chart" id="bar-chart"></div>
+            <div class="viz-note">5.0 = consistently yes · your "allow" score is the one to watch</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end grid -->
+
+  <div class="footer-note">
+    <em>Your job during the ride is to feel. Your job after is to tell the truth about what you felt.</em>
+  </div>
+
+</div>
+
+<script>
+// ── STATE ──
+const pinned = new Set();
+const done = new Set();
+
+function setMode(mode, btn) {
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const hint = document.getElementById('mode-hint');
+  if (mode === 'priority') {
+    document.body.classList.add('priority-mode');
+    hint.classList.add('visible');
+  } else {
+    document.body.classList.remove('priority-mode');
+    hint.classList.remove('visible');
+  }
+}
+
+function togglePin(e, id) {
+  e.stopPropagation();
+  const card = document.getElementById('card-' + id);
+  const btn  = document.getElementById('pin-' + id);
+  if (pinned.has(id)) { pinned.delete(id); card.classList.remove('pinned'); btn.classList.remove('active'); }
+  else { pinned.add(id); card.classList.add('pinned'); btn.classList.add('active'); }
+}
+
+function toggleDone(e, id) {
+  e.stopPropagation();
+  const card = document.getElementById('card-' + id);
+  const btn  = document.getElementById('check-' + id);
+  if (done.has(id)) { done.delete(id); card.classList.remove('completed'); btn.classList.remove('active'); }
+  else { done.add(id); card.classList.add('completed'); btn.classList.add('active'); }
+  updateProgress();
+}
+
+function toggleItemCheck(el) { el.classList.toggle('done'); updateProgress(); }
+function togglePhysCheck(el) { el.classList.toggle('done'); updateProgress(); }
+
+function toggleCollapse(id) {
+  const body = document.getElementById('body-' + id);
+  if (body) body.classList.toggle('collapsed');
+}
+
+function updateProgress() {
+  const all  = document.querySelectorAll('.gpt-check, .phys-check');
+  const doneItems = [...all].filter(el => el.classList.contains('done'));
+  document.getElementById('done-count').textContent = doneItems.length;
+  document.getElementById('total-count').textContent = all.length;
+}
+
+// ── SPARKLINES ──
+// Real data: last 8 ride quality scores (Rocket + Pony, Mar 2 → Mar 11, excl test entries)
+(function buildSparklines() {
+  const series = [
+    { label: 'Quality', vals: [9, 8, 8, 9, 10, 8, 8, 9], color: '#b8862a' },
+    { label: 'Confidence', vals: [9, 10, 10, 9, 9, 9, 10, 8], color: '#2e5c82' },
+  ];
+  const container = document.getElementById('sparklines');
+  const W = 200, H = 30, MIN = 4, MAX = 10;
+
+  series.forEach(s => {
+    const pts = s.vals.map((v, i) => {
+      const x = (i / (s.vals.length - 1)) * (W - 12) + 6;
+      const y = H - ((v - MIN) / (MAX - MIN)) * (H - 8) - 4;
+      return `${x},${y}`;
+    }).join(' ');
+
+    const row = document.createElement('div');
+    row.className = 'sparkline-row';
+    row.innerHTML = `
+      <div class="spark-label">${s.label}</div>
+      <div class="spark-track">
+        <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="g-${s.label}" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="${s.color}" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="${s.color}" stop-opacity="1"/>
+            </linearGradient>
+          </defs>
+          <polyline points="${pts}" fill="none" stroke="url(#g-${s.label})"
+            stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          ${s.vals.map((v, i) => {
+            const x = (i / (s.vals.length - 1)) * (W - 12) + 6;
+            const y = H - ((v - MIN) / (MAX - MIN)) * (H - 8) - 4;
+            const r = i === s.vals.length - 1 ? 3.8 : 2.4;
+            return `<circle cx="${x}" cy="${y}" r="${r}" fill="${s.color}"/>`;
+          }).join('')}
+        </svg>
+      </div>
+      <div class="spark-val">${s.vals[s.vals.length - 1]}</div>
+    `;
+    container.appendChild(row);
+  });
+})();
+
+// ── INTENTION BAR CHART ──
+// Real averages from the data (Allow more than do, Recovery, Position adjustment, Balance)
+(function buildBars() {
+  const data = [
+    { label: 'Allow more than do', avg: 3.4, color: '#b8862a' },
+    { label: 'Recover quickly',    avg: 4.7, color: '#3d6b46' },
+    { label: 'Adjust position',    avg: 4.6, color: '#2e5c82' },
+    { label: 'Maintain balance',   avg: 4.7, color: '#7a3f72' },
+    { label: 'Smallest aids',      avg: 3.9, color: '#8b6340' },
+  ];
+  const container = document.getElementById('bar-chart');
+
+  data.forEach(d => {
+    const pct = (d.avg / 5) * 100;
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    row.innerHTML = `
+      <div class="bar-label">${d.label}</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${pct}%; background:${d.color}; opacity:0.75;"></div>
+      </div>
+      <div class="bar-val">${d.avg}</div>
+    `;
+    container.appendChild(row);
+  });
+})();
+
+updateProgress();
+</script>
+</body>
+</html>
