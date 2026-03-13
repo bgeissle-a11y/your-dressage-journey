@@ -265,6 +265,7 @@ async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerConte
     paths: pathResults,
     recommendedPath,
     personalizationNotes: "",
+    cycleStartDate: new Date().toISOString(),
     ...(failedPaths.length > 0 && { partialResults: true, failedPaths }),
   };
 

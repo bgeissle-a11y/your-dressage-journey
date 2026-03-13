@@ -761,7 +761,8 @@ VOICE_OUTPUT_INSTRUCTIONS[0] = `Respond in JSON format with this exact structure
   },
   "philosophical_reflection": "a 2-3 sentence poetic/philosophical observation connecting this rider's journey to timeless training truths",
   "patience_points": ["1-3 areas where patience and time will serve better than pushing"],
-  "narrative": "your full 400-600 word coaching analysis in this voice"
+  "narrative": "your full 400-600 word coaching analysis in this voice",
+  "weeklyFocusExcerpt": "2-3 sentence excerpt for the Weekly Focus page, highlighting the single most classical-principles-relevant insight from your analysis. Self-contained, quotable, uses the rider's own language where possible. null if no clear insight."
 }`;
 
 VOICE_OUTPUT_INSTRUCTIONS[1] = `Respond in JSON format with this exact structure:
@@ -770,7 +771,9 @@ VOICE_OUTPUT_INSTRUCTIONS[1] = `Respond in JSON format with this exact structure
   "confidence_trajectory": "brief description of confidence trend (building/cycling/stuck) with evidence",
   "partnership_insights": ["1-3 observations about the rider-horse relationship"],
   "mindset_suggestions": ["2-4 specific mental skills or mindset strategies to try"],
-  "narrative": "your full 400-600 word coaching analysis in this voice"
+  "narrative": "your full 400-600 word coaching analysis in this voice",
+  "weeklyFocusExcerpt": "2-3 sentence excerpt for the Weekly Focus page highlighting the most important emotional or partnership insight. Self-contained, quotable. null if no clear insight.",
+  "weeklyFocusReflectionNudge": "A single reflective question for the rider to consider after each ride this week. Warm, specific to their patterns. Example: 'After each ride this week: Where did you feel yourself grab the reins — literally or figuratively?'"
 }`;
 
 VOICE_OUTPUT_INSTRUCTIONS[2] = `Respond in JSON format with this exact structure:
@@ -779,7 +782,8 @@ VOICE_OUTPUT_INSTRUCTIONS[2] = `Respond in JSON format with this exact structure
   "technical_priorities": ["2-3 highest-impact technical focus areas with biomechanical reasoning"],
   "exercises": ["2-4 specific exercises with riding connection explanations"],
   "position_notes": ["1-3 position-related observations connected to physical assessment data if available"],
-  "narrative": "your full 400-600 word coaching analysis in this voice"
+  "narrative": "your full 400-600 word coaching analysis in this voice",
+  "weeklyFocusExcerpt": "2-3 sentence excerpt for the Weekly Focus page, highlighting the most impactful technical or biomechanical observation. Self-contained, quotable, uses the rider's own language. null if no clear insight."
 }`;
 
 VOICE_OUTPUT_INSTRUCTIONS[3] = `Respond in JSON format with this exact structure:
@@ -796,7 +800,9 @@ VOICE_OUTPUT_INSTRUCTIONS[3] = `Respond in JSON format with this exact structure
     "next_month": "what to build toward",
     "watch_for": "signals that indicate progress or course-correction needed"
   },
-  "narrative": "your full 400-600 word coaching analysis in this voice"
+  "narrative": "your full 400-600 word coaching analysis in this voice",
+  "weeklyFocusExcerpt": "2-3 sentence excerpt for the Weekly Focus page. Self-contained, quotable. null if no clear insight.",
+  "weeklyFocusTitle": "A short (3-8 word) title summarizing the rider's primary coaching theme this week. Concise and specific to their data."
 }`;
 
 // ─── Voice Reference Block (for non-coaching outputs) ───────────────
@@ -1295,8 +1301,17 @@ Respond in JSON format with this exact structure:
       "check_in": "End-of-week reflection question",
       "success": "What success looks like at the end of this week"
     }
+  ],
+  "weeklyAssignments": [
+    {
+      "title": "short assignment title",
+      "description": "2-3 sentence exploration framed as an observation or curiosity, not a mandatory task. Connect directly to a finding in the path analysis.",
+      "buildToward": "what larger training goal this serves"
+    }
   ]
 }
+
+Include exactly 3 weeklyAssignments derived from your path analysis — concrete explorations for the coming week that connect to the path's themes. Frame them as things to notice or try, appropriate for the rider's current level and horses.
 
 Generate all 4 weeks. Keep output concise but personalized.`;
 
@@ -3028,8 +3043,17 @@ Respond in JSON format:
     }
   ],
   "pt_integration_notes": "string or null — if the rider works with a PT/trainer, notes on how these exercises complement that work",
-  "personalization_summary": "2-3 sentences explaining why these specific exercises were chosen for this rider"
+  "personalization_summary": "2-3 sentences explaining why these specific exercises were chosen for this rider",
+  "weeklyFocusItems": [
+    {
+      "text": "body awareness point to notice this week — framed as something to feel, not a correction to force",
+      "sub": "supporting note or source (e.g., 'Mentioned: 11 of last 15 rides') or null if none",
+      "isHorseHealth": false
+    }
+  ]
 }
+
+Include 3-4 weeklyFocusItems — the most relevant physical awareness points for the coming week. Frame as things to notice or feel, not corrections to force. If horse health data suggests relevant body awareness for the horse, include one item with isHorseHealth set to true.
 
 Prescribe 5-8 exercises maximum. Focus on the highest-impact patterns. Every exercise must have a clear riding connection.
 

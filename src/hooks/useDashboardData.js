@@ -60,14 +60,70 @@ function computeStreak(debriefs) {
 
 /**
  * Count distinct reflection categories covered (out of 6).
+ * Also returns the list of missing category labels.
  */
 function computeCategoryCoverage(reflections) {
   const allCategories = REFLECTION_CATEGORIES.map(c => c.value);
   const covered = new Set(reflections.map(r => r.category).filter(Boolean));
+  const missingLabels = REFLECTION_CATEGORIES
+    .filter(c => !covered.has(c.value))
+    .map(c => c.label);
   return {
     covered: allCategories.filter(c => covered.has(c)).length,
-    total: allCategories.length
+    total: allCategories.length,
+    missingLabels
   };
+}
+
+/**
+ * Compute sparkline data from the 8 most recent debriefs.
+ */
+function computeSparklineData(sortedDebriefs) {
+  const recent = sortedDebriefs.slice(0, 8).reverse(); // oldest-to-newest for display
+  if (recent.length < 2) return null;
+
+  return {
+    quality: recent.map(d => d.overallQuality || null).filter(v => v !== null),
+    confidence: recent.map(d => d.confidenceLevel || null).filter(v => v !== null),
+    dates: recent.map(d => d.rideDate),
+  };
+}
+
+/**
+ * Compute intention bar chart data from the last 30 days of debriefs.
+ */
+function computeIntentionData(sortedDebriefs) {
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const cutoff = thirtyDaysAgo.toISOString().split('T')[0];
+
+  const recent = sortedDebriefs.filter(d => (d.rideDate || '') >= cutoff);
+  if (recent.length < 3) return null;
+
+  // Aggregate intention ratings
+  const sums = {};
+  const counts = {};
+
+  recent.forEach(d => {
+    if (!d.intentionRatings) return;
+    Object.entries(d.intentionRatings).forEach(([label, rating]) => {
+      if (typeof rating !== 'number') return;
+      sums[label] = (sums[label] || 0) + rating;
+      counts[label] = (counts[label] || 0) + 1;
+    });
+  });
+
+  // Sort by frequency, take top 5
+  const entries = Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([label]) => ({
+      label,
+      avg: Math.round((sums[label] / counts[label]) * 10) / 10,
+      count: counts[label],
+    }));
+
+  return entries.length > 0 ? entries : null;
 }
 
 export default function useDashboardData() {
@@ -76,6 +132,8 @@ export default function useDashboardData() {
   const [stats, setStats] = useState(null);
   const [recentDebriefs, setRecentDebriefs] = useState([]);
   const [upcomingEvents, setUpcomingEvents] = useState([]);
+  const [sparklineData, setSparklineData] = useState(null);
+  const [intentionData, setIntentionData] = useState(null);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -134,6 +192,8 @@ export default function useDashboardData() {
 
       setRecentDebriefs(sortedDebriefs.slice(0, 5));
       setUpcomingEvents(upcoming.slice(0, 3));
+      setSparklineData(computeSparklineData(sortedDebriefs));
+      setIntentionData(computeIntentionData(sortedDebriefs));
       setLoading(false);
     }
 
@@ -142,5 +202,5 @@ export default function useDashboardData() {
     return () => { cancelled = true; };
   }, [currentUser]);
 
-  return { loading, stats, recentDebriefs, upcomingEvents };
+  return { loading, stats, recentDebriefs, upcomingEvents, sparklineData, intentionData };
 }

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import useCacheWarmth from '../../hooks/useCacheWarmth';
@@ -9,26 +9,12 @@ export default function AppLayout() {
   useCacheWarmth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [openDropdown, setOpenDropdown] = useState(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const navRef = useRef(null);
 
-  // Close dropdowns when clicking outside
+  // Add body class so child pages can detect layout context
   useEffect(() => {
-    function handleClickOutside(e) {
-      if (navRef.current && !navRef.current.contains(e.target)) {
-        setOpenDropdown(null);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.body.classList.add('app-layout-active');
+    return () => document.body.classList.remove('app-layout-active');
   }, []);
-
-  // Close mobile menu on navigation
-  useEffect(() => {
-    setMobileMenuOpen(false);
-    setOpenDropdown(null);
-  }, [location.pathname]);
 
   async function handleLogout() {
     const result = await logout();
@@ -37,143 +23,61 @@ export default function AppLayout() {
     }
   }
 
-  function toggleDropdown(name) {
-    setOpenDropdown(prev => prev === name ? null : name);
+  function isActive(path) {
+    if (path === '/dashboard') return location.pathname === '/dashboard';
+    return location.pathname.startsWith(path);
   }
 
-  function isActive(path) {
-    return location.pathname.startsWith(path);
+  function navClass(path) {
+    return `nav-btn${isActive(path) ? ' active' : ''}`;
   }
 
   return (
     <div className="app-layout">
-      <nav className="top-nav" ref={navRef}>
-        <div className="nav-container">
-          <Link to="/dashboard" className="nav-brand">
-            <h1>Your Dressage Journey</h1>
-          </Link>
+      <nav className="top-nav">
+        <div className="nav-brand">YDJ</div>
 
-          <button
-            className="mobile-menu-btn"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            <span className={`hamburger ${mobileMenuOpen ? 'open' : ''}`} />
-          </button>
+        <Link to="/dashboard" className={navClass('/dashboard')}>&#8962; Home</Link>
+        <div className="nav-sep" />
 
-          <div className={`nav-links ${mobileMenuOpen ? 'open' : ''}`}>
-            <Link
-              to="/dashboard"
-              className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}
-            >
-              Dashboard
-            </Link>
+        {/* Utility trio — always visible */}
+        <Link to="/quickstart" className={`nav-btn nav-special${isActive('/quickstart') ? ' active' : ''}`}>&#9672; Quick Start</Link>
+        <Link to="/insights" className={`nav-btn nav-special${isActive('/insights') ? ' active' : ''}`}>&#10022; Insights</Link>
+        <Link to="/tips-and-faq" className={`nav-btn nav-help${isActive('/tips-and-faq') ? ' active' : ''}`}>? Help</Link>
+        <div className="nav-sep" />
 
-            <Link
-              to="/insights"
-              className={`nav-link ${location.pathname === '/insights' ? 'active' : ''}`}
-            >
-              Insights
-            </Link>
+        {/* Record */}
+        <span className="nav-group-label">Record</span>
+        <Link to="/debriefs/new" className={navClass('/debriefs')}>Debrief</Link>
+        <Link to="/reflections/new" className={navClass('/reflections')}>Reflection</Link>
+        <Link to="/observations/new" className={navClass('/observations')}>Observation</Link>
+        <Link to="/lesson-notes/new" className={navClass('/lesson-notes')}>Lesson</Link>
+        <Link to="/horse-health/new" className={navClass('/horse-health')}>Health</Link>
+        <Link to="/events/new" className={navClass('/events')}>Event</Link>
+        <div className="nav-sep" />
 
-            <Link
-              to="/quickstart"
-              className={`nav-link ${location.pathname === '/quickstart' ? 'active' : ''}`}
-            >
-              Quick Start
-            </Link>
+        {/* Plan */}
+        <span className="nav-group-label">Plan</span>
+        <Link to="/show-prep/new" className={navClass('/show-prep')}>Show Prep</Link>
+        <div className="nav-sep" />
 
-            {/* Record Dropdown */}
-            <div className="nav-dropdown">
-              <button
-                className={`nav-link dropdown-trigger ${
-                  isActive('/debriefs') || isActive('/reflections') || isActive('/observations') || isActive('/horse-health') || isActive('/lesson-notes') ? 'active' : ''
-                }`}
-                onClick={() => toggleDropdown('record')}
-              >
-                Record <span className="dropdown-arrow">&#9662;</span>
-              </button>
-              {openDropdown === 'record' && (
-                <div className="dropdown-menu">
-                  <Link to="/debriefs/new" className="dropdown-item">New Debrief</Link>
-                  <Link to="/reflections/new" className="dropdown-item">New Reflection</Link>
-                  <Link to="/observations/new" className="dropdown-item">New Observation</Link>
-                  <Link to="/horse-health/new" className="dropdown-item">New Health Entry</Link>
-                  <Link to="/lesson-notes/new" className="dropdown-item">New Lesson Notes</Link>
-                  <div className="dropdown-divider" />
-                  <Link to="/debriefs" className="dropdown-item">All Debriefs</Link>
-                  <Link to="/reflections" className="dropdown-item">All Reflections</Link>
-                  <Link to="/observations" className="dropdown-item">All Observations</Link>
-                  <Link to="/horse-health" className="dropdown-item">Health & Soundness Log</Link>
-                  <Link to="/lesson-notes" className="dropdown-item">All Lesson Notes</Link>
-                </div>
-              )}
-            </div>
+        {/* AI Coaching */}
+        <span className="nav-group-label">AI Coaching</span>
+        <Link to="/weekly-focus" className="nav-btn">Weekly Focus</Link>
+        <Link to="/insights" className="nav-btn">Journey Map</Link>
+        <Link to="/insights" className="nav-btn">Multi-Voice</Link>
+        <Link to="/insights" className="nav-btn">Grand Prix</Link>
+        <div className="nav-sep" />
 
-            {/* Plan Dropdown */}
-            <div className="nav-dropdown">
-              <button
-                className={`nav-link dropdown-trigger ${
-                  isActive('/show-prep') || isActive('/events') ? 'active' : ''
-                }`}
-                onClick={() => toggleDropdown('plan')}
-              >
-                Plan <span className="dropdown-arrow">&#9662;</span>
-              </button>
-              {openDropdown === 'plan' && (
-                <div className="dropdown-menu">
-                  <Link to="/show-prep/new" className="dropdown-item">New Show Prep</Link>
-                  <Link to="/events/new" className="dropdown-item">New Journey Event</Link>
-                  <div className="dropdown-divider" />
-                  <Link to="/show-prep" className="dropdown-item">All Show Preps</Link>
-                  <Link to="/events" className="dropdown-item">All Journey Events</Link>
-                </div>
-              )}
-            </div>
+        {/* Profiles */}
+        <span className="nav-group-label">Profiles</span>
+        <Link to="/profile/rider" className={navClass('/profile')}>Rider</Link>
+        <Link to="/horses" className={navClass('/horses')}>Horses</Link>
+        <div className="nav-sep" />
 
-            {/* Profile Dropdown */}
-            <div className="nav-dropdown">
-              <button
-                className={`nav-link dropdown-trigger ${
-                  isActive('/profile') || isActive('/horses') || isActive('/physical-assessments') || isActive('/rider-assessments') || isActive('/technical-assessments') ? 'active' : ''
-                }`}
-                onClick={() => toggleDropdown('profile')}
-              >
-                Profile <span className="dropdown-arrow">&#9662;</span>
-              </button>
-              {openDropdown === 'profile' && (
-                <div className="dropdown-menu">
-                  <Link to="/profile/rider" className="dropdown-item">Rider Profile</Link>
-                  <Link to="/horses" className="dropdown-item">My Horses</Link>
-                  <div className="dropdown-divider" />
-                  <Link to="/physical-assessments/new" className="dropdown-item">Physical Self-Assessment</Link>
-                  <Link to="/rider-assessments/new" className="dropdown-item">Rider Self-Assessment</Link>
-                  <Link to="/technical-assessments/new" className="dropdown-item">Technical &amp; Philosophical Assessment</Link>
-                  <div className="dropdown-divider" />
-                  <Link to="/physical-assessments" className="dropdown-item">All Physical Assessments</Link>
-                  <Link to="/rider-assessments" className="dropdown-item">All Rider Assessments</Link>
-                  <Link to="/technical-assessments" className="dropdown-item">All Technical Assessments</Link>
-                </div>
-              )}
-            </div>
-
-            <Link
-              to="/tips-and-faq"
-              className={`nav-link nav-help-link ${location.pathname === '/tips-and-faq' ? 'active' : ''}`}
-              title="Tips & FAQ"
-            >
-              <span className="nav-help-icon">?</span>
-              <span className="nav-help-label">Help</span>
-            </Link>
-
-            <div className="nav-user">
-              <span className="nav-username">{currentUser?.displayName || 'Rider'}</span>
-              <button onClick={handleLogout} className="btn-sign-out">
-                Sign Out
-              </button>
-            </div>
-          </div>
-        </div>
+        {/* User / Sign Out */}
+        <span className="nav-user-name">{currentUser?.displayName || 'Rider'}</span>
+        <button className="nav-btn nav-signout" onClick={handleLogout}>Sign Out</button>
       </nav>
 
       <main className="main-content">

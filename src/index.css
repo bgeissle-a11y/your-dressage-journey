@@ -1,14 +1,46 @@
 /* Universal box-sizing reset */
 *, *::before, *::after {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 :root {
+  /* ── Design tokens (v4 palette) ── */
+  --parchment:      #f5ede0;
+  --parchment-dark: #e8d9c4;
+  --parchment-mid:  #ede1ce;
+  --parchment-off:  #faf6f0;
+  --ink:            #2c1f14;
+  --ink-mid:        #4a3220;
+  --ink-light:      #6b4f38;
+  --gold:           #b8862a;
+  --gold-light:     #d4a84b;
+  --gold-pale:      #f0d89a;
+  --track:          #8b6340;
+  --rust:           #7a3020;
+  --forest-light:   #3d6b46;
+  --opt:            #7a3f72;
+  --sky:            #2e5c82;
+  --sky-border:     rgba(46,92,130,0.28);
+  --done:           #3d6b46;
+
+  /* Left-edge accent colours */
+  --c-debrief:  #8B7355;
+  --c-reflect:  #4A90E2;
+  --c-observe:  #8B5CF6;
+  --c-health:   #3d6b46;
+  --c-lesson:   #C67B5C;
+  --c-event:    #6B8E5F;
+  --c-show:     #C67B5C;
+  --c-assess:   #b8862a;
+  --c-review:   #2e5c82;
+
   font-family: 'Work Sans', sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #3A3A3A;
-  background-color: #FAF8F5;
+  color: var(--ink);
+  background-color: var(--parchment);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -16,11 +48,22 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html { scroll-behavior: smooth; }
+
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
 }
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
+}
+
+a { text-decoration: none; color: inherit; }
 
 h1 {
   font-size: 3.2em;
