@@ -44,7 +44,7 @@ export default function WFPhysicalCard({ items, checkedItems, isPinned, isDone, 
                 ))}
               </ul>
               <div className="reflection-nudge">These aren&rsquo;t corrections to force. They&rsquo;re things to feel.</div>
-              <Link to="/insights" className="insight-link" style={{ marginTop: '10px', display: 'inline-flex' }}>
+              <Link to="/insights?tab=physical" className="insight-link" style={{ marginTop: '10px', display: 'inline-flex' }}>
                 View full Physical Guidance &rarr;
               </Link>
               {hasNewer && (

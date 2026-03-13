@@ -63,10 +63,9 @@ export default function AppLayout() {
 
         {/* AI Coaching */}
         <span className="nav-group-label">AI Coaching</span>
-        <Link to="/weekly-focus" className="nav-btn">Weekly Focus</Link>
-        <Link to="/insights" className="nav-btn">Journey Map</Link>
-        <Link to="/insights" className="nav-btn">Multi-Voice</Link>
-        <Link to="/insights" className="nav-btn">Grand Prix</Link>
+        <Link to="/insights?tab=journey" className="nav-btn">Journey Map</Link>
+        <Link to="/insights?tab=coaching" className="nav-btn">Multi-Voice</Link>
+        <Link to="/insights?tab=grandprix" className="nav-btn">Grand Prix</Link>
         <div className="nav-sep" />
 
         {/* Profiles */}

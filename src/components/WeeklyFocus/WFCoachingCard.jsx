@@ -46,7 +46,7 @@ export default function WFCoachingCard({ data, isPinned, isDone, isCollapsed, on
                   </div>
                 </div>
               ))}
-              <Link to="/insights" className="insight-link">View full Multi-Voice Analysis &rarr;</Link>
+              <Link to="/insights?tab=coaching" className="insight-link">View full Multi-Voice Analysis &rarr;</Link>
               {data.reflectionNudge && (
                 <div className="reflection-nudge">{data.reflectionNudge}</div>
               )}

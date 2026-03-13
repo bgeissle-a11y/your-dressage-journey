@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import MultiVoicePanel from '../components/AICoaching/MultiVoicePanel';
 import JourneyMapPanel from '../components/AICoaching/JourneyMapPanel';
 import GrandPrixPanel from '../components/AICoaching/GrandPrixPanel';
@@ -16,7 +17,9 @@ const TABS = [
 ];
 
 export default function Insights() {
-  const [activeTab, setActiveTab] = useState('coaching');
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') || 'coaching';
+  const [activeTab, setActiveTab] = useState(initialTab);
   const generationStatus = useGenerationStatus();
 
   const totalOutputs = generationStatus.outputsCompleted.length + generationStatus.outputsRemaining.length;

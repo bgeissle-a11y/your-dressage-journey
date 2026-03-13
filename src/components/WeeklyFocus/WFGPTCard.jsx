@@ -37,7 +37,7 @@ export default function WFGPTCard({ assignments, checkedItems, isPinned, isDone,
                   </li>
                 ))}
               </ul>
-              <Link to="/insights" className="insight-link" style={{ marginTop: '10px', display: 'inline-flex' }}>
+              <Link to="/insights?tab=grandprix" className="insight-link" style={{ marginTop: '10px', display: 'inline-flex' }}>
                 View full Grand Prix Thinking &rarr;
               </Link>
               {hasNewer && (
