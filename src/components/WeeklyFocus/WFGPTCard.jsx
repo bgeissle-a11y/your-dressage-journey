@@ -15,7 +15,7 @@ export default function WFGPTCard({ assignments, checkedItems, isPinned, isDone,
         </div>
         <div className="card-actions">
           <button className={`pin-btn${isPinned ? ' active' : ''}`} onClick={e => { e.stopPropagation(); onPin(); }}>&#128204;</button>
-          <button className={`check-btn${isDone ? ' active' : ''}`} onClick={e => { e.stopPropagation(); onDone(); }}>&checkmark;</button>
+          <button className={`check-btn${isDone ? ' active' : ''}`} onClick={e => { e.stopPropagation(); onDone(); }}>{'\u2713'}</button>
         </div>
       </div>
       {!isCollapsed && (
@@ -28,11 +28,11 @@ export default function WFGPTCard({ assignments, checkedItems, isPinned, isDone,
                     <div
                       className={`gpt-check${checkedItems[i] ? ' done' : ''}`}
                       onClick={() => onItemCheck('gpt', i)}
-                    >&checkmark;</div>
+                    >{'\u2713'}</div>
                     <div>
                       <div className="gpt-title">{a.title}</div>
                       <div className="gpt-desc">{a.description}</div>
-                      <div className="gpt-note">&nearr; Builds toward: {a.buildToward}</div>
+                      <div className="gpt-note">{'\u2197'} Builds toward: {a.buildToward}</div>
                     </div>
                   </li>
                 ))}

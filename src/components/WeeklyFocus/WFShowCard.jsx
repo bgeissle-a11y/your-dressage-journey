@@ -29,7 +29,7 @@ export default function WFShowCard({ show, checkedItems, isPinned, isDone, isCol
         </div>
         <div className="card-actions">
           <button className={`pin-btn${isPinned ? ' active' : ''}`} onClick={e => { e.stopPropagation(); onPin(); }}>&#128204;</button>
-          <button className={`check-btn${isDone ? ' active' : ''}`} onClick={e => { e.stopPropagation(); onDone(); }}>&checkmark;</button>
+          <button className={`check-btn${isDone ? ' active' : ''}`} onClick={e => { e.stopPropagation(); onDone(); }}>{'\u2713'}</button>
         </div>
       </div>
       {!isCollapsed && (
@@ -52,7 +52,7 @@ export default function WFShowCard({ show, checkedItems, isPinned, isDone, isCol
                       <div
                         className={`gpt-check${checkedItems?.[i] ? ' done' : ''}`}
                         onClick={() => onItemCheck?.('show', i)}
-                      >&checkmark;</div>
+                      >{'\u2713'}</div>
                       <div className="gpt-title">{goal}</div>
                     </li>
                   ))}

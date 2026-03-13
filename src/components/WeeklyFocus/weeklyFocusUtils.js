@@ -49,6 +49,7 @@ export function deriveWeeklyAssignments(gptResult, cycleWeek) {
 /**
  * Extract coaching snapshot from multi-voice coaching result.
  * Collects weeklyFocusExcerpt from each voice, takes up to 2.
+ * Falls back to narrative fields when weeklyFocusExcerpt not yet available.
  */
 export function extractCoachingSnapshot(coachingResult) {
   if (!coachingResult?.voices) return null;
@@ -58,6 +59,7 @@ export function extractCoachingSnapshot(coachingResult) {
   let reflectionNudge = null;
   let generatedAt = coachingResult.generatedAt || null;
 
+  // First pass: collect weeklyFocusExcerpt fields (preferred)
   for (let i = 0; i < 4; i++) {
     const voice = coachingResult.voices[i];
     if (!voice || voice._error) continue;
@@ -70,6 +72,37 @@ export function extractCoachingSnapshot(coachingResult) {
     }
     if (i === 1 && voice.weeklyFocusReflectionNudge) {
       reflectionNudge = voice.weeklyFocusReflectionNudge;
+    }
+  }
+
+  // Fallback: if no weeklyFocusExcerpt, derive from existing voice fields
+  if (excerpts.length === 0) {
+    const fallbackFields = [
+      // voice 2 (Technical): key_observations[0]
+      { idx: 2, extract: v => v.key_observations?.[0] },
+      // voice 3 (Practical): priorities[0]
+      { idx: 3, extract: v => v.priorities?.[0] },
+      // voice 1 (Empathetic): partnership_insights[0]
+      { idx: 1, extract: v => v.partnership_insights?.[0] },
+      // voice 0 (Classical): philosophical_reflection
+      { idx: 0, extract: v => v.philosophical_reflection },
+    ];
+
+    for (const fb of fallbackFields) {
+      const voice = coachingResult.voices[fb.idx];
+      if (!voice || voice._error) continue;
+      const text = fb.extract(voice);
+      if (text && typeof text === 'string' && text.length > 20 && excerpts.length < 2) {
+        excerpts.push({ voice: VOICE_IDS[fb.idx], text });
+      }
+    }
+
+    // Fallback title from practical strategist weekly_plan.focus
+    if (!title) {
+      const v3 = coachingResult.voices[3];
+      if (v3?.weekly_plan?.focus) {
+        title = v3.weekly_plan.focus;
+      }
     }
   }
 
@@ -105,12 +138,32 @@ export function extractGPTSnapshot(gptResult) {
 
 /**
  * Extract physical focus items from physical guidance result.
+ * Falls back to body_awareness_cues or exercises when weeklyFocusItems not yet available.
  */
 export function extractPhysicalSnapshot(physResult) {
   if (!physResult) return null;
 
-  const items = physResult.exercisePrescription?.weeklyFocusItems
+  // Preferred: weeklyFocusItems from PG-2 prompt
+  let items = physResult.exercisePrescription?.weeklyFocusItems
     || physResult.weeklyFocusItems;
+
+  // Fallback: derive from body_awareness_cues
+  if (!items?.length && physResult.exercisePrescription?.body_awareness_cues?.length) {
+    items = physResult.exercisePrescription.body_awareness_cues.slice(0, 4).map(cue => ({
+      text: cue.cue || cue.trigger || '',
+      sub: cue.target_pattern || cue.check_method || null,
+      isHorseHealth: false,
+    }));
+  }
+
+  // Fallback: derive from exercises
+  if (!items?.length && physResult.exercisePrescription?.exercises?.length) {
+    items = physResult.exercisePrescription.exercises.slice(0, 4).map(ex => ({
+      text: ex.name || '',
+      sub: ex.riding_connection || ex.target_pattern || null,
+      isHorseHealth: false,
+    }));
+  }
 
   if (!items?.length) return null;
 

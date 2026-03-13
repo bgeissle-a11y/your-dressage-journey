@@ -259,6 +259,51 @@ export default function useWeeklyFocus() {
             physical: snapshot.physical?.sourceGeneratedAt || null,
             show: snapshot.show?.sourceGeneratedAt || null,
           };
+
+          // Re-try any null sections — fallback extractors may succeed now
+          const nullSections = [];
+          if (!snapshot.coaching) nullSections.push('coaching');
+          if (!snapshot.gpt) nullSections.push('gpt');
+          if (!snapshot.physical) nullSections.push('physical');
+          if (!snapshot.show) nullSections.push('show');
+
+          if (nullSections.length > 0) {
+            const freshContent = await readFreshContent(uid);
+            if (cancelled) return;
+            const updates = {};
+
+            if (nullSections.includes('coaching') && freshContent.coaching) {
+              setCoaching({
+                title: freshContent.coaching.title,
+                excerpts: freshContent.coaching.excerpts,
+                reflectionNudge: freshContent.coaching.reflectionNudge,
+              });
+              updates['contentSnapshot.coaching'] = freshContent.coaching;
+              snapshotRef.current.coaching = freshContent.coaching.sourceGeneratedAt;
+            }
+            if (nullSections.includes('gpt') && freshContent.gpt?.weeklyAssignments) {
+              setGptAssignments(freshContent.gpt.weeklyAssignments);
+              updates['contentSnapshot.gpt'] = freshContent.gpt;
+              snapshotRef.current.gpt = freshContent.gpt.sourceGeneratedAt;
+            }
+            if (nullSections.includes('physical') && freshContent.physical?.weeklyFocusItems) {
+              setPhysicalItems(freshContent.physical.weeklyFocusItems);
+              updates['contentSnapshot.physical'] = freshContent.physical;
+              snapshotRef.current.physical = freshContent.physical.sourceGeneratedAt;
+            }
+            if (nullSections.includes('show')) {
+              const showContent = await readShowContent(uid, showPreps);
+              if (showContent && showContent.state !== 'no_shows') {
+                setShow(showContent);
+                updates['contentSnapshot.show'] = showContent;
+                snapshotRef.current.show = showContent.sourceGeneratedAt;
+              }
+            }
+
+            if (Object.keys(updates).length > 0) {
+              saveWeekState(uid, weekId, updates);
+            }
+          }
         } else {
           // No snapshot — build fresh from analysisCache
           const [freshContent, showContent] = await Promise.all([

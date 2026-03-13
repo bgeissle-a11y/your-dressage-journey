@@ -234,6 +234,7 @@
   display: flex; align-items: center; gap: 9px;
   padding: 11px 13px 9px; border-bottom: 1px solid var(--parchment-dark);
   background: var(--parchment); cursor: pointer; user-select: none;
+  overflow: visible; position: relative;
 }
 .card-icon {
   width: 28px; height: 28px; border-radius: 7px;
@@ -255,12 +256,12 @@
   font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 600;
   color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.card-actions { display: flex; gap: 3px; flex-shrink: 0; }
+.card-actions { display: flex; gap: 3px; flex-shrink: 0; margin-left: auto; }
 .pin-btn, .check-btn {
-  width: 24px; height: 24px; border-radius: 50%; border: none;
+  width: 26px; height: 26px; border-radius: 50%; border: none;
   background: transparent; cursor: pointer; display: flex; align-items: center;
-  justify-content: center; font-size: 11px; transition: background 0.2s, transform 0.15s;
-  color: var(--ink-light);
+  justify-content: center; font-size: 12px; transition: background 0.2s, transform 0.15s;
+  color: var(--ink-light); padding: 0; line-height: 1; overflow: hidden;
 }
 .pin-btn:hover   { background: rgba(184,134,42,0.10); }
 .check-btn:hover { background: rgba(61,107,70,0.10); }
