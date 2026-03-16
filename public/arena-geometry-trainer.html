@@ -85,43 +85,6 @@ a { text-decoration: none; color: inherit; }
 }
 
 /* ============================================================
-   API KEY BAR
-   ============================================================ */
-.api-key-bar {
-  background: var(--parchment-dark);
-  border: 1px solid #d5c8b4;
-  border-radius: 8px;
-  padding: 0.6rem 0.8rem;
-  margin-bottom: 1rem;
-  display: flex; align-items: center; gap: 0.5rem;
-  font-size: 0.75rem; color: var(--ink-light);
-}
-.api-key-bar label { white-space: nowrap; font-weight: 500; }
-.api-key-bar input {
-  flex: 1; min-width: 0;
-  padding: 0.3rem 0.5rem;
-  border: 1px solid #c9b89a; border-radius: 4px;
-  font-family: 'Work Sans', sans-serif; font-size: 0.75rem;
-  background: #fff;
-}
-.api-key-bar button {
-  padding: 0.3rem 0.7rem;
-  background: var(--gold); color: #fff; border: none; border-radius: 4px;
-  font-family: 'Work Sans', sans-serif; font-size: 0.72rem; font-weight: 600;
-  cursor: pointer;
-}
-.api-key-bar button:hover { background: var(--gold-light); }
-.api-key-saved {
-  font-size: 0.72rem; color: var(--forest-light); font-weight: 500;
-  margin-bottom: 1rem;
-  display: flex; align-items: center; gap: 0.4rem;
-}
-.api-key-saved button {
-  background: none; border: none; color: var(--ink-light);
-  font-size: 0.68rem; cursor: pointer; text-decoration: underline;
-}
-
-/* ============================================================
    FIGURE SELECTOR
    ============================================================ */
 .figure-groups {
@@ -329,9 +292,6 @@ a { text-decoration: none; color: inherit; }
 
 <!-- ====== PAGE ====== -->
 <div class="page">
-
-  <!-- API Key -->
-  <div id="apiKeySection"></div>
 
   <!-- Figure Selector -->
   <div class="figure-groups" id="figureSelector"></div>
@@ -843,35 +803,6 @@ function renderTrace() {
 /* ============================================================
    UI BUILDERS
    ============================================================ */
-function buildApiKeySection() {
-  const section = document.getElementById('apiKeySection');
-  const key = localStorage.getItem('ydj_anthropic_key');
-  if (key) {
-    section.innerHTML =
-      '<div class="api-key-saved">' +
-      '<span>API key saved</span>' +
-      '<button onclick="clearApiKey()">Change</button>' +
-      '</div>';
-  } else {
-    section.innerHTML =
-      '<div class="api-key-bar">' +
-      '<label>Anthropic API Key:</label>' +
-      '<input type="password" id="apiKeyInput" placeholder="sk-ant-...">' +
-      '<button onclick="saveApiKey()">Save</button>' +
-      '</div>';
-  }
-}
-
-function saveApiKey() {
-  const v = document.getElementById('apiKeyInput').value.trim();
-  if (v) { localStorage.setItem('ydj_anthropic_key', v); buildApiKeySection(); }
-}
-
-function clearApiKey() {
-  localStorage.removeItem('ydj_anthropic_key');
-  buildApiKeySection();
-}
-
 function buildFigureSelector() {
   const container = document.getElementById('figureSelector');
   container.innerHTML = GROUPS.map(g => {
@@ -1041,34 +972,18 @@ function showFeedback(result) {
 }
 
 async function fetchCoaching(result) {
-  const key = localStorage.getItem('ydj_anthropic_key');
   const quoteEl = document.getElementById('aiQuote');
-  if (!key) {
-    quoteEl.className = 'feedback-loading';
-    quoteEl.textContent = 'Add an API key above to receive Classical Master coaching.';
-    return;
-  }
-
-  const prompt = 'You are The Classical Master from Your Dressage Journey \u2014 precise, demanding, classically grounded. Never sentimental. Pithy.\n\n' +
-    'A rider traced a ' + currentFigure.title + ' on an interactive arena diagram.\n' +
-    'Grade: ' + result.grade + '. Average deviation: ' + result.avgDev.toFixed(1) + 'm.\n' +
-    'Coverage: ' + result.coverage + '%.\n\n' +
-    'Geometry context: ' + currentFigure.aiHint + '\n\n' +
-    'Give exactly 2\u20133 sentences of coaching. Reference specific landmarks (letters, centerline, wall contacts). Never begin with "I". Even for Excellent, find something to sharpen.';
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch('https://us-central1-your-dressage-journey.cloudfunctions.net/arenaCoaching', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': key,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 130,
-        messages: [{ role: 'user', content: prompt }]
+        figure: currentFigure.title,
+        grade: result.grade,
+        avgDev: result.avgDev,
+        coverage: result.coverage,
+        aiHint: currentFigure.aiHint
       })
     });
 
@@ -1078,12 +993,8 @@ async function fetchCoaching(result) {
     }
 
     const data = await resp.json();
-    const text = data.content && data.content[0] && data.content[0].text
-      ? data.content[0].text
-      : 'No response received.';
-
     quoteEl.className = 'feedback-quote';
-    quoteEl.textContent = text;
+    quoteEl.textContent = data.coaching || 'No response received.';
   } catch (err) {
     quoteEl.className = 'feedback-loading';
     quoteEl.textContent = 'Could not reach The Classical Master: ' + err.message;
@@ -1093,7 +1004,6 @@ async function fetchCoaching(result) {
 /* ============================================================
    INIT
    ============================================================ */
-buildApiKeySection();
 buildFigureSelector();
 updateInfoCard();
 updateControls();

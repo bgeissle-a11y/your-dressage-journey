@@ -32,6 +32,7 @@ const dataTriggeredRegeneration = require("./api/dataTriggeredRegeneration");
 const firstGlimpse = require("./api/firstGlimpse");
 const waitlist = require("./api/waitlist");
 const adminStats = require("./api/adminStats");
+const arenaCoaching = require("./api/arenaCoaching");
 
 // Secrets — declared once, referenced by all AI functions
 const anthropicKey = defineSecret("ANTHROPIC_API_KEY");
@@ -112,6 +113,12 @@ exports.getEventPlanner = onCall(
 exports.getPhysicalGuidance = onCall(
   { secrets: [anthropicKey], timeoutSeconds: 300, memory: "512MiB" },
   physicalGuidance.handler
+);
+
+// --- Arena Geometry Trainer coaching (unauthenticated, lightweight) ---
+exports.arenaCoaching = onRequest(
+  { secrets: [anthropicKey], timeoutSeconds: 30, memory: "256MiB" },
+  arenaCoaching.handler
 );
 
 // --- Cache Warming ---
