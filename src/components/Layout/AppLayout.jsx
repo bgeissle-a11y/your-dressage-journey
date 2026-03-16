@@ -76,6 +76,11 @@ export default function AppLayout() {
         <Link to="/horses" className={navClass('/horses')}>Horses</Link>
         <div className="nav-sep" />
 
+        {/* Learn */}
+        <span className="nav-group-label">Learn</span>
+        <a href="/arena-geometry-trainer.html" className="nav-btn">Arena Trainer</a>
+        <div className="nav-sep" />
+
         {/* User / Sign Out */}
         <span className="nav-user-name">{currentUser?.displayName || 'Rider'}</span>
         <button className="nav-btn nav-signout" onClick={handleLogout}>Sign Out</button>

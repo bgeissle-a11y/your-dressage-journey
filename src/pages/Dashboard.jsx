@@ -457,6 +457,17 @@ export default function Dashboard() {
               ))}
             </DmGroup>
 
+            <DmGroup label="Learn">
+              <a href="/arena-geometry-trainer.html" className="dm-card" style={{ borderLeftColor: '#3d6b46' }}>
+                <div className="dm-icon">&#9678;</div>
+                <div className="dm-text">
+                  <div className="dm-label">Arena Geometry Trainer</div>
+                  <div className="dm-desc">Trace figures &middot; get coaching feedback</div>
+                </div>
+                <div className="dm-arrow">&rarr;</div>
+              </a>
+            </DmGroup>
+
             <DmGroup label="Export">
               <div className="export-strip">
                 <div className="export-label">
