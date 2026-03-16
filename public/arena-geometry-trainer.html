@@ -287,7 +287,7 @@ a { text-decoration: none; color: inherit; }
 <!-- ====== TOP NAV ====== -->
 <nav class="top-nav">
   <span class="nav-brand">YDJ</span>
-  <a href="ydj-dashboard-v4.html" class="nav-btn">&#x2302; Home</a>
+  <a href="/dashboard" class="nav-btn">&#x2302; Home</a>
 </nav>
 
 <!-- ====== PAGE ====== -->
@@ -485,14 +485,16 @@ const FIGURES = {
     ]
   },
   'loop': {
-    id: 'loop', title: 'One Loop (F\u2013X\u2013M)', group: 2,
-    fact: 'A smooth arc from F through X to M. The curve is symmetrical above and below X.',
-    aiHint: 'Arc must pass through X at (10,30). The curve must be smooth and symmetrical \u2014 equal arc above and below X.',
-    type: 'loop', start: [20, 54],
+    id: 'loop', title: 'One Loop (A\u2013C via F\u2013X\u2013M)', group: 2,
+    fact: 'Ride the track from A, depart at F, curve to X on the centerline (the apex), return to the track at M, continue to C.',
+    aiHint: 'The loop departs the track at F, reaches X at (10,30) as the apex on the centerline, and returns to the track at M. The curve must be smooth and symmetrical above and below X. Track portions along the right wall must be straight.',
+    type: 'loop', start: [10, 60],
     keyPoints: [
-      { x: 20, y: 54, label: 'F' },
-      { x: 10, y: 30, label: 'X' },
-      { x: 20, y: 6,  label: 'M' }
+      { x: 10, y: 60, label: 'A' },
+      { x: 20, y: 54, label: 'F (depart track)' },
+      { x: 10, y: 30, label: 'X (apex)' },
+      { x: 20, y: 6,  label: 'M (rejoin track)' },
+      { x: 10, y: 0,  label: 'C' }
     ]
   },
   'serp': {
@@ -546,58 +548,43 @@ function generateCirclePath(cx, cy, r, startX, startY, numPts) {
 }
 
 function generateLoopPath(numPts) {
-  // Arc through F(20,54), X(10,30), M(20,6)
-  // Find circumscribed circle through these 3 points
-  const p1 = { x: 20, y: 54 };
-  const p2 = { x: 10, y: 30 };
-  const p3 = { x: 20, y: 6 };
-
-  const ax = p1.x, ay = p1.y;
-  const bx = p2.x, by = p2.y;
-  const cx = p3.x, cy = p3.y;
-
-  const D = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by));
-  const ux = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / D;
-  const uy = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / D;
-  const R = Math.sqrt((ax - ux) ** 2 + (ay - uy) ** 2);
-
-  // Angles for start (F) and end (M)
-  const angleF = Math.atan2(p1.y - uy, p1.x - ux);
-  const angleM = Math.atan2(p3.y - uy, p3.x - ux);
-
-  // We need the arc going from F through X to M (the shorter arc on the left side)
-  // Since center is to the right (~43.8, 30), F and M are on the left side of the center
-  // Go from F to M counter-clockwise (decreasing angle)
   numPts = numPts || 200;
-  let startA = angleF;
-  let endA = angleM;
+  var pts = [];
+  var CORNER_R = 6;
 
-  // Ensure we go the right way (through X)
-  // Normalize
-  if (endA > startA) endA -= 2 * Math.PI;
-
-  const pts = [];
-  for (let i = 0; i <= numPts; i++) {
-    const t = i / numPts;
-    const a = startA + t * (endA - startA);
-    pts.push({ x: ux + R * Math.cos(a), y: uy + R * Math.sin(a) });
+  // Segment 1: Straight along bottom wall from A(10,60) to corner entry (14,60)
+  var seg1Pts = 10;
+  for (var i = 0; i <= seg1Pts; i++) {
+    pts.push({ x: 10 + (14 - 10) * (i / seg1Pts), y: 60 });
   }
 
-  // Verify: check if X is close to the arc midpoint
-  const midIdx = Math.floor(numPts / 2);
-  const midPt = pts[midIdx];
-  const distToX = Math.sqrt((midPt.x - 10) ** 2 + (midPt.y - 30) ** 2);
-  if (distToX > 2) {
-    // Wrong direction, reverse
-    if (endA < startA) endA += 2 * Math.PI;
-    // recalculate going the other way
-    const endA2 = angleM > angleF ? angleM : angleM + 2 * Math.PI;
-    pts.length = 0;
-    for (let i = 0; i <= numPts; i++) {
-      const t = i / numPts;
-      const a = startA + t * (endA2 - startA);
-      pts.push({ x: ux + R * Math.cos(a), y: uy + R * Math.sin(a) });
-    }
+  // Segment 2: Bottom-right corner arc — center (14,54), radius 6
+  // From (14,60) to F(20,54), quarter circle going clockwise (PI/2 to 0)
+  var cornerPts = 20;
+  for (var i = 1; i <= cornerPts; i++) {
+    var a = Math.PI / 2 - (i / cornerPts) * (Math.PI / 2);
+    pts.push({ x: 14 + CORNER_R * Math.cos(a), y: 54 + CORNER_R * Math.sin(a) });
+  }
+
+  // Segment 3: Smooth cosine curve from F(20,54) through X(10,30) to M(20,6)
+  // x = 15 - 5*cos(PI*(y-30)/24) — tangent to wall at F and M, apex at X
+  var arcPts = 120;
+  for (var i = 1; i <= arcPts; i++) {
+    var y = 54 - (i / arcPts) * 48; // 54 down to 6
+    var x = 15 - 5 * Math.cos(Math.PI * (y - 30) / 24);
+    pts.push({ x: x, y: y });
+  }
+
+  // Segment 4: Top-right corner arc — center (14,6), radius 6
+  // From M(20,6) to (14,0), quarter circle going clockwise (0 to -PI/2)
+  for (var i = 1; i <= cornerPts; i++) {
+    var a = -(i / cornerPts) * (Math.PI / 2);
+    pts.push({ x: 14 + CORNER_R * Math.cos(a), y: 6 + CORNER_R * Math.sin(a) });
+  }
+
+  // Segment 5: Straight along top wall from (14,0) to C(10,0)
+  for (var i = 1; i <= seg1Pts; i++) {
+    pts.push({ x: 14 - (14 - 10) * (i / seg1Pts), y: 0 });
   }
 
   return pts;
