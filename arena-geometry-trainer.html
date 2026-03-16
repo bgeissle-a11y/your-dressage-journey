@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arena Geometry Trainer — Your Dressage Journey</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root {
+  --parchment:      #f5ede0;
+  --parchment-dark: #e8d9c4;
+  --ink:            #2c1f14;
+  --ink-light:      #6b4f38;
+  --gold:           #b8862a;
+  --gold-light:     #d4a84b;
+  --forest-light:   #3d6b46;
+  --rust:           #7a3020;
+  --plum:           #7a3050;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Work Sans', sans-serif;
+  background: var(--parchment);
+  color: var(--ink);
+  min-height: 100vh;
+  line-height: 1.5;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
+}
+a { text-decoration: none; color: inherit; }
+
+/* ============================================================
+   TOP NAV
+   ============================================================ */
+.top-nav {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--ink);
+  border-bottom: 2px solid var(--gold);
+  padding: 0 1rem;
+  display: flex; align-items: center;
+  overflow-x: auto; scrollbar-width: none;
+}
+.top-nav::-webkit-scrollbar { display: none; }
+.nav-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.88rem; font-weight: 700;
+  color: var(--gold-light); letter-spacing: 0.5px;
+  white-space: nowrap; flex-shrink: 0;
+  padding: 0.8rem 0.9rem 0.8rem 0;
+  margin-right: 0.1rem;
+  border-right: 1px solid rgba(255,255,255,0.12);
+}
+.nav-btn {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  padding: 0.8rem 0.65rem;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.72rem; font-weight: 500; letter-spacing: 0.35px;
+  color: rgba(255,255,255,0.58);
+  white-space: nowrap; border: none; background: none;
+  cursor: pointer; transition: color 0.15s; flex-shrink: 0;
+  text-transform: uppercase;
+}
+.nav-btn:hover { color: var(--gold-light); }
+
+/* ============================================================
+   PAGE SHELL
+   ============================================================ */
+.page {
+  position: relative; z-index: 1;
+  max-width: 600px; margin: 0 auto;
+  padding: 1.25rem 1rem 4rem;
+  display: flex; flex-direction: column; gap: 0;
+}
+
+/* ============================================================
+   API KEY BAR
+   ============================================================ */
+.api-key-bar {
+  background: var(--parchment-dark);
+  border: 1px solid #d5c8b4;
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.75rem; color: var(--ink-light);
+}
+.api-key-bar label { white-space: nowrap; font-weight: 500; }
+.api-key-bar input {
+  flex: 1; min-width: 0;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid #c9b89a; border-radius: 4px;
+  font-family: 'Work Sans', sans-serif; font-size: 0.75rem;
+  background: #fff;
+}
+.api-key-bar button {
+  padding: 0.3rem 0.7rem;
+  background: var(--gold); color: #fff; border: none; border-radius: 4px;
+  font-family: 'Work Sans', sans-serif; font-size: 0.72rem; font-weight: 600;
+  cursor: pointer;
+}
+.api-key-bar button:hover { background: var(--gold-light); }
+.api-key-saved {
+  font-size: 0.72rem; color: var(--forest-light); font-weight: 500;
+  margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.api-key-saved button {
+  background: none; border: none; color: var(--ink-light);
+  font-size: 0.68rem; cursor: pointer; text-decoration: underline;
+}
+
+/* ============================================================
+   FIGURE SELECTOR
+   ============================================================ */
+.figure-groups {
+  display: flex; flex-direction: column; gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+.figure-group-label {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.72rem; font-weight: 600;
+  color: var(--ink-light); letter-spacing: 0.3px;
+  margin-bottom: 0.15rem;
+}
+.figure-group-pills {
+  display: flex; flex-wrap: wrap; gap: 0.35rem;
+}
+.figure-pill {
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  border: 1.5px solid var(--gold);
+  background: transparent;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.75rem; font-weight: 500;
+  color: var(--gold);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.figure-pill:hover { background: rgba(184,134,42,0.1); }
+.figure-pill.active {
+  background: var(--gold); color: #fff;
+}
+
+/* ============================================================
+   INFO CARD
+   ============================================================ */
+.info-card {
+  background: var(--parchment-dark);
+  border: 1px solid #d5c8b4;
+  border-radius: 8px;
+  padding: 0.65rem 0.85rem;
+  margin-bottom: 1rem;
+}
+.info-card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.95rem; font-weight: 600;
+  color: var(--ink); margin-bottom: 0.15rem;
+}
+.info-card-fact {
+  font-size: 0.78rem; color: var(--ink-light); line-height: 1.45;
+}
+
+/* ============================================================
+   ARENA CONTAINER
+   ============================================================ */
+.arena-wrap {
+  display: flex; justify-content: center;
+  margin-bottom: 0.8rem;
+}
+.arena-wrap svg {
+  width: min(300px, 80vw);
+  height: auto;
+  cursor: crosshair;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ============================================================
+   CONTROLS ROW
+   ============================================================ */
+.controls-row {
+  display: flex; flex-wrap: wrap; gap: 0.4rem;
+  justify-content: center;
+  margin-bottom: 0.7rem;
+}
+.ctrl-btn {
+  padding: 0.35rem 0.8rem;
+  border-radius: 6px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.72rem; font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ctrl-btn--amber {
+  border: 1.5px solid var(--gold);
+  background: transparent;
+  color: var(--gold);
+}
+.ctrl-btn--amber.active {
+  background: var(--gold); color: #fff;
+}
+.ctrl-btn--green {
+  border: 1.5px solid var(--forest-light);
+  background: transparent;
+  color: var(--forest-light);
+}
+.ctrl-btn--green.active {
+  background: var(--forest-light); color: #fff;
+}
+.ctrl-btn--outline {
+  border: 1.5px solid var(--ink-light);
+  background: transparent;
+  color: var(--ink-light);
+}
+.ctrl-btn--outline:hover { background: rgba(0,0,0,0.04); }
+
+/* ============================================================
+   LEGEND
+   ============================================================ */
+.legend {
+  display: flex; gap: 1.2rem; justify-content: center;
+  margin-bottom: 0.8rem;
+  font-size: 0.7rem; color: var(--ink-light);
+}
+.legend-item {
+  display: flex; align-items: center; gap: 0.3rem;
+}
+.legend-line {
+  width: 22px; height: 0;
+  border-top: 2px dashed #BA7517;
+}
+.legend-line--solid {
+  border-top: 2.5px solid var(--plum);
+  border-style: solid;
+}
+
+/* ============================================================
+   FEEDBACK PANEL
+   ============================================================ */
+.feedback {
+  background: var(--parchment-dark);
+  border: 1px solid #d5c8b4;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-top: 0.5rem;
+}
+.feedback-grade {
+  display: inline-block;
+  padding: 0.2rem 0.7rem;
+  border-radius: 14px;
+  font-size: 0.78rem; font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.4rem;
+}
+.feedback-grade--excellent { background: #3d6b46; }
+.feedback-grade--good { background: #639922; }
+.feedback-grade--fair { background: #b8862a; }
+.feedback-grade--needs { background: #7a3020; }
+.feedback-score {
+  font-size: 0.75rem; color: var(--ink-light);
+  margin-bottom: 0.6rem;
+}
+.feedback-key-points {
+  display: flex; flex-wrap: wrap; gap: 0.3rem;
+  margin-bottom: 0.6rem;
+}
+.key-point-pill {
+  padding: 0.15rem 0.5rem;
+  background: rgba(184,134,42,0.12);
+  border-radius: 10px;
+  font-size: 0.65rem; font-weight: 500;
+  color: var(--gold);
+}
+.feedback-quote {
+  border-left: 3px solid var(--gold);
+  padding: 0.5rem 0.7rem;
+  font-style: italic;
+  font-size: 0.8rem;
+  color: var(--ink);
+  line-height: 1.5;
+  background: rgba(255,255,255,0.3);
+  border-radius: 0 6px 6px 0;
+}
+.feedback-loading {
+  font-size: 0.75rem;
+  color: var(--ink-light);
+  font-style: italic;
+}
+
+/* ============================================================
+   PULSING DOT ANIMATION
+   ============================================================ */
+@keyframes pulse-ring {
+  0%   { r: 0.6; opacity: 0.6; }
+  100% { r: 1.6; opacity: 0; }
+}
+.start-pulse { animation: pulse-ring 1.4s ease-out infinite; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 420px) {
+  .page { padding: 0.8rem 0.6rem 3rem; }
+  .figure-pill { padding: 0.3rem 0.55rem; font-size: 0.68rem; }
+  .info-card { padding: 0.5rem 0.65rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ====== TOP NAV ====== -->
+<nav class="top-nav">
+  <span class="nav-brand">YDJ</span>
+  <a href="ydj-dashboard-v4.html" class="nav-btn">&#x2302; Home</a>
+</nav>
+
+<!-- ====== PAGE ====== -->
+<div class="page">
+
+  <!-- API Key -->
+  <div id="apiKeySection"></div>
+
+  <!-- Figure Selector -->
+  <div class="figure-groups" id="figureSelector"></div>
+
+  <!-- Info Card -->
+  <div class="info-card" id="infoCard">
+    <div class="info-card-title" id="infoTitle">20m Circle at A</div>
+    <div class="info-card-fact" id="infoFact">Select a figure above to begin.</div>
+  </div>
+
+  <!-- Arena -->
+  <div class="arena-wrap">
+    <svg id="arenaSvg" viewBox="-4 -4 28 68" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="traceShadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0.08" dy="0.08" stdDeviation="0.18" flood-color="#000" flood-opacity="0.2"/>
+        </filter>
+      </defs>
+
+      <!-- Arena background -->
+      <rect x="-2" y="-2" width="24" height="64" rx="1" fill="#e8d8c0"/>
+      <!-- Arena surface -->
+      <rect x="0" y="0" width="20" height="60" rx="0.5" fill="#f5e8d0" stroke="#5c3d2e" stroke-width="0.55"/>
+
+      <!-- Grid lines -->
+      <!-- Centerline -->
+      <line x1="10" y1="0" x2="10" y2="60" stroke="#c9a87c" stroke-width="0.25" stroke-dasharray="0.8,0.6" opacity="0.5"/>
+      <!-- E/B horizontal (more prominent) -->
+      <line x1="0" y1="30" x2="20" y2="30" stroke="#c9a87c" stroke-width="0.2" stroke-dasharray="0.6,0.5" opacity="0.4"/>
+      <!-- Faint horizontals at letter levels -->
+      <line x1="0" y1="6"  x2="20" y2="6"  stroke="#c9a87c" stroke-width="0.12" stroke-dasharray="0.5,0.6" opacity="0.2"/>
+      <line x1="0" y1="18" x2="20" y2="18" stroke="#c9a87c" stroke-width="0.12" stroke-dasharray="0.5,0.6" opacity="0.2"/>
+      <line x1="0" y1="42" x2="20" y2="42" stroke="#c9a87c" stroke-width="0.12" stroke-dasharray="0.5,0.6" opacity="0.2"/>
+      <line x1="0" y1="54" x2="20" y2="54" stroke="#c9a87c" stroke-width="0.12" stroke-dasharray="0.5,0.6" opacity="0.2"/>
+
+      <!-- Wall tick marks -->
+      <!-- Left wall -->
+      <line x1="-0.4" y1="6"  x2="0" y2="6"  stroke="#5c3d2e" stroke-width="0.3"/>
+      <line x1="-0.4" y1="18" x2="0" y2="18" stroke="#5c3d2e" stroke-width="0.3"/>
+      <line x1="-0.4" y1="30" x2="0" y2="30" stroke="#5c3d2e" stroke-width="0.3"/>
+      <line x1="-0.4" y1="42" x2="0" y2="42" stroke="#5c3d2e" stroke-width="0.3"/>
+      <line x1="-0.4" y1="54" x2="0" y2="54" stroke="#5c3d2e" stroke-width="0.3"/>
+      <!-- Right wall -->
+      <line x1="20" y1="6"  x2="20.4" y2="6"  stroke="#5c3d2e" stroke-width="0.3"/>
+      <line x1="20" y1="18" x2="20.4" y2="18" stroke="#5c3d2e" stroke-width="0.3"/>
+      <line x1="20" y1="30" x2="20.4" y2="30" stroke="#5c3d2e" stroke-width="0.3"/>
+      <line x1="20" y1="42" x2="20.4" y2="42" stroke="#5c3d2e" stroke-width="0.3"/>
+      <line x1="20" y1="54" x2="20.4" y2="54" stroke="#5c3d2e" stroke-width="0.3"/>
+      <!-- Top/bottom wall -->
+      <line x1="10" y1="-0.4" x2="10" y2="0"  stroke="#5c3d2e" stroke-width="0.3"/>
+      <line x1="10" y1="60"   x2="10" y2="60.4" stroke="#5c3d2e" stroke-width="0.3"/>
+
+      <!-- Wall letters (Playfair Display, positioned outside wall) -->
+      <text x="10"   y="-2.2"  text-anchor="middle" font-family="'Playfair Display',serif" font-size="1.85" fill="#3d2b1f">C</text>
+      <text x="10"   y="63.6"  text-anchor="middle" font-family="'Playfair Display',serif" font-size="1.85" fill="#3d2b1f">A</text>
+      <text x="-2.2"  y="6.6"  text-anchor="middle" font-family="'Playfair Display',serif" font-size="1.85" fill="#3d2b1f">H</text>
+      <text x="22.2"  y="6.6"  text-anchor="middle" font-family="'Playfair Display',serif" font-size="1.85" fill="#3d2b1f">M</text>
+      <text x="-2.2"  y="18.6" text-anchor="middle" font-family="'Playfair Display',serif" font-size="1.85" fill="#3d2b1f">S</text>
+      <text x="22.2"  y="18.6" text-anchor="middle" font-family="'Playfair Display',serif" font-size="1.85" fill="#3d2b1f">R</text>
+      <text x="-2.2"  y="30.6" text-anchor="middle" font-family="'Playfair Display',serif" font-size="1.85" fill="#3d2b1f">E</text>
+      <text x="22.2"  y="30.6" text-anchor="middle" font-family="'Playfair Display',serif" font-size="1.85" fill="#3d2b1f">B</text>
+      <text x="-2.2"  y="42.6" text-anchor="middle" font-family="'Playfair Display',serif" font-size="1.85" fill="#3d2b1f">V</text>
+      <text x="22.2"  y="42.6" text-anchor="middle" font-family="'Playfair Display',serif" font-size="1.85" fill="#3d2b1f">P</text>
+      <text x="-2.2"  y="54.6" text-anchor="middle" font-family="'Playfair Display',serif" font-size="1.85" fill="#3d2b1f">K</text>
+      <text x="22.2"  y="54.6" text-anchor="middle" font-family="'Playfair Display',serif" font-size="1.85" fill="#3d2b1f">F</text>
+
+      <!-- Centerline letter dots + labels -->
+      <circle cx="10" cy="6"  r="0.2" fill="#b8924e" opacity="0.4"/>
+      <text x="11.3" y="6.4"  font-family="'Work Sans',sans-serif" font-size="1.05" fill="#b8924e" opacity="0.6">G</text>
+      <circle cx="10" cy="18" r="0.2" fill="#b8924e" opacity="0.4"/>
+      <text x="11.3" y="18.4" font-family="'Work Sans',sans-serif" font-size="1.05" fill="#b8924e" opacity="0.6">I</text>
+      <circle cx="10" cy="30" r="0.2" fill="#b8924e" opacity="0.4"/>
+      <text x="11.3" y="30.4" font-family="'Work Sans',sans-serif" font-size="1.05" fill="#b8924e" opacity="0.6">X</text>
+      <circle cx="10" cy="42" r="0.2" fill="#b8924e" opacity="0.4"/>
+      <text x="11.3" y="42.4" font-family="'Work Sans',sans-serif" font-size="1.05" fill="#b8924e" opacity="0.6">L</text>
+      <circle cx="10" cy="54" r="0.2" fill="#b8924e" opacity="0.4"/>
+      <text x="11.3" y="54.4" font-family="'Work Sans',sans-serif" font-size="1.05" fill="#b8924e" opacity="0.6">D</text>
+
+      <!-- Dynamic layers (populated by JS) -->
+      <g id="idealLayer"></g>
+      <g id="keyPointsLayer"></g>
+      <g id="startDotLayer"></g>
+      <g id="traceLayer"></g>
+    </svg>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls-row" id="controlsRow">
+    <button class="ctrl-btn ctrl-btn--amber" id="btnIdeal" onclick="toggleIdeal()">Show Ideal</button>
+    <button class="ctrl-btn ctrl-btn--green" id="btnKeyPts" onclick="toggleKeyPoints()">Key Points</button>
+    <button class="ctrl-btn ctrl-btn--outline" id="btnRetry" onclick="tryAgain()" style="display:none;">&#8617; Try Again</button>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend" id="legend" style="display:none;">
+    <div class="legend-item"><span class="legend-line"></span> Ideal</div>
+    <div class="legend-item"><span class="legend-line legend-line--solid"></span> Your trace</div>
+  </div>
+
+  <!-- Feedback Panel -->
+  <div id="feedbackPanel"></div>
+</div>
+
+<script>
+/* ============================================================
+   FIGURE DEFINITIONS
+   ============================================================ */
+const FIGURES = {
+  '20A': {
+    id: '20A', title: '20m Circle at A', group: 0,
+    fact: 'Wall contacts are 4m past K and F (at y=50), not at K/F themselves. The circle crosses the centerline at y=40.',
+    aiHint: 'Wall contacts are at y=50 \u2014 4m past K and F, NOT at those letters. Most riders touch K and F instead, producing a flattened circle.',
+    center: [10, 50], radius: 10, start: [10, 60], type: 'circle',
+    keyPoints: [
+      { x: 10, y: 60, label: 'A' },
+      { x: 0,  y: 50, label: 'Wall (4m past K)' },
+      { x: 20, y: 50, label: 'Wall (4m past F)' },
+      { x: 10, y: 40, label: 'Centerline' }
+    ]
+  },
+  '20C': {
+    id: '20C', title: '20m Circle at C', group: 0,
+    fact: 'Wall contacts are 4m past H and M (at y=10), not at H/M themselves. The circle crosses the centerline at y=20.',
+    aiHint: 'Wall contacts are at y=10 \u2014 4m past H and M, NOT at those letters.',
+    center: [10, 10], radius: 10, start: [10, 0], type: 'circle',
+    keyPoints: [
+      { x: 10, y: 0,  label: 'C' },
+      { x: 0,  y: 10, label: 'Wall (4m past H)' },
+      { x: 20, y: 10, label: 'Wall (4m past M)' },
+      { x: 10, y: 20, label: 'Centerline' }
+    ]
+  },
+  '20X': {
+    id: '20X', title: '20m Circle at X', group: 0,
+    fact: 'Touches E and B exactly on the walls. Crosses the centerline at y=20 and y=40.',
+    aiHint: 'Must touch E (0,30) and B (20,30) exactly. Centerline contacts at y=20 and y=40.',
+    center: [10, 30], radius: 10, start: [0, 30], type: 'circle',
+    keyPoints: [
+      { x: 0,  y: 30, label: 'E' },
+      { x: 20, y: 30, label: 'B' },
+      { x: 10, y: 20, label: 'Centerline (I)' },
+      { x: 10, y: 40, label: 'Centerline (L)' }
+    ]
+  },
+  '15A': {
+    id: '15A', title: '15m Circle at A', group: 1,
+    fact: 'Does NOT touch the walls \u2014 there is a 2.5m gap on each side. Most riders ride this too large.',
+    aiHint: 'The 15m circle does NOT touch the walls \u2014 2.5m gap each side. Most riders ride this as a 20m circle.',
+    center: [10, 52.5], radius: 7.5, start: [10, 60], type: 'circle',
+    keyPoints: [
+      { x: 10,   y: 60,   label: 'A' },
+      { x: 2.5,  y: 52.5, label: '2.5m from wall' },
+      { x: 17.5, y: 52.5, label: '2.5m from wall' },
+      { x: 10,   y: 45,   label: 'Centerline' }
+    ]
+  },
+  '10E': {
+    id: '10E', title: '10m Circle at E', group: 1,
+    fact: 'Touches E on the wall and reaches exactly to X on the centerline. 10m diameter, 5m radius.',
+    aiHint: 'Must touch E on the wall (0,30) and reach exactly to X on the centerline (10,30). 10m total width.',
+    center: [5, 30], radius: 5, start: [0, 30], type: 'circle',
+    keyPoints: [
+      { x: 0,  y: 30, label: 'E' },
+      { x: 10, y: 30, label: 'X' },
+      { x: 5,  y: 25, label: 'Top' },
+      { x: 5,  y: 35, label: 'Bottom' }
+    ]
+  },
+  '10B': {
+    id: '10B', title: '10m Circle at B', group: 1,
+    fact: 'Touches B on the wall and reaches exactly to X on the centerline. 10m diameter, 5m radius.',
+    aiHint: 'Must touch B on the wall (20,30) and reach exactly to X on the centerline (10,30). 10m total width.',
+    center: [15, 30], radius: 5, start: [20, 30], type: 'circle',
+    keyPoints: [
+      { x: 20, y: 30, label: 'B' },
+      { x: 10, y: 30, label: 'X' },
+      { x: 15, y: 25, label: 'Top' },
+      { x: 15, y: 35, label: 'Bottom' }
+    ]
+  },
+  '8E': {
+    id: '8E', title: '8m Volte at E', group: 1,
+    fact: 'Right edge reaches x=8 \u2014 stops 2m short of the centerline. If it reaches X, the volte is too large.',
+    aiHint: 'Right edge of the volte reaches to x=8 \u2014 stopping 2m short of the centerline. Reaching X means the volte is too large.',
+    center: [4, 30], radius: 4, start: [0, 30], type: 'circle',
+    keyPoints: [
+      { x: 0, y: 30, label: 'E' },
+      { x: 8, y: 30, label: 'x=8 (2m from X)' },
+      { x: 4, y: 26, label: 'Top' },
+      { x: 4, y: 34, label: 'Bottom' }
+    ]
+  },
+  'loop': {
+    id: 'loop', title: 'One Loop (F\u2013X\u2013M)', group: 2,
+    fact: 'A smooth arc from F through X to M. The curve is symmetrical above and below X.',
+    aiHint: 'Arc must pass through X at (10,30). The curve must be smooth and symmetrical \u2014 equal arc above and below X.',
+    type: 'loop', start: [20, 54],
+    keyPoints: [
+      { x: 20, y: 54, label: 'F' },
+      { x: 10, y: 30, label: 'X' },
+      { x: 20, y: 6,  label: 'M' }
+    ]
+  },
+  'serp': {
+    id: 'serp', title: '3-Loop Serpentine (A\u2013C)', group: 2,
+    fact: 'Three half-circles from A to C. Centerline crossings at y=40 and y=20 must be perpendicular.',
+    aiHint: 'Centerline crossings at y=40 and y=20 must be perpendicular \u2014 diagonal drift is the most common error. Loop 2 (center loop) must exactly reach E at (0,30).',
+    type: 'serpentine', start: [10, 60],
+    keyPoints: [
+      { x: 10, y: 60, label: 'A' },
+      { x: 20, y: 50, label: 'Wall (loop 1)' },
+      { x: 10, y: 40, label: 'Crossing 1' },
+      { x: 0,  y: 30, label: 'E (loop 2)' },
+      { x: 10, y: 20, label: 'Crossing 2' },
+      { x: 20, y: 10, label: 'Wall (loop 3)' },
+      { x: 10, y: 0,  label: 'C' }
+    ]
+  }
+};
+
+const GROUPS = [
+  { label: '20m Circles', ids: ['20A', '20C', '20X'] },
+  { label: '15m / 10m / 8m', ids: ['15A', '10E', '10B', '8E'] },
+  { label: 'Lines & Loops', ids: ['loop', 'serp'] }
+];
+
+const GROUP_LABELS = { 'loop': 'One Loop', 'serp': 'Serpentine' };
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let currentFigure = null;
+let idealPath = [];
+let showIdeal = false;
+let showKeyPts = false;
+let phase = 'ready'; // ready | drawing | done
+let userPoints = [];
+let isDrawing = false;
+
+/* ============================================================
+   IDEAL PATH GENERATORS
+   ============================================================ */
+function generateCirclePath(cx, cy, r, startX, startY, numPts) {
+  numPts = numPts || 200;
+  const startAngle = Math.atan2(startY - cy, startX - cx);
+  const pts = [];
+  for (let i = 0; i <= numPts; i++) {
+    const a = startAngle + (i / numPts) * 2 * Math.PI;
+    pts.push({ x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) });
+  }
+  return pts;
+}
+
+function generateLoopPath(numPts) {
+  // Arc through F(20,54), X(10,30), M(20,6)
+  // Find circumscribed circle through these 3 points
+  const p1 = { x: 20, y: 54 };
+  const p2 = { x: 10, y: 30 };
+  const p3 = { x: 20, y: 6 };
+
+  const ax = p1.x, ay = p1.y;
+  const bx = p2.x, by = p2.y;
+  const cx = p3.x, cy = p3.y;
+
+  const D = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by));
+  const ux = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / D;
+  const uy = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / D;
+  const R = Math.sqrt((ax - ux) ** 2 + (ay - uy) ** 2);
+
+  // Angles for start (F) and end (M)
+  const angleF = Math.atan2(p1.y - uy, p1.x - ux);
+  const angleM = Math.atan2(p3.y - uy, p3.x - ux);
+
+  // We need the arc going from F through X to M (the shorter arc on the left side)
+  // Since center is to the right (~43.8, 30), F and M are on the left side of the center
+  // Go from F to M counter-clockwise (decreasing angle)
+  numPts = numPts || 200;
+  let startA = angleF;
+  let endA = angleM;
+
+  // Ensure we go the right way (through X)
+  // Normalize
+  if (endA > startA) endA -= 2 * Math.PI;
+
+  const pts = [];
+  for (let i = 0; i <= numPts; i++) {
+    const t = i / numPts;
+    const a = startA + t * (endA - startA);
+    pts.push({ x: ux + R * Math.cos(a), y: uy + R * Math.sin(a) });
+  }
+
+  // Verify: check if X is close to the arc midpoint
+  const midIdx = Math.floor(numPts / 2);
+  const midPt = pts[midIdx];
+  const distToX = Math.sqrt((midPt.x - 10) ** 2 + (midPt.y - 30) ** 2);
+  if (distToX > 2) {
+    // Wrong direction, reverse
+    if (endA < startA) endA += 2 * Math.PI;
+    // recalculate going the other way
+    const endA2 = angleM > angleF ? angleM : angleM + 2 * Math.PI;
+    pts.length = 0;
+    for (let i = 0; i <= numPts; i++) {
+      const t = i / numPts;
+      const a = startA + t * (endA2 - startA);
+      pts.push({ x: ux + R * Math.cos(a), y: uy + R * Math.sin(a) });
+    }
+  }
+
+  return pts;
+}
+
+function generateSerpentinePath(numPts) {
+  numPts = numPts || 200;
+  const ptsPerLoop = Math.floor(numPts / 3);
+  const pts = [];
+
+  // Loop 1: center (10,50), from A(10,60) to (10,40), bulging right (max x=20 at y=50)
+  // Start at A(10,60): angle = atan2(60-50, 10-10) = atan2(10,0) = PI/2
+  // End at (10,40): angle = atan2(40-50, 10-10) = atan2(-10,0) = -PI/2
+  // Bulging right means going through x=20 (angle=0)
+  // So go from PI/2 to -PI/2 via 0 (clockwise, decreasing angle)
+  for (let i = 0; i <= ptsPerLoop; i++) {
+    const t = i / ptsPerLoop;
+    const a = Math.PI / 2 - t * Math.PI; // PI/2 to -PI/2
+    pts.push({ x: 10 + 10 * Math.cos(a), y: 50 + 10 * Math.sin(a) });
+  }
+
+  // Loop 2: center (10,30), from (10,40) to (10,20), bulging left (min x=0 at y=30)
+  // Start at (10,40): angle = atan2(40-30, 10-10) = PI/2
+  // End at (10,20): angle = atan2(20-30, 10-10) = -PI/2
+  // Bulging left means going through x=0 (angle=PI)
+  // So go from PI/2 to -PI/2 via PI (counter-clockwise, increasing angle)
+  // PI/2 -> PI -> 3PI/2 (=-PI/2)
+  for (let i = 1; i <= ptsPerLoop; i++) {
+    const t = i / ptsPerLoop;
+    const a = Math.PI / 2 + t * Math.PI; // PI/2 to 3PI/2
+    pts.push({ x: 10 + 10 * Math.cos(a), y: 30 + 10 * Math.sin(a) });
+  }
+
+  // Loop 3: center (10,10), from (10,20) to C(10,0), bulging right (max x=20 at y=10)
+  // Start at (10,20): angle = atan2(20-10, 10-10) = PI/2
+  // End at C(10,0): angle = atan2(0-10, 10-10) = -PI/2
+  // Bulging right means going through x=20 (angle=0)
+  // Go from PI/2 to -PI/2 via 0 (clockwise)
+  for (let i = 1; i <= ptsPerLoop; i++) {
+    const t = i / ptsPerLoop;
+    const a = Math.PI / 2 - t * Math.PI;
+    pts.push({ x: 10 + 10 * Math.cos(a), y: 10 + 10 * Math.sin(a) });
+  }
+
+  return pts;
+}
+
+function generateIdealPath(fig) {
+  if (fig.type === 'circle') {
+    return generateCirclePath(fig.center[0], fig.center[1], fig.radius, fig.start[0], fig.start[1], 200);
+  } else if (fig.type === 'loop') {
+    return generateLoopPath(200);
+  } else if (fig.type === 'serpentine') {
+    return generateSerpentinePath(200);
+  }
+  return [];
+}
+
+/* ============================================================
+   SCORING
+   ============================================================ */
+function dist(a, b) {
+  return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+}
+
+function resample(points, n) {
+  if (points.length < 2) return points;
+  // Calculate total length
+  let totalLen = 0;
+  for (let i = 1; i < points.length; i++) totalLen += dist(points[i - 1], points[i]);
+  if (totalLen === 0) return [points[0]];
+
+  const step = totalLen / (n - 1);
+  const result = [points[0]];
+  let accum = 0;
+  let j = 1;
+  for (let i = 1; i < n - 1; i++) {
+    const target = step * i;
+    while (j < points.length && accum + dist(points[j - 1], points[j]) < target) {
+      accum += dist(points[j - 1], points[j]);
+      j++;
+    }
+    if (j >= points.length) { result.push(points[points.length - 1]); continue; }
+    const seg = dist(points[j - 1], points[j]);
+    const t = seg > 0 ? (target - accum) / seg : 0;
+    result.push({
+      x: points[j - 1].x + t * (points[j].x - points[j - 1].x),
+      y: points[j - 1].y + t * (points[j].y - points[j - 1].y)
+    });
+  }
+  result.push(points[points.length - 1]);
+  return result;
+}
+
+function evaluate(userPts, idealPts) {
+  const resampled = resample(userPts, 100);
+  const devs = resampled.map(p =>
+    idealPts.reduce((min, q) => Math.min(min, dist(p, q)), Infinity)
+  );
+  const avgDev = devs.reduce((s, v) => s + v, 0) / devs.length;
+  const coverage = idealPts.filter(q =>
+    userPts.some(p => dist(p, q) < 1.5)
+  ).length / idealPts.length;
+  const grade =
+    avgDev < 0.8 && coverage > 0.8 ? 'Excellent' :
+    avgDev < 1.4 && coverage > 0.65 ? 'Good' :
+    avgDev < 2.5 && coverage > 0.45 ? 'Fair' : 'Needs Work';
+  return { avgDev, coverage: Math.round(coverage * 100), grade };
+}
+
+/* ============================================================
+   RENDERING
+   ============================================================ */
+const svg = document.getElementById('arenaSvg');
+const idealLayer = document.getElementById('idealLayer');
+const keyPointsLayer = document.getElementById('keyPointsLayer');
+const startDotLayer = document.getElementById('startDotLayer');
+const traceLayer = document.getElementById('traceLayer');
+
+function clearLayer(layer) { layer.innerHTML = ''; }
+
+function pointsToPath(pts) {
+  if (pts.length < 2) return '';
+  return 'M' + pts.map(p => p.x.toFixed(3) + ',' + p.y.toFixed(3)).join('L');
+}
+
+function renderIdeal() {
+  clearLayer(idealLayer);
+  if (!showIdeal || idealPath.length < 2) return;
+  const el = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  el.setAttribute('d', pointsToPath(idealPath));
+  el.setAttribute('fill', 'none');
+  el.setAttribute('stroke', '#BA7517');
+  el.setAttribute('stroke-width', '0.65');
+  el.setAttribute('stroke-dasharray', '1.2,0.6');
+  el.setAttribute('opacity', phase === 'done' ? '0.5' : '1');
+  idealLayer.appendChild(el);
+}
+
+function renderKeyPoints() {
+  clearLayer(keyPointsLayer);
+  if (!showKeyPts || !currentFigure) return;
+  currentFigure.keyPoints.forEach(kp => {
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('cx', kp.x);
+    c.setAttribute('cy', kp.y);
+    c.setAttribute('r', '0.45');
+    c.setAttribute('fill', '#3d6b46');
+    c.setAttribute('opacity', '0.7');
+    keyPointsLayer.appendChild(c);
+  });
+}
+
+function renderStartDot() {
+  clearLayer(startDotLayer);
+  if (phase !== 'ready' || !currentFigure) return;
+  const sp = currentFigure.start || (currentFigure.type === 'circle' ? currentFigure.start : null);
+  if (!sp) return;
+  const sx = sp[0], sy = sp[1];
+
+  // Outer pulse ring
+  const r1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  r1.setAttribute('cx', sx); r1.setAttribute('cy', sy);
+  r1.setAttribute('r', '0.6');
+  r1.setAttribute('fill', 'none');
+  r1.setAttribute('stroke', '#3d6b46');
+  r1.setAttribute('stroke-width', '0.15');
+  r1.setAttribute('opacity', '0.5');
+  r1.classList.add('start-pulse');
+  startDotLayer.appendChild(r1);
+
+  // Middle ring
+  const r2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  r2.setAttribute('cx', sx); r2.setAttribute('cy', sy);
+  r2.setAttribute('r', '0.45');
+  r2.setAttribute('fill', '#3d6b46');
+  r2.setAttribute('opacity', '0.25');
+  startDotLayer.appendChild(r2);
+
+  // Center dot
+  const r3 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  r3.setAttribute('cx', sx); r3.setAttribute('cy', sy);
+  r3.setAttribute('r', '0.3');
+  r3.setAttribute('fill', '#3d6b46');
+  r3.setAttribute('opacity', '0.8');
+  startDotLayer.appendChild(r3);
+}
+
+function renderTrace() {
+  clearLayer(traceLayer);
+  if (userPoints.length < 2) return;
+  const el = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  el.setAttribute('d', pointsToPath(userPoints));
+  el.setAttribute('fill', 'none');
+  el.setAttribute('stroke', '#7a3050');
+  el.setAttribute('stroke-width', '0.75');
+  el.setAttribute('stroke-linecap', 'round');
+  el.setAttribute('stroke-linejoin', 'round');
+  el.setAttribute('filter', 'url(#traceShadow)');
+  traceLayer.appendChild(el);
+}
+
+/* ============================================================
+   UI BUILDERS
+   ============================================================ */
+function buildApiKeySection() {
+  const section = document.getElementById('apiKeySection');
+  const key = localStorage.getItem('ydj_anthropic_key');
+  if (key) {
+    section.innerHTML =
+      '<div class="api-key-saved">' +
+      '<span>API key saved</span>' +
+      '<button onclick="clearApiKey()">Change</button>' +
+      '</div>';
+  } else {
+    section.innerHTML =
+      '<div class="api-key-bar">' +
+      '<label>Anthropic API Key:</label>' +
+      '<input type="password" id="apiKeyInput" placeholder="sk-ant-...">' +
+      '<button onclick="saveApiKey()">Save</button>' +
+      '</div>';
+  }
+}
+
+function saveApiKey() {
+  const v = document.getElementById('apiKeyInput').value.trim();
+  if (v) { localStorage.setItem('ydj_anthropic_key', v); buildApiKeySection(); }
+}
+
+function clearApiKey() {
+  localStorage.removeItem('ydj_anthropic_key');
+  buildApiKeySection();
+}
+
+function buildFigureSelector() {
+  const container = document.getElementById('figureSelector');
+  container.innerHTML = GROUPS.map(g => {
+    const pills = g.ids.map(id => {
+      const label = GROUP_LABELS[id] || id;
+      const active = currentFigure && currentFigure.id === id ? ' active' : '';
+      return '<button class="figure-pill' + active + '" onclick="selectFigure(\'' + id + '\')">' + label + '</button>';
+    }).join('');
+    return '<div><div class="figure-group-label">' + g.label + '</div><div class="figure-group-pills">' + pills + '</div></div>';
+  }).join('');
+}
+
+function updateInfoCard() {
+  const title = document.getElementById('infoTitle');
+  const fact = document.getElementById('infoFact');
+  if (currentFigure) {
+    title.textContent = currentFigure.title;
+    fact.textContent = currentFigure.fact;
+  } else {
+    title.textContent = 'Arena Geometry Trainer';
+    fact.textContent = 'Select a figure above to begin.';
+  }
+}
+
+function updateControls() {
+  document.getElementById('btnIdeal').textContent = showIdeal ? 'Hide Ideal' : 'Show Ideal';
+  document.getElementById('btnIdeal').classList.toggle('active', showIdeal);
+  document.getElementById('btnKeyPts').textContent = showKeyPts ? 'Hide Key Points' : 'Key Points';
+  document.getElementById('btnKeyPts').classList.toggle('active', showKeyPts);
+  document.getElementById('btnRetry').style.display = phase === 'done' ? 'inline-flex' : 'none';
+
+  const legend = document.getElementById('legend');
+  legend.style.display = (showIdeal || phase === 'done') ? 'flex' : 'none';
+}
+
+/* ============================================================
+   ACTIONS
+   ============================================================ */
+function selectFigure(id) {
+  currentFigure = FIGURES[id];
+  idealPath = generateIdealPath(currentFigure);
+  phase = 'ready';
+  userPoints = [];
+  showIdeal = false;
+  showKeyPts = false;
+  document.getElementById('feedbackPanel').innerHTML = '';
+
+  buildFigureSelector();
+  updateInfoCard();
+  renderIdeal();
+  renderKeyPoints();
+  renderStartDot();
+  renderTrace();
+  updateControls();
+}
+
+function toggleIdeal() {
+  showIdeal = !showIdeal;
+  renderIdeal();
+  updateControls();
+}
+
+function toggleKeyPoints() {
+  showKeyPts = !showKeyPts;
+  renderKeyPoints();
+  updateControls();
+}
+
+function tryAgain() {
+  phase = 'ready';
+  userPoints = [];
+  document.getElementById('feedbackPanel').innerHTML = '';
+  renderStartDot();
+  renderTrace();
+  renderIdeal();
+  updateControls();
+}
+
+/* ============================================================
+   POINTER / TOUCH DRAWING
+   ============================================================ */
+function screenToSvg(e) {
+  const pt = svg.createSVGPoint();
+  pt.x = e.clientX;
+  pt.y = e.clientY;
+  const svgPt = pt.matrixTransform(svg.getScreenCTM().inverse());
+  return { x: svgPt.x, y: svgPt.y };
+}
+
+svg.addEventListener('pointerdown', function(e) {
+  if (!currentFigure || phase === 'done') return;
+  e.preventDefault();
+  svg.setPointerCapture(e.pointerId);
+  isDrawing = true;
+  phase = 'drawing';
+  userPoints = [];
+  clearLayer(startDotLayer);
+  clearLayer(traceLayer);
+  document.getElementById('feedbackPanel').innerHTML = '';
+  updateControls();
+
+  const p = screenToSvg(e);
+  userPoints.push(p);
+});
+
+svg.addEventListener('pointermove', function(e) {
+  if (!isDrawing) return;
+  e.preventDefault();
+  const p = screenToSvg(e);
+  userPoints.push(p);
+  renderTrace();
+});
+
+svg.addEventListener('pointerup', function(e) {
+  if (!isDrawing) return;
+  e.preventDefault();
+  isDrawing = false;
+  phase = 'done';
+
+  if (userPoints.length < 5) {
+    phase = 'ready';
+    userPoints = [];
+    renderStartDot();
+    renderTrace();
+    updateControls();
+    return;
+  }
+
+  // Show ideal with reduced opacity
+  showIdeal = true;
+  renderIdeal();
+  updateControls();
+
+  // Evaluate
+  const result = evaluate(userPoints, idealPath);
+  showFeedback(result);
+});
+
+svg.addEventListener('pointerleave', function(e) {
+  if (!isDrawing) return;
+  // Let pointerup handle via capture
+});
+
+/* ============================================================
+   FEEDBACK
+   ============================================================ */
+function showFeedback(result) {
+  const panel = document.getElementById('feedbackPanel');
+  const gradeClass =
+    result.grade === 'Excellent' ? 'feedback-grade--excellent' :
+    result.grade === 'Good' ? 'feedback-grade--good' :
+    result.grade === 'Fair' ? 'feedback-grade--fair' : 'feedback-grade--needs';
+
+  const keyPills = currentFigure.keyPoints.map(kp =>
+    '<span class="key-point-pill">' + kp.label + '</span>'
+  ).join('');
+
+  panel.innerHTML =
+    '<div class="feedback">' +
+    '<div class="feedback-grade ' + gradeClass + '">' + result.grade + '</div>' +
+    '<div class="feedback-score">avg ' + result.avgDev.toFixed(1) + 'm off ideal &middot; ' + result.coverage + '% coverage</div>' +
+    '<div class="feedback-key-points">' + keyPills + '</div>' +
+    '<div id="aiQuote" class="feedback-loading">The Classical Master considers\u2026</div>' +
+    '</div>';
+
+  fetchCoaching(result);
+}
+
+async function fetchCoaching(result) {
+  const key = localStorage.getItem('ydj_anthropic_key');
+  const quoteEl = document.getElementById('aiQuote');
+  if (!key) {
+    quoteEl.className = 'feedback-loading';
+    quoteEl.textContent = 'Add an API key above to receive Classical Master coaching.';
+    return;
+  }
+
+  const prompt = 'You are The Classical Master from Your Dressage Journey \u2014 precise, demanding, classically grounded. Never sentimental. Pithy.\n\n' +
+    'A rider traced a ' + currentFigure.title + ' on an interactive arena diagram.\n' +
+    'Grade: ' + result.grade + '. Average deviation: ' + result.avgDev.toFixed(1) + 'm.\n' +
+    'Coverage: ' + result.coverage + '%.\n\n' +
+    'Geometry context: ' + currentFigure.aiHint + '\n\n' +
+    'Give exactly 2\u20133 sentences of coaching. Reference specific landmarks (letters, centerline, wall contacts). Never begin with "I". Even for Excellent, find something to sharpen.';
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 130,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!resp.ok) {
+      const errText = await resp.text();
+      throw new Error(resp.status + ': ' + errText.slice(0, 100));
+    }
+
+    const data = await resp.json();
+    const text = data.content && data.content[0] && data.content[0].text
+      ? data.content[0].text
+      : 'No response received.';
+
+    quoteEl.className = 'feedback-quote';
+    quoteEl.textContent = text;
+  } catch (err) {
+    quoteEl.className = 'feedback-loading';
+    quoteEl.textContent = 'Could not reach The Classical Master: ' + err.message;
+  }
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+buildApiKeySection();
+buildFigureSelector();
+updateInfoCard();
+updateControls();
+
+// Default selection
+selectFigure('20A');
+</script>
+</body>
+</html>

@@ -37,7 +37,7 @@ export function deriveWeeklyAssignments(gptResult, cycleWeek) {
     const weekData = path.weeks.find(w => w.week === cycleWeek) || path.weeks[0];
     const practices = weekData?.practices || weekData?.exercises || [];
     return practices.slice(0, 3).map(p => ({
-      title: (typeof p === 'string' ? p : p.text || p.name || '').substring(0, 60),
+      title: typeof p === 'string' ? p : p.text || p.name || '',
       description: typeof p === 'string' ? p : p.text || p.description || '',
       buildToward: weekData.theme || path.title || 'Mental performance',
     }));
@@ -325,7 +325,7 @@ export function selectCelebration(reflections) {
   const r = positive[0];
   return {
     id: r.id,
-    quote: r.response || r.text || '',
+    quote: r.mainReflection || r.response || r.text || '',
     horseName: r.horseName || '',
     date: r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : '',
     category: r.category === 'personal' ? 'Personal Milestone'

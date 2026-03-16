@@ -1,0 +1,429 @@
+{
+  "coefficients_by_test": {
+
+    "intro_a": {
+      "test_name": "Intro A",
+      "organization": "USDF",
+      "year": "2023",
+      "coefficients": [
+        { "movement": "Gaits (freedom and regularity)", "coefficient": 1, "type": "collective" },
+        { "movement": "Impulsion (desire to move forward with suppleness of the back and steady tempo)", "coefficient": 1, "type": "collective" },
+        { "movement": "Submission (acceptance of steady contact, attention, and confidence)", "coefficient": 2, "type": "collective" },
+        { "movement": "Rider's position (keeping in balance with horse)", "coefficient": 1, "type": "collective" },
+        { "movement": "Rider's effectiveness of aids (correct bend and preparation of transitions)", "coefficient": 1, "type": "collective" },
+        { "movement": "Geometry and accuracy (correct size and shape of circles and turns)", "coefficient": 1, "type": "collective" }
+      ]
+    },
+
+    "intro_b": {
+      "test_name": "Intro B",
+      "organization": "USDF",
+      "year": "2023",
+      "coefficients": [
+        { "movement": "Gaits (freedom and regularity)", "coefficient": 1, "type": "collective" },
+        { "movement": "Impulsion (desire to move forward with suppleness of the back and steady tempo)", "coefficient": 1, "type": "collective" },
+        { "movement": "Submission (acceptance of steady contact, attention, and confidence)", "coefficient": 2, "type": "collective" },
+        { "movement": "Rider's position (keeping in balance with horse)", "coefficient": 1, "type": "collective" },
+        { "movement": "Rider's effectiveness of aids (correct bend and preparation of transitions)", "coefficient": 1, "type": "collective" },
+        { "movement": "Geometry and accuracy (correct size and shape of circles and turns)", "coefficient": 1, "type": "collective" }
+      ]
+    },
+
+    "intro_c": {
+      "test_name": "Intro C",
+      "organization": "USDF",
+      "year": "2023",
+      "coefficients": [
+        { "movement": "Gaits (freedom and regularity)", "coefficient": 1, "type": "collective" },
+        { "movement": "Impulsion (desire to move forward with suppleness of the back and steady tempo)", "coefficient": 1, "type": "collective" },
+        { "movement": "Submission (acceptance of steady contact, attention, and confidence)", "coefficient": 2, "type": "collective" },
+        { "movement": "Rider's position (keeping in balance with horse)", "coefficient": 1, "type": "collective" },
+        { "movement": "Rider's effectiveness of aids (correct bend and preparation of transitions)", "coefficient": 1, "type": "collective" },
+        { "movement": "Geometry and accuracy (correct size and shape of circles and turns)", "coefficient": 1, "type": "collective" }
+      ]
+    },
+
+    "training_1": {
+      "test_name": "Training Level Test 1",
+      "organization": "USEF/USDF",
+      "year": "2023",
+      "coefficients": [
+        { "movement": "Circle left 20m", "coefficient": 2, "type": "movement" },
+        { "movement": "Working canter / working trot and transition between (left lead)", "coefficient": 2, "type": "movement" },
+        { "movement": "Medium walk and transition from trot", "coefficient": 2, "type": "movement" },
+        { "movement": "Change rein, free walk / Medium walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Circle right 20m", "coefficient": 2, "type": "movement" },
+        { "movement": "Working canter / working trot and transition between (right lead)", "coefficient": 2, "type": "movement" },
+        { "movement": "Gaits (Freedom and regularity)", "coefficient": 1, "type": "collective" },
+        { "movement": "Impulsion (Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters)", "coefficient": 2, "type": "collective" },
+        { "movement": "Submission (Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements)", "coefficient": 2, "type": "collective" },
+        { "movement": "Rider's Position and Seat (Alignment; posture; stability; weight placement; following mechanics of the gaits)", "coefficient": 1, "type": "collective" },
+        { "movement": "Rider's Correct and Effective Use of Aids (Clarity; subtlety; independence; accuracy of test)", "coefficient": 1, "type": "collective" }
+      ]
+    },
+
+    "training_2": {
+      "test_name": "Training Level Test 2",
+      "organization": "USEF/USDF",
+      "year": "2023",
+      "coefficients": [
+        { "movement": "Change rein in trot", "coefficient": 2, "type": "movement" },
+        { "movement": "Working canter left lead and transition", "coefficient": 2, "type": "movement" },
+        { "movement": "Medium walk / Change rein, medium walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Change rein, free walk / Medium walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Change rein in trot", "coefficient": 2, "type": "movement" },
+        { "movement": "Working canter right lead and transition", "coefficient": 2, "type": "movement" },
+        { "movement": "Gaits (Freedom and regularity)", "coefficient": 1, "type": "collective" },
+        { "movement": "Impulsion (Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters)", "coefficient": 2, "type": "collective" },
+        { "movement": "Submission (Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements)", "coefficient": 2, "type": "collective" },
+        { "movement": "Rider's Position and Seat (Alignment; posture; stability; weight placement; following mechanics of the gaits)", "coefficient": 1, "type": "collective" },
+        { "movement": "Rider's Correct and Effective Use of Aids (Clarity; subtlety; independence; accuracy of test)", "coefficient": 1, "type": "collective" }
+      ]
+    },
+
+    "training_3": {
+      "test_name": "Training Level Test 3",
+      "organization": "USEF/USDF",
+      "year": "2023",
+      "coefficients": [
+        { "movement": "Single loop trot (left)", "coefficient": 2, "type": "movement" },
+        { "movement": "Medium walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Free walk / Medium walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Single loop trot (right)", "coefficient": 2, "type": "movement" },
+        { "movement": "Circle right 20m, stretch forward and downward (rising trot)", "coefficient": 2, "type": "movement" },
+        { "movement": "Gaits (Freedom and regularity)", "coefficient": 1, "type": "collective" },
+        { "movement": "Impulsion (Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters)", "coefficient": 2, "type": "collective" },
+        { "movement": "Submission (Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements)", "coefficient": 2, "type": "collective" },
+        { "movement": "Rider's Position and Seat (Alignment; posture; stability; weight placement; following mechanics of the gaits)", "coefficient": 1, "type": "collective" },
+        { "movement": "Rider's Correct and Effective Use of Aids (Clarity; subtlety; independence; accuracy of test)", "coefficient": 1, "type": "collective" }
+      ]
+    },
+
+    "first_1": {
+      "test_name": "First Level Test 1",
+      "organization": "USEF/USDF",
+      "year": "2023",
+      "coefficients": [
+        { "movement": "Circle left 20m, stretch forward and downward (rising trot)", "coefficient": 2, "type": "movement" },
+        { "movement": "Medium walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Change rein, free walk / Medium walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Working trot / Working canter left lead and transition", "coefficient": 2, "type": "movement" },
+        { "movement": "Working canter right lead and transition", "coefficient": 2, "type": "movement" },
+        { "movement": "Gaits (Freedom and regularity)", "coefficient": 1, "type": "collective" },
+        { "movement": "Impulsion (Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters)", "coefficient": 2, "type": "collective" },
+        { "movement": "Submission (Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements)", "coefficient": 2, "type": "collective" },
+        { "movement": "Rider's Position and Seat (Alignment; posture; stability; weight placement; following mechanics of the gaits)", "coefficient": 1, "type": "collective" },
+        { "movement": "Rider's Correct and Effective Use of Aids (Clarity; subtlety; independence; accuracy of test)", "coefficient": 1, "type": "collective" }
+      ]
+    },
+
+    "first_2": {
+      "test_name": "First Level Test 2",
+      "organization": "USEF/USDF",
+      "year": "2023",
+      "coefficients": [
+        { "movement": "Leg yield right", "coefficient": 2, "type": "movement" },
+        { "movement": "Leg yield left", "coefficient": 2, "type": "movement" },
+        { "movement": "Medium walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Change rein, free walk / Medium walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Lengthen stride in canter (left lead)", "coefficient": 2, "type": "movement" },
+        { "movement": "Lengthen stride in canter (right lead)", "coefficient": 2, "type": "movement" },
+        { "movement": "Circle right 20m, stretch forward and downward (rising trot)", "coefficient": 2, "type": "movement" },
+        { "movement": "Gaits (Freedom and regularity)", "coefficient": 1, "type": "collective" },
+        { "movement": "Impulsion (Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters)", "coefficient": 2, "type": "collective" },
+        { "movement": "Submission (Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements)", "coefficient": 2, "type": "collective" },
+        { "movement": "Rider's Position and Seat (Alignment; posture; stability; weight placement; following mechanics of the gaits)", "coefficient": 1, "type": "collective" },
+        { "movement": "Rider's Correct and Effective Use of Aids (Clarity; subtlety; independence; accuracy of test)", "coefficient": 1, "type": "collective" }
+      ]
+    },
+
+    "first_3": {
+      "test_name": "First Level Test 3",
+      "organization": "USEF/USDF",
+      "year": "2023",
+      "coefficients": [
+        { "movement": "Leg yield right", "coefficient": 2, "type": "movement" },
+        { "movement": "Circle right 20m, stretch forward and downward (rising trot)", "coefficient": 2, "type": "movement" },
+        { "movement": "Single loop canter (right lead)", "coefficient": 2, "type": "movement" },
+        { "movement": "Medium walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Change rein, free walk / Medium walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Leg yield left", "coefficient": 2, "type": "movement" },
+        { "movement": "Single loop canter (left lead)", "coefficient": 2, "type": "movement" },
+        { "movement": "Gaits (Freedom and regularity)", "coefficient": 1, "type": "collective" },
+        { "movement": "Impulsion (Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters)", "coefficient": 2, "type": "collective" },
+        { "movement": "Submission (Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements)", "coefficient": 2, "type": "collective" },
+        { "movement": "Rider's Position and Seat (Alignment; posture; stability; weight placement; following mechanics of the gaits)", "coefficient": 1, "type": "collective" },
+        { "movement": "Rider's Correct and Effective Use of Aids (Clarity; subtlety; independence; accuracy of test)", "coefficient": 1, "type": "collective" }
+      ]
+    },
+
+    "second_1": {
+      "test_name": "Second Level Test 1",
+      "organization": "USEF/USDF",
+      "year": "2023",
+      "coefficients": [
+        { "movement": "Shoulder-in right", "coefficient": 2, "type": "movement" },
+        { "movement": "Shoulder-in left", "coefficient": 2, "type": "movement" },
+        { "movement": "Halt, rein back 3 to 4 steps, proceed medium walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Medium walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Change rein, free walk / Medium walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Change rein, counter canter right", "coefficient": 2, "type": "movement" },
+        { "movement": "Change rein, counter canter left", "coefficient": 2, "type": "movement" },
+        { "movement": "Gaits (Freedom and regularity)", "coefficient": 1, "type": "collective" },
+        { "movement": "Impulsion (Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters)", "coefficient": 2, "type": "collective" },
+        { "movement": "Submission (Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements)", "coefficient": 2, "type": "collective" },
+        { "movement": "Rider's Position and Seat (Alignment; posture; stability; weight placement; following mechanics of the gaits)", "coefficient": 1, "type": "collective" },
+        { "movement": "Rider's Correct and Effective Use of Aids (Clarity; subtlety; independence; accuracy of test)", "coefficient": 1, "type": "collective" }
+      ]
+    },
+
+    "second_2": {
+      "test_name": "Second Level Test 2",
+      "organization": "USEF/USDF",
+      "year": "2023",
+      "coefficients": [
+        { "movement": "Travers right / Half circle right 10m", "coefficient": 2, "type": "movement" },
+        { "movement": "Half circle left 10m / Travers left", "coefficient": 2, "type": "movement" },
+        { "movement": "Medium walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Change rein, free walk / Medium walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Change rein, counter canter right", "coefficient": 2, "type": "movement" },
+        { "movement": "Change rein, counter canter left", "coefficient": 2, "type": "movement" },
+        { "movement": "Gaits (Freedom and regularity)", "coefficient": 1, "type": "collective" },
+        { "movement": "Impulsion (Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters)", "coefficient": 2, "type": "collective" },
+        { "movement": "Submission (Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements)", "coefficient": 2, "type": "collective" },
+        { "movement": "Rider's Position and Seat (Alignment; posture; stability; weight placement; following mechanics of the gaits)", "coefficient": 1, "type": "collective" },
+        { "movement": "Rider's Correct and Effective Use of Aids (Clarity; subtlety; independence; accuracy of test)", "coefficient": 1, "type": "collective" }
+      ]
+    },
+
+    "second_3": {
+      "test_name": "Second Level Test 3",
+      "organization": "USEF/USDF",
+      "year": "2023",
+      "coefficients": [
+        { "movement": "Collected / medium / collected trot and transitions (first)", "coefficient": 2, "type": "movement" },
+        { "movement": "Collected / medium / collected trot and transitions (second)", "coefficient": 2, "type": "movement" },
+        { "movement": "Halt, rein back 3 to 4 steps, proceed medium walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Half turn on haunches left", "coefficient": 2, "type": "movement" },
+        { "movement": "Half turn on haunches right", "coefficient": 2, "type": "movement" },
+        { "movement": "Change rein, free walk / Medium walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Simple change (first)", "coefficient": 2, "type": "movement" },
+        { "movement": "Simple change (second)", "coefficient": 2, "type": "movement" },
+        { "movement": "Gaits (Freedom and regularity)", "coefficient": 1, "type": "collective" },
+        { "movement": "Impulsion (Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters)", "coefficient": 2, "type": "collective" },
+        { "movement": "Submission (Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements)", "coefficient": 2, "type": "collective" },
+        { "movement": "Rider's Position and Seat (Alignment; posture; stability; weight placement; following mechanics of the gaits)", "coefficient": 1, "type": "collective" },
+        { "movement": "Rider's Correct and Effective Use of Aids (Clarity; subtlety; independence; accuracy of test)", "coefficient": 1, "type": "collective" }
+      ]
+    },
+
+    "third_1": {
+      "test_name": "Third Level Test 1",
+      "organization": "USEF/USDF",
+      "year": "2023",
+      "coefficients": [
+        { "movement": "Half circle left 10m / Half pass left", "coefficient": 2, "type": "movement" },
+        { "movement": "Half circle right 10m / Half pass right", "coefficient": 2, "type": "movement" },
+        { "movement": "Halt, rein back 4 steps, proceed medium walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Change rein, extended walk / Medium walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Medium walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Flying change of lead (right lead)", "coefficient": 2, "type": "movement" },
+        { "movement": "Flying change of lead (left lead)", "coefficient": 2, "type": "movement" },
+        { "movement": "Gaits (Freedom and regularity)", "coefficient": 1, "type": "collective" },
+        { "movement": "Impulsion (Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters)", "coefficient": 2, "type": "collective" },
+        { "movement": "Submission (Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements)", "coefficient": 2, "type": "collective" },
+        { "movement": "Rider's Position and Seat (Alignment; posture; stability; weight placement; following mechanics of the gaits)", "coefficient": 1, "type": "collective" },
+        { "movement": "Rider's Correct and Effective Use of Aids (Clarity; subtlety; independence; accuracy of test)", "coefficient": 1, "type": "collective" }
+      ]
+    },
+
+    "third_2": {
+      "test_name": "Third Level Test 2",
+      "organization": "USEF/USDF",
+      "year": "2023",
+      "coefficients": [
+        { "movement": "Renvers right", "coefficient": 2, "type": "movement" },
+        { "movement": "Change rein, extended trot", "coefficient": 2, "type": "movement" },
+        { "movement": "Renvers left", "coefficient": 2, "type": "movement" },
+        { "movement": "Medium walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Change rein, extended walk / Medium walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Flying change left", "coefficient": 2, "type": "movement" },
+        { "movement": "Flying change right", "coefficient": 2, "type": "movement" },
+        { "movement": "Circle right in canter 20m with release of both reins", "coefficient": 2, "type": "movement" },
+        { "movement": "Extended canter", "coefficient": 2, "type": "movement" },
+        { "movement": "Gaits (Freedom and regularity)", "coefficient": 1, "type": "collective" },
+        { "movement": "Impulsion (Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters)", "coefficient": 2, "type": "collective" },
+        { "movement": "Submission (Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements)", "coefficient": 2, "type": "collective" },
+        { "movement": "Rider's Position and Seat (Alignment; posture; stability; weight placement; following mechanics of the gaits)", "coefficient": 1, "type": "collective" },
+        { "movement": "Rider's Correct and Effective Use of Aids (Clarity; subtlety; independence; accuracy of test)", "coefficient": 1, "type": "collective" }
+      ]
+    },
+
+    "third_3": {
+      "test_name": "Third Level Test 3",
+      "organization": "USEF/USDF",
+      "year": "2023",
+      "coefficients": [
+        { "movement": "Half pass left (trot)", "coefficient": 2, "type": "movement" },
+        { "movement": "Halt, rein back 4 steps, proceed collected trot", "coefficient": 2, "type": "movement" },
+        { "movement": "Half pass right (trot)", "coefficient": 2, "type": "movement" },
+        { "movement": "Medium walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Extended walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Half pass left (canter)", "coefficient": 2, "type": "movement" },
+        { "movement": "Half circle left 10m / Flying change of lead", "coefficient": 2, "type": "movement" },
+        { "movement": "Half pass right (canter)", "coefficient": 2, "type": "movement" },
+        { "movement": "Half circle right 10m / Flying change of lead", "coefficient": 2, "type": "movement" },
+        { "movement": "Gaits (Freedom and regularity)", "coefficient": 1, "type": "collective" },
+        { "movement": "Impulsion (Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters)", "coefficient": 2, "type": "collective" },
+        { "movement": "Submission (Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements)", "coefficient": 2, "type": "collective" },
+        { "movement": "Rider's Position and Seat (Alignment; posture; stability; weight placement; following mechanics of the gaits)", "coefficient": 1, "type": "collective" },
+        { "movement": "Rider's Correct and Effective Use of Aids (Clarity; subtlety; independence; accuracy of test)", "coefficient": 1, "type": "collective" }
+      ]
+    },
+
+    "fourth_1": {
+      "test_name": "Fourth Level Test 1",
+      "organization": "USEF/USDF",
+      "year": "2023",
+      "coefficients": [
+        { "movement": "Medium trot / 6-7 steps collected trot", "coefficient": 2, "type": "movement" },
+        { "movement": "Half pass right (trot)", "coefficient": 2, "type": "movement" },
+        { "movement": "Half pass left (trot)", "coefficient": 2, "type": "movement" },
+        { "movement": "Collected walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Extended walk", "coefficient": 2, "type": "movement" },
+        { "movement": "5-6 steps very collected canter on circle", "coefficient": 2, "type": "movement" },
+        { "movement": "3 single flying changes", "coefficient": 2, "type": "movement" },
+        { "movement": "Gaits (Freedom and regularity)", "coefficient": 1, "type": "collective" },
+        { "movement": "Impulsion (Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters)", "coefficient": 2, "type": "collective" },
+        { "movement": "Submission (Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements)", "coefficient": 2, "type": "collective" },
+        { "movement": "Rider's Position and Seat (Alignment; posture; stability; weight placement; following mechanics of the gaits)", "coefficient": 1, "type": "collective" },
+        { "movement": "Rider's Correct and Effective Use of Aids (Clarity; subtlety; independence; accuracy of test)", "coefficient": 1, "type": "collective" }
+      ]
+    },
+
+    "fourth_2": {
+      "test_name": "Fourth Level Test 2",
+      "organization": "USEF/USDF",
+      "year": "2023",
+      "coefficients": [
+        { "movement": "Extended walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Half pirouette left (walk)", "coefficient": 2, "type": "movement" },
+        { "movement": "Half pirouette right (walk)", "coefficient": 2, "type": "movement" },
+        { "movement": "Half pass right (canter)", "coefficient": 2, "type": "movement" },
+        { "movement": "Half pass left (canter)", "coefficient": 2, "type": "movement" },
+        { "movement": "Working pirouette right (canter)", "coefficient": 2, "type": "movement" },
+        { "movement": "3 flying changes every fourth stride", "coefficient": 2, "type": "movement" },
+        { "movement": "Working pirouette left (canter)", "coefficient": 2, "type": "movement" },
+        { "movement": "Gaits (Freedom and regularity)", "coefficient": 1, "type": "collective" },
+        { "movement": "Impulsion (Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters)", "coefficient": 2, "type": "collective" },
+        { "movement": "Submission (Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements)", "coefficient": 2, "type": "collective" },
+        { "movement": "Rider's Position and Seat (Alignment; posture; stability; weight placement; following mechanics of the gaits)", "coefficient": 1, "type": "collective" },
+        { "movement": "Rider's Correct and Effective Use of Aids (Clarity; subtlety; independence; accuracy of test)", "coefficient": 1, "type": "collective" }
+      ]
+    },
+
+    "fourth_3": {
+      "test_name": "Fourth Level Test 3",
+      "organization": "USEF/USDF",
+      "year": "2023",
+      "coefficients": [
+        { "movement": "Transition collected trot to extended trot and back", "coefficient": 2, "type": "movement" },
+        { "movement": "Halt, rein back 4 steps, and proceed collected trot", "coefficient": 2, "type": "movement" },
+        { "movement": "Collected walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Extended walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Working half-pirouette left (canter)", "coefficient": 2, "type": "movement" },
+        { "movement": "Working half-pirouette right (canter)", "coefficient": 2, "type": "movement" },
+        { "movement": "3 flying changes every third stride", "coefficient": 2, "type": "movement" },
+        { "movement": "Gaits (Freedom and regularity)", "coefficient": 1, "type": "collective" },
+        { "movement": "Impulsion (Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters)", "coefficient": 2, "type": "collective" },
+        { "movement": "Submission (Willing cooperation; harmony; attention and confidence; acceptance of bit and aids; straightness; lightness of forehand and ease of movements)", "coefficient": 2, "type": "collective" },
+        { "movement": "Rider's Position and Seat (Alignment; posture; stability; weight placement; following mechanics of the gaits)", "coefficient": 1, "type": "collective" },
+        { "movement": "Rider's Correct and Effective Use of Aids (Clarity; subtlety; independence; accuracy of test)", "coefficient": 1, "type": "collective" }
+      ]
+    },
+
+    "psg": {
+      "test_name": "Prix St. Georges",
+      "organization": "FEI",
+      "year": "2022/2026",
+      "coefficients": [
+        { "movement": "Trot half pass right", "coefficient": 2, "type": "movement" },
+        { "movement": "Trot half pass left", "coefficient": 2, "type": "movement" },
+        { "movement": "Collected walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Extended walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Half pirouette left (canter)", "coefficient": 2, "type": "movement" },
+        { "movement": "Half pirouette right (canter)", "coefficient": 2, "type": "movement" },
+        { "movement": "Harmony (harmony, cooperation, lightness, effectiveness, and sensitivity of aids as well as adherence to the training scale)", "coefficient": 2, "type": "collective" }
+      ]
+    },
+
+    "intermediate_i": {
+      "test_name": "Intermediate I",
+      "organization": "FEI",
+      "year": "2023/2026",
+      "coefficients": [
+        { "movement": "Half-pass to the right (trot)", "coefficient": 2, "type": "movement" },
+        { "movement": "Half-pass to the left (trot)", "coefficient": 2, "type": "movement" },
+        { "movement": "Collected walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Extended walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Canter zigzag (3 half-passes with flying changes)", "coefficient": 2, "type": "movement" },
+        { "movement": "Pirouette to the left (canter)", "coefficient": 2, "type": "movement" },
+        { "movement": "Pirouette to the right (canter)", "coefficient": 2, "type": "movement" },
+        { "movement": "Harmony (harmony, cooperation, lightness, effectiveness, and sensitivity of aids as well as adherence to the training scale)", "coefficient": 2, "type": "collective" }
+      ]
+    },
+
+    "intermediate_ii": {
+      "test_name": "Intermediate II",
+      "organization": "FEI",
+      "year": "2023/2026",
+      "coefficients": [
+        { "movement": "Trot zigzag (3 half-passes)", "coefficient": 2, "type": "movement" },
+        { "movement": "Extended walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Collected walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Pirouette to the left (canter)", "coefficient": 2, "type": "movement" },
+        { "movement": "Pirouette to the right (canter)", "coefficient": 2, "type": "movement" },
+        { "movement": "Harmony (harmony, cooperation, lightness, effectiveness, and sensitivity of aids as well as adherence to the training scale)", "coefficient": 2, "type": "collective" }
+      ]
+    },
+
+    "grand_prix": {
+      "test_name": "Grand Prix",
+      "organization": "FEI",
+      "year": "2022/2026",
+      "coefficients": [
+        { "movement": "Half-pass to the right (trot)", "coefficient": 2, "type": "movement" },
+        { "movement": "Half-pass to the left (trot)", "coefficient": 2, "type": "movement" },
+        { "movement": "Piaffe 12 to 15 steps (at D)", "coefficient": 2, "type": "movement" },
+        { "movement": "Extended walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Collected walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Piaffe 12 to 15 steps (at I)", "coefficient": 2, "type": "movement" },
+        { "movement": "Canter zigzag (5 half-passes with flying changes)", "coefficient": 2, "type": "movement" },
+        { "movement": "15 flying changes every stride", "coefficient": 2, "type": "movement" },
+        { "movement": "Pirouette to the left (canter)", "coefficient": 2, "type": "movement" },
+        { "movement": "Pirouette to the right (canter)", "coefficient": 2, "type": "movement" },
+        { "movement": "Piaffe 12 to 15 steps (at X)", "coefficient": 2, "type": "movement" },
+        { "movement": "Harmony (harmony, cooperation, lightness, effectiveness, and sensitivity of aids as well as adherence to the training scale)", "coefficient": 2, "type": "collective" }
+      ]
+    },
+
+    "grand_prix_special": {
+      "test_name": "Grand Prix Special",
+      "organization": "FEI",
+      "year": "2022/2026",
+      "coefficients": [
+        { "movement": "Half-pass to the left (trot)", "coefficient": 2, "type": "movement" },
+        { "movement": "Half-pass to the right (trot)", "coefficient": 2, "type": "movement" },
+        { "movement": "Extended walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Collected walk", "coefficient": 2, "type": "movement" },
+        { "movement": "Piaffe 12 to 15 steps (at G)", "coefficient": 2, "type": "movement" },
+        { "movement": "Piaffe 12 to 15 steps (at I)", "coefficient": 2, "type": "movement" },
+        { "movement": "Pirouette to the left (canter)", "coefficient": 2, "type": "movement" },
+        { "movement": "Pirouette to the right (canter)", "coefficient": 2, "type": "movement" },
+        { "movement": "Piaffe 12 to 15 steps (at X)", "coefficient": 2, "type": "movement" },
+        { "movement": "Harmony (harmony, cooperation, lightness, effectiveness, and sensitivity of aids as well as adherence to the training scale)", "coefficient": 2, "type": "collective" }
+      ]
+    }
+
+  }
+}

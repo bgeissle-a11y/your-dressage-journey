@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import MultiVoicePanel from '../components/AICoaching/MultiVoicePanel';
 import JourneyMapPanel from '../components/AICoaching/JourneyMapPanel';
@@ -18,9 +18,16 @@ const TABS = [
 
 export default function Insights() {
   const [searchParams] = useSearchParams();
-  const initialTab = searchParams.get('tab') || 'coaching';
-  const [activeTab, setActiveTab] = useState(initialTab);
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'coaching');
   const generationStatus = useGenerationStatus();
+
+  // Sync tab when URL params change (e.g. navigating from nav links)
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && TABS.some(t => t.id === tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   const totalOutputs = generationStatus.outputsCompleted.length + generationStatus.outputsRemaining.length;
   const completedCount = generationStatus.outputsCompleted.length;

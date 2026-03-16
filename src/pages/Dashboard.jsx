@@ -235,7 +235,10 @@ export default function Dashboard() {
   monday.setDate(monday.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
   const sunday = new Date(monday);
   sunday.setDate(sunday.getDate() + 6);
-  const weekRange = `${monday.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}\u2013${sunday.toLocaleDateString('en-US', { day: 'numeric', year: 'numeric' })}`;
+  const sameMonth = monday.getMonth() === sunday.getMonth();
+  const weekRange = sameMonth
+    ? `${monday.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}\u2013${sunday.getDate()}, ${sunday.getFullYear()}`
+    : `${monday.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} \u2013 ${sunday.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
 
   if (loading) {
     return <div className="dashboard-loading">Loading your journey...</div>;

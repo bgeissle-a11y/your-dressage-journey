@@ -66,6 +66,8 @@ export default function AppLayout() {
         <Link to="/insights?tab=journey" className="nav-btn">Journey Map</Link>
         <Link to="/insights?tab=coaching" className="nav-btn">Multi-Voice</Link>
         <Link to="/insights?tab=grandprix" className="nav-btn">Grand Prix</Link>
+        <Link to="/insights?tab=physical" className="nav-btn">Physical</Link>
+        <Link to="/insights?tab=dataviz" className="nav-btn">Data Viz</Link>
         <div className="nav-sep" />
 
         {/* Profiles */}
