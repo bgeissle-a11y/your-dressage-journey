@@ -502,7 +502,7 @@ const FIGURES = {
   'tear': {
     id: 'tear', title: 'Teardrop at E', group: 2,
     fact: 'Half 10m circle from E to X, then a straight diagonal line from X back to H.',
-    aiHint: 'The teardrop starts at E (0,30) with a half 10m circle (radius 5, center at (5,30)) curving to X (10,30). From X, ride a straight diagonal line to H (0,6). The half circle must be round \u2014 not egg-shaped. The diagonal must be straight \u2014 no drift or curve.',
+    aiHint: 'The teardrop starts at E (0,30) with a half 10m circle (radius 5, center at (5,30)) curving toward A through y=35 to reach X (10,30). From X, ride a straight diagonal line to H (0,6). The half circle bulges toward A, not toward C. The half circle must be round \u2014 not egg-shaped. The diagonal must be straight \u2014 no drift or curve.',
     type: 'teardrop', start: [0, 30],
     keyPoints: [
       { x: 0,  y: 30, label: 'E (start)' },
@@ -665,10 +665,10 @@ function generateTeardropPath(numPts) {
   // Half 10m circle from E(0,30) to X(10,30), center (5,30), radius 5
   // Start at E: angle = atan2(30-30, 0-5) = PI (pointing left)
   // Go to X: angle = atan2(30-30, 10-5) = 0 (pointing right)
-  // Half circle curving toward C (y=25), so go from PI to 2*PI
+  // Half circle curving toward A (y=35), so go from PI down to 0
   var halfPts = Math.floor(numPts * 0.6);
   for (var i = 0; i <= halfPts; i++) {
-    var a = Math.PI + (i / halfPts) * Math.PI; // PI to 2*PI
+    var a = Math.PI - (i / halfPts) * Math.PI; // PI to 0
     pts.push({ x: 5 + 5 * Math.cos(a), y: 30 + 5 * Math.sin(a) });
   }
   // Straight line from X(10,30) to H(0,6)
