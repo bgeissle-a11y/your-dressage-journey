@@ -37,10 +37,12 @@ async function handler(req, res) {
     `A rider traced a ${figure} on an interactive arena diagram.\n` +
     `Grade: ${grade}. Average deviation: ${Number(avgDev).toFixed(1)}m.\n` +
     `Coverage: ${coverage}%.\n\n` +
-    `Geometry context: ${aiHint || "N/A"}\n\n` +
-    `Give exactly 2–3 sentences of coaching. Reference specific landmarks ` +
-    `(letters, centerline, wall contacts). Never begin with "I". ` +
-    `Even for Excellent, find something to sharpen.`;
+    `GEOMETRY CONTEXT (authoritative — follow exactly, do not contradict):\n` +
+    `${aiHint || "N/A"}\n\n` +
+    `Give exactly 2–3 sentences of coaching. Reference ONLY the specific landmarks ` +
+    `and measurements described in the geometry context above. Do NOT assume standard ` +
+    `geometry from memory — the context above is the sole source of truth for this figure. ` +
+    `Never begin with "I". Even for Excellent, find something to sharpen.`;
 
   try {
     const text = await callClaude({

@@ -321,6 +321,9 @@ a { text-decoration: none; color: inherit; }
       <line x1="10" y1="0" x2="10" y2="60" stroke="#c9a87c" stroke-width="0.25" stroke-dasharray="0.8,0.6" opacity="0.5"/>
       <!-- E/B horizontal (more prominent) -->
       <line x1="0" y1="30" x2="20" y2="30" stroke="#c9a87c" stroke-width="0.2" stroke-dasharray="0.6,0.5" opacity="0.4"/>
+      <!-- Quarter lines (5m from each wall) -->
+      <line x1="5" y1="0" x2="5" y2="60" stroke="#c9a87c" stroke-width="0.15" stroke-dasharray="0.6,0.8" opacity="0.25"/>
+      <line x1="15" y1="0" x2="15" y2="60" stroke="#c9a87c" stroke-width="0.15" stroke-dasharray="0.6,0.8" opacity="0.25"/>
       <!-- Faint horizontals at letter levels -->
       <line x1="0" y1="6"  x2="20" y2="6"  stroke="#c9a87c" stroke-width="0.12" stroke-dasharray="0.5,0.6" opacity="0.2"/>
       <line x1="0" y1="18" x2="20" y2="18" stroke="#c9a87c" stroke-width="0.12" stroke-dasharray="0.5,0.6" opacity="0.2"/>
@@ -439,13 +442,13 @@ const FIGURES = {
   '15A': {
     id: '15A', title: '15m Circle at A', group: 1,
     fact: 'Does NOT touch the walls \u2014 there is a 2.5m gap on each side. Most riders ride this too large.',
-    aiHint: 'The 15m circle does NOT touch the walls \u2014 2.5m gap each side. Most riders ride this as a 20m circle.',
+    aiHint: 'The 15m circle does NOT touch the walls \u2014 2.5m gap on each side. It crosses the centerline at y=45 (15m from A), NOT at X (which is 30m from A). Do NOT reference X for this figure. Most riders ride this as a 20m circle.',
     center: [10, 52.5], radius: 7.5, start: [10, 60], type: 'circle',
     keyPoints: [
       { x: 10,   y: 60,   label: 'A' },
       { x: 2.5,  y: 52.5, label: '2.5m from wall' },
       { x: 17.5, y: 52.5, label: '2.5m from wall' },
-      { x: 10,   y: 45,   label: 'Centerline' }
+      { x: 10,   y: 45,   label: 'Centerline (15m from A)' }
     ]
   },
   '10E': {
@@ -475,13 +478,37 @@ const FIGURES = {
   '8E': {
     id: '8E', title: '8m Volte at E', group: 1,
     fact: 'Right edge reaches x=8 \u2014 stops 2m short of the centerline. If it reaches X, the volte is too large.',
-    aiHint: 'Right edge of the volte reaches to x=8 \u2014 stopping 2m short of the centerline. Reaching X means the volte is too large.',
+    aiHint: 'Right edge of the volte reaches only to x=8 \u2014 stopping 2m SHORT of the centerline. The volte must NOT touch the centerline or X. If it reaches X, the volte is too large. Do NOT coach the rider to touch the centerline.',
     center: [4, 30], radius: 4, start: [0, 30], type: 'circle',
     keyPoints: [
       { x: 0, y: 30, label: 'E' },
       { x: 8, y: 30, label: 'x=8 (2m from X)' },
       { x: 4, y: 26, label: 'Top' },
       { x: 4, y: 34, label: 'Bottom' }
+    ]
+  },
+  '15B': {
+    id: '15B', title: '15m Circle at B', group: 1,
+    fact: 'Touches B on the wall and the opposite quarterline (x=5). Center is on the E\u2013B line at x=12.5.',
+    aiHint: 'The 15m circle touches B on the wall (20,30) and reaches the far quarterline at x=5. It does NOT touch E or the left wall. The center is at (12.5, 30) on the E\u2013B line. Do NOT reference the centerline for this figure \u2014 the circle crosses the centerline but the key contact is the quarterline at x=5.',
+    center: [12.5, 30], radius: 7.5, start: [20, 30], type: 'circle',
+    keyPoints: [
+      { x: 20,   y: 30,   label: 'B' },
+      { x: 5,    y: 30,   label: 'Quarterline (x=5)' },
+      { x: 12.5, y: 22.5, label: 'Top' },
+      { x: 12.5, y: 37.5, label: 'Bottom' }
+    ]
+  },
+  'tear': {
+    id: 'tear', title: 'Teardrop at E', group: 2,
+    fact: 'Half 10m circle from E to X, then a straight diagonal line from X back to H.',
+    aiHint: 'The teardrop starts at E (0,30) with a half 10m circle (radius 5, center at (5,30)) curving to X (10,30). From X, ride a straight diagonal line to H (0,6). The half circle must be round \u2014 not egg-shaped. The diagonal must be straight \u2014 no drift or curve.',
+    type: 'teardrop', start: [0, 30],
+    keyPoints: [
+      { x: 0,  y: 30, label: 'E (start)' },
+      { x: 10, y: 30, label: 'X' },
+      { x: 5,  y: 25, label: 'Top of circle' },
+      { x: 0,  y: 6,  label: 'H (end)' }
     ]
   },
   'loop': {
@@ -516,11 +543,11 @@ const FIGURES = {
 
 const GROUPS = [
   { label: '20m Circles', ids: ['20A', '20C', '20X'] },
-  { label: '15m / 10m / 8m', ids: ['15A', '10E', '10B', '8E'] },
-  { label: 'Lines & Loops', ids: ['loop', 'serp'] }
+  { label: '15m / 10m / 8m', ids: ['15A', '15B', '10E', '10B', '8E'] },
+  { label: 'Lines & Loops', ids: ['tear', 'loop', 'serp'] }
 ];
 
-const GROUP_LABELS = { 'loop': 'One Loop', 'serp': 'Serpentine' };
+const GROUP_LABELS = { 'tear': 'Teardrop', 'loop': 'One Loop', 'serp': 'Serpentine' };
 
 /* ============================================================
    STATE
@@ -632,6 +659,27 @@ function generateSerpentinePath(numPts) {
   return pts;
 }
 
+function generateTeardropPath(numPts) {
+  numPts = numPts || 200;
+  var pts = [];
+  // Half 10m circle from E(0,30) to X(10,30), center (5,30), radius 5
+  // Start at E: angle = atan2(30-30, 0-5) = PI (pointing left)
+  // Go to X: angle = atan2(30-30, 10-5) = 0 (pointing right)
+  // Half circle curving toward C (y=25), so go from PI to 2*PI
+  var halfPts = Math.floor(numPts * 0.6);
+  for (var i = 0; i <= halfPts; i++) {
+    var a = Math.PI + (i / halfPts) * Math.PI; // PI to 2*PI
+    pts.push({ x: 5 + 5 * Math.cos(a), y: 30 + 5 * Math.sin(a) });
+  }
+  // Straight line from X(10,30) to H(0,6)
+  var linePts = numPts - halfPts;
+  for (var i = 1; i <= linePts; i++) {
+    var t = i / linePts;
+    pts.push({ x: 10 + t * (0 - 10), y: 30 + t * (6 - 30) });
+  }
+  return pts;
+}
+
 function generateIdealPath(fig) {
   if (fig.type === 'circle') {
     return generateCirclePath(fig.center[0], fig.center[1], fig.radius, fig.start[0], fig.start[1], 200);
@@ -639,6 +687,8 @@ function generateIdealPath(fig) {
     return generateLoopPath(200);
   } else if (fig.type === 'serpentine') {
     return generateSerpentinePath(200);
+  } else if (fig.type === 'teardrop') {
+    return generateTeardropPath(200);
   }
   return [];
 }
