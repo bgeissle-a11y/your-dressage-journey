@@ -4,6 +4,7 @@ import { createRiderProfile, getRiderProfile, updateRiderProfile } from '../../s
 import FormSection from '../Forms/FormSection';
 import FormField from '../Forms/FormField';
 import CheckboxGroup from '../Forms/CheckboxGroup';
+import RadioGroup from '../Forms/RadioGroup';
 import '../Forms/Forms.css';
 
 const LEVEL_OPTIONS = [
@@ -62,6 +63,35 @@ const LEARNING_STYLE_OPTIONS = [
   { value: 'reading', label: 'Reading/Writing (articles, notes, written explanations)' }
 ];
 
+const LEARNING_ORDER_OPTIONS = [
+  { value: 'concept-first', label: 'I want to understand WHY it works before I try it' },
+  { value: 'feel-first', label: "I'd rather feel it first, then understand what happened" },
+  { value: 'both-together', label: 'I need both at the same time — theory and feel together' },
+  { value: 'depends', label: 'It depends on the movement' }
+];
+
+const PRESSURE_RESPONSE_OPTIONS = [
+  { value: 'overthink', label: 'I start thinking too much — running through rules and checklists' },
+  { value: 'go-blank', label: 'My mind goes blank and I lose the thread' },
+  { value: 'tense-up', label: 'My body tenses up and gets in the way' },
+  { value: 'all-of-above', label: 'All of the above, depending on the day' }
+];
+
+const PROPRIOCEPTIVE_ANCHOR_OPTIONS = [
+  { value: 'seat', label: 'My seat and pelvis — I feel the horse\'s movement most clearly here' },
+  { value: 'hands', label: 'My hands and arms — contact and rein feel is my clearest signal' },
+  { value: 'legs', label: 'My legs — I sense the horse\'s responses through my leg contact' },
+  { value: 'whole-body', label: 'It\'s integrated — I feel it as a whole-body experience' },
+  { value: 'not-sure', label: 'I\'m honestly not sure yet' }
+];
+
+const SUCCESS_SIGNAL_OPTIONS = [
+  { value: 'outcome', label: 'I look at what we achieved — the movements, the score, the specific things that happened' },
+  { value: 'process', label: 'I can feel that I was focused and doing the right things, regardless of outcome' },
+  { value: 'connection', label: 'My horse felt right — soft, willing, forward, with me' },
+  { value: 'all-signals', label: 'I need all three — outcome, process, and connection' }
+];
+
 export default function RiderProfileForm() {
   const { currentUser } = useAuth();
   const [formData, setFormData] = useState({
@@ -79,6 +109,10 @@ export default function RiderProfileForm() {
     enjoyMost: '',
     longTermGoals: '',
     learningStyle: [],
+    learningOrder: '',
+    pressureResponse: '',
+    proprioceptiveAnchor: '',
+    successSignal: '',
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -111,6 +145,10 @@ export default function RiderProfileForm() {
         enjoyMost: result.data.enjoyMost || '',
         longTermGoals: result.data.longTermGoals || '',
         learningStyle: result.data.learningStyle || [],
+        learningOrder: result.data.learningOrder || '',
+        pressureResponse: result.data.pressureResponse || '',
+        proprioceptiveAnchor: result.data.proprioceptiveAnchor || '',
+        successSignal: result.data.successSignal || '',
       });
     } else {
       setFormData(prev => ({
@@ -147,6 +185,10 @@ export default function RiderProfileForm() {
     if (formData.numHorses === '' || !formData.numHorses || formData.numHorses < 1) newErrors.numHorses = 'Please enter number of horses';
     if (!formData.whyRide.trim()) newErrors.whyRide = 'Please share why you ride';
     if (!formData.longTermGoals.trim()) newErrors.longTermGoals = 'Please share your long-term goals';
+    if (!formData.learningOrder) newErrors.learningOrder = 'Please select an option';
+    if (!formData.pressureResponse) newErrors.pressureResponse = 'Please select an option';
+    if (!formData.proprioceptiveAnchor) newErrors.proprioceptiveAnchor = 'Please select an option';
+    if (!formData.successSignal) newErrors.successSignal = 'Please select an option';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
@@ -272,6 +314,45 @@ export default function RiderProfileForm() {
                 onChange={v => {
                   setFormData(prev => ({ ...prev, learningStyle: v }));
                 }}
+                disabled={loading}
+              />
+            </FormField>
+          </FormSection>
+
+          <FormSection title="How You Ride" description="Four quick questions that help us calibrate how coaching insights are delivered to you — the language, the emphasis, the angle of approach.">
+            <FormField label="When you're learning a new movement, what works better for you?" error={errors.learningOrder} helpText="There's no right answer — this tells us how to introduce new ideas to you.">
+              <RadioGroup
+                name="learningOrder"
+                options={LEARNING_ORDER_OPTIONS}
+                value={formData.learningOrder}
+                onChange={handleChange}
+                disabled={loading}
+              />
+            </FormField>
+            <FormField label="When something goes wrong mid-ride or you're in a high-pressure situation, what happens most often?" error={errors.pressureResponse} helpText="This isn't about weakness — it's about where to focus mental skills work.">
+              <RadioGroup
+                name="pressureResponse"
+                options={PRESSURE_RESPONSE_OPTIONS}
+                value={formData.pressureResponse}
+                onChange={handleChange}
+                disabled={loading}
+              />
+            </FormField>
+            <FormField label="While you're riding, which part of your body gives you the most reliable feedback?" error={errors.proprioceptiveAnchor} helpText="This shapes how coaching descriptions are anchored — which sensation cues will land most clearly for you.">
+              <RadioGroup
+                name="proprioceptiveAnchor"
+                options={PROPRIOCEPTIVE_ANCHOR_OPTIONS}
+                value={formData.proprioceptiveAnchor}
+                onChange={handleChange}
+                disabled={loading}
+              />
+            </FormField>
+            <FormField label="After a good ride, how do you most reliably know it went well?" error={errors.successSignal} helpText="Your primary signal shapes how your goals and progress should be framed.">
+              <RadioGroup
+                name="successSignal"
+                options={SUCCESS_SIGNAL_OPTIONS}
+                value={formData.successSignal}
+                onChange={handleChange}
                 disabled={loading}
               />
             </FormField>
