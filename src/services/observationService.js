@@ -10,23 +10,36 @@ const base = createBaseService(COLLECTION);
  * {
  *   userId:         string - Firebase Auth UID
  *   date:           string - required, ISO date
- *   contextType:    string - "clinic" | "trainer-riding" | "schooling" | "show" | "video"
+ *   contextType:    string - "clinic" | "trainer-riding" | "schooling" | "show" | "video" | "own-video"
  *
  *   // Context-specific fields (populated based on contextType):
  *   clinicianName:  string | null - when contextType is "clinic"
  *   pairObserved:   string | null - when contextType is "clinic"
- *   horseName:      string | null - when contextType is "trainer-riding"
+ *   clinicRiderLevel: string | null - "similar-to-me"|"above-me"|"significantly-above"|"not-sure"
  *   description:    string | null - when contextType is "schooling" | "show" | "video"
+ *   showLevel:      string | null - when contextType is "show"
+ *   // trainer-riding enriched fields:
+ *   trainerHorseName: string | null
+ *   trainerName:      string | null
+ *   trainerSessionFocus: string | null
+ *   trainerHorseDiff:   string | null
+ *   trainerAids:        string | null
+ *   // own-video fields:
+ *   ownVideoDetails:  string | null
+ *   ownVideoSurprise: string | null  (proprioceptive calibration data)
+ *   ownVideoMoment:   string | null
  *
  *   // Repeatable observation entries (array of objects):
  *   observations: [
  *     {
- *       milestone:   string - instructional cues / riding techniques
- *       aha:         string - what resonated
- *       connection:  string - horse-rider connection notes
- *       validation:  string - concepts confirmed/validated
- *       obstacle:    string - challenges observed
- *       notes:       string - additional observations
+ *       milestone:         string - technical insight (display label: "Technical Insight")
+ *       aha:               string - what resonated
+ *       connection:        string - horse-rider connection notes
+ *       selfBridge:        string - "In your own riding" observation-to-self bridge
+ *       validation:        string - concepts confirmed/validated
+ *       obstacle:          string - challenges observed
+ *       transferIntention: string - "What I'll try next ride"
+ *       notes:             string - additional observations
  *     }
  *   ]
  * }
@@ -38,7 +51,8 @@ export const CONTEXT_TYPES = [
   { value: 'trainer-riding', label: 'Trainer Riding' },
   { value: 'schooling', label: 'Schooling' },
   { value: 'show', label: 'Show' },
-  { value: 'video', label: 'Video' }
+  { value: 'video', label: 'Video' },
+  { value: 'own-video', label: 'My Own Video / Footage' }
 ];
 
 /**
@@ -57,16 +71,36 @@ export async function createObservation(userId, observationData) {
     case 'trainer-riding':
       contextFields.clinicianName = null;
       contextFields.pairObserved = null;
-      contextFields.horseName = observationData.horseName || '';
+      contextFields.horseName = null;
       contextFields.description = null;
+      contextFields.trainerHorseName = observationData.trainerHorseName || '';
+      contextFields.trainerName = observationData.trainerName || '';
+      contextFields.trainerSessionFocus = observationData.trainerSessionFocus || '';
+      contextFields.trainerHorseDiff = observationData.trainerHorseDiff || '';
+      contextFields.trainerAids = observationData.trainerAids || '';
       break;
     case 'schooling':
-    case 'show':
     case 'video':
       contextFields.clinicianName = null;
       contextFields.pairObserved = null;
       contextFields.horseName = null;
       contextFields.description = observationData.description || '';
+      break;
+    case 'show':
+      contextFields.clinicianName = null;
+      contextFields.pairObserved = null;
+      contextFields.horseName = null;
+      contextFields.description = observationData.description || '';
+      contextFields.showLevel = observationData.showLevel || '';
+      break;
+    case 'own-video':
+      contextFields.clinicianName = null;
+      contextFields.pairObserved = null;
+      contextFields.horseName = null;
+      contextFields.description = null;
+      contextFields.ownVideoDetails = observationData.ownVideoDetails || '';
+      contextFields.ownVideoSurprise = observationData.ownVideoSurprise || '';
+      contextFields.ownVideoMoment = observationData.ownVideoMoment || '';
       break;
     default:
       contextFields.clinicianName = null;
@@ -79,12 +113,15 @@ export async function createObservation(userId, observationData) {
     date: observationData.date || '',
     contextType: observationData.contextType || '',
     ...contextFields,
+    clinicRiderLevel: observationData.clinicRiderLevel || null,
     observations: (observationData.observations || []).map(obs => ({
       milestone: obs.milestone || '',
       aha: obs.aha || '',
       connection: obs.connection || '',
+      selfBridge: obs.selfBridge || '',
       validation: obs.validation || '',
       obstacle: obs.obstacle || '',
+      transferIntention: obs.transferIntention || '',
       notes: obs.notes || ''
     }))
   });

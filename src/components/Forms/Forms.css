@@ -2021,3 +2021,18 @@
   color: #7A7A7A;
   font-style: italic;
 }
+
+/* Prompt box — persistent, always-visible prompt above a field */
+.prompt-box {
+  background: #FFF8EC;
+  border: 1.5px solid #E8C97A;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.prompt-box-content {
+  font-size: 0.9em;
+  color: #7A5C1E;
+  line-height: 1.5;
+  font-style: italic;
+}

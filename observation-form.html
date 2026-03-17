@@ -488,6 +488,7 @@
                             <option value="schooling">Schooling/Training Session</option>
                             <option value="show">Show</option>
                             <option value="video">Video</option>
+                            <option value="own-video">My Own Video / Footage</option>
                         </select>
                     </div>
 
@@ -501,12 +502,82 @@
                             <label for="pairObserved">Pair Observed</label>
                             <input type="text" id="pairObserved" name="pairObserved" placeholder="e.g., Rider name and horse name">
                         </div>
+                        <div class="question">
+                            <label>Relative level of the pair you observed</label>
+                            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
+                                <label style="font-weight: 400; font-size: 1em; display: flex; align-items: center; gap: 8px; margin-bottom: 0;">
+                                    <input type="radio" name="clinicRiderLevel" id="clinicRiderLevel" value="similar-to-me"> Similar level to me
+                                </label>
+                                <label style="font-weight: 400; font-size: 1em; display: flex; align-items: center; gap: 8px; margin-bottom: 0;">
+                                    <input type="radio" name="clinicRiderLevel" value="above-me"> Above my current level
+                                </label>
+                                <label style="font-weight: 400; font-size: 1em; display: flex; align-items: center; gap: 8px; margin-bottom: 0;">
+                                    <input type="radio" name="clinicRiderLevel" value="significantly-above"> Significantly more advanced
+                                </label>
+                                <label style="font-weight: 400; font-size: 1em; display: flex; align-items: center; gap: 8px; margin-bottom: 0;">
+                                    <input type="radio" name="clinicRiderLevel" value="not-sure"> Not sure / mixed
+                                </label>
+                            </div>
+                            <p class="help-text">This helps the AI understand the coaching context of what you observed.</p>
+                        </div>
                     </div>
 
                     <div id="trainerFields" class="conditional-field" style="display: none;">
                         <div class="question">
-                            <label for="horseName">Horse Name</label>
-                            <input type="text" id="horseName" name="horseName" placeholder="Enter horse name">
+                            <label for="trainerHorseName">Horse Name</label>
+                            <input type="text" id="trainerHorseName" name="trainerHorseName" placeholder="Which horse did your trainer ride?">
+                        </div>
+                        <div class="question">
+                            <label for="trainerName">Trainer Name <span style="font-weight: 400; color: var(--color-text-light);">(optional)</span></label>
+                            <input type="text" id="trainerName" name="trainerName" placeholder="Who rode? (leave blank if obvious)">
+                        </div>
+                        <div class="question">
+                            <label for="trainerSessionFocus">Focus of the session</label>
+                            <textarea id="trainerSessionFocus" name="trainerSessionFocus" placeholder="What was your trainer working on? What did they tell you they were focusing on?"></textarea>
+                            <button type="button" class="voice-btn" id="voiceBtn-trainerSessionFocus">
+                                <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                                </svg>
+                                <span class="voice-text">Use Voice Input</span>
+                            </button>
+                        </div>
+                        <div class="question">
+                            <label for="trainerHorseDiff">What the horse did differently</label>
+                            <div class="guiding-questions" id="guide-trainerHorseDiff">
+                                <div class="guiding-questions-header">
+                                    <span class="guiding-questions-label">Guiding Questions</span>
+                                    <button type="button" class="guiding-questions-toggle" onclick="toggleGuide('guide-trainerHorseDiff')">Hide</button>
+                                </div>
+                                <div class="guiding-questions-content">
+                                    Your horse may move differently under your trainer than under you. This is information, not criticism.
+                                </div>
+                            </div>
+                            <textarea id="trainerHorseDiff" name="trainerHorseDiff" placeholder="Did the horse respond differently? What changed — in the gaits, the contact, the throughness, the expression?"></textarea>
+                            <button type="button" class="voice-btn" id="voiceBtn-trainerHorseDiff">
+                                <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                                </svg>
+                                <span class="voice-text">Use Voice Input</span>
+                            </button>
+                        </div>
+                        <div class="question">
+                            <label for="trainerAids">What cues or aids produced the change</label>
+                            <textarea id="trainerAids" name="trainerAids" placeholder="What specifically did you see the trainer do that produced a change in the horse? Timing, position, rein, leg, seat — what was the sequence?"></textarea>
+                            <button type="button" class="voice-btn" id="voiceBtn-trainerAids">
+                                <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                                </svg>
+                                <span class="voice-text">Use Voice Input</span>
+                            </button>
                         </div>
                     </div>
 
@@ -558,6 +629,10 @@
                                 <span class="voice-text">Use Voice Input</span>
                             </button>
                         </div>
+                        <div class="question">
+                            <label for="showLevel">Level(s) you watched</label>
+                            <input type="text" id="showLevel" name="showLevel" placeholder='e.g. "Third Level and Fourth Level" / "PSG"'>
+                        </div>
                     </div>
 
                     <div id="videoFields" class="conditional-field" style="display: none;">
@@ -574,6 +649,57 @@
                             </div>
                             <textarea id="videoDescription" name="videoDescription"></textarea>
                             <button type="button" class="voice-btn" id="voiceBtn-video">
+                                <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                                </svg>
+                                <span class="voice-text">Use Voice Input</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="ownVideoFields" class="conditional-field" style="display: none;">
+                        <div class="question">
+                            <label for="ownVideoDetails">Video Details</label>
+                            <textarea id="ownVideoDetails" name="ownVideoDetails" placeholder="What footage? (date ridden, event, who filmed it, link if applicable)"></textarea>
+                            <button type="button" class="voice-btn" id="voiceBtn-ownVideoDetails">
+                                <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                                </svg>
+                                <span class="voice-text">Use Voice Input</span>
+                            </button>
+                        </div>
+                        <div class="question">
+                            <label for="ownVideoSurprise">What surprised you?</label>
+                            <div class="guiding-questions" id="guide-ownVideoSurprise">
+                                <div class="guiding-questions-header">
+                                    <span class="guiding-questions-label">Guiding Questions</span>
+                                    <button type="button" class="guiding-questions-toggle" onclick="toggleGuide('guide-ownVideoSurprise')">Hide</button>
+                                </div>
+                                <div class="guiding-questions-content">
+                                    The proprioceptive gap — what you feel vs. what you actually do — is widest when you first watch yourself ride. This is useful data.
+                                </div>
+                            </div>
+                            <textarea id="ownVideoSurprise" name="ownVideoSurprise" placeholder="What looked different from what you expected? What felt correct but looked incorrect? What looked better than it felt?"></textarea>
+                            <button type="button" class="voice-btn" id="voiceBtn-ownVideoSurprise">
+                                <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                                </svg>
+                                <span class="voice-text">Use Voice Input</span>
+                            </button>
+                        </div>
+                        <div class="question">
+                            <label for="ownVideoMoment">Most useful moment in the footage</label>
+                            <textarea id="ownVideoMoment" name="ownVideoMoment" placeholder="Which specific moment, movement, or transition gave you the most to work with — and what did you see?"></textarea>
+                            <button type="button" class="voice-btn" id="voiceBtn-ownVideoMoment">
                                 <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                                     <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -634,7 +760,8 @@
             document.getElementById('schoolingFields').style.display = 'none';
             document.getElementById('showFields').style.display = 'none';
             document.getElementById('videoFields').style.display = 'none';
-            
+            document.getElementById('ownVideoFields').style.display = 'none';
+
             // Show relevant fields
             switch(contextType) {
                 case 'clinic':
@@ -652,6 +779,9 @@
                 case 'video':
                     document.getElementById('videoFields').style.display = 'block';
                     break;
+                case 'own-video':
+                    document.getElementById('ownVideoFields').style.display = 'block';
+                    break;
             }
         }
 
@@ -668,17 +798,17 @@
                     </div>
                     
                     <div class="question">
-                        <label for="milestone-${observationCounter}">🟦 Milestone</label>
+                        <label for="milestone-${observationCounter}">🟦 Technical Insight</label>
                         <div class="guiding-questions" id="guide-milestone-${observationCounter}">
                             <div class="guiding-questions-header">
                                 <span class="guiding-questions-label">Guiding Questions</span>
                                 <button type="button" class="guiding-questions-toggle" onclick="toggleGuide('guide-milestone-${observationCounter}')">Hide</button>
                             </div>
                             <div class="guiding-questions-content">
-                                What instructional cues or riding techniques made an observable difference, how and why?
+                                What instructional cue, correction, or technique produced a visible change? What happened in the horse or rider when it worked?
                             </div>
                         </div>
-                        <textarea id="milestone-${observationCounter}" name="milestone-${observationCounter}"></textarea>
+                        <textarea id="milestone-${observationCounter}" name="milestone-${observationCounter}" placeholder="What instructional cue, correction, or technique produced a visible change? What happened in the horse or rider when it worked?"></textarea>
                         <button type="button" class="voice-btn" id="voiceBtn-milestone-${observationCounter}">
                             <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
@@ -737,6 +867,29 @@
                     </div>
 
                     <div class="question">
+                        <label for="self-bridge-${observationCounter}">🟫 In your own riding</label>
+                        <div class="guiding-questions" id="guide-self-bridge-${observationCounter}">
+                            <div class="guiding-questions-header">
+                                <span class="guiding-questions-label">Guiding Questions</span>
+                                <button type="button" class="guiding-questions-toggle" onclick="toggleGuide('guide-self-bridge-${observationCounter}')">Hide</button>
+                            </div>
+                            <div class="guiding-questions-content">
+                                As you watched, what did you sense in your own body? How does this movement compare to your experience of it?
+                            </div>
+                        </div>
+                        <textarea id="self-bridge-${observationCounter}" name="self-bridge-${observationCounter}" placeholder="What did this look like or feel like in relation to your own riding? Where do you recognize this pattern — either a struggle you share or a quality you're working toward?"></textarea>
+                        <button type="button" class="voice-btn" id="voiceBtn-self-bridge-${observationCounter}">
+                            <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                <line x1="12" y1="19" x2="12" y2="23"></line>
+                                <line x1="8" y1="23" x2="16" y2="23"></line>
+                            </svg>
+                            <span class="voice-text">Use Voice Input</span>
+                        </button>
+                    </div>
+
+                    <div class="question">
                         <label for="validation-${observationCounter}">🟩 Validation</label>
                         <div class="guiding-questions" id="guide-validation-${observationCounter}">
                             <div class="guiding-questions-header">
@@ -783,6 +936,29 @@
                     </div>
 
                     <div class="question">
+                        <label for="transfer-${observationCounter}">🟧 What I'll try next ride</label>
+                        <div class="guiding-questions" id="guide-transfer-${observationCounter}">
+                            <div class="guiding-questions-header">
+                                <span class="guiding-questions-label">Guiding Questions</span>
+                                <button type="button" class="guiding-questions-toggle" onclick="toggleGuide('guide-transfer-${observationCounter}')">Hide</button>
+                            </div>
+                            <div class="guiding-questions-content">
+                                What specific thing will you attempt in your next ride because of this observation? Be as concrete as you can.
+                            </div>
+                        </div>
+                        <textarea id="transfer-${observationCounter}" name="transfer-${observationCounter}" placeholder='e.g. "Ask for the half-halt earlier in the corner and wait — stop adding leg once he&#39;s responded" / "Try releasing the inside rein for one stride during shoulder-in to test if he&#39;s truly through"'></textarea>
+                        <button type="button" class="voice-btn" id="voiceBtn-transfer-${observationCounter}">
+                            <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                <line x1="12" y1="19" x2="12" y2="23"></line>
+                                <line x1="8" y1="23" x2="16" y2="23"></line>
+                            </svg>
+                            <span class="voice-text">Use Voice Input</span>
+                        </button>
+                    </div>
+
+                    <div class="question">
                         <label for="notes-${observationCounter}">Additional Notes</label>
                         <div class="guiding-questions" id="guide-notes-${observationCounter}">
                             <div class="guiding-questions-header">
@@ -793,7 +969,7 @@
                                 Any other observations or takeaways?
                             </div>
                         </div>
-                        <textarea id="notes-${observationCounter}" name="notes-${observationCounter}"></textarea>
+                        <textarea id="notes-${observationCounter}" name="notes-${observationCounter}" placeholder="Any other observations or takeaways?"></textarea>
                         <button type="button" class="voice-btn" id="voiceBtn-notes-${observationCounter}">
                             <svg class="voice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
@@ -813,8 +989,10 @@
             setupVoiceInput(`voiceBtn-milestone-${observationCounter}`, `milestone-${observationCounter}`);
             setupVoiceInput(`voiceBtn-aha-${observationCounter}`, `aha-${observationCounter}`);
             setupVoiceInput(`voiceBtn-connection-${observationCounter}`, `connection-${observationCounter}`);
+            setupVoiceInput(`voiceBtn-self-bridge-${observationCounter}`, `self-bridge-${observationCounter}`);
             setupVoiceInput(`voiceBtn-validation-${observationCounter}`, `validation-${observationCounter}`);
             setupVoiceInput(`voiceBtn-obstacle-${observationCounter}`, `obstacle-${observationCounter}`);
+            setupVoiceInput(`voiceBtn-transfer-${observationCounter}`, `transfer-${observationCounter}`);
             setupVoiceInput(`voiceBtn-notes-${observationCounter}`, `notes-${observationCounter}`);
         }
 
@@ -917,18 +1095,30 @@
                 case 'clinic':
                     formData.clinicianName = document.getElementById('clinicianName').value;
                     formData.pairObserved = document.getElementById('pairObserved').value;
+                    const clinicLevelRadio = document.querySelector('input[name="clinicRiderLevel"]:checked');
+                    formData.clinicRiderLevel = clinicLevelRadio ? clinicLevelRadio.value : '';
                     break;
                 case 'trainer-riding':
-                    formData.horseName = document.getElementById('horseName').value;
+                    formData.horseName = document.getElementById('trainerHorseName').value;
+                    formData.trainerName = document.getElementById('trainerName').value;
+                    formData.trainerSessionFocus = document.getElementById('trainerSessionFocus').value;
+                    formData.trainerHorseDiff = document.getElementById('trainerHorseDiff').value;
+                    formData.trainerAids = document.getElementById('trainerAids').value;
                     break;
                 case 'schooling':
                     formData.description = document.getElementById('schoolingDescription').value;
                     break;
                 case 'show':
                     formData.description = document.getElementById('showDescription').value;
+                    formData.showLevel = document.getElementById('showLevel').value;
                     break;
                 case 'video':
                     formData.description = document.getElementById('videoDescription').value;
+                    break;
+                case 'own-video':
+                    formData.ownVideoDetails = document.getElementById('ownVideoDetails').value;
+                    formData.ownVideoSurprise = document.getElementById('ownVideoSurprise').value;
+                    formData.ownVideoMoment = document.getElementById('ownVideoMoment').value;
                     break;
             }
             
@@ -942,8 +1132,10 @@
                     milestone: document.getElementById(`milestone-${id}`)?.value || '',
                     aha: document.getElementById(`aha-${id}`)?.value || '',
                     connection: document.getElementById(`connection-${id}`)?.value || '',
+                    selfBridge: document.getElementById(`self-bridge-${id}`)?.value || '',
                     validation: document.getElementById(`validation-${id}`)?.value || '',
                     obstacle: document.getElementById(`obstacle-${id}`)?.value || '',
+                    transfer: document.getElementById(`transfer-${id}`)?.value || '',
                     notes: document.getElementById(`notes-${id}`)?.value || ''
                 };
                 
@@ -1019,7 +1211,8 @@
                 'trainer-riding': 'Trainer Riding Your Horse',
                 'schooling': 'Schooling/Training Session',
                 'show': 'Show',
-                'video': 'Video'
+                'video': 'Video',
+                'own-video': 'My Own Video / Footage'
             };
             
             let html = '';
@@ -1039,6 +1232,9 @@
                     if (obs.pairObserved) contextDetail += ` (${obs.pairObserved})`;
                 } else if (obs.contextType === 'trainer-riding' && obs.horseName) {
                     contextDetail += ` • ${obs.horseName}`;
+                    if (obs.trainerName) contextDetail += ` (${obs.trainerName})`;
+                } else if (obs.contextType === 'own-video' && obs.ownVideoDetails) {
+                    contextDetail += ` • ${obs.ownVideoDetails}`;
                 } else if (obs.description) {
                     contextDetail += ` • ${obs.description}`;
                 }
@@ -1057,7 +1253,7 @@
                                     <div style="font-weight: 600; color: var(--color-primary); margin-bottom: 15px;">Observation #${i + 1}</div>
                                     ${item.milestone ? `
                                         <div class="content-row">
-                                            <div class="content-label">🟦 Milestone</div>
+                                            <div class="content-label">🟦 Technical Insight</div>
                                             <div class="content-value">${item.milestone}</div>
                                         </div>
                                     ` : ''}
@@ -1073,6 +1269,12 @@
                                             <div class="content-value">${item.connection}</div>
                                         </div>
                                     ` : ''}
+                                    ${item.selfBridge ? `
+                                        <div class="content-row">
+                                            <div class="content-label">🟫 In your own riding</div>
+                                            <div class="content-value">${item.selfBridge}</div>
+                                        </div>
+                                    ` : ''}
                                     ${item.validation ? `
                                         <div class="content-row">
                                             <div class="content-label">🟩 Validation</div>
@@ -1083,6 +1285,12 @@
                                         <div class="content-row">
                                             <div class="content-label">🟥 Obstacle</div>
                                             <div class="content-value">${item.obstacle}</div>
+                                        </div>
+                                    ` : ''}
+                                    ${item.transfer ? `
+                                        <div class="content-row">
+                                            <div class="content-label">🟧 What I'll try next ride</div>
+                                            <div class="content-value">${item.transfer}</div>
                                         </div>
                                     ` : ''}
                                     ${item.notes ? `
@@ -1153,6 +1361,12 @@
         setupVoiceInput('voiceBtn-schooling', 'schoolingDescription');
         setupVoiceInput('voiceBtn-show', 'showDescription');
         setupVoiceInput('voiceBtn-video', 'videoDescription');
+        setupVoiceInput('voiceBtn-trainerSessionFocus', 'trainerSessionFocus');
+        setupVoiceInput('voiceBtn-trainerHorseDiff', 'trainerHorseDiff');
+        setupVoiceInput('voiceBtn-trainerAids', 'trainerAids');
+        setupVoiceInput('voiceBtn-ownVideoDetails', 'ownVideoDetails');
+        setupVoiceInput('voiceBtn-ownVideoSurprise', 'ownVideoSurprise');
+        setupVoiceInput('voiceBtn-ownVideoMoment', 'ownVideoMoment');
     </script>
 </body>
 </html>

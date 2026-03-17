@@ -951,6 +951,79 @@
             font-weight: 400;
             font-style: italic;
         }
+
+        /* Prompt Box (warm amber) */
+        .prompt-box {
+            background: #FFF8F0;
+            border-left: 3px solid var(--color-secondary);
+            border-radius: 0 8px 8px 0;
+            padding: 14px 18px;
+            margin-bottom: 18px;
+            font-size: 0.9em;
+            color: var(--color-text-light);
+            font-style: italic;
+        }
+
+        /* Valence Sub-group Labels */
+        .valence-label {
+            font-size: 0.7em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--color-text-light);
+            padding: 8px 18px 4px;
+            margin-top: 4px;
+            opacity: 0.7;
+        }
+        .valence-separator {
+            border-top: 1px solid var(--color-border);
+            margin-top: 8px;
+            padding-top: 0;
+        }
+
+        /* Process Goal Inputs */
+        .process-goal-slot {
+            margin-bottom: 20px;
+        }
+        .process-goal-slot label {
+            font-size: 1em;
+            font-weight: 500;
+        }
+        .process-goal-slot input[type="text"] {
+            margin-top: 6px;
+        }
+
+        /* Collapsible Help Block */
+        .help-toggle-link {
+            display: inline-block;
+            margin-top: 12px;
+            font-size: 0.9em;
+            color: var(--color-secondary);
+            cursor: pointer;
+            font-weight: 500;
+            border: none;
+            background: none;
+            padding: 0;
+            font-family: 'Work Sans', sans-serif;
+            text-decoration: underline;
+        }
+        .help-toggle-link:hover {
+            color: var(--color-primary);
+        }
+        .help-collapsible {
+            display: none;
+            margin-top: 12px;
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 10px;
+            padding: 18px 20px;
+            font-size: 0.9em;
+            color: var(--color-text-light);
+            line-height: 1.7;
+        }
+        .help-collapsible.visible {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -1080,6 +1153,9 @@
 
                 <div class="question">
                     <label>Overall ride quality <span class="optional-tag">(optional)</span></label>
+                    <div class="prompt-box">
+                        Before you rate: if someone had filmed this ride, what would they have seen?
+                    </div>
                     <div class="scale-container">
                         <div class="scale-wrapper">
                             <input type="range" id="overallQuality" min="1" max="10" value="5">
@@ -1120,6 +1196,22 @@
                             <div class="arc-card">
                                 <svg class="arc-svg" viewBox="0 0 72 40"><polyline points="4,6 68,34" stroke="#C67B5C" stroke-width="3" stroke-linecap="round" fill="none"/></svg>
                                 <span class="arc-label">Strong start, faded</span>
+                            </div>
+                            <div class="arc-check"><svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                        </label>
+                        <label class="arc-option">
+                            <input type="radio" name="rideArc" value="strengthened">
+                            <div class="arc-card">
+                                <svg class="arc-svg" viewBox="0 0 72 40"><polyline points="4,12 68,2" stroke="#4A8E3F" stroke-width="3" stroke-linecap="round" fill="none"/></svg>
+                                <span class="arc-label">Started good, kept building</span>
+                            </div>
+                            <div class="arc-check"><svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                        </label>
+                        <label class="arc-option">
+                            <input type="radio" name="rideArc" value="deteriorated">
+                            <div class="arc-card">
+                                <svg class="arc-svg" viewBox="0 0 72 40"><polyline points="4,28 68,38" stroke="#B84A4A" stroke-width="3" stroke-linecap="round" fill="none"/></svg>
+                                <span class="arc-label">Started rough, kept declining</span>
                             </div>
                             <div class="arc-check"><svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
                         </label>
@@ -1207,6 +1299,7 @@
                 <div class="question">
                     <label>Your mental/emotional state <span class="required">*</span></label>
                     <div class="radio-group" id="mentalState">
+                        <div class="valence-label">Positive</div>
                         <div class="radio-option" data-value="calm">
                             <input type="radio" name="mentalState" value="calm" id="mental-calm">
                             <label for="mental-calm" style="margin: 0; cursor: pointer; flex: 1;">Calm/Centered</label>
@@ -1215,48 +1308,78 @@
                             <input type="radio" name="mentalState" value="focused" id="mental-focused">
                             <label for="mental-focused" style="margin: 0; cursor: pointer; flex: 1;">Focused/Determined</label>
                         </div>
-                        <div class="radio-option" data-value="frustrated">
-                            <input type="radio" name="mentalState" value="frustrated" id="mental-frustrated">
-                            <label for="mental-frustrated" style="margin: 0; cursor: pointer; flex: 1;">Frustrated/Tense</label>
+                        <div class="radio-option" data-value="joyful">
+                            <input type="radio" name="mentalState" value="joyful" id="mental-joyful">
+                            <label for="mental-joyful" style="margin: 0; cursor: pointer; flex: 1;">Joyful/Flowing</label>
+                        </div>
+                        <div class="radio-option" data-value="confident">
+                            <input type="radio" name="mentalState" value="confident" id="mental-confident">
+                            <label for="mental-confident" style="margin: 0; cursor: pointer; flex: 1;">Confident/Optimistic</label>
+                        </div>
+                        <div class="valence-label valence-separator">Mixed</div>
+                        <div class="radio-option" data-value="mixed">
+                            <input type="radio" name="mentalState" value="mixed" id="mental-mixed">
+                            <label for="mental-mixed" style="margin: 0; cursor: pointer; flex: 1;">Mixed/Complex</label>
                         </div>
                         <div class="radio-option" data-value="uncertain">
                             <input type="radio" name="mentalState" value="uncertain" id="mental-uncertain">
                             <label for="mental-uncertain" style="margin: 0; cursor: pointer; flex: 1;">Uncertain/Confused</label>
                         </div>
-                        <div class="radio-option" data-value="joyful">
-                            <input type="radio" name="mentalState" value="joyful" id="mental-joyful">
-                            <label for="mental-joyful" style="margin: 0; cursor: pointer; flex: 1;">Joyful/Flowing</label>
+                        <div class="valence-label valence-separator">Difficult</div>
+                        <div class="radio-option" data-value="worried">
+                            <input type="radio" name="mentalState" value="worried" id="mental-worried">
+                            <label for="mental-worried" style="margin: 0; cursor: pointer; flex: 1;">Worried/Concerned</label>
                         </div>
-                        <div class="radio-option" data-value="mixed">
-                            <input type="radio" name="mentalState" value="mixed" id="mental-mixed">
-                            <label for="mental-mixed" style="margin: 0; cursor: pointer; flex: 1;">Mixed/Complex</label>
+                        <div class="radio-option" data-value="frustrated">
+                            <input type="radio" name="mentalState" value="frustrated" id="mental-frustrated">
+                            <label for="mental-frustrated" style="margin: 0; cursor: pointer; flex: 1;">Frustrated/Tense</label>
+                        </div>
+                        <div class="radio-option" data-value="tired">
+                            <input type="radio" name="mentalState" value="tired" id="mental-tired">
+                            <label for="mental-tired" style="margin: 0; cursor: pointer; flex: 1;">Tired/Drained</label>
+                        </div>
+                        <div class="radio-option" data-value="distracted">
+                            <input type="radio" name="mentalState" value="distracted" id="mental-distracted">
+                            <label for="mental-distracted" style="margin: 0; cursor: pointer; flex: 1;">Distracted/Scattered</label>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Section 2.5: Intentions -->
+            <!-- Section 2.5: Process Goals -->
             <div class="section">
                 <div class="section-header">
-                    <h2 class="section-title">Riding Intentions</h2>
-                    <p class="section-description">How well did you meet your intentions for this ride?</p>
+                    <h2 class="section-title">Process Goals</h2>
+                    <p class="section-description">What will you focus on in your next ride?</p>
                 </div>
 
-                <div class="intentions-manage">
-                    <button class="btn-small" id="manageIntentionsBtn">Manage Intentions</button>
+                <p style="color: var(--color-text-light); font-size: 0.95em; margin-bottom: 25px; line-height: 1.6;">
+                    Name up to three specific things you will <strong>DO</strong> — not achieve. Process goals direct your attention during the ride. Keep each one short and action-focused.
+                </p>
+
+                <div class="process-goal-slot">
+                    <label for="processGoal1">Process Goal 1 <span class="required">*</span></label>
+                    <input type="text" id="processGoal1" placeholder="e.g. 'Wait for Rocket Star to seek the contact before asking for collection'" required>
                 </div>
 
-                <div class="manage-intentions-panel" id="manageIntentionsPanel">
-                    <h3 style="margin-bottom: 20px; color: var(--color-primary); font-family: 'Playfair Display', serif;">Edit Your Intentions</h3>
-                    <div id="intentionEditList"></div>
-                    <button class="btn-small" id="addIntentionBtn">+ Add Intention</button>
-                    <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid var(--color-border);">
-                        <button class="btn-primary" id="saveIntentionsBtn">Save Intentions</button>
-                    </div>
+                <div class="process-goal-slot">
+                    <label for="processGoal2">Process Goal 2 <span class="optional-tag">(optional)</span></label>
+                    <input type="text" id="processGoal2" placeholder="e.g. 'Breathe through every downward transition'">
                 </div>
 
-                <div class="intentions-grid" id="intentionsGrid">
-                    <!-- Will be populated by JavaScript -->
+                <div class="process-goal-slot">
+                    <label for="processGoal3">Process Goal 3 <span class="optional-tag">(optional)</span></label>
+                    <input type="text" id="processGoal3" placeholder="e.g. 'Soften my lower back at the moment of canter strike-off'">
+                </div>
+
+                <button type="button" class="help-toggle-link" onclick="toggleProcessGoalHelp()">What's a process goal?</button>
+                <div class="help-collapsible" id="processGoalHelp">
+                    <strong>Process goals</strong> describe actions you control — things you will physically do during the ride. They are different from outcome goals (like "get a 7 on my shoulder-in") because you can succeed at a process goal regardless of external results.<br><br>
+                    Good process goals are:<br>
+                    &bull; <strong>Specific</strong> — "Soften my inside rein in every corner" vs. "Ride better"<br>
+                    &bull; <strong>Action-based</strong> — Something you physically do, not something you hope happens<br>
+                    &bull; <strong>Within your control</strong> — Your body, your breathing, your focus<br><br>
+                    After your ride, you'll reflect on how these goals shaped your experience.
                 </div>
             </div>
 
@@ -1471,134 +1594,21 @@
         // Set today's date as default
         document.getElementById('rideDate').valueAsDate = new Date();
 
-        // Default intentions
-        const DEFAULT_INTENTIONS = [
-            "Did you ride with gratitude and joy?",
-            "Did you work to gain and maintain the horse's best balance?",
-            "Did you adjust your position to maximize your effectiveness and the comfort of the horse?",
-            "Did you recover quickly from challenges or loss of focus?"
-        ];
-
-        // Load or initialize intentions
-        function loadIntentions() {
-            let intentions = JSON.parse(localStorage.getItem('ridingIntentions') || 'null');
-            if (!intentions || intentions.length === 0) {
-                intentions = DEFAULT_INTENTIONS;
-                localStorage.setItem('ridingIntentions', JSON.stringify(intentions));
+        // Practice Card date pre-fill from URL parameter
+        const params = new URLSearchParams(window.location.search);
+        const dateParam = params.get('date');
+        if (dateParam) {
+            const parsed = new Date(dateParam);
+            if (!isNaN(parsed.getTime())) {
+                document.getElementById('rideDate').value = dateParam;
             }
-            return intentions;
         }
 
-        // Render intentions grid
-        function renderIntentionsGrid() {
-            const intentions = loadIntentions();
-            const grid = document.getElementById('intentionsGrid');
-            
-            let html = `
-                <div class="grid-header">
-                    <div>Intention</div>
-                    <div>1<br><span style="font-size: 0.75em; font-weight: 400;">Not at all</span></div>
-                    <div>2</div>
-                    <div>3</div>
-                    <div>4</div>
-                    <div>5<br><span style="font-size: 0.75em; font-weight: 400;">Absolutely</span></div>
-                </div>
-            `;
-            
-            intentions.forEach((intention, index) => {
-                html += `
-                    <div class="grid-row">
-                        <div class="grid-question">${intention}</div>
-                        ${[1, 2, 3, 4, 5].map(value => `
-                            <div class="grid-option">
-                                <input type="radio" name="intention_${index}" value="${value}" id="intention_${index}_${value}">
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            });
-            
-            grid.innerHTML = html;
+        // Toggle process goal help block
+        function toggleProcessGoalHelp() {
+            const helpBlock = document.getElementById('processGoalHelp');
+            helpBlock.classList.toggle('visible');
         }
-
-        // Render intention edit panel
-        function renderIntentionEditList() {
-            const intentions = loadIntentions();
-            const list = document.getElementById('intentionEditList');
-            
-            let html = '';
-            intentions.forEach((intention, index) => {
-                html += `
-                    <div class="intention-edit-item">
-                        <input type="text" value="${intention}" id="editIntention_${index}" placeholder="Enter intention...">
-                        <button onclick="removeIntention(${index})">Remove</button>
-                    </div>
-                `;
-            });
-            
-            list.innerHTML = html;
-        }
-
-        // Manage intentions panel toggle
-        document.getElementById('manageIntentionsBtn').addEventListener('click', function() {
-            const panel = document.getElementById('manageIntentionsPanel');
-            if (panel.classList.contains('active')) {
-                panel.classList.remove('active');
-            } else {
-                panel.classList.add('active');
-                renderIntentionEditList();
-            }
-        });
-
-        // Add intention
-        document.getElementById('addIntentionBtn').addEventListener('click', function() {
-            const intentions = loadIntentions();
-            if (intentions.length >= 10) {
-                alert('Maximum 10 intentions allowed.');
-                return;
-            }
-            intentions.push('');
-            localStorage.setItem('ridingIntentions', JSON.stringify(intentions));
-            renderIntentionEditList();
-        });
-
-        // Remove intention
-        function removeIntention(index) {
-            const intentions = loadIntentions();
-            if (intentions.length <= 1) {
-                alert('You must have at least one intention.');
-                return;
-            }
-            intentions.splice(index, 1);
-            localStorage.setItem('ridingIntentions', JSON.stringify(intentions));
-            renderIntentionEditList();
-        }
-
-        // Save intentions
-        document.getElementById('saveIntentionsBtn').addEventListener('click', function() {
-            const intentions = loadIntentions();
-            const newIntentions = [];
-            
-            intentions.forEach((_, index) => {
-                const value = document.getElementById(`editIntention_${index}`).value.trim();
-                if (value) {
-                    newIntentions.push(value);
-                }
-            });
-            
-            if (newIntentions.length === 0) {
-                alert('You must have at least one intention.');
-                return;
-            }
-            
-            localStorage.setItem('ridingIntentions', JSON.stringify(newIntentions));
-            renderIntentionsGrid();
-            document.getElementById('manageIntentionsPanel').classList.remove('active');
-            alert('Intentions saved successfully!');
-        });
-
-        // Initialize intentions grid
-        renderIntentionsGrid();
 
         // Detect iOS/iPad
         function isIOSDevice() {
@@ -1718,7 +1728,8 @@
                 rideArc: document.querySelector('input[name="rideArc"]:checked'),
                 riderEnergy: document.querySelector('input[name="riderEnergy"]:checked'),
                 horseEnergy: document.querySelector('input[name="horseEnergy"]:checked'),
-                mentalState: document.querySelector('input[name="mentalState"]:checked')
+                mentalState: document.querySelector('input[name="mentalState"]:checked'),
+                processGoal1: document.getElementById('processGoal1')
             };
 
             if (!isDraft) {
@@ -1735,14 +1746,6 @@
                 }
             }
 
-            // Collect intention ratings
-            const intentions = loadIntentions();
-            const intentionRatings = {};
-            intentions.forEach((intention, index) => {
-                const rating = document.querySelector(`input[name="intention_${index}"]:checked`);
-                intentionRatings[intention] = rating ? rating.value : null;
-            });
-
             const debrief = {
                 rideDate: document.getElementById('rideDate').value,
                 horseName: document.getElementById('horseName').value,
@@ -1753,7 +1756,9 @@
                 riderEnergy: document.querySelector('input[name="riderEnergy"]:checked')?.value || '',
                 horseEnergy: document.querySelector('input[name="horseEnergy"]:checked')?.value || '',
                 mentalState: document.querySelector('input[name="mentalState"]:checked')?.value || '',
-                intentionRatings: intentionRatings,
+                processGoal1: document.getElementById('processGoal1').value.trim(),
+                processGoal2: document.getElementById('processGoal2').value.trim() || null,
+                processGoal3: document.getElementById('processGoal3').value.trim() || null,
                 wins: document.getElementById('wins').value,
                 ahaRealization: document.getElementById('ahaRealization').value,
                 horseNotices: document.getElementById('horseNotices').value,
@@ -1923,9 +1928,20 @@
                     day: 'numeric'
                 });
                 
-                // Build intentions display
+                // Build process goals display
+                let processGoalsHtml = '';
+                const goals = [debrief.processGoal1, debrief.processGoal2, debrief.processGoal3].filter(g => g);
+                if (goals.length > 0) {
+                    processGoalsHtml = '<div style="margin-bottom: 15px; padding: 12px 16px; background: var(--color-bg-secondary); border-radius: 8px;">';
+                    processGoalsHtml += '<div style="font-weight: 600; color: var(--color-primary); font-size: 0.9em; margin-bottom: 8px;">Process Goals</div>';
+                    goals.forEach((goal, i) => {
+                        processGoalsHtml += `<div style="font-size: 0.95em; color: var(--color-text); margin-bottom: 4px;">${i + 1}. ${goal}</div>`;
+                    });
+                    processGoalsHtml += '</div>';
+                }
+                // Legacy support for old intentionRatings
                 let intentionsHtml = '';
-                if (debrief.intentionRatings && Object.keys(debrief.intentionRatings).length > 0) {
+                if (!processGoalsHtml && debrief.intentionRatings && Object.keys(debrief.intentionRatings).length > 0) {
                     intentionsHtml = '<div class="intentions-summary">';
                     for (let [question, rating] of Object.entries(debrief.intentionRatings)) {
                         if (rating) {
@@ -1953,7 +1969,7 @@
                                 <div class="rating-label">Overall Quality</div>
                             </div>
                         </div>
-                        ${intentionsHtml}
+                        ${processGoalsHtml}${intentionsHtml}
                         <div class="debrief-content">
                             ${debrief.wins ? `
                                 <div class="content-row">
@@ -2045,7 +2061,16 @@
                 textContent += `Horse Energy: ${debrief.horseEnergy}\n`;
                 textContent += `Mental/Emotional State: ${debrief.mentalState}\n\n`;
                 
-                // Add intentions
+                // Add process goals
+                const goals = [debrief.processGoal1, debrief.processGoal2, debrief.processGoal3].filter(g => g);
+                if (goals.length > 0) {
+                    textContent += `PROCESS GOALS:\n`;
+                    goals.forEach((goal, i) => {
+                        textContent += `${i + 1}. ${goal}\n`;
+                    });
+                    textContent += '\n';
+                }
+                // Legacy: include old intention ratings if present
                 if (debrief.intentionRatings && Object.keys(debrief.intentionRatings).length > 0) {
                     textContent += `INTENTIONS:\n`;
                     for (let [question, rating] of Object.entries(debrief.intentionRatings)) {

@@ -16,8 +16,14 @@ const base = createBaseService(COLLECTION);
  *   overallQuality:   number  - required, 1-10 range
  *   riderEnergy:      string  - "low" | "moderate" | "high" | "variable"
  *   horseEnergy:      string  - "low" | "moderate" | "high" | "variable" | "tense"
- *   mentalState:      string  - "calm" | "focused" | "frustrated" | "uncertain" | "joyful" | "mixed"
- *   intentionRatings: object  - { intentionText: ratingValue(1-5) }
+ *   mentalState:      string  - "calm"|"focused"|"joyful"|"confident"|"mixed"|"uncertain"|"worried"|"frustrated"|"tired"|"distracted"
+ *   intentionRatings: object  - { intentionText: ratingValue(1-5) } (legacy)
+ *   processGoal1:     string  - required process goal for next ride
+ *   processGoal2:     string  - optional
+ *   processGoal3:     string  - optional
+ *   prevGoalRatings:  object  - { goal1: {text, rating}, goal2, goal3, reflection } | null
+ *   confidenceExecution: number - 1-10, confidence in ability to execute
+ *   rideArc:          string  - "consistent"|"built"|"faded"|"strengthened"|"deteriorated"|"peak"|"valley"|"variable"
  *   wins:             string  - optional, personal milestones / external validation
  *   ahaRealization:   string  - optional, aha moments
  *   horseNotices:     string  - optional, connection and feel observations
@@ -56,15 +62,37 @@ export const HORSE_ENERGY_LEVELS = [
   { value: 'tense', label: 'Tense/Reactive' }
 ];
 
-// Mental state options
-export const MENTAL_STATES = [
-  { value: 'calm', label: 'Calm/Centered' },
-  { value: 'focused', label: 'Focused/Determined' },
-  { value: 'frustrated', label: 'Frustrated/Tense' },
-  { value: 'uncertain', label: 'Uncertain/Confused' },
-  { value: 'joyful', label: 'Joyful/Flowing' },
-  { value: 'mixed', label: 'Mixed/Complex' }
+// Mental state options — grouped by valence for display
+export const MENTAL_STATE_GROUPS = [
+  {
+    label: 'Positive',
+    states: [
+      { value: 'calm', label: 'Calm/Centered' },
+      { value: 'focused', label: 'Focused/Determined' },
+      { value: 'joyful', label: 'Joyful/Flowing' },
+      { value: 'confident', label: 'Confident/Optimistic' }
+    ]
+  },
+  {
+    label: 'Mixed',
+    states: [
+      { value: 'mixed', label: 'Mixed/Complex' },
+      { value: 'uncertain', label: 'Uncertain/Confused' }
+    ]
+  },
+  {
+    label: 'Difficult',
+    states: [
+      { value: 'worried', label: 'Worried/Concerned' },
+      { value: 'frustrated', label: 'Frustrated/Tense' },
+      { value: 'tired', label: 'Tired/Drained' },
+      { value: 'distracted', label: 'Distracted/Scattered' }
+    ]
+  }
 ];
+
+// Flat list for backward compatibility
+export const MENTAL_STATES = MENTAL_STATE_GROUPS.flatMap(g => g.states);
 
 // Movement/exercise tag categories
 export const MOVEMENT_CATEGORIES = [
@@ -142,6 +170,8 @@ export const RIDE_ARC_OPTIONS = [
   { value: 'consistent', label: 'Consistent throughout', color: '#8B7355' },
   { value: 'built', label: 'Rough start, finished strong', color: '#6B8E5F' },
   { value: 'faded', label: 'Strong start, faded', color: '#C67B5C' },
+  { value: 'strengthened', label: 'Started good, kept building', color: '#4A8E3F' },
+  { value: 'deteriorated', label: 'Started rough, kept declining', color: '#B84A4A' },
   { value: 'peak', label: 'Strong in the middle', color: '#D4A574' },
   { value: 'valley', label: 'Rough patch, then recovered', color: '#D4A574' },
   { value: 'variable', label: 'All over the place', color: '#9B8EC4' }
@@ -164,6 +194,10 @@ export async function createDebrief(userId, debriefData) {
     mentalState: debriefData.mentalState || '',
     movements: debriefData.movements || [],
     intentionRatings: debriefData.intentionRatings || {},
+    processGoal1: debriefData.processGoal1 || '',
+    processGoal2: debriefData.processGoal2 || '',
+    processGoal3: debriefData.processGoal3 || '',
+    prevGoalRatings: debriefData.prevGoalRatings || null,
     wins: debriefData.wins || '',
     ahaRealization: debriefData.ahaRealization || '',
     horseNotices: debriefData.horseNotices || '',

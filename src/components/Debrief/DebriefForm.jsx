@@ -3,8 +3,9 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   createDebrief, getDebrief, updateDebrief,
-  getAllHorseProfiles,
-  SESSION_TYPES, RIDER_ENERGY_LEVELS, HORSE_ENERGY_LEVELS, MENTAL_STATES,
+  getAllHorseProfiles, getAllDebriefs,
+  SESSION_TYPES, RIDER_ENERGY_LEVELS, HORSE_ENERGY_LEVELS,
+  MENTAL_STATE_GROUPS,
   MOVEMENT_CATEGORIES, RIDE_ARC_OPTIONS
 } from '../../services';
 import useFormRecovery from '../../hooks/useFormRecovery';
@@ -23,37 +24,19 @@ const NARRATIVE_FIELDS = [
   { key: 'workFocus', label: 'Additional notes on your work', color: '#4A90E2', placeholder: "Exercises, movements, concepts, focus areas (e.g., 'transitions,' 'shoulder-in,' 'steady contact,' 'half-halts')" }
 ];
 
-const STORAGE_KEY = 'ydj-debrief-intentions';
-
-function loadSavedIntentions() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : [
-      'Did you ride with gratitude and joy?',
-      "Did you work to gain and maintain the horse's best balance?",
-      'Did you adjust your position to maximize your effectiveness and the comfort of the horse?',
-      'Did you recover quickly from challenges or loss of focus?'
-    ];
-  } catch {
-    return [
-      'Did you ride with gratitude and joy?',
-      "Did you work to gain and maintain the horse's best balance?",
-      'Did you adjust your position to maximize your effectiveness and the comfort of the horse?',
-      'Did you recover quickly from challenges or loss of focus?'
-    ];
-  }
-}
-
-function saveIntentions(intentions) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(intentions));
-  } catch { /* ignore */ }
-}
+const PREV_GOAL_RATING_OPTIONS = [
+  { value: 'not-at-all', label: 'Not at all' },
+  { value: 'somewhat', label: 'Somewhat' },
+  { value: 'mostly', label: 'Mostly' },
+  { value: 'fully', label: 'Fully' }
+];
 
 const ARC_SVGS = {
   consistent: (color) => <polyline points="4,20 68,20" stroke={color} strokeWidth="3" strokeLinecap="round" fill="none"/>,
   built: (color) => <polyline points="4,34 68,6" stroke={color} strokeWidth="3" strokeLinecap="round" fill="none"/>,
   faded: (color) => <polyline points="4,6 68,34" stroke={color} strokeWidth="3" strokeLinecap="round" fill="none"/>,
+  strengthened: (color) => <polyline points="4,12 68,2" stroke={color} strokeWidth="3" strokeLinecap="round" fill="none"/>,
+  deteriorated: (color) => <polyline points="4,28 68,38" stroke={color} strokeWidth="3" strokeLinecap="round" fill="none"/>,
   peak: (color) => <polyline points="4,34 36,6 68,34" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none"/>,
   valley: (color) => <polyline points="4,6 36,34 68,6" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none"/>,
   variable: (color) => <path d="M4,20 C12,6 20,6 28,20 C36,34 44,34 52,20 C60,6 68,14 68,20" stroke={color} strokeWidth="3" strokeLinecap="round" fill="none"/>
@@ -78,9 +61,12 @@ export default function DebriefForm() {
 
   const [draftId, setDraftId] = useState(null);
   const [horseNames, setHorseNames] = useState([]);
-  const [intentions, setIntentions] = useState(loadSavedIntentions);
-  const [newIntention, setNewIntention] = useState('');
-  const [editingIntention, setEditingIntention] = useState(null);
+
+  // Previous ride process goals (fetched from Firestore)
+  const [prevGoals, setPrevGoals] = useState(null); // { goal1, goal2, goal3 } or null
+
+  // Process goal help expanded
+  const [goalHelpOpen, setGoalHelpOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     rideDate: searchParams.get("date") || new Date().toISOString().split('T')[0],
@@ -94,7 +80,17 @@ export default function DebriefForm() {
     horseEnergy: '',
     mentalState: '',
     movements: [],
+    // Legacy intentions (kept for backward compat)
     intentionRatings: {},
+    // Process goals
+    processGoal1: '',
+    processGoal2: '',
+    processGoal3: '',
+    // Previous goal ratings
+    prevGoal1Rating: '',
+    prevGoal2Rating: '',
+    prevGoal3Rating: '',
+    goalReflection: '',
     rideArc: '',
     rideArcNote: '',
     wins: '',
@@ -117,6 +113,13 @@ export default function DebriefForm() {
     if (id) loadExisting();
   }, [id, currentUser]);
 
+  // Fetch previous goals when horse changes
+  useEffect(() => {
+    if (formData.horseName && currentUser && !isEdit) {
+      fetchPreviousGoals(formData.horseName);
+    }
+  }, [formData.horseName, currentUser]);
+
   async function loadHorses() {
     if (!currentUser) return;
     const result = await getAllHorseProfiles(currentUser.uid);
@@ -124,6 +127,30 @@ export default function DebriefForm() {
       setHorseNames(result.data.map(h => h.horseName).filter(Boolean));
     } else {
       console.error('Failed to load horse profiles:', result.error);
+    }
+  }
+
+  async function fetchPreviousGoals(horseName) {
+    if (!currentUser) return;
+    try {
+      const result = await getAllDebriefs(currentUser.uid);
+      if (result.success && result.data.length > 0) {
+        // Find most recent submitted debrief for this horse with process goals
+        const prev = result.data
+          .filter(d => d.horseName === horseName && !d.isDraft && d.processGoal1)
+          .sort((a, b) => (b.rideDate || '').localeCompare(a.rideDate || ''))[0];
+        if (prev) {
+          setPrevGoals({
+            goal1: prev.processGoal1 || null,
+            goal2: prev.processGoal2 || null,
+            goal3: prev.processGoal3 || null
+          });
+        } else {
+          setPrevGoals(null);
+        }
+      }
+    } catch {
+      setPrevGoals(null);
     }
   }
 
@@ -146,6 +173,13 @@ export default function DebriefForm() {
         mentalState: d.mentalState || '',
         movements: d.movements || [],
         intentionRatings: d.intentionRatings || {},
+        processGoal1: d.processGoal1 || '',
+        processGoal2: d.processGoal2 || '',
+        processGoal3: d.processGoal3 || '',
+        prevGoal1Rating: d.prevGoalRatings?.goal1?.rating || '',
+        prevGoal2Rating: d.prevGoalRatings?.goal2?.rating || '',
+        prevGoal3Rating: d.prevGoalRatings?.goal3?.rating || '',
+        goalReflection: d.prevGoalRatings?.reflection || '',
         rideArc: d.rideArc || '',
         rideArcNote: d.rideArcNote || '',
         wins: d.wins || '',
@@ -155,13 +189,12 @@ export default function DebriefForm() {
         workFocus: d.workFocus || ''
       });
       if (d.overallQuality != null) setOverallQualityTouched(true);
-      // Merge any intentions from the saved debrief
-      if (d.intentionRatings) {
-        const debriefIntentions = Object.keys(d.intentionRatings);
-        setIntentions(prev => {
-          const merged = [...new Set([...prev, ...debriefIntentions])];
-          saveIntentions(merged);
-          return merged;
+      // Load previous goals if they were stored
+      if (d.prevGoalRatings) {
+        setPrevGoals({
+          goal1: d.prevGoalRatings.goal1?.text || null,
+          goal2: d.prevGoalRatings.goal2?.text || null,
+          goal3: d.prevGoalRatings.goal3?.text || null
         });
       }
     }
@@ -172,61 +205,6 @@ export default function DebriefForm() {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
-  }
-
-  function handleRatingChange(intention, rating) {
-    setFormData(prev => ({
-      ...prev,
-      intentionRatings: { ...prev.intentionRatings, [intention]: rating }
-    }));
-  }
-
-  function addIntention() {
-    const trimmed = newIntention.trim();
-    if (!trimmed || intentions.includes(trimmed)) return;
-    const updated = [...intentions, trimmed];
-    setIntentions(updated);
-    saveIntentions(updated);
-    setNewIntention('');
-  }
-
-  function removeIntention(intention) {
-    const updated = intentions.filter(i => i !== intention);
-    setIntentions(updated);
-    saveIntentions(updated);
-    setFormData(prev => {
-      const ratings = { ...prev.intentionRatings };
-      delete ratings[intention];
-      return { ...prev, intentionRatings: ratings };
-    });
-  }
-
-  function startEditIntention(intention) {
-    setEditingIntention({ original: intention, value: intention });
-  }
-
-  function saveEditIntention() {
-    if (!editingIntention) return;
-    const trimmed = editingIntention.value.trim();
-    if (!trimmed || (trimmed !== editingIntention.original && intentions.includes(trimmed))) {
-      setEditingIntention(null);
-      return;
-    }
-    const updated = intentions.map(i => i === editingIntention.original ? trimmed : i);
-    setIntentions(updated);
-    saveIntentions(updated);
-    // Update the rating key if changed
-    if (trimmed !== editingIntention.original) {
-      setFormData(prev => {
-        const ratings = { ...prev.intentionRatings };
-        if (ratings[editingIntention.original] !== undefined) {
-          ratings[trimmed] = ratings[editingIntention.original];
-          delete ratings[editingIntention.original];
-        }
-        return { ...prev, intentionRatings: ratings };
-      });
-    }
-    setEditingIntention(null);
   }
 
   function toggleMovement(value) {
@@ -251,6 +229,7 @@ export default function DebriefForm() {
     if (!formData.horseName.trim()) newErrors.horseName = 'Horse name is required';
     if (!formData.sessionType) newErrors.sessionType = 'Please select session type';
     if (!formData.rideArc) newErrors.rideArc = 'Please select how your ride unfolded.';
+    if (!formData.processGoal1.trim()) newErrors.processGoal1 = 'At least one process goal is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
@@ -260,9 +239,42 @@ export default function DebriefForm() {
     if (!isDraft && !validateForm()) return;
 
     setLoading(true);
+
+    // Build prevGoalRatings from form state
+    let prevGoalRatings = null;
+    if (prevGoals) {
+      prevGoalRatings = {
+        goal1: prevGoals.goal1 ? { text: prevGoals.goal1, rating: formData.prevGoal1Rating || '' } : null,
+        goal2: prevGoals.goal2 ? { text: prevGoals.goal2, rating: formData.prevGoal2Rating || '' } : null,
+        goal3: prevGoals.goal3 ? { text: prevGoals.goal3, rating: formData.prevGoal3Rating || '' } : null,
+        reflection: formData.goalReflection || null
+      };
+    }
+
     const data = {
-      ...formData,
+      rideDate: formData.rideDate,
+      horseName: formData.horseName,
+      sessionType: formData.sessionType,
       overallQuality: overallQualityTouched ? formData.overallQuality : null,
+      confidenceLevel: formData.confidenceLevel,
+      riderEffort: formData.riderEffort,
+      horseEffort: formData.horseEffort,
+      riderEnergy: formData.riderEnergy,
+      horseEnergy: formData.horseEnergy,
+      mentalState: formData.mentalState,
+      movements: formData.movements,
+      intentionRatings: formData.intentionRatings,
+      processGoal1: formData.processGoal1,
+      processGoal2: formData.processGoal2,
+      processGoal3: formData.processGoal3,
+      prevGoalRatings,
+      rideArc: formData.rideArc,
+      rideArcNote: formData.rideArcNote,
+      wins: formData.wins,
+      ahaRealization: formData.ahaRealization,
+      horseNotices: formData.horseNotices,
+      challenges: formData.challenges,
+      workFocus: formData.workFocus,
       isDraft
     };
 
@@ -411,7 +423,13 @@ export default function DebriefForm() {
               )}
             </FormField>
 
-            <FormField label={`Confidence in Your Ability to Execute: ${formData.confidenceLevel}/10`} optional helpText="Did your body follow through on what you asked? Rate how decisively you rode as intended — hesitation can come from many places.">
+            {/* Estimation prompt + Confidence slider */}
+            <FormField label={`Confidence in Your Ability to Execute: ${formData.confidenceLevel}/10`} optional helpText="Your in-session sense of whether you could perform the technical work you were attempting — distinct from how good the ride felt overall.">
+              <div className="prompt-box" style={{ marginBottom: '0.75rem' }}>
+                <div className="prompt-box-content">
+                  Before you rate: if someone had filmed this ride, what would they have seen?
+                </div>
+              </div>
               <input
                 type="range"
                 name="confidenceLevel"
@@ -426,6 +444,7 @@ export default function DebriefForm() {
                 <span>Hesitant / unsure</span><span>Clear and committed</span>
               </div>
             </FormField>
+
             <FormField label="Energy/Effort Level" optional helpText="Rate the physical effort/energy for trend tracking.">
               <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
                 <div style={{ flex: 1, minWidth: '200px' }}>
@@ -472,8 +491,55 @@ export default function DebriefForm() {
             <FormField label="Horse's Energy Level" optional>
               <RadioGroup name="horseEnergy" options={HORSE_ENERGY_LEVELS} value={formData.horseEnergy} onChange={handleChange} disabled={loading} />
             </FormField>
+
+            {/* Mental/Emotional State — valence-grouped */}
             <FormField label="Your mental/emotional state" optional>
-              <RadioGroup name="mentalState" options={MENTAL_STATES} value={formData.mentalState} onChange={handleChange} disabled={loading} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {MENTAL_STATE_GROUPS.map(group => (
+                  <div key={group.label}>
+                    <div style={{
+                      fontSize: '0.72rem',
+                      fontWeight: 600,
+                      letterSpacing: '0.08em',
+                      textTransform: 'uppercase',
+                      color: '#7A7A7A',
+                      marginBottom: '0.4rem',
+                      borderBottom: '1px solid #F0EBE3',
+                      paddingBottom: '0.25rem'
+                    }}>
+                      {group.label}
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                      {group.states.map(state => (
+                        <label key={state.value} style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.35rem',
+                          cursor: 'pointer',
+                          padding: '0.35rem 0.75rem',
+                          borderRadius: '20px',
+                          border: `1.5px solid ${formData.mentalState === state.value ? '#8B7355' : '#E0D5C7'}`,
+                          background: formData.mentalState === state.value ? '#8B7355' : 'white',
+                          color: formData.mentalState === state.value ? 'white' : '#3A3A3A',
+                          fontSize: '0.9rem',
+                          transition: 'all 0.15s ease'
+                        }}>
+                          <input
+                            type="radio"
+                            name="mentalState"
+                            value={state.value}
+                            checked={formData.mentalState === state.value}
+                            onChange={handleChange}
+                            disabled={loading}
+                            style={{ display: 'none' }}
+                          />
+                          {state.label}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </FormField>
           </FormSection>
 
@@ -501,106 +567,160 @@ export default function DebriefForm() {
             ))}
           </FormSection>
 
-          {/* Section 3: Riding Intentions */}
-          <FormSection title="Riding Intentions" description="How well did you meet your intentions for this ride?">
-            <div style={{ marginBottom: '1rem' }}>
-              {intentions.map(intention => (
-                <div key={intention} style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  padding: '10px 0',
-                  borderBottom: '1px solid #F0EBE3'
+          {/* Section: Process Goals */}
+          <FormSection title="Process Goals" description="What will you focus on in your next ride?">
+            {/* Previous ride check-in — only show when previous goals exist */}
+            {prevGoals && (prevGoals.goal1 || prevGoals.goal2 || prevGoals.goal3) && (
+              <div style={{ marginBottom: '1.5rem', padding: '1rem', background: '#FAF8F5', borderRadius: '12px', border: '1px solid #E0D5C7' }}>
+                <div style={{
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  color: '#7A7A7A',
+                  marginBottom: '0.75rem'
                 }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    {editingIntention?.original === intention ? (
-                      <div style={{ display: 'flex', gap: '6px' }}>
-                        <input
-                          type="text"
-                          value={editingIntention.value}
-                          onChange={e => setEditingIntention(prev => ({ ...prev, value: e.target.value }))}
-                          onKeyDown={e => e.key === 'Enter' && saveEditIntention()}
-                          onBlur={saveEditIntention}
-                          autoFocus
-                          style={{ flex: 1, padding: '4px 8px', fontSize: '0.9rem' }}
-                        />
-                      </div>
-                    ) : (
-                      <span
-                        style={{ cursor: 'pointer', fontSize: '0.95rem' }}
-                        onClick={() => startEditIntention(intention)}
-                        title="Click to edit"
-                      >
-                        {intention}
-                      </span>
-                    )}
-                  </div>
-                  <div style={{ display: 'flex', gap: '4px' }}>
-                    {[1, 2, 3, 4, 5].map(rating => (
-                      <button
-                        key={rating}
-                        type="button"
-                        onClick={() => handleRatingChange(intention, rating)}
-                        disabled={loading}
-                        style={{
-                          width: '32px',
-                          height: '32px',
-                          borderRadius: '50%',
-                          border: `2px solid ${formData.intentionRatings[intention] === rating ? '#8B7355' : '#E0D5C7'}`,
-                          background: formData.intentionRatings[intention] === rating ? '#8B7355' : 'white',
-                          color: formData.intentionRatings[intention] === rating ? 'white' : '#3A3A3A',
-                          cursor: 'pointer',
-                          fontSize: '0.85rem',
-                          fontWeight: 600,
-                          transition: 'all 0.15s ease',
+                  From your last ride
+                </div>
+                {[
+                  { goal: prevGoals.goal1, ratingKey: 'prevGoal1Rating' },
+                  { goal: prevGoals.goal2, ratingKey: 'prevGoal2Rating' },
+                  { goal: prevGoals.goal3, ratingKey: 'prevGoal3Rating' }
+                ].filter(item => item.goal).map((item, idx) => (
+                  <div key={idx} style={{ marginBottom: '0.75rem', paddingBottom: '0.75rem', borderBottom: idx < 2 ? '1px solid #E0D5C7' : 'none' }}>
+                    <div style={{ fontSize: '0.95rem', marginBottom: '0.5rem', fontStyle: 'italic', color: '#3A3A3A' }}>
+                      {item.goal}
+                    </div>
+                    <div style={{ fontSize: '0.85rem', color: '#7A7A7A', marginBottom: '0.35rem' }}>
+                      How well did you maintain this focus?
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                      {PREV_GOAL_RATING_OPTIONS.map(opt => (
+                        <label key={opt.value} style={{
                           display: 'flex',
                           alignItems: 'center',
-                          justifyContent: 'center',
-                          padding: 0,
-                          lineHeight: 1
-                        }}
-                      >
-                        {rating}
-                      </button>
-                    ))}
+                          gap: '0.3rem',
+                          cursor: 'pointer',
+                          padding: '0.3rem 0.65rem',
+                          borderRadius: '16px',
+                          border: `1.5px solid ${formData[item.ratingKey] === opt.value ? '#8B7355' : '#E0D5C7'}`,
+                          background: formData[item.ratingKey] === opt.value ? '#8B7355' : 'white',
+                          color: formData[item.ratingKey] === opt.value ? 'white' : '#3A3A3A',
+                          fontSize: '0.82rem',
+                          transition: 'all 0.15s ease'
+                        }}>
+                          <input
+                            type="radio"
+                            name={item.ratingKey}
+                            value={opt.value}
+                            checked={formData[item.ratingKey] === opt.value}
+                            onChange={handleChange}
+                            disabled={loading}
+                            style={{ display: 'none' }}
+                          />
+                          {opt.label}
+                        </label>
+                      ))}
+                    </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => removeIntention(intention)}
+                ))}
+                <div style={{ marginTop: '0.5rem' }}>
+                  <label style={{ fontSize: '0.85rem', color: '#7A7A7A', display: 'block', marginBottom: '0.35rem' }}>
+                    What got in the way, or what helped? <span style={{ fontStyle: 'italic' }}>(optional)</span>
+                  </label>
+                  <textarea
+                    name="goalReflection"
+                    value={formData.goalReflection}
+                    onChange={handleChange}
                     disabled={loading}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#D0021B',
-                      cursor: 'pointer',
-                      fontSize: '1.1rem',
-                      padding: '4px',
-                      opacity: 0.6
-                    }}
-                    title="Remove intention"
-                  >
-                    x
-                  </button>
+                    rows={2}
+                    style={{ fontSize: '0.9rem' }}
+                  />
                 </div>
-              ))}
-            </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
+              </div>
+            )}
+
+            <p style={{ fontSize: '0.9rem', color: '#7A7A7A', marginBottom: '1rem', lineHeight: '1.5' }}>
+              Name up to three specific things you will DO — not achieve. Process goals direct your attention during the ride. Keep each one short and action-focused.
+            </p>
+
+            <FormField label="Process Goal 1" error={errors.processGoal1}>
               <input
                 type="text"
-                value={newIntention}
-                onChange={e => setNewIntention(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addIntention())}
-                placeholder="Add a new intention..."
+                name="processGoal1"
+                value={formData.processGoal1}
+                onChange={handleChange}
                 disabled={loading}
-                style={{ flex: 1 }}
+                className={errors.processGoal1 ? 'error' : ''}
+                placeholder="e.g. 'Wait for Rocket Star to seek the contact before asking for collection'"
               />
-              <button type="button" className="btn btn-secondary" onClick={addIntention} disabled={loading || !newIntention.trim()}>
-                Add
+            </FormField>
+            <FormField label="Process Goal 2" optional>
+              <input
+                type="text"
+                name="processGoal2"
+                value={formData.processGoal2}
+                onChange={handleChange}
+                disabled={loading}
+                placeholder="e.g. 'Breathe through every downward transition'"
+              />
+            </FormField>
+            <FormField label="Process Goal 3" optional>
+              <input
+                type="text"
+                name="processGoal3"
+                value={formData.processGoal3}
+                onChange={handleChange}
+                disabled={loading}
+                placeholder="e.g. 'Soften my lower back at the moment of canter strike-off'"
+              />
+            </FormField>
+
+            <div style={{ marginTop: '0.5rem' }}>
+              <button
+                type="button"
+                onClick={() => setGoalHelpOpen(prev => !prev)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#8B7355',
+                  cursor: 'pointer',
+                  fontSize: '0.88rem',
+                  textDecoration: 'underline',
+                  padding: 0
+                }}
+              >
+                {goalHelpOpen ? 'Hide' : "What's a process goal?"}
               </button>
+              {goalHelpOpen && (
+                <div style={{
+                  marginTop: '0.5rem',
+                  padding: '0.75rem 1rem',
+                  background: '#FAF8F5',
+                  borderRadius: '8px',
+                  border: '1px solid #E0D5C7',
+                  fontSize: '0.88rem',
+                  color: '#5A5A5A',
+                  lineHeight: '1.5'
+                }}>
+                  <p style={{ marginBottom: '0.5rem' }}>
+                    A process goal describes an action within your control during the ride — what you will attend to or do, not what you hope results from it.
+                  </p>
+                  <p style={{ marginBottom: '0.5rem' }}>
+                    <strong style={{ color: '#D0021B' }}>Outcome goal (avoid for in-session focus):</strong> "Get a good canter transition"
+                  </p>
+                  <p style={{ marginBottom: '0.5rem' }}>
+                    <strong style={{ color: '#6B8E5F' }}>Process goal (use this):</strong> "Establish outside rein contact before asking"
+                  </p>
+                  <p style={{ margin: 0, fontStyle: 'italic' }}>
+                    Three is the maximum. More than three splits your attention below useful threshold.
+                  </p>
+                </div>
+              )}
             </div>
           </FormSection>
 
-          {/* Section 4: Narrative */}
+          {/* Section: Narrative */}
           <FormSection title="What Happened" description="The heart of your reflection -- what stands out from this ride?">
             {NARRATIVE_FIELDS.map(field => (
               <FormField key={field.key} label={field.label} optional>
