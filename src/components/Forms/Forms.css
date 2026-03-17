@@ -352,6 +352,12 @@
   border: 1px solid #EF9A9A;
 }
 
+.form-alert-info {
+  background-color: #FFF8E1;
+  color: #6D5A2E;
+  border: 1px solid #E0D5C7;
+}
+
 /* Character Counter */
 .char-counter {
   font-size: 0.85rem;

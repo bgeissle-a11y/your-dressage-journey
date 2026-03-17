@@ -6,6 +6,7 @@ import {
   getAllLessonNotes, getAllHorseProfiles, getAllDebriefs,
   LESSON_TYPES
 } from '../../services';
+import useFormRecovery from '../../hooks/useFormRecovery';
 import FormSection from '../Forms/FormSection';
 import FormField from '../Forms/FormField';
 import VoiceInput from '../Forms/VoiceInput';
@@ -86,6 +87,10 @@ export default function LessonNoteForm() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
+
+  const { hasRecovery, applyRecovery, dismissRecovery, clearRecovery } = useFormRecovery(
+    'ydj-lesson-note-recovery', formData, setFormData
+  );
 
   useEffect(() => {
     loadReferenceData();
@@ -228,6 +233,7 @@ export default function LessonNoteForm() {
     setLoading(false);
 
     if (result.success) {
+      clearRecovery();
       if (isEdit) {
         navigate('/lesson-notes');
       } else {
@@ -255,6 +261,7 @@ export default function LessonNoteForm() {
     setLoading(false);
 
     if (result.success) {
+      clearRecovery();
       navigate('/lesson-notes');
     } else {
       setErrors({ submit: result.error });
@@ -348,6 +355,18 @@ export default function LessonNoteForm() {
       <form onSubmit={handleSubmit} autoComplete="off">
         <div className="form-card">
           {errors.submit && <div className="form-section"><div className="form-alert form-alert-error">{errors.submit}</div></div>}
+
+          {hasRecovery && (
+            <div className="form-section">
+              <div className="form-alert form-alert-info" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <span>You have unsaved data from a previous session. Would you like to restore it?</span>
+                <span style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button type="button" className="btn btn-primary" style={{ fontSize: '0.85rem', padding: '0.35rem 0.75rem' }} onClick={applyRecovery}>Restore</button>
+                  <button type="button" className="btn btn-secondary" style={{ fontSize: '0.85rem', padding: '0.35rem 0.75rem' }} onClick={dismissRecovery}>Dismiss</button>
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Section 1: About This Lesson */}
           <FormSection title="About This Lesson" description="A few quick details so your notes stay organized and searchable over time.">

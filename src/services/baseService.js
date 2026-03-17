@@ -10,7 +10,46 @@ import {
   serverTimestamp,
   Timestamp
 } from 'firebase/firestore';
-import { db } from '../firebase-config';
+import { db, auth } from '../firebase-config';
+
+/**
+ * Force-refresh the Firebase Auth token before a write operation.
+ * On iOS Safari, backgrounded tabs can leave the token stale, causing
+ * Firestore security-rule rejections. This ensures a fresh token.
+ */
+async function ensureFreshToken() {
+  try {
+    if (auth.currentUser) {
+      await auth.currentUser.getIdToken(true);
+    }
+  } catch (err) {
+    console.warn('Token refresh failed:', err.message);
+    // Continue anyway — the write will fail with a clearer auth error
+    // if the token is truly invalid
+  }
+}
+
+/**
+ * Convert a Firestore error into a user-friendly message.
+ */
+function friendlyError(error) {
+  const msg = error.message || '';
+  const code = error.code || '';
+
+  if (code === 'permission-denied' || msg.includes('Missing or insufficient permissions')) {
+    return 'Your session may have expired. Please refresh the page or log out and back in, then try again.';
+  }
+  if (code === 'unavailable' || msg.includes('Failed to get document')) {
+    return 'Unable to reach the server. Please check your internet connection and try again.';
+  }
+  if (code === 'not-found') {
+    return 'This entry could not be found. It may have been deleted.';
+  }
+  if (msg.includes('network') || msg.includes('ECONNREFUSED') || msg.includes('fetch')) {
+    return 'A network error occurred. Please check your connection and try again.';
+  }
+  return msg;
+}
 
 /**
  * Creates a base service with standard CRUD operations for a Firestore collection.
@@ -31,6 +70,7 @@ export function createBaseService(collectionName) {
      */
     async create(userId, data) {
       try {
+        await ensureFreshToken();
         const docRef = await addDoc(colRef, {
           userId,
           ...data,
@@ -41,7 +81,7 @@ export function createBaseService(collectionName) {
         return { success: true, id: docRef.id };
       } catch (error) {
         console.error(`Error creating ${collectionName}:`, error);
-        return { success: false, error: error.message };
+        return { success: false, error: friendlyError(error) };
       }
     },
 
@@ -66,7 +106,7 @@ export function createBaseService(collectionName) {
         return { success: false, error: 'Document not found' };
       } catch (error) {
         console.error(`Error reading ${collectionName}:`, error);
-        return { success: false, error: error.message };
+        return { success: false, error: friendlyError(error) };
       }
     },
 
@@ -115,7 +155,7 @@ export function createBaseService(collectionName) {
         return { success: true, data };
       } catch (error) {
         console.error(`Error reading all ${collectionName}:`, error);
-        return { success: false, error: error.message };
+        return { success: false, error: friendlyError(error) };
       }
     },
 
@@ -127,6 +167,7 @@ export function createBaseService(collectionName) {
      */
     async update(docId, data) {
       try {
+        await ensureFreshToken();
         const docRef = doc(db, collectionName, docId);
         await updateDoc(docRef, {
           ...data,
@@ -135,7 +176,7 @@ export function createBaseService(collectionName) {
         return { success: true };
       } catch (error) {
         console.error(`Error updating ${collectionName}:`, error);
-        return { success: false, error: error.message };
+        return { success: false, error: friendlyError(error) };
       }
     },
 
@@ -146,6 +187,7 @@ export function createBaseService(collectionName) {
      */
     async delete(docId) {
       try {
+        await ensureFreshToken();
         const docRef = doc(db, collectionName, docId);
         await updateDoc(docRef, {
           isDeleted: true,
@@ -155,7 +197,7 @@ export function createBaseService(collectionName) {
         return { success: true };
       } catch (error) {
         console.error(`Error deleting ${collectionName}:`, error);
-        return { success: false, error: error.message };
+        return { success: false, error: friendlyError(error) };
       }
     },
 
@@ -185,7 +227,7 @@ export function createBaseService(collectionName) {
         return { success: true, data };
       } catch (error) {
         console.error(`Error querying ${collectionName}:`, error);
-        return { success: false, error: error.message };
+        return { success: false, error: friendlyError(error) };
       }
     }
   };

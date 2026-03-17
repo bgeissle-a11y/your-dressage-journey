@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Explorer | Your Dressage Journey</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --parchment:      #f5ede0;
+  --parchment-dark: #e8d9c4;
+  --parchment-mid:  #ede1ce;
+  --parchment-off:  #faf6f0;
+  --ink:            #2c1f14;
+  --ink-mid:        #4a3220;
+  --ink-light:      #6b4f38;
+  --gold:           #b8862a;
+  --gold-light:     #d4a84b;
+  --gold-pale:      #f0d89a;
+  --rust:           #7a3020;
+  --forest:         #2a4a30;
+  --forest-light:   #3d6b46;
+  --tech-color:     #7a3020;
+  --tech-bg:        rgba(122,48,32,0.07);
+  --tech-border:    rgba(122,48,32,0.22);
+  --mental-color:   #2e5c82;
+  --mental-bg:      rgba(46,92,130,0.06);
+  --mental-border:  rgba(46,92,130,0.22);
+  --body-color:     #2a4a30;
+  --body-bg:        rgba(42,74,48,0.06);
+}
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Work Sans', sans-serif;
+  background: var(--parchment);
+  color: var(--ink);
+  min-height: 100vh;
+  line-height: 1.55;
+}
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
+}
+.page { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; padding: 28px 20px 80px; }
+
+/* ── HEADER ─────────────────────────────── */
+.page-header {
+  margin-bottom: 28px; padding: 28px 36px;
+  background: linear-gradient(135deg, #1a2a1e 0%, #2a4a30 60%, #3d6b46 100%);
+  border-radius: 16px; position: relative; overflow: hidden;
+  animation: fadeUp .35s ease both;
+}
+.page-header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 50%, rgba(212,168,75,.10) 0%, transparent 70%); }
+.header-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: rgba(212,168,75,.65); margin-bottom: 6px; position: relative; }
+.header-title { font-family: 'Playfair Display', serif; font-size: clamp(22px,4vw,30px); font-weight: 700; color: white; line-height: 1.2; position: relative; }
+.header-sub { font-size: 13px; color: rgba(255,255,255,.5); margin-top: 6px; position: relative; }
+
+/* ── TEST SELECTOR CARD ─────────────────── */
+.selector-card {
+  background: white; border-radius: 14px; border: 1.5px solid var(--parchment-dark);
+  padding: 26px 30px; margin-bottom: 24px;
+  animation: fadeUp .35s .07s ease both;
+}
+.selector-heading { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+.selector-sub { font-size: 13px; color: var(--ink-light); margin-bottom: 20px; }
+
+.mode-toggle {
+  display: flex; gap: 0; border: 1.5px solid var(--parchment-dark); border-radius: 9px;
+  overflow: hidden; margin-bottom: 20px; max-width: 320px;
+}
+.mode-toggle input[type="radio"] { display: none; }
+.mode-toggle label {
+  flex: 1; padding: 10px 16px; text-align: center; cursor: pointer; margin: 0;
+  background: white; color: var(--ink-light); font-weight: 500; font-size: 13.5px;
+  transition: all .18s; border-right: 1px solid var(--parchment-dark);
+}
+.mode-toggle label:last-of-type { border-right: none; }
+.mode-toggle input:checked + label { background: var(--forest); color: white; }
+
+.test-selectors { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.test-selector-wrap { position: relative; }
+.test-selector-label { font-size: 12px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; color: var(--ink-light); margin-bottom: 6px; }
+.test-selector-wrap select {
+  width: 100%; padding: 11px 14px;
+  border: 1.5px solid var(--parchment-dark); border-radius: 9px;
+  font-family: 'Work Sans', sans-serif; font-size: 14px; color: var(--ink);
+  background: var(--parchment-off); cursor: pointer;
+  transition: border-color .2s, box-shadow .2s;
+}
+.test-selector-wrap select:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(184,134,42,.12); background: white; }
+.test-selector-wrap.disabled { opacity: .4; pointer-events: none; }
+
+/* ── EXPLORER PANELS ────────────────────── */
+.explorer-layout { display: grid; gap: 20px; animation: fadeUp .35s .14s ease both; }
+.explorer-layout.single { grid-template-columns: 1fr; }
+.explorer-layout.compare { grid-template-columns: 1fr 1fr; }
+
+.test-panel {
+  background: white; border-radius: 14px; border: 1.5px solid var(--parchment-dark);
+  overflow: hidden;
+}
+.panel-head {
+  padding: 16px 20px 12px;
+  background: linear-gradient(135deg, #f8efe4 0%, white 100%);
+  border-bottom: 1.5px solid var(--parchment-dark);
+}
+.panel-eyebrow { font-size: 9.5px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--ink-light); margin-bottom: 3px; }
+.panel-title { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700; color: var(--ink); }
+.panel-org { font-size: 11px; color: var(--ink-light); margin-top: 3px; }
+
+/* meta grid */
+.meta-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--parchment-dark); border-bottom: 1.5px solid var(--parchment-dark); }
+.meta-cell { background: white; padding: 10px 8px; text-align: center; }
+.meta-val { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--ink); }
+.meta-key { font-size: 9px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-light); margin-top: 2px; }
+
+/* tabs */
+.panel-tabs { display: flex; border-bottom: 1.5px solid var(--parchment-dark); background: var(--parchment); }
+.panel-tab {
+  flex: 1; padding: 9px 6px; font-size: 9.5px; font-weight: 600; letter-spacing: .35px;
+  text-transform: uppercase; border: none; background: transparent; cursor: pointer;
+  color: var(--ink-light); transition: all .15s;
+  border-bottom: 2.5px solid transparent; margin-bottom: -1.5px;
+  font-family: 'Work Sans', sans-serif;
+}
+.panel-tab:hover { color: var(--ink); }
+.panel-tab.active { color: var(--body-color); border-bottom-color: var(--body-color); background: white; }
+
+.panel-tab-content { display: none; padding: 16px 18px 20px; }
+.panel-tab-content.active { display: block; animation: fadeUp .18s ease both; }
+
+/* directives */
+.directive { font-size: 12px; color: var(--ink-mid); padding: 5px 0; border-bottom: 1px solid var(--parchment-mid); line-height: 1.5; }
+.directive:last-child { border-bottom: none; }
+.directive strong { color: var(--ink); }
+
+/* movements */
+.mov-group { margin-bottom: 14px; }
+.mov-group-head { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
+.mov-dot { width: 8px; height: 8px; border-radius: 50%; }
+.mov-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-mid); }
+.mov-items { display: flex; flex-wrap: wrap; gap: 5px; }
+.mov-chip { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 10px; background: var(--parchment); border: 1.5px solid var(--parchment-dark); color: var(--ink-mid); }
+.mov-chip.coeff { background: var(--tech-bg); border-color: var(--tech-border); color: var(--tech-color); font-weight: 600; }
+.mov-chip.coeff::after { content: '×2'; font-size: 9px; font-weight: 700; margin-left: 3px; opacity: .75; }
+.mov-chip.new-at { background: var(--mental-bg); border-color: var(--mental-border); color: var(--mental-color); }
+.mov-note { font-size: 10.5px; color: var(--ink-light); margin-top: 10px; line-height: 1.6; }
+
+/* coefficients */
+.coeff-table { width: 100%; border-collapse: collapse; }
+.coeff-table th { font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-light); padding: 5px 7px; border-bottom: 2px solid var(--parchment-dark); text-align: left; }
+.coeff-table td { font-size: 11px; padding: 7px 7px; border-bottom: 1px solid var(--parchment-mid); vertical-align: top; line-height: 1.4; color: var(--ink-mid); }
+.coeff-table tr:last-child td { border-bottom: none; }
+.coeff-badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 6px; background: rgba(122,48,32,.10); color: var(--tech-color); border: 1px solid rgba(122,48,32,.2); white-space: nowrap; }
+.coeff-badge.collective { background: rgba(46,92,130,.10); color: var(--mental-color); border-color: rgba(46,92,130,.22); }
+
+/* assessment (flag) tab */
+.assess-intro { font-size: 11.5px; color: var(--ink-light); margin-bottom: 12px; line-height: 1.55; font-style: italic; }
+.assess-row {
+  display: flex; align-items: flex-start; gap: 9px; padding: 6px 0;
+  border-bottom: 1px solid var(--parchment-mid); cursor: pointer;
+  border-radius: 4px; transition: background .12s;
+}
+.assess-row:last-child { border-bottom: none; }
+.assess-row:hover { background: var(--parchment-off); margin: 0 -4px; padding-left: 4px; padding-right: 4px; }
+.assess-check {
+  width: 16px; height: 16px; border: 1.5px solid var(--parchment-dark); border-radius: 4px;
+  flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center;
+  font-size: 10px; transition: all .15s; color: transparent; background: white;
+}
+.assess-row.developing .assess-check { background: var(--tech-color); border-color: var(--tech-color); color: white; }
+.assess-text { font-size: 12px; color: var(--ink-mid); line-height: 1.4; }
+.assess-row.developing .assess-text { color: var(--ink); font-weight: 500; }
+.assess-note { font-size: 10px; color: var(--ink-light); margin-top: 1px; }
+
+.readiness-bar-wrap { margin-top: 14px; }
+.readiness-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-light); margin-bottom: 6px; display: flex; justify-content: space-between; }
+.readiness-track { height: 8px; background: var(--parchment-dark); border-radius: 4px; overflow: hidden; }
+.readiness-fill { height: 100%; border-radius: 4px; transition: width .5s ease; background: linear-gradient(90deg, var(--forest), var(--forest-light)); }
+
+/* ── ANALYSIS SECTION ────────────────────── */
+.analysis-card {
+  background: white; border-radius: 14px; border: 1.5px solid var(--parchment-dark);
+  overflow: hidden; margin-top: 20px;
+}
+.analysis-head {
+  padding: 18px 24px 14px;
+  background: linear-gradient(135deg, #f8efe4 0%, white 100%);
+  border-bottom: 1.5px solid var(--parchment-dark);
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+}
+.analysis-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: var(--ink); }
+.analysis-sub { font-size: 12.5px; color: var(--ink-light); margin-top: 3px; }
+
+.btn-analyze {
+  padding: 11px 24px;
+  background: linear-gradient(135deg, var(--forest) 0%, var(--forest-light) 100%);
+  color: white; border: none; border-radius: 9px;
+  font-family: 'Work Sans', sans-serif; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all .2s; white-space: nowrap; flex-shrink: 0;
+  display: flex; align-items: center; gap: 8px;
+}
+.btn-analyze:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(42,74,48,.25); }
+.btn-analyze:disabled { opacity: .55; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.analysis-body { padding: 22px 24px; }
+
+/* states */
+.analysis-empty {
+  text-align: center; padding: 36px 20px; color: var(--ink-light);
+}
+.analysis-empty-icon { font-size: 32px; margin-bottom: 12px; opacity: .5; }
+.analysis-empty-msg { font-size: 13px; line-height: 1.6; max-width: 420px; margin: 0 auto; }
+
+.analysis-loading { display: flex; align-items: center; gap: 12px; padding: 20px 0; color: var(--ink-light); font-size: 13px; }
+.spinner { width: 20px; height: 20px; border: 2.5px solid var(--parchment-dark); border-top-color: var(--forest); border-radius: 50%; animation: spin .8s linear infinite; flex-shrink: 0; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* coaching output */
+.coaching-output { display: grid; gap: 20px; }
+.coaching-output.compare { grid-template-columns: 1fr 1fr; }
+.coaching-block {
+  background: var(--parchment-off); border: 1.5px solid var(--parchment-dark);
+  border-radius: 10px; padding: 18px 20px;
+}
+.coaching-block-title { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.coaching-test-badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 8px; background: var(--body-bg); border: 1px solid var(--body-border); color: var(--body-color); }
+.coaching-text { font-size: 13px; color: var(--ink-mid); line-height: 1.65; white-space: pre-wrap; }
+.coaching-voice-attr { font-size: 10.5px; color: var(--ink-light); margin-top: 10px; font-style: italic; }
+
+/* comparison chart */
+.comparison-block {
+  background: var(--parchment-off); border: 1.5px solid var(--parchment-dark);
+  border-radius: 10px; padding: 18px 20px;
+  grid-column: 1 / -1;
+}
+.comparison-title { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 16px; }
+.chart-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.chart-row:last-child { margin-bottom: 0; }
+.chart-row-label { font-size: 11px; font-weight: 500; color: var(--ink-mid); width: 120px; flex-shrink: 0; text-align: right; }
+.chart-bars { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.chart-bar-wrap { display: flex; align-items: center; gap: 6px; }
+.chart-bar-track { flex: 1; height: 10px; background: var(--parchment-dark); border-radius: 5px; overflow: hidden; }
+.chart-bar-fill { height: 100%; border-radius: 5px; transition: width .6s ease; }
+.chart-bar-fill.t1 { background: linear-gradient(90deg, #2a4a30, #3d6b46); }
+.chart-bar-fill.t2 { background: linear-gradient(90deg, #2e5c82, #4a7fa8); }
+.chart-bar-pct { font-size: 10px; font-weight: 600; color: var(--ink-light); width: 32px; flex-shrink: 0; }
+.chart-legend { display: flex; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+.chart-legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--ink-mid); font-weight: 500; }
+.chart-legend-swatch { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+.chart-legend-swatch.t1 { background: #3d6b46; }
+.chart-legend-swatch.t2 { background: #4a7fa8; }
+.chart-footer { font-size: 10.5px; color: var(--ink-light); margin-top: 12px; font-style: italic; }
+
+/* readiness summary */
+.readiness-summary { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.readiness-stat {
+  flex: 1; min-width: 120px; background: white; border: 1.5px solid var(--parchment-dark);
+  border-radius: 10px; padding: 12px 14px; text-align: center;
+}
+.readiness-stat-num { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; color: var(--ink); line-height: 1; }
+.readiness-stat-label { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-light); margin-top: 4px; }
+.readiness-stat-sub { font-size: 10.5px; color: var(--tech-color); margin-top: 2px; font-weight: 500; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 720px) {
+  .explorer-layout.compare { grid-template-columns: 1fr; }
+  .coaching-output.compare { grid-template-columns: 1fr; }
+  .comparison-block { grid-column: 1; }
+  .test-selectors { grid-template-columns: 1fr; }
+  .meta-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="page-header">
+    <div class="header-eyebrow">Your Dressage Journey · Learn</div>
+    <div class="header-title">Test Explorer</div>
+    <div class="header-sub">Explore one or two tests in depth · flag the movements you're still developing · get an honest readiness read</div>
+  </div>
+
+  <!-- SELECTOR -->
+  <div class="selector-card">
+    <div class="selector-heading">Choose your test(s)</div>
+    <div class="selector-sub">Exploring a single test gives you the full picture. Comparing two reveals what moves between levels — and whether you're ready for the step up.</div>
+
+    <div class="mode-toggle">
+      <input type="radio" name="exploreMode" id="modeOne" value="one" checked onchange="setMode('one')">
+      <label for="modeOne">One Test</label>
+      <input type="radio" name="exploreMode" id="modeTwo" value="two" onchange="setMode('two')">
+      <label for="modeTwo">Compare Two</label>
+    </div>
+
+    <div class="test-selectors">
+      <div class="test-selector-wrap" id="selector1Wrap">
+        <div class="test-selector-label">Test</div>
+        <select id="testSelect1" onchange="onTestChange()">
+          <option value="">— Select a test —</option>
+        </select>
+      </div>
+      <div class="test-selector-wrap disabled" id="selector2Wrap">
+        <div class="test-selector-label">Second Test</div>
+        <select id="testSelect2" onchange="onTestChange()" disabled>
+          <option value="">— Select a test —</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPLORER PANELS -->
+  <div class="explorer-layout single" id="explorerLayout"></div>
+
+  <!-- ANALYSIS -->
+  <div class="analysis-card" id="analysisCard" style="display:none">
+    <div class="analysis-head">
+      <div>
+        <div class="analysis-title">Readiness Analysis</div>
+        <div class="analysis-sub" id="analysisSub">Flag movements you're still developing above, then get your coaching read</div>
+      </div>
+      <button class="btn-analyze" id="analyzeBtn" onclick="runAnalysis()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        Get Coaching Read
+      </button>
+    </div>
+    <div class="analysis-body" id="analysisBody">
+      <div class="analysis-empty">
+        <div class="analysis-empty-icon">📋</div>
+        <div class="analysis-empty-msg">Flag the movements you're still developing in the Assessment tab above — that's what the coaching analysis works from. Then tap Get Coaching Read.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────
+// TEST DATA — sourced from fei_test_database_complete.json
+// + comprehensive_dressage_test_database_with_coefficients.json
+// ─────────────────────────────────────────────────────
+const TEST_DATA = {
+
+  psg: {
+    label: 'Prix St. Georges', org: 'FEI', year: '2022/2026',
+    duration: '5:50', minAge: '7+', arena: '20×60', maxPoints: 340,
+    keyDiff: 'Introduction of half-pirouettes in canter (3–4 strides), 3-tempis and 4-tempis, half-pirouettes in walk.',
+    directives: [
+      { title: 'Regularity & Freedom', body: 'Pure, clear rhythm with engagement and elasticity in all gaits' },
+      { title: 'Collection & Self-Carriage', body: 'The horse carries itself; the rider\'s hand supports but does not hold the balance' },
+      { title: 'Impulsion', body: 'Stored energy that can be released into any movement; not speed' },
+      { title: 'Straightness', body: 'Hind feet track up on forefeet; no haunches trailing or shoulders escaping' },
+      { title: 'Submission', body: 'Willing, attentive, harmonious; jaw or neck tension reads immediately as resistance' },
+      { title: 'Harmony (collective ×2)', body: 'Cooperation, lightness, effectiveness, sensitivity of aids, adherence to training scale — the only doubled collective' },
+    ],
+    movementGroups: [
+      { label: 'Trot', color: '#2e5c82', movements: [
+        { text: 'Collected trot' }, { text: 'Medium trot' }, { text: 'Extended trot' },
+        { text: 'Shoulder-in' }, { text: 'Half-pass right', coeff: true }, { text: 'Half-pass left', coeff: true },
+        { text: '8m volte', newAt: true },
+      ]},
+      { label: 'Canter', color: '#3d6b46', movements: [
+        { text: 'Collected canter' }, { text: 'Extended canter' },
+        { text: 'Half-pass with flying changes' }, { text: 'Single flying changes' },
+        { text: '4-tempi changes × 5', newAt: true }, { text: '3-tempi changes × 5', newAt: true },
+        { text: 'Half-pirouette left (3–4 strides)', coeff: true, newAt: true },
+        { text: 'Half-pirouette right (3–4 strides)', coeff: true, newAt: true },
+        { text: 'Counter canter' },
+      ]},
+      { label: 'Walk', color: '#b8862a', movements: [
+        { text: 'Collected walk', coeff: true }, { text: 'Extended walk', coeff: true },
+        { text: 'Half-pirouette in walk left', newAt: true }, { text: 'Half-pirouette in walk right', newAt: true },
+      ]},
+      { label: 'Other', color: '#6b4f38', movements: [
+        { text: 'Halt — immobility' },
+      ]},
+    ],
+    coefficients: [
+      { movement: 'Trot half-pass right', badge: '×2', type: 'movement', why: 'Horse nearly parallel to long side, clear crossing, consistent bend. Each rein scored independently.' },
+      { movement: 'Trot half-pass left', badge: '×2', type: 'movement', why: 'Asymmetry between left and right is fully exposed — each rein stands alone.' },
+      { movement: 'Collected walk', badge: '×2', type: 'movement', why: 'Clear four-beat rhythm, self-carriage, suppleness through the back. Tension destroys it.' },
+      { movement: 'Extended walk', badge: '×2', type: 'movement', why: 'Maximum overstride with total freedom in the neck. Any restriction is penalized.' },
+      { movement: 'Half-pirouette left (canter)', badge: '×2', type: 'movement', why: 'New at PSG. 3–4 strides, energy upward, clear jump of canter maintained throughout.' },
+      { movement: 'Half-pirouette right (canter)', badge: '×2', type: 'movement', why: 'New at PSG. Each direction scored separately — the weaker rein has nowhere to hide.' },
+      { movement: 'Harmony', badge: '×2', type: 'collective', why: 'Cooperation, lightness, effectiveness, sensitivity of aids, adherence to training scale.' },
+    ],
+    assessItems: [
+      { id:'hp-tr', text:'Trot half-pass right', note:'Double coefficient · each rein scored independently', coeff:true },
+      { id:'hp-tl', text:'Trot half-pass left', note:'Double coefficient · asymmetry fully exposed', coeff:true },
+      { id:'cw',    text:'Collected walk', note:'Double coefficient · tension destroys the four-beat rhythm', coeff:true },
+      { id:'ew',    text:'Extended walk', note:'Double coefficient · maximum overstride; any restriction penalized', coeff:true },
+      { id:'hpl',   text:'Half-pirouette left (canter)', note:'Double coefficient · new at PSG · 3–4 strides; energy upward', coeff:true },
+      { id:'hpr',   text:'Half-pirouette right (canter)', note:'Double coefficient · new at PSG', coeff:true },
+      { id:'harm',  text:'Harmony (collective)', note:'Double coefficient · cooperation, lightness, aids sensitivity', coeff:true },
+      { id:'4t',    text:'4-tempi changes × 5', note:'New at PSG · straightness and rhythm matter as much as timing', coeff:false },
+      { id:'3t',    text:'3-tempi changes × 5', note:'New at PSG · loss of rhythm or straightness drops score quickly', coeff:false },
+      { id:'hpwl',  text:'Half-pirouette in walk left', note:'New at PSG · clear two-beat walk maintained throughout', coeff:false },
+      { id:'hpwr',  text:'Half-pirouette in walk right', note:'New at PSG', coeff:false },
+      { id:'hpc',   text:'Half-pass with flying changes (canter)', note:'Prompt change of bend; consistent angle and crossing', coeff:false },
+      { id:'sfc',   text:'Single flying changes', note:'Straightness and uphill tendency both scored', coeff:false },
+      { id:'8v',    text:'8m volte', note:'New at PSG · geometry matters; will bulge if over-size', coeff:false },
+      { id:'si',    text:'Shoulder-in', note:'30° / three tracks; not four-track overbending', coeff:false },
+      { id:'et',    text:'Extended trot', note:'Uphill tendency and clear return to collection both scored', coeff:false },
+      { id:'ec',    text:'Extended canter', note:'Return to collection is part of the picture', coeff:false },
+      { id:'halt',  text:'Halt — immobility', note:'Square halt, genuine immobility before moving off', coeff:false },
+    ]
+  },
+
+  inter_1: {
+    label: 'Intermediate I', org: 'FEI', year: '2023/2026',
+    duration: '5:30', minAge: '7+', arena: '20×60', maxPoints: 340,
+    keyDiff: 'Full pirouettes (6–8 strides) replace half-pirouettes. 2-tempis appear. Zigzag becomes a coefficient. Half-pirouettes in walk disappear. Rein back added.',
+    directives: [
+      { title: 'Regularity & Freedom', body: 'Pure, clear rhythm with engagement and elasticity in all gaits' },
+      { title: 'Collection & Self-Carriage', body: 'Higher degree of collection required; rein back tests obedience and suppleness' },
+      { title: 'Impulsion', body: 'Stored energy that powers the pirouettes and tempi changes; not rush or tension' },
+      { title: 'Straightness', body: 'Zigzag half-passes expose any lateral evasion — each change of direction must be crisp' },
+      { title: 'Submission', body: 'Willing, attentive, harmonious; pirouette quality reveals training depth' },
+      { title: 'Harmony (collective ×2)', body: 'Cooperation, lightness, effectiveness, sensitivity of aids, adherence to training scale' },
+    ],
+    movementGroups: [
+      { label: 'Trot', color: '#2e5c82', movements: [
+        { text: 'Collected trot' }, { text: 'Medium trot' }, { text: 'Extended trot' },
+        { text: 'Shoulder-in' },
+        { text: 'Half-pass right', coeff: true }, { text: 'Half-pass left', coeff: true },
+        { text: '8m volte' },
+      ]},
+      { label: 'Canter', color: '#3d6b46', movements: [
+        { text: 'Collected canter' }, { text: 'Extended canter' },
+        { text: 'Zigzag (3 half-passes × 5m, flying changes)', coeff: true, newAt: true },
+        { text: 'Single flying changes' },
+        { text: '3-tempi changes × 5' },
+        { text: '2-tempi changes × 7', newAt: true },
+        { text: 'Full pirouette left (6–8 strides)', coeff: true, newAt: true },
+        { text: 'Full pirouette right (6–8 strides)', coeff: true, newAt: true },
+      ]},
+      { label: 'Walk', color: '#b8862a', movements: [
+        { text: 'Collected walk', coeff: true }, { text: 'Extended walk', coeff: true },
+      ]},
+      { label: 'Other', color: '#6b4f38', movements: [
+        { text: 'Halt — immobility' }, { text: 'Rein back (5 steps)', newAt: true },
+      ]},
+    ],
+    coefficients: [
+      { movement: 'Trot half-pass right', badge: '×2', type: 'movement', why: 'Same as PSG — each rein scored independently; asymmetry is fully visible.' },
+      { movement: 'Trot half-pass left', badge: '×2', type: 'movement', why: 'Each rein stands alone — the harder direction cannot be hidden.' },
+      { movement: 'Collected walk', badge: '×2', type: 'movement', why: 'Clear four-beat rhythm, self-carriage, suppleness through the back.' },
+      { movement: 'Extended walk', badge: '×2', type: 'movement', why: 'Maximum overstride with total freedom. Any restriction is penalized.' },
+      { movement: 'Zigzag (canter)', badge: '×2', type: 'movement', why: 'New coefficient at Inter I. 3 half-passes with flying changes; prompt change of bend, consistent angle throughout.' },
+      { movement: 'Full pirouette left (canter)', badge: '×2', type: 'movement', why: 'New at Inter I. 6–8 strides; must maintain clear canter jump and collection throughout.' },
+      { movement: 'Full pirouette right (canter)', badge: '×2', type: 'movement', why: 'Each direction scored separately. The most technically demanding new movement at this level.' },
+      { movement: 'Harmony', badge: '×2', type: 'collective', why: 'Cooperation, lightness, effectiveness, sensitivity of aids, adherence to training scale.' },
+    ],
+    assessItems: [
+      { id:'hp-tr', text:'Trot half-pass right', note:'Double coefficient · each rein scored independently', coeff:true },
+      { id:'hp-tl', text:'Trot half-pass left', note:'Double coefficient · asymmetry fully exposed', coeff:true },
+      { id:'cw',    text:'Collected walk', note:'Double coefficient', coeff:true },
+      { id:'ew',    text:'Extended walk', note:'Double coefficient · maximum overstride; any restriction penalized', coeff:true },
+      { id:'zig',   text:'Zigzag (3 half-passes, flying changes)', note:'Double coefficient · new at Inter I · prompt change of bend each direction', coeff:true },
+      { id:'pirl',  text:'Full pirouette left (6–8 strides)', note:'Double coefficient · new at Inter I · must maintain canter jump', coeff:true },
+      { id:'pirr',  text:'Full pirouette right (6–8 strides)', note:'Double coefficient · new at Inter I · most demanding new movement', coeff:true },
+      { id:'harm',  text:'Harmony (collective)', note:'Double coefficient', coeff:true },
+      { id:'2t',    text:'2-tempi changes × 7', note:'New at Inter I · rhythm and straightness across 7 changes', coeff:false },
+      { id:'3t',    text:'3-tempi changes × 5', note:'Carried forward from PSG · must now be more confirmed', coeff:false },
+      { id:'sfc',   text:'Single flying changes', note:'Straightness and uphill tendency both scored', coeff:false },
+      { id:'8v',    text:'8m volte', note:'Carried from PSG; geometry and rhythm', coeff:false },
+      { id:'si',    text:'Shoulder-in', note:'30° / three tracks', coeff:false },
+      { id:'et',    text:'Extended trot', note:'Uphill tendency; clear return to collection', coeff:false },
+      { id:'ec',    text:'Extended canter', note:'Return to collection is part of the picture', coeff:false },
+      { id:'rb',    text:'Rein back (5 steps)', note:'New at Inter I · 5 clean steps back, straight, willing', coeff:false },
+      { id:'halt',  text:'Halt — immobility', note:'Square halt, genuine immobility', coeff:false },
+    ]
+  }
+};
+
+// Full test list for dropdowns
+const ALL_TESTS = [
+  { value: '', label: '— Select a test —' },
+  { value: 'intro_a', label: 'Intro — Test A' }, { value: 'intro_b', label: 'Intro — Test B' }, { value: 'intro_c', label: 'Intro — Test C' },
+  { value: 'training_1', label: 'Training Level — Test 1' }, { value: 'training_2', label: 'Training Level — Test 2' }, { value: 'training_3', label: 'Training Level — Test 3' },
+  { value: 'first_1', label: 'First Level — Test 1' }, { value: 'first_2', label: 'First Level — Test 2' }, { value: 'first_3', label: 'First Level — Test 3' },
+  { value: 'second_1', label: 'Second Level — Test 1' }, { value: 'second_2', label: 'Second Level — Test 2' }, { value: 'second_3', label: 'Second Level — Test 3' },
+  { value: 'third_1', label: 'Third Level — Test 1' }, { value: 'third_2', label: 'Third Level — Test 2' }, { value: 'third_3', label: 'Third Level — Test 3' },
+  { value: 'fourth_1', label: 'Fourth Level — Test 1' }, { value: 'fourth_2', label: 'Fourth Level — Test 2' }, { value: 'fourth_3', label: 'Fourth Level — Test 3' },
+  { value: 'psg', label: 'FEI — Prix St. Georges' },
+  { value: 'inter_1', label: 'FEI — Intermediate I' },
+  { value: 'inter_2', label: 'FEI — Intermediate II' },
+  { value: 'grand_prix', label: 'FEI — Grand Prix' },
+  { value: 'gp_special', label: 'FEI — Grand Prix Special' },
+];
+
+// ── STATE ──────────────────────────────────────────
+// devState[testKey][itemId] = boolean (true = still developing)
+const devState = {};
+let activeMode = 'one';
+let activePanelTab = { test1: 'movements', test2: 'movements' };
+
+// ── INIT ───────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  populateSelects();
+});
+
+function populateSelects() {
+  [document.getElementById('testSelect1'), document.getElementById('testSelect2')].forEach(sel => {
+    ALL_TESTS.forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t.value; opt.textContent = t.label;
+      sel.appendChild(opt);
+    });
+  });
+}
+
+function setMode(mode) {
+  activeMode = mode;
+  const wrap2 = document.getElementById('selector2Wrap');
+  const sel2  = document.getElementById('testSelect2');
+  if (mode === 'two') {
+    wrap2.classList.remove('disabled');
+    sel2.disabled = false;
+  } else {
+    wrap2.classList.add('disabled');
+    sel2.disabled = true;
+    sel2.value = '';
+  }
+  onTestChange();
+}
+
+function onTestChange() {
+  const t1 = document.getElementById('testSelect1').value;
+  const t2 = activeMode === 'two' ? document.getElementById('testSelect2').value : '';
+  renderPanels(t1, t2);
+}
+
+// ── RENDER PANELS ──────────────────────────────────
+function renderPanels(t1key, t2key) {
+  const layout = document.getElementById('explorerLayout');
+  const analysisCard = document.getElementById('analysisCard');
+  layout.innerHTML = '';
+
+  if (!t1key && !t2key) {
+    layout.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--ink-light);font-size:13px">Select a test above to begin exploring.</div>`;
+    analysisCard.style.display = 'none';
+    return;
+  }
+
+  const isCompare = !!(t1key && t2key);
+  layout.className = 'explorer-layout ' + (isCompare ? 'compare' : 'single');
+
+  if (t1key) layout.appendChild(buildPanel(t1key, 'test1', isCompare ? 'Test 1' : null));
+  if (t2key) layout.appendChild(buildPanel(t2key, 'test2', 'Test 2'));
+
+  analysisCard.style.display = 'block';
+
+  // update sub copy
+  const sub = document.getElementById('analysisSub');
+  sub.textContent = isCompare
+    ? 'Flag movements you\'re still developing in each Assessment tab — the analysis will compare your readiness for both tests'
+    : 'Flag the movements you\'re still developing in the Assessment tab — then get an honest coaching read on where you stand';
+
+  // reset analysis
+  document.getElementById('analysisBody').innerHTML = `
+    <div class="analysis-empty">
+      <div class="analysis-empty-icon">📋</div>
+      <div class="analysis-empty-msg">Flag the movements you're still developing in the Assessment tab above — that's what the coaching analysis works from. Then tap Get Coaching Read.</div>
+    </div>`;
+}
+
+function buildPanel(testKey, panelId, label) {
+  const data = TEST_DATA[testKey];
+  if (!devState[testKey]) devState[testKey] = {};
+
+  const div = document.createElement('div');
+  div.className = 'test-panel';
+  div.id = 'panel-' + panelId;
+
+  const testLabel = ALL_TESTS.find(t => t.value === testKey)?.label || testKey;
+
+  div.innerHTML = `
+    <div class="panel-head">
+      ${label ? `<div class="panel-eyebrow">${label}</div>` : ''}
+      <div class="panel-title">${data ? data.label : testLabel}</div>
+      <div class="panel-org">${data ? `${data.org} · ${data.year}` : 'Full data coming soon'}</div>
+    </div>
+    ${data ? `
+    <div class="meta-grid">
+      <div class="meta-cell"><div class="meta-val">${data.duration}</div><div class="meta-key">Duration</div></div>
+      <div class="meta-cell"><div class="meta-val">${data.minAge}</div><div class="meta-key">Min Age</div></div>
+      <div class="meta-cell"><div class="meta-val">${data.arena}</div><div class="meta-key">Arena</div></div>
+      <div class="meta-cell"><div class="meta-val">${data.maxPoints}</div><div class="meta-key">Max Pts</div></div>
+    </div>` : ''}
+    <div class="panel-tabs">
+      <button class="panel-tab ${activePanelTab[panelId]==='directives'?'active':''}" onclick="switchPanelTab('${panelId}','directives',this)">Directives</button>
+      <button class="panel-tab ${activePanelTab[panelId]==='movements'?'active':''}" onclick="switchPanelTab('${panelId}','movements',this)">Movements</button>
+      <button class="panel-tab ${activePanelTab[panelId]==='coefficients'?'active':''}" onclick="switchPanelTab('${panelId}','coefficients',this)">Coefficients</button>
+      <button class="panel-tab ${activePanelTab[panelId]==='assessment'?'active':''}" onclick="switchPanelTab('${panelId}','assessment',this)">Assessment</button>
+    </div>
+    <div class="panel-tab-content ${activePanelTab[panelId]==='directives'?'active':''}" id="${panelId}-directives">
+      ${data ? buildDirectivesHTML(data) : noDataHTML()}
+    </div>
+    <div class="panel-tab-content ${activePanelTab[panelId]==='movements'?'active':''}" id="${panelId}-movements">
+      ${data ? buildMovementsHTML(data) : noDataHTML()}
+    </div>
+    <div class="panel-tab-content ${activePanelTab[panelId]==='coefficients'?'active':''}" id="${panelId}-coefficients">
+      ${data ? buildCoefficientsHTML(data) : noDataHTML()}
+    </div>
+    <div class="panel-tab-content ${activePanelTab[panelId]==='assessment'?'active':''}" id="${panelId}-assessment">
+      ${data ? buildAssessmentHTML(data, testKey, panelId) : noDataHTML()}
+    </div>`;
+
+  return div;
+}
+
+function noDataHTML() {
+  return `<div style="padding:20px;font-size:12.5px;color:var(--ink-light);font-style:italic">Full movement data for this test will be available in the next database update. PSG and Inter I have complete data today.</div>`;
+}
+
+function buildDirectivesHTML(data) {
+  let html = data.directives.map(d =>
+    `<div class="directive"><strong>${d.title}</strong> — ${d.body}</div>`
+  ).join('');
+  if (data.keyDiff) {
+    html += `<div style="margin-top:14px;padding:10px 14px;background:var(--mental-bg);border-left:3px solid var(--mental-color);border-radius:0 6px 6px 0;font-size:11.5px;color:var(--mental-color);line-height:1.55">
+      <strong style="color:var(--mental-color)">What's new at this level:</strong> ${data.keyDiff}
+    </div>`;
+  }
+  return html;
+}
+
+function buildMovementsHTML(data) {
+  return data.movementGroups.map(g => `
+    <div class="mov-group">
+      <div class="mov-group-head"><div class="mov-dot" style="background:${g.color}"></div><div class="mov-label">${g.label}</div></div>
+      <div class="mov-items">${g.movements.map(m =>
+        `<span class="mov-chip${m.coeff?' coeff':''}${m.newAt?' new-at':''}">${m.text}</span>`
+      ).join('')}</div>
+    </div>`).join('') +
+    `<div class="mov-note"><span style="color:var(--mental-color);font-weight:600">Blue chips</span> = new at this level &nbsp;·&nbsp; <span style="color:var(--tech-color);font-weight:600">Rust chips ×2</span> = double coefficient</div>`;
+}
+
+function buildCoefficientsHTML(data) {
+  return `<table class="coeff-table">
+    <thead><tr><th>Movement</th><th style="width:48px;text-align:center">Coeff</th><th>Why It Matters</th></tr></thead>
+    <tbody>${data.coefficients.map(c =>
+      `<tr><td>${c.movement}</td><td style="text-align:center"><span class="coeff-badge${c.type==='collective'?' collective':''}">${c.badge}</span></td><td>${c.why}</td></tr>`
+    ).join('')}</tbody></table>
+    <div style="margin-top:12px;font-size:11px;color:var(--ink-light);font-style:italic">Verify against the current official test sheet before competing.</div>`;
+}
+
+function buildAssessmentHTML(data, testKey, panelId) {
+  const devs = devState[testKey] || {};
+  const total = data.assessItems.length;
+  const developing = data.assessItems.filter(i => devs[i.id]).length;
+  const solid = total - developing;
+  const pct = Math.round((solid / total) * 100);
+
+  return `<div class="assess-intro">Check the movements you're still developing — not the ones you're worried about for a show, but the ones that aren't yet solid in training.</div>
+    ${data.assessItems.map(item => `
+      <div class="assess-row${devs[item.id]?' developing':''}" id="${panelId}-${item.id}" onclick="toggleDev('${testKey}','${panelId}','${item.id}')">
+        <div class="assess-check">${devs[item.id]?'✓':''}</div>
+        <div>
+          <div class="assess-text">${item.text}${item.coeff?' <span style="font-size:9px;color:var(--tech-color);font-weight:700;margin-left:3px">×2</span>':''}</div>
+          <div class="assess-note">${item.note}</div>
+        </div>
+      </div>`).join('')}
+    <div class="readiness-bar-wrap">
+      <div class="readiness-label">
+        <span>Preparedness indicator</span>
+        <span id="${panelId}-pct">${pct}%</span>
+      </div>
+      <div class="readiness-track"><div class="readiness-fill" id="${panelId}-fill" style="width:${pct}%"></div></div>
+    </div>`;
+}
+
+// ── TAB SWITCHING ──────────────────────────────────
+function switchPanelTab(panelId, tabName, btn) {
+  activePanelTab[panelId] = tabName;
+  const panel = document.getElementById('panel-' + panelId);
+  panel.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+  panel.querySelectorAll('.panel-tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  panel.querySelector(`#${panelId}-${tabName}`)?.classList.add('active');
+}
+
+// ── TOGGLE DEVELOPING ──────────────────────────────
+function toggleDev(testKey, panelId, itemId) {
+  if (!devState[testKey]) devState[testKey] = {};
+  devState[testKey][itemId] = !devState[testKey][itemId];
+
+  const row = document.getElementById(`${panelId}-${itemId}`);
+  const check = row?.querySelector('.assess-check');
+  if (row) {
+    row.classList.toggle('developing', devState[testKey][itemId]);
+    if (check) check.innerHTML = devState[testKey][itemId] ? '✓' : '';
+  }
+  updateReadinessBar(testKey, panelId);
+}
+
+function updateReadinessBar(testKey, panelId) {
+  const data = TEST_DATA[testKey];
+  if (!data) return;
+  const devs = devState[testKey] || {};
+  const total = data.assessItems.length;
+  const developing = data.assessItems.filter(i => devs[i.id]).length;
+  const pct = Math.round(((total - developing) / total) * 100);
+  const fill = document.getElementById(`${panelId}-fill`);
+  const pctEl = document.getElementById(`${panelId}-pct`);
+  if (fill) fill.style.width = pct + '%';
+  if (pctEl) pctEl.textContent = pct + '%';
+}
+
+// ── ANALYSIS ──────────────────────────────────────
+async function runAnalysis() {
+  const t1key = document.getElementById('testSelect1').value;
+  const t2key = activeMode === 'two' ? document.getElementById('testSelect2').value : '';
+  const btn = document.getElementById('analyzeBtn');
+
+  btn.disabled = true;
+  document.getElementById('analysisBody').innerHTML = `
+    <div class="analysis-loading">
+      <div class="spinner"></div>
+      <span>Analyzing your flagged movements…</span>
+    </div>`;
+
+  try {
+    const prompt = buildPrompt(t1key, t2key);
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `You are the Classical Master coaching voice for Your Dressage Journey, an AI dressage coaching platform for adult amateur riders. Your voice is precise, pithy, and honest — "Why not the first time?" is your ethos. You respect the rider's intelligence. You do not over-praise, but you are never discouraging. You speak in complete sentences, never bullet points. Keep your entire response under 350 words total. If comparing two tests, use one paragraph per test then a brief comparative paragraph. Do not use headers or labels. Do not mention that you are an AI.`,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await response.json();
+    const text = data.content?.find(b => b.type === 'text')?.text || '';
+    renderAnalysis(t1key, t2key, text);
+  } catch (err) {
+    document.getElementById('analysisBody').innerHTML = `
+      <div class="analysis-empty">
+        <div class="analysis-empty-icon">⚠️</div>
+        <div class="analysis-empty-msg">Couldn't reach the coaching API right now. Check your connection and try again.</div>
+      </div>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function buildPrompt(t1key, t2key) {
+  const t1data = TEST_DATA[t1key];
+  const t1devs = t1data ? t1data.assessItems.filter(i => devState[t1key]?.[i.id]) : [];
+  const t1coeffDevs = t1devs.filter(i => i.coeff);
+  const t1total = t1data?.assessItems.length || 0;
+  const t1solid = t1total - t1devs.length;
+
+  let prompt = `A dressage rider is exploring the ${t1data?.label || t1key} test. `;
+  prompt += `The test has ${t1total} scored movements/collectives. `;
+  prompt += `The rider has marked ${t1devs.length} as still developing (${t1solid} feel solid). `;
+
+  if (t1devs.length > 0) {
+    prompt += `Movements still developing: ${t1devs.map(i => i.text + (i.coeff ? ' [DOUBLE COEFFICIENT]' : '')).join(', ')}. `;
+  } else {
+    prompt += `The rider has marked no movements as developing — either they are very well prepared or have not yet completed the assessment. `;
+  }
+  if (t1coeffDevs.length > 0) {
+    prompt += `Note: ${t1coeffDevs.length} of the developing movements are double-coefficient, meaning they are worth twice the normal score. `;
+  }
+
+  if (t2key) {
+    const t2data = TEST_DATA[t2key];
+    const t2devs = t2data ? t2data.assessItems.filter(i => devState[t2key]?.[i.id]) : [];
+    const t2coeffDevs = t2devs.filter(i => i.coeff);
+    const t2total = t2data?.assessItems.length || 0;
+    const t2solid = t2total - t2devs.length;
+
+    prompt += `\n\nThe rider is also exploring ${t2data?.label || t2key}. `;
+    prompt += `That test has ${t2total} scored movements. `;
+    prompt += `${t2devs.length} are marked as developing (${t2solid} feel solid). `;
+    if (t2devs.length > 0) {
+      prompt += `Movements still developing: ${t2devs.map(i => i.text + (i.coeff ? ' [DOUBLE COEFFICIENT]' : '')).join(', ')}. `;
+    }
+    if (t2coeffDevs.length > 0) {
+      prompt += `${t2coeffDevs.length} of the developing movements are double-coefficient. `;
+    }
+    prompt += `\n\nGive the rider an honest read of their preparedness for each test, with specific attention to the double-coefficient movements they've flagged. Then offer a brief, direct comparison of which test they appear more ready for and why. Do not soften the comparison.`;
+  } else {
+    prompt += `\n\nGive the rider an honest read of their preparedness for this test. Lead with the double-coefficient movements if any are flagged — those are the highest-leverage focus areas. Be direct about what the gaps mean for their score.`;
+  }
+
+  return prompt;
+}
+
+function renderAnalysis(t1key, t2key, coachingText) {
+  const t1data = TEST_DATA[t1key];
+  const t2data = t2key ? TEST_DATA[t2key] : null;
+  const isCompare = !!(t1key && t2key);
+
+  // calc stats
+  function stats(testKey, data) {
+    if (!data) return { total:0, solid:0, dev:0, coeffDev:0, pct:0 };
+    const devs = data.assessItems.filter(i => devState[testKey]?.[i.id]);
+    const coeffDev = devs.filter(i => i.coeff);
+    const total = data.assessItems.length;
+    return { total, dev: devs.length, solid: total - devs.length, coeffDev: coeffDev.length, pct: Math.round(((total - devs.length) / total) * 100) };
+  }
+  const s1 = stats(t1key, t1data);
+  const s2 = t2key ? stats(t2key, t2data) : null;
+
+  // chart data by category if compare
+  function catStats(testKey, data) {
+    if (!data) return {};
+    const cats = {};
+    data.movementGroups.forEach(g => {
+      const catItems = data.assessItems.filter(i =>
+        g.movements.some(m => i.text.toLowerCase().includes(m.text.toLowerCase().split(' ')[0]))
+      );
+      if (catItems.length) {
+        const dev = catItems.filter(i => devState[testKey]?.[i.id]).length;
+        cats[g.label] = { total: catItems.length, dev, pct: Math.round(((catItems.length - dev) / catItems.length) * 100) };
+      }
+    });
+    return cats;
+  }
+
+  let html = '';
+
+  // readiness stats row
+  if (isCompare) {
+    html += `<div class="readiness-summary">
+      <div class="readiness-stat">
+        <div class="readiness-stat-num">${s1.pct}%</div>
+        <div class="readiness-stat-label">${t1data?.label || t1key}</div>
+        ${s1.coeffDev > 0 ? `<div class="readiness-stat-sub">${s1.coeffDev} coeff. developing</div>` : ''}
+      </div>
+      <div class="readiness-stat">
+        <div class="readiness-stat-num">${s2.pct}%</div>
+        <div class="readiness-stat-label">${t2data?.label || t2key}</div>
+        ${s2.coeffDev > 0 ? `<div class="readiness-stat-sub">${s2.coeffDev} coeff. developing</div>` : ''}
+      </div>
+    </div>`;
+  } else {
+    html += `<div class="readiness-summary">
+      <div class="readiness-stat">
+        <div class="readiness-stat-num">${s1.pct}%</div>
+        <div class="readiness-stat-label">Movements solid</div>
+        ${s1.coeffDev > 0 ? `<div class="readiness-stat-sub">${s1.coeffDev} coefficient movement${s1.coeffDev>1?'s':''} still developing</div>` : ''}
+      </div>
+      <div class="readiness-stat">
+        <div class="readiness-stat-num">${s1.solid}</div>
+        <div class="readiness-stat-label">Solid of ${s1.total}</div>
+      </div>
+      <div class="readiness-stat">
+        <div class="readiness-stat-num">${s1.dev}</div>
+        <div class="readiness-stat-label">Still developing</div>
+      </div>
+    </div>`;
+  }
+
+  // coaching text
+  html += `<div class="coaching-output${isCompare?' compare':''}">
+    <div class="coaching-block">
+      <div class="coaching-block-title">
+        Coaching Read
+        ${isCompare && t1data ? `<span class="coaching-test-badge">${t1data.label}</span>` : ''}
+      </div>
+      <div class="coaching-text">${coachingText}</div>
+      <div class="coaching-voice-attr">— The Classical Master, Your Dressage Journey</div>
+    </div>`;
+
+  // comparison chart
+  if (isCompare && t1data && t2data) {
+    const cats1 = catStats(t1key, t1data);
+    const cats2 = catStats(t2key, t2data);
+    const allCats = [...new Set([...Object.keys(cats1), ...Object.keys(cats2)])];
+
+    html += `<div class="comparison-block">
+      <div class="comparison-title">Preparedness by Category</div>
+      <div class="chart-legend">
+        <div class="chart-legend-item"><div class="chart-legend-swatch t1"></div>${t1data.label}</div>
+        <div class="chart-legend-item"><div class="chart-legend-swatch t2"></div>${t2data.label}</div>
+      </div>
+      ${allCats.map(cat => {
+        const c1 = cats1[cat];
+        const c2 = cats2[cat];
+        return `<div class="chart-row">
+          <div class="chart-row-label">${cat}</div>
+          <div class="chart-bars">
+            ${c1 ? `<div class="chart-bar-wrap">
+              <div class="chart-bar-track"><div class="chart-bar-fill t1" style="width:${c1.pct}%"></div></div>
+              <div class="chart-bar-pct">${c1.pct}%</div>
+            </div>` : '<div class="chart-bar-wrap"><div class="chart-bar-track"></div><div class="chart-bar-pct">—</div></div>'}
+            ${c2 ? `<div class="chart-bar-wrap">
+              <div class="chart-bar-track"><div class="chart-bar-fill t2" style="width:${c2.pct}%"></div></div>
+              <div class="chart-bar-pct">${c2.pct}%</div>
+            </div>` : '<div class="chart-bar-wrap"><div class="chart-bar-track"></div><div class="chart-bar-pct">—</div></div>'}
+          </div>
+        </div>`;
+      }).join('')}
+      <div class="chart-footer">Bar length = % of movements the rider considers solid in that category. Based on self-assessment only.</div>
+    </div>`;
+  }
+
+  html += '</div>';
+
+  document.getElementById('analysisBody').innerHTML = html;
+}
+</script>
+</body>
+</html>

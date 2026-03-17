@@ -8,6 +8,7 @@ import {
   BODY_PARTS,
   KINESTHETIC_DESCRIPTIONS
 } from '../../services';
+import useFormRecovery from '../../hooks/useFormRecovery';
 import FormSection from '../Forms/FormSection';
 import FormField from '../Forms/FormField';
 import RadioGroup from '../Forms/RadioGroup';
@@ -43,6 +44,7 @@ export default function PhysicalAssessmentForm() {
   const isEdit = Boolean(id);
 
   const textareaRefs = useRef({});
+  const [draftId, setDraftId] = useState(null);
 
   const [formData, setFormData] = useState({
     occupation: '',
@@ -62,6 +64,10 @@ export default function PhysicalAssessmentForm() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
+
+  const { hasRecovery, applyRecovery, dismissRecovery, clearRecovery } = useFormRecovery(
+    'ydj-physical-assessment-recovery', formData, setFormData
+  );
 
   // Pelvic Clock state (separate from formData since it's optional/nested)
   const [pelvicData, setPelvicData] = useState({ ...INITIAL_PELVIC_DATA });
@@ -261,15 +267,18 @@ export default function PhysicalAssessmentForm() {
     };
 
     let result;
-    if (isEdit) {
-      result = await updatePhysicalAssessment(id, data);
+    const existingId = isEdit ? id : draftId;
+    if (existingId) {
+      result = await updatePhysicalAssessment(existingId, data);
     } else {
       result = await createPhysicalAssessment(currentUser.uid, data);
+      if (result.success && result.id) setDraftId(result.id);
     }
 
     setLoading(false);
 
     if (result.success) {
+      clearRecovery();
       navigate('/physical-assessments');
     } else {
       setErrors({ submit: result.error });
@@ -290,6 +299,18 @@ export default function PhysicalAssessmentForm() {
       <form onSubmit={handleSubmit} autoComplete="off">
         <div className="form-card">
           {errors.submit && <div className="form-section"><div className="form-alert form-alert-error">{errors.submit}</div></div>}
+
+          {hasRecovery && (
+            <div className="form-section">
+              <div className="form-alert form-alert-info" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <span>You have unsaved data from a previous session. Would you like to restore it?</span>
+                <span style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button type="button" className="btn btn-primary" style={{ fontSize: '0.85rem', padding: '0.35rem 0.75rem' }} onClick={applyRecovery}>Restore</button>
+                  <button type="button" className="btn btn-secondary" style={{ fontSize: '0.85rem', padding: '0.35rem 0.75rem' }} onClick={dismissRecovery}>Dismiss</button>
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Section 1: Physical Profile */}
           <FormSection title="Your Physical Profile" description="Understanding your body's strengths and challenges.">

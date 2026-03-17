@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Dressage Journey — Show Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --parchment:      #f5ede0;
+  --parchment-dark: #e8d9c4;
+  --parchment-mid:  #ede1ce;
+  --parchment-off:  #faf6f0;
+  --ink:            #2c1f14;
+  --ink-mid:        #4a3220;
+  --ink-light:      #6b4f38;
+  --gold:           #b8862a;
+  --gold-light:     #d4a84b;
+  --gold-pale:      #f0d89a;
+  --track:          #8b6340;
+  --rust:           #7a3020;
+  --forest:         #2a4a30;
+  --forest-light:   #3d6b46;
+  --done:           #3d6b46;
+  --done-bg:        rgba(61,107,70,0.10);
+  --tech-color:    #7a3020;
+  --tech-bg:       rgba(122,48,32,0.06);
+  --tech-border:   rgba(122,48,32,0.22);
+  --mental-color:  #2e5c82;
+  --mental-bg:     rgba(46,92,130,0.06);
+  --mental-border: rgba(46,92,130,0.22);
+  --body-color:    #2a4a30;
+  --body-bg:       rgba(42,74,48,0.06);
+  --body-border:   rgba(42,74,48,0.22);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Work Sans',sans-serif;background:var(--parchment);color:var(--ink);min-height:100vh;line-height:1.5}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:0}
+
+/* NAV */
+.top-nav{position:sticky;top:0;z-index:100;background:var(--ink);border-bottom:2px solid var(--gold);padding:0 1rem;display:flex;align-items:center;overflow-x:auto;scrollbar-width:none}
+.top-nav::-webkit-scrollbar{display:none}
+.nav-brand{font-family:'Playfair Display',serif;font-size:.88rem;font-weight:700;color:var(--gold-light);white-space:nowrap;flex-shrink:0;padding:.8rem .9rem .8rem 0;margin-right:.5rem;border-right:1px solid rgba(255,255,255,.12)}
+.nav-back{font-size:.72rem;font-weight:500;letter-spacing:.35px;color:rgba(255,255,255,.55);padding:.8rem .65rem;border:none;background:none;cursor:pointer;white-space:nowrap;text-transform:uppercase;transition:color .15s}
+.nav-back:hover{color:var(--gold-light)}
+.nav-title{font-family:'Playfair Display',serif;font-size:.82rem;color:white;padding:.8rem .65rem;opacity:.9;white-space:nowrap}
+
+/* PAGE */
+.page{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:32px 20px 100px}
+
+/* HERO */
+.show-hero{background:linear-gradient(135deg,#3a1a0e 0%,#5c2d1a 60%,#7a3020 100%);border-radius:16px;padding:28px 32px;margin-bottom:28px;position:relative;overflow:hidden;animation:fadeUp .4s ease both}
+.show-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 50%,rgba(212,168,75,.12) 0%,transparent 70%)}
+.show-hero::after{content:'';position:absolute;right:-20px;top:-20px;width:180px;height:180px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='none' stroke='rgba(212,168,75,0.08)' stroke-width='1.5'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='rgba(212,168,75,0.06)' stroke-width='1'/%3E%3Ccircle cx='50' cy='50' r='20' fill='none' stroke='rgba(212,168,75,0.04)' stroke-width='1'/%3E%3C/svg%3E");background-size:contain;opacity:.8}
+.hero-eyebrow{font-size:10px;font-weight:700;letter-spacing:3px;color:rgba(212,168,75,.7);text-transform:uppercase;margin-bottom:8px;position:relative}
+.hero-title{font-family:'Playfair Display',serif;font-size:clamp(22px,5vw,32px);font-weight:700;color:white;line-height:1.2;margin-bottom:6px;position:relative}
+.hero-horse{font-size:13px;color:rgba(255,255,255,.6);margin-bottom:18px;position:relative}
+.hero-horse strong{color:rgba(212,168,75,.85);font-weight:600}
+.countdown-row{display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap;position:relative}
+.countdown-block{text-align:center}
+.countdown-num{font-family:'Playfair Display',serif;font-size:44px;font-weight:700;color:white;line-height:1}
+.countdown-label{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-top:3px}
+.countdown-divider{width:1px;height:50px;background:rgba(255,255,255,.15);align-self:center}
+.weeks-row{display:flex;gap:6px;flex-wrap:wrap}
+.week-chip{font-size:10px;font-weight:600;letter-spacing:1px;padding:5px 12px;border-radius:20px;cursor:pointer;border:1.5px solid rgba(255,255,255,.2);color:rgba(255,255,255,.55);background:transparent;transition:all .18s;text-transform:uppercase;white-space:nowrap;font-family:'Work Sans',sans-serif}
+.week-chip:hover{border-color:rgba(212,168,75,.5);color:rgba(212,168,75,.8)}
+.week-chip.active{background:var(--gold);border-color:var(--gold);color:white}
+
+/* WEEK HEADER */
+.week-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:10px}
+.week-heading{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--ink)}
+.week-subheading{font-size:12px;color:var(--ink-light);margin-top:2px}
+.week-progress-bar{max-width:160px;width:100%;height:6px;background:var(--parchment-dark);border-radius:3px;overflow:hidden}
+.week-progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));border-radius:3px;transition:width .5s ease}
+
+/* REORDER HINT */
+.reorder-hint{font-size:11px;color:var(--ink-light);margin-bottom:14px;margin-top:6px;display:flex;align-items:center;gap:6px;opacity:.65;user-select:none}
+
+/* SECTION BLOCK */
+.sections-wrapper{display:flex;flex-direction:column;gap:18px}
+.section-block{border-radius:16px;overflow:hidden;border:1.5px solid var(--parchment-dark);background:white;transition:box-shadow .25s,opacity .2s,border-color .2s}
+.section-block.drag-over{border-color:var(--gold-light);box-shadow:0 0 0 2px rgba(184,134,42,.25)}
+.section-block.dragging{opacity:.4;box-shadow:0 8px 32px rgba(44,31,20,.18)}
+
+/* SECTION DRAG HEADER */
+.section-drag-header{display:flex;align-items:center;gap:10px;padding:13px 16px 12px;border-bottom:1.5px solid var(--parchment-dark);cursor:grab;user-select:none}
+.section-drag-header:active{cursor:grabbing}
+.drag-grip{font-size:16px;color:var(--parchment-dark);transition:color .2s;flex-shrink:0;line-height:1;letter-spacing:0}
+.section-drag-header:hover .drag-grip{color:var(--track)}
+.section-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dot-tech{background:var(--tech-color)}
+.dot-mental{background:var(--mental-color)}
+.dot-body{background:var(--body-color)}
+.section-label{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase}
+.label-sec-tech{color:var(--tech-color)}
+.label-sec-mental{color:var(--mental-color)}
+.label-sec-body{color:var(--body-color)}
+.section-count{margin-left:auto;font-size:11px;color:var(--ink-light);background:var(--parchment-dark);padding:2px 8px;border-radius:10px}
+.section-collapse-btn{width:26px;height:26px;border-radius:50%;border:none;background:transparent;cursor:pointer;font-size:11px;color:var(--ink-light);display:flex;align-items:center;justify-content:center;transition:background .2s;flex-shrink:0}
+.section-collapse-btn:hover{background:var(--parchment-dark)}
+.section-items{padding:14px 14px 16px;display:flex;flex-direction:column;gap:12px}
+.section-items.collapsed{display:none}
+
+/* ITEM CARD */
+.item-card{border-radius:12px;overflow:hidden;border:1.5px solid var(--parchment-dark);transition:box-shadow .25s,opacity .3s,border-color .2s;background:var(--parchment-off)}
+.item-card.pinned{border-color:var(--gold-light);box-shadow:0 2px 14px rgba(184,134,42,.18)}
+.item-card.checked{opacity:.5}
+.item-card.checked .item-title{text-decoration:line-through;opacity:.6}
+.done-stripe{height:3px;background:linear-gradient(90deg,var(--forest-light),transparent);opacity:0;transition:opacity .3s}
+.item-card.checked .done-stripe{opacity:1}
+.item-header{display:flex;align-items:center;gap:10px;padding:11px 14px 10px;background:white;cursor:pointer;user-select:none;border-bottom:1px solid var(--parchment-dark)}
+.item-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.icon-tech{background:var(--tech-bg)}
+.icon-mental{background:var(--mental-bg)}
+.icon-body{background:var(--body-bg)}
+.item-title-block{flex:1;min-width:0}
+.item-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:2px}
+.label-tech{color:var(--tech-color)}
+.label-mental{color:var(--mental-color)}
+.label-body{color:var(--body-color)}
+.item-title{font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:var(--ink);line-height:1.3}
+.item-actions{display:flex;gap:3px;align-items:center;flex-shrink:0}
+.pin-btn,.check-btn{width:28px;height:28px;border-radius:50%;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:background .2s,transform .15s;color:var(--ink-light)}
+.pin-btn:hover{background:rgba(184,134,42,.10)}
+.check-btn:hover{background:var(--done-bg)}
+.pin-btn.active{color:var(--gold);transform:rotate(-45deg)}
+.check-btn.active{color:var(--done)}
+.item-body{padding:14px 14px 12px}
+.item-body.collapsed{display:none}
+.item-text{font-size:13.5px;line-height:1.7;color:var(--ink-mid);margin-bottom:12px}
+.item-text strong{color:var(--ink);font-weight:600}
+.item-cue{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;border-radius:8px;margin-bottom:10px;font-size:12.5px;line-height:1.55}
+.cue-tech{background:var(--tech-bg);border-left:3px solid var(--tech-color)}
+.cue-mental{background:var(--mental-bg);border-left:3px solid var(--mental-color)}
+.cue-body{background:var(--body-bg);border-left:3px solid var(--body-color)}
+.cue-icon{font-size:13px;margin-top:1px;flex-shrink:0}
+
+/* LOG PRACTICE BUTTON */
+.log-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:10px}
+.log-btn{display:inline-flex;align-items:center;gap:6px;font-family:'Work Sans',sans-serif;font-size:11.5px;font-weight:600;padding:6px 14px;border-radius:20px;cursor:pointer;border:1.5px solid;transition:all .2s}
+.log-btn-tech{background:var(--tech-bg);color:var(--tech-color);border-color:var(--tech-border)}
+.log-btn-mental{background:var(--mental-bg);color:var(--mental-color);border-color:var(--mental-border)}
+.log-btn-body{background:var(--body-bg);color:var(--body-color);border-color:var(--body-border)}
+.log-btn:not(.logged):hover{filter:brightness(.92);transform:translateY(-1px)}
+.log-btn.logged{background:var(--done-bg)!important;color:var(--done)!important;border-color:rgba(61,107,70,.3)!important;cursor:default;transform:none!important}
+.log-date{font-size:10px;opacity:.75;font-weight:400}
+.log-count{font-size:11px;color:var(--ink-light);font-style:italic}
+
+/* PINNED BAR */
+.pinned-bar{display:none;background:var(--parchment-off);border:1.5px solid rgba(184,134,42,.30);border-radius:12px;padding:12px 16px;margin-bottom:16px;animation:fadeUp .25s ease both}
+.pinned-bar.visible{display:block}
+.pinned-bar-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.pinned-list{display:flex;flex-wrap:wrap;gap:6px}
+.pinned-tag{font-size:11px;padding:4px 10px;border-radius:20px;background:rgba(184,134,42,.10);color:var(--ink-mid);border:1px solid rgba(184,134,42,.25)}
+
+/* PACKING */
+.packing-toggle{display:flex;align-items:center;gap:10px;background:var(--parchment-dark);border:1.5px solid rgba(184,134,42,.25);border-radius:12px;padding:14px 18px;margin-bottom:24px;cursor:pointer;transition:all .2s;user-select:none;animation:fadeUp .4s ease .1s both}
+.packing-toggle:hover{border-color:var(--gold-light);background:var(--parchment-mid)}
+.packing-toggle-label{flex:1;font-size:13px;font-weight:600;color:var(--ink)}
+.packing-toggle-sub{font-size:11px;color:var(--ink-light);font-weight:400}
+.packing-caret{font-size:12px;color:var(--gold);transition:transform .25s}
+.packing-caret.open{transform:rotate(180deg)}
+.packing-list{display:none;background:white;border:1.5px solid var(--parchment-dark);border-radius:14px;padding:20px;margin-bottom:20px;margin-top:-14px}
+.packing-list.open{display:block;animation:fadeUp .25s ease both}
+.packing-list h3{font-family:'Playfair Display',serif;font-size:16px;margin-bottom:14px}
+.packing-cols{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:520px){.packing-cols{grid-template-columns:1fr}}
+.packing-cat-title{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.pack-item{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--parchment-mid);font-size:13px}
+.pack-item:last-child{border-bottom:none}
+.pack-check{cursor:pointer;font-size:14px;color:var(--parchment-dark);transition:color .2s;flex-shrink:0}
+.pack-check.packed{color:var(--forest-light)}
+
+/* LOADING / ERROR */
+.loading-card{background:white;border-radius:12px;border:1.5px solid var(--parchment-dark);padding:24px 20px;text-align:center}
+.loading-shimmer{height:13px;background:linear-gradient(90deg,var(--parchment-dark) 25%,var(--parchment-mid) 50%,var(--parchment-dark) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:7px;margin-bottom:8px}
+.loading-shimmer.sm{width:55%;margin:0 auto 8px}
+.loading-shimmer.lg{width:88%}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.loading-icon{font-size:24px;margin-bottom:8px;opacity:.4}
+.loading-text{font-size:11.5px;color:var(--ink-light);font-style:italic}
+.error-card{background:white;border-radius:12px;padding:20px;border:1.5px solid rgba(122,48,32,.2);text-align:center}
+.retry-btn{margin-top:10px;background:var(--rust);color:white;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Work Sans',sans-serif}
+
+.scroll-progress{position:fixed;top:0;left:0;height:2px;background:var(--gold);z-index:200;transition:width .1s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:600px){.page{padding:24px 14px 80px}.show-hero{padding:22px 18px}.countdown-num{font-size:36px}}
+
+/* ── TEST REFERENCE PANEL ──────────────────────────────────── */
+.test-toggle{display:flex;align-items:center;gap:10px;background:var(--parchment-dark);border:1.5px solid rgba(184,134,42,.25);border-radius:12px;padding:14px 18px;margin-bottom:24px;cursor:pointer;transition:all .2s;user-select:none}
+.test-toggle:hover{border-color:var(--gold-light);background:var(--parchment-mid)}
+.test-toggle-label{flex:1;font-size:13px;font-weight:600;color:var(--ink)}
+.test-toggle-sub{font-size:11px;color:var(--ink-light);font-weight:400}
+.test-caret{font-size:12px;color:var(--gold);transition:transform .25s}
+.test-caret.open{transform:rotate(180deg)}
+.test-badge{font-size:10px;font-weight:700;letter-spacing:1.5px;padding:3px 9px;border-radius:10px;background:rgba(122,48,32,.10);color:var(--tech-color);border:1px solid rgba(122,48,32,.18);white-space:nowrap}
+
+.test-panel{display:none;background:white;border:1.5px solid var(--parchment-dark);border-radius:14px;margin-bottom:24px;margin-top:-14px;overflow:hidden}
+.test-panel.open{display:block;animation:fadeUp .25s ease both}
+
+/* Tab bar */
+.test-tabs{display:flex;border-bottom:1.5px solid var(--parchment-dark);background:var(--parchment)}
+.test-tab{flex:1;padding:10px 8px;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;border:none;background:transparent;cursor:pointer;color:var(--ink-light);transition:all .18s;border-bottom:2.5px solid transparent;margin-bottom:-1.5px;font-family:'Work Sans',sans-serif}
+.test-tab:hover{color:var(--ink)}
+.test-tab.active{color:var(--tech-color);border-bottom-color:var(--tech-color);background:white}
+
+/* Tab content */
+.test-tab-content{display:none;padding:18px 20px 20px}
+.test-tab-content.active{display:block;animation:fadeUp .2s ease both}
+
+/* Overview tab */
+.test-meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:18px}
+.test-meta-cell{text-align:center;padding:10px 8px;background:var(--parchment);border-radius:10px;border:1px solid var(--parchment-dark)}
+.test-meta-val{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--ink);line-height:1.1}
+.test-meta-key{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ink-light);margin-top:3px}
+.test-directives{background:var(--tech-bg);border-left:3px solid var(--tech-color);border-radius:0 8px 8px 0;padding:12px 14px}
+.test-directives-title{font-size:9.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--tech-color);margin-bottom:8px}
+.test-directive{font-size:13px;line-height:1.65;color:var(--ink-mid);padding:4px 0;border-bottom:1px solid rgba(122,48,32,.1)}
+.test-directive:last-child{border-bottom:none;padding-bottom:0}
+.test-directive strong{color:var(--ink);font-weight:600}
+
+/* Movements tab */
+.movement-group{margin-bottom:14px}
+.movement-group:last-child{margin-bottom:0}
+.mg-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.mg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.mg-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ink-light)}
+.mg-items{display:flex;flex-wrap:wrap;gap:6px;padding-left:16px}
+.mg-chip{font-size:12px;padding:4px 10px;border-radius:20px;background:var(--parchment);border:1px solid var(--parchment-dark);color:var(--ink-mid)}
+.mg-chip.coeff{background:rgba(122,48,32,.07);border-color:rgba(122,48,32,.25);color:var(--tech-color);font-weight:600}
+.mg-chip.coeff::after{content:'×2';font-size:9px;font-weight:700;margin-left:4px;opacity:.75}
+.mg-chip.new-at-level{background:rgba(46,92,130,.07);border-color:rgba(46,92,130,.25);color:var(--mental-color)}
+.movement-note{font-size:11.5px;color:var(--ink-light);font-style:italic;margin-top:12px;padding:10px 12px;background:var(--parchment);border-radius:8px}
+
+/* Coefficients tab */
+.coeff-table{width:100%;border-collapse:collapse;margin-bottom:14px}
+.coeff-table th{font-size:9.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ink-light);padding:6px 10px;border-bottom:2px solid var(--parchment-dark);text-align:left}
+.coeff-table td{font-size:13px;padding:9px 10px;border-bottom:1px solid var(--parchment-mid);vertical-align:top;line-height:1.45}
+.coeff-table tr:last-child td{border-bottom:none}
+.coeff-badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:8px;background:rgba(122,48,32,.10);color:var(--tech-color);border:1px solid rgba(122,48,32,.2);white-space:nowrap}
+.coeff-badge.collective{background:rgba(46,92,130,.10);color:var(--mental-color);border-color:rgba(46,92,130,.22)}
+
+.score-strategy{background:linear-gradient(135deg,rgba(122,48,32,.05) 0%,rgba(184,134,42,.07) 100%);border:1.5px solid rgba(184,134,42,.25);border-radius:10px;padding:14px 16px}
+.strategy-title{font-size:9.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.strategy-point{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;line-height:1.6;color:var(--ink-mid);margin-bottom:6px}
+.strategy-point:last-child{margin-bottom:0}
+.strategy-icon{flex-shrink:0;font-size:13px;margin-top:1px}
+.strategy-point strong{color:var(--ink);font-weight:600}
+
+/* Concern checkboxes (prep form preview) */
+.concern-row{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--parchment-mid);cursor:pointer}
+.concern-row:last-child{border-bottom:none}
+.concern-check{width:16px;height:16px;border:1.5px solid var(--parchment-dark);border-radius:4px;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .18s;color:transparent;background:white}
+.concern-row.flagged .concern-check{background:var(--tech-color);border-color:var(--tech-color);color:white}
+.concern-text{font-size:13px;color:var(--ink-mid);line-height:1.45}
+.concern-row.flagged .concern-text{color:var(--ink);font-weight:500}
+.concern-note{font-size:11px;color:var(--ink-light);margin-top:2px}
+
+/* Form preview callout */
+.form-preview-callout{background:var(--mental-bg);border:1.5px solid var(--mental-border);border-radius:12px;padding:16px 18px;margin-top:20px}
+.fpc-title{font-size:9.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--mental-color);margin-bottom:6px}
+.fpc-text{font-size:12.5px;color:var(--ink-mid);line-height:1.6}
+
+</style>
+</head>
+<body>
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<nav class="top-nav">
+  <div class="nav-brand">Your Dressage Journey</div>
+  <button class="nav-back">← Dashboard</button>
+  <span class="nav-title">Show Planner · PSG</span>
+</nav>
+
+<div class="page">
+
+  <div class="show-hero">
+    <div class="hero-eyebrow">Competition Countdown</div>
+    <div class="hero-title">Prix St. Georges</div>
+    <div class="hero-horse">with <strong>Rocket Star</strong> · Target: <strong id="showDateDisplay">—</strong></div>
+    <div class="countdown-row">
+      <div class="countdown-block">
+        <div class="countdown-num">60</div>
+        <div class="countdown-label">Days</div>
+      </div>
+      <div class="countdown-divider"></div>
+      <div class="countdown-block">
+        <div class="countdown-num">8</div>
+        <div class="countdown-label">Weeks</div>
+      </div>
+      <div class="countdown-divider"></div>
+      <div class="weeks-row" id="weekChips"></div>
+    </div>
+  </div>
+
+  <div class="packing-toggle" onclick="togglePacking()">
+    <span style="font-size:20px">🧳</span>
+    <div class="packing-toggle-label">
+      Horse Show Packing List
+      <div class="packing-toggle-sub">Tack, attire, documents & barn supplies</div>
+    </div>
+    <span class="packing-caret" id="packingCaret">▼</span>
+  </div>
+  <div class="packing-list" id="packingList">
+    <h3>Show Packing List</h3>
+    <div class="packing-cols">
+      <div>
+        <div class="packing-cat-title">Tack & Equipment</div>
+        <div id="packTack"></div>
+      </div>
+      <div>
+        <div class="packing-cat-title">Rider Attire</div>
+        <div id="packAttire"></div>
+        <br>
+        <div class="packing-cat-title">Documents & Admin</div>
+        <div id="packDocs"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEST INFORMATION PANEL -->
+  <div class="test-toggle" onclick="toggleTestPanel()">
+    <span style="font-size:20px">📋</span>
+    <div class="test-toggle-label">
+      Test Reference: Prix St. Georges
+      <div class="test-toggle-sub">Directives, movements, coefficients & score strategy</div>
+    </div>
+    <span class="test-badge">FEI · 5:50</span>
+    <span class="test-caret" id="testCaret" style="margin-left:8px">▼</span>
+  </div>
+
+  <div class="test-panel" id="testPanel">
+    <div class="test-tabs">
+      <button class="test-tab active" onclick="switchTab('overview',this)">Overview</button>
+      <button class="test-tab" onclick="switchTab('movements',this)">Movements</button>
+      <button class="test-tab" onclick="switchTab('coefficients',this)">Coefficients &amp; Collective Marks</button>
+      <button class="test-tab" onclick="switchTab('concerns',this)">My Concerns</button>
+    </div>
+
+    <!-- OVERVIEW TAB -->
+    <div class="test-tab-content active" id="tab-overview">
+      <div class="test-meta-grid">
+        <div class="test-meta-cell">
+          <div class="test-meta-val">FEI</div>
+          <div class="test-meta-key">Organization</div>
+        </div>
+        <div class="test-meta-cell">
+          <div class="test-meta-val">5:50</div>
+          <div class="test-meta-key">Duration</div>
+        </div>
+        <div class="test-meta-cell">
+          <div class="test-meta-val">7+</div>
+          <div class="test-meta-key">Min Horse Age</div>
+        </div>
+        <div class="test-meta-cell">
+          <div class="test-meta-val">20×60</div>
+          <div class="test-meta-key">Arena</div>
+        </div>
+      </div>
+      <div class="test-directives">
+        <div class="test-directives-title">Test Directives — What Judges Are Looking For</div>
+        <div class="test-directive"><strong>Regularity &amp; Freedom</strong> — Pure, clear rhythm with engagement and elasticity in all gaits</div>
+        <div class="test-directive"><strong>Collection &amp; Self-Carriage</strong> — The horse carries itself; the rider's hand supports but does not hold the balance</div>
+        <div class="test-directive"><strong>Impulsion</strong> — Stored energy that can be released into any movement; not speed</div>
+        <div class="test-directive"><strong>Straightness</strong> — The horse's hind feet track up on the forefeet; no haunches trailing or shoulders escaping</div>
+        <div class="test-directive"><strong>Submission</strong> — Willing, attentive, and harmonious; tension in the jaw or neck reads immediately as resistance</div>
+        <div class="test-directive"><strong>General Impression</strong> — The overall picture: harmony, ease, and the impression that horse and rider are working together effortlessly</div>
+      </div>
+    </div>
+
+    <!-- MOVEMENTS TAB -->
+    <div class="test-tab-content" id="tab-movements">
+      <div class="movement-group">
+        <div class="mg-header">
+          <div class="mg-dot" style="background:var(--sky)"></div>
+          <div class="mg-label">Trot Work</div>
+        </div>
+        <div class="mg-items">
+          <span class="mg-chip">Collected trot</span>
+          <span class="mg-chip coeff">Extended trot</span>
+          <span class="mg-chip">Shoulder-in (both reins)</span>
+          <span class="mg-chip">Half-pass left &amp; right</span>
+          <span class="mg-chip new-at-level">8m voltes</span>
+          <span class="mg-chip">Medium trot</span>
+        </div>
+      </div>
+      <div class="movement-group">
+        <div class="mg-header">
+          <div class="mg-dot" style="background:var(--forest-light)"></div>
+          <div class="mg-label">Canter Work</div>
+        </div>
+        <div class="mg-items">
+          <span class="mg-chip">Collected canter</span>
+          <span class="mg-chip coeff">Extended canter</span>
+          <span class="mg-chip">Half-pass left &amp; right</span>
+          <span class="mg-chip new-at-level">Counter change of hand (zig-zag)</span>
+          <span class="mg-chip new-at-level">4-tempi changes × 5</span>
+          <span class="mg-chip new-at-level">3-tempi changes × 5</span>
+          <span class="mg-chip new-at-level">Half-pirouettes (3–4 strides)</span>
+          <span class="mg-chip">Counter canter (serpentine)</span>
+        </div>
+      </div>
+      <div class="movement-group">
+        <div class="mg-header">
+          <div class="mg-dot" style="background:var(--gold)"></div>
+          <div class="mg-label">Walk &amp; Transitions</div>
+        </div>
+        <div class="mg-items">
+          <span class="mg-chip">Collected walk</span>
+          <span class="mg-chip">Extended walk</span>
+          <span class="mg-chip new-at-level">Half-pirouettes in walk</span>
+          <span class="mg-chip coeff">Halt — immobility — rein back</span>
+        </div>
+      </div>
+      <div class="movement-note">
+        <span style="color:var(--mental-color);font-weight:600">Blue chips</span> = new at PSG (first appearance at this level) &nbsp;·&nbsp;
+        <span style="color:var(--tech-color);font-weight:600">Rust chips marked ×2</span> = double coefficient
+      </div>
+    </div>
+
+    <!-- COEFFICIENTS TAB -->
+    <div class="test-tab-content" id="tab-coefficients">
+      <table class="coeff-table">
+        <thead>
+          <tr>
+            <th>Movement</th>
+            <th style="width:80px;text-align:center">Coefficient</th>
+            <th>Why It Matters</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Extended trot</td>
+            <td style="text-align:center"><span class="coeff-badge">×2</span></td>
+            <td style="font-size:12.5px;color:var(--ink-mid)">A 6 becomes 12 points; a 7 becomes 14. The most visible movement in the test.</td>
+          </tr>
+          <tr>
+            <td>Extended canter</td>
+            <td style="text-align:center"><span class="coeff-badge">×2</span></td>
+            <td style="font-size:12.5px;color:var(--ink-mid)">Judges see this on the long diagonal. Uphill tendency and clear return to collection are both scored here.</td>
+          </tr>
+          <tr>
+            <td>Halt — immobility — rein back</td>
+            <td style="text-align:center"><span class="coeff-badge">×2</span></td>
+            <td style="font-size:12.5px;color:var(--ink-mid)">Often overlooked in prep. Square halt, 3 seconds immobility, 5 clean steps back, seamless forward transition.</td>
+          </tr>
+          <tr>
+            <td>Submission</td>
+            <td style="text-align:center"><span class="coeff-badge collective">×2</span></td>
+            <td style="font-size:12.5px;color:var(--ink-mid)">Collective mark. Jaw tension, resistance, and behind-the-leg moments all penalize this score across the whole test.</td>
+          </tr>
+          <tr>
+            <td>General Impression</td>
+            <td style="text-align:center"><span class="coeff-badge collective">×2</span></td>
+            <td style="font-size:12.5px;color:var(--ink-mid)">Collective mark. The judge's overall read of harmony, ease, and rider effectiveness. Hard to win back once lost.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="score-strategy">
+        <div class="strategy-title">Score Strategy — What This Means for Your Prep</div>
+        <div class="strategy-point">
+          <span class="strategy-icon">📌</span>
+          <span><strong>Extended trot is your biggest lever.</strong> It's doubled AND highly visible. A relaxed, forward, uphill extension from a horse that's truly through scores dramatically better than a tight, spectacular one.</span>
+        </div>
+        <div class="strategy-point">
+          <span class="strategy-icon">📌</span>
+          <span><strong>The halt/rein back is worth practicing as a unit.</strong> It's often treated as a transition moment, not a scored movement. 5 steps back on a straight line, no shuffling, is entirely trainable.</span>
+        </div>
+        <div class="strategy-point">
+          <span class="strategy-icon">📌</span>
+          <span><strong>Jaw tension hurts your submission score all test long.</strong> Rocket's tendency to tighten early means your warm-up protocol has a direct effect on your highest-value collective mark.</span>
+        </div>
+        <div class="strategy-point">
+          <span class="strategy-icon">💡</span>
+          <span style="font-size:11.5px;color:var(--ink-light)">Coefficients sourced from FEI PSG 2022–2026 test sheet. Verify against current official test before competition.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MY CONCERNS TAB (form preview) -->
+    <div class="test-tab-content" id="tab-concerns">
+      <div style="font-size:12px;color:var(--ink-light);margin-bottom:14px;font-style:italic">
+        Flag movements or directives you want the AI to prioritize in your prep plan. These carry forward into your coaching outputs.
+      </div>
+      <div id="concernsList"></div>
+      <div class="form-preview-callout">
+        <div class="fpc-title">💡 How This Connects to Your Show Prep Form</div>
+        <div class="fpc-text">In the full show prep form, this panel becomes a sticky sidebar — visible alongside every form field so you can cross-reference the test while identifying your concerns. Items you flag here feed directly into the AI's prep prioritization, and double-coefficient movements your flag are weighted more heavily in the Technical section.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pinned-bar" id="pinnedBar">
+    <div class="pinned-bar-label">📌 Pinned This Week</div>
+    <div class="pinned-list" id="pinnedList"></div>
+  </div>
+
+  <div class="week-header">
+    <div>
+      <div class="week-heading" id="weekHeading">Week 8 · 56–60 Days Out</div>
+      <div class="week-subheading" id="weekSubheading">Foundation — establish the physical and mental baseline</div>
+    </div>
+    <div style="flex-shrink:0;text-align:right">
+      <div style="font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-light);margin-bottom:4px">Prep Progress</div>
+      <div class="week-progress-bar"><div class="week-progress-fill" id="progressFill" style="width:12%"></div></div>
+    </div>
+  </div>
+
+  <div class="reorder-hint">⠿ Drag sections into your preferred order</div>
+
+  <div class="sections-wrapper" id="sectionsWrapper"></div>
+
+</div>
+
+<script>
+// ─── CONFIG ──────────────────────────────────────────────────────
+const SHOW_DAYS_OUT = 60;
+const TOTAL_WEEKS   = 8;
+const today         = new Date();
+const showDate      = new Date(today); showDate.setDate(showDate.getDate() + SHOW_DAYS_OUT);
+
+let currentWeek  = TOTAL_WEEKS;
+let weekData     = {};
+let sectionOrder = ['mental','technical','physical']; // mental first per rider preference
+let state        = { pins:{}, checks:{}, logs:{}, packChecks:{}, collapsed:{} };
+let dragSrc      = null;
+
+const WEEK_THEMES = {8:'Foundation',7:'Establish',6:'Build',5:'Refine',4:'Sharpen',3:'Solidify',2:'Peak Prep',1:'Show Week'};
+const WEEK_SUBS   = {
+  8:'Foundation — establish the physical and mental baseline',
+  7:'Technical — geometry, accuracy, and test knowledge',
+  6:'Build — condition your recovery reflexes',
+  5:'Refine — peak schooling, quality over quantity',
+  4:'Sharpen — entries, halts, and test accuracy',
+  3:'Solidify — no new experiments',
+  2:'Trust — the horse, the training, yourself',
+  1:'Arrive ready — mindset, routines, peak readiness'
+};
+
+// ─── RIDER DATA ───────────────────────────────────────────────────
+const RIDER = {
+  horse_challenge: "Rocket Star jaw tightness — recurring left-side stiffness; resolves when ridden actively forward into the contact rather than held with the rein",
+  pirouettes:      "Half-pirouettes remain hardest; energy must go UP not out; best results from half-steps; right improving faster than left",
+  changes:         "Flying changes improving; 3s and 4s reliable when ridden forward; 2s came together at clinic; 1s are brand new — Martin says Rocket's job to teach them",
+  straightness:    "Right shoulder drift in changes; trainer cue: both hands slightly left; haunches-in on short diagonal used to prep straight lines",
+  mental:          "Strong mistake recovery (rated 4–5 consistently); dominant state is calm; 'allow more than do' is current arc (rated 3–4); can overthink; needs permission to speak up when horse is behind the leg",
+  position:        "Right side stronger but less balanced; tendency to get handsy; learning to use back and seat; elbows by side noted repeatedly",
+  physical:        "Post-massage riding quality improves noticeably; saddle recently adjusted — immediately improved balance; abs fire when achieving correct collection; glute tension blocks effective back use",
+  clinic_notes:    [
+    "Martin: 'It is Rocket's job to teach you the ones — allow him, he knows more than you'",
+    "Cindy: 'Always forward to the bit — counter-intuitive but the change requires it'",
+    "Cindy: Both hands slightly left to control right shoulder in changes both directions",
+    "Martin: Your intensity is asset AND liability — feel more, think less",
+    "Cindy: Consistent praise for riding uphill balance"
+  ]
+};
+
+// ─── ACCURATE PSG FACTS ───────────────────────────────────────────
+const PSG = {
+  level_truth: "PSG is the first FEI level. Judges expect genuine collection with self-carriage — the horse must never appear to rely on the rider's hand for balance. Every movement must show the horse in front of the aids.",
+  movements: [
+    "Shoulder-in (both reins) — 30° angle, three tracks",
+    "Travers and renvers in trot and canter",
+    "Half-pass in trot and canter",
+    "Counter change of hand (zig-zag half-pass) in canter — NOT counter canter; this is a direction change of half-pass at the centerline",
+    "Flying changes in sequence: 4-tempi and 3-tempi only (not 1s or 2s)",
+    "Half-pirouettes in canter — NOT full pirouettes",
+    "Extended and collected trot",
+    "Extended and collected canter",
+    "Extended walk",
+    "Rein back"
+  ],
+  geometry: [
+    "8m voltes appear in PSG — NOT 10m circles; these are demanding and will visibly bulge if even slightly over-size",
+    "Shoulder-in: 30° from wall, three tracks — the four-track error (too much neck bend) is a common fault",
+    "Half-pass angle should show horse nearly parallel to the long side with clear diagonal crossing of legs",
+    "Counter change of hand: direction of half-pass reverses at centerline; angle and energy must be maintained through each change of bend",
+    "Collected work must show a visibly uphill balance — the forehand feels lighter than the hindquarters"
+  ],
+  watch_list: [
+    "Half-pirouettes: canter rhythm must be maintained; judges penalize 'door-hinge' rotation and energy going backward or outward",
+    "Changes in sequence: straightness matters as much as timing; a crooked 3-tempi costs more than a late one",
+    "Counter change of hand (zig-zag): prompt change of bend, consistent angle each direction",
+    "All transitions into/out of collection: abrupt is not collected"
+  ],
+  collectives: "Submission and impulsion carry significant collective weight. Submission means willing harmony — not obedience under tension."
+};
+
+// ─── SECTION CONFIG ───────────────────────────────────────────────
+const CFG = {
+  mental: {
+    key:'mental', label:'Mental / Emotional', icon:'🧠',
+    dotClass:'dot-mental', secLabelClass:'label-sec-mental',
+    iconClass:'icon-mental', itemLabelClass:'label-mental',
+    cueClass:'cue-mental', logClass:'log-btn-mental', prefix:'m'
+  },
+  technical: {
+    key:'technical', label:'Technical', icon:'🏇',
+    dotClass:'dot-tech', secLabelClass:'label-sec-tech',
+    iconClass:'icon-tech', itemLabelClass:'label-tech',
+    cueClass:'cue-tech', logClass:'log-btn-tech', prefix:'t'
+  },
+  physical: {
+    key:'physical', label:'Physical / Kinesthetic', icon:'🌿',
+    dotClass:'dot-body', secLabelClass:'label-sec-body',
+    iconClass:'icon-body', itemLabelClass:'label-body',
+    cueClass:'cue-body', logClass:'log-btn-body', prefix:'p'
+  }
+};
+
+// ─── INIT ─────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('showDateDisplay').textContent =
+    showDate.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  buildWeekChips();
+  buildPackingList();
+  renderWeek(currentWeek);
+  window.addEventListener('scroll', () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    document.getElementById('scrollProgress').style.width = Math.round((window.scrollY/max)*100)+'%';
+  });
+});
+
+// ─── WEEK CHIPS ───────────────────────────────────────────────────
+function buildWeekChips() {
+  const c = document.getElementById('weekChips'); c.innerHTML = '';
+  for (let w = TOTAL_WEEKS; w >= 1; w--) {
+    const btn = document.createElement('button');
+    btn.className = 'week-chip' + (w===currentWeek?' active':'');
+    btn.textContent = w===1 ? 'Show Wk' : `Wk ${w}`;
+    btn.onclick = () => selectWeek(w);
+    c.appendChild(btn);
+  }
+}
+
+function selectWeek(w) {
+  currentWeek = w;
+  document.querySelectorAll('.week-chip').forEach((c,i) => {
+    const ww = TOTAL_WEEKS - i;
+    c.className = 'week-chip' + (ww===w?' active':'');
+  });
+  document.getElementById('weekHeading').textContent = w===1 ? 'Show Week!' : `Week ${w} · ${(w-1)*7}–${w*7} Days Out`;
+  document.getElementById('weekSubheading').textContent = WEEK_SUBS[w]||'';
+  document.getElementById('progressFill').style.width = Math.round(((TOTAL_WEEKS-w+1)/TOTAL_WEEKS)*100)+'%';
+  renderWeek(w);
+}
+
+// ─── RENDER WEEK ──────────────────────────────────────────────────
+async function renderWeek(w) {
+  const wrap = document.getElementById('sectionsWrapper');
+  wrap.innerHTML = '';
+  sectionOrder.forEach(key => wrap.appendChild(buildSectionShell(key, w)));
+
+  if (weekData[w]) { hydrateSections(weekData[w], w); return; }
+  try {
+    const data = await fetchWeekPlan(w);
+    weekData[w] = data;
+    hydrateSections(data, w);
+  } catch(e) {
+    console.error(e);
+    sectionOrder.forEach(key => {
+      const el = document.querySelector(`#sec-${key} .section-items`);
+      if (el) el.innerHTML = `<div class="error-card"><div style="font-size:22px;margin-bottom:8px">⚠️</div><div style="font-size:13px;color:var(--ink-light)">Could not load. Check connection.</div><button class="retry-btn" onclick="renderWeek(${w})">Retry</button></div>`;
+    });
+  }
+}
+
+function hydrateSections(data, w) {
+  sectionOrder.forEach(key => {
+    const cfg   = CFG[key];
+    const items = data[key] || [];
+    const sec   = document.getElementById(`sec-${key}`);
+    if (!sec) return;
+    sec.querySelector('.section-count').textContent = `${items.length} items`;
+    const container = sec.querySelector('.section-items');
+    container.innerHTML = '';
+    if (state.collapsed[key]) container.classList.add('collapsed');
+    items.forEach((item, i) => container.appendChild(buildCard(item, `${cfg.prefix}_w${w}_${i}`, cfg)));
+  });
+}
+
+// ─── SECTION SHELL ────────────────────────────────────────────────
+function buildSectionShell(key, w) {
+  const cfg = CFG[key];
+  const block = document.createElement('div');
+  block.className = 'section-block';
+  block.id = `sec-${key}`;
+  block.setAttribute('draggable','true');
+  block.dataset.key = key;
+
+  block.addEventListener('dragstart', e => { dragSrc=block; block.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
+  block.addEventListener('dragend', () => { block.classList.remove('dragging'); document.querySelectorAll('.section-block').forEach(b=>b.classList.remove('drag-over')); });
+  block.addEventListener('dragover', e => { e.preventDefault(); if(dragSrc&&dragSrc!==block) block.classList.add('drag-over'); });
+  block.addEventListener('dragleave', () => block.classList.remove('drag-over'));
+  block.addEventListener('drop', e => {
+    e.preventDefault(); block.classList.remove('drag-over');
+    if (!dragSrc||dragSrc===block) return;
+    const wrap   = document.getElementById('sectionsWrapper');
+    const blocks = [...wrap.querySelectorAll('.section-block')];
+    if (blocks.indexOf(dragSrc) < blocks.indexOf(block)) wrap.insertBefore(dragSrc, block.nextSibling);
+    else wrap.insertBefore(dragSrc, block);
+    sectionOrder = [...wrap.querySelectorAll('.section-block')].map(b=>b.dataset.key);
+    dragSrc = null;
+  });
+
+  block.innerHTML = `
+    <div class="section-drag-header" id="draghdr-${key}">
+      <span class="drag-grip">⠿</span>
+      <div class="section-dot ${cfg.dotClass}"></div>
+      <div class="section-label ${cfg.secLabelClass}">${cfg.label}</div>
+      <div class="section-count">— items</div>
+      <button class="section-collapse-btn" onclick="toggleSectionCollapse('${key}')" title="Collapse section">${state.collapsed[key]?'▶':'▼'}</button>
+    </div>
+    <div class="section-items${state.collapsed[key]?' collapsed':''}" id="items-${key}">
+      <div class="loading-card">
+        <div class="loading-icon">${cfg.icon}</div>
+        <div class="loading-shimmer lg"></div>
+        <div class="loading-shimmer sm"></div>
+        <div class="loading-text">Generating ${cfg.label} prep items…</div>
+      </div>
+    </div>`;
+  return block;
+}
+
+// ─── ITEM CARD ────────────────────────────────────────────────────
+function buildCard(item, id, cfg) {
+  const isPinned = !!state.pins[id];
+  const isChecked = !!state.checks[id];
+  const logs = state.logs[id] || [];
+  const loggedToday = logs.includes(todayStr());
+
+  const card = document.createElement('div');
+  card.className = `item-card${isPinned?' pinned':''}${isChecked?' checked':''}`;
+  card.id = `card-${id}`;
+
+  card.innerHTML = `
+    <div class="done-stripe"></div>
+    <div class="item-header" onclick="toggleBody('${id}')">
+      <div class="item-icon ${cfg.iconClass}">${cfg.icon}</div>
+      <div class="item-title-block">
+        <div class="item-label ${cfg.itemLabelClass}">${cfg.label}</div>
+        <div class="item-title">${item.title}</div>
+      </div>
+      <div class="item-actions" onclick="event.stopPropagation()">
+        <button class="pin-btn${isPinned?' active':''}" title="Pin" onclick="togglePin('${id}','${item.title.replace(/'/g,"\\'")}')">📌</button>
+        <button class="check-btn${isChecked?' active':''}" title="Mark read" onclick="toggleCheck('${id}')">✓</button>
+      </div>
+    </div>
+    <div class="item-body${isChecked?' collapsed':''}" id="body-${id}">
+      <p class="item-text">${item.body}</p>
+      <div class="item-cue ${cfg.cueClass}"><span class="cue-icon">→</span><span>${item.cue}</span></div>
+      <div class="log-row">
+        <button class="log-btn ${cfg.logClass}${loggedToday?' logged':''}" id="log-${id}"
+          onclick="${loggedToday?'':'logPractice(\''+id+'\',\''+cfg.key+'\')'}"
+          ${loggedToday?'disabled':''}>
+          ${loggedToday
+            ? `✓ Practiced <span class="log-date">· ${todayStr()}</span>`
+            : '+ Log practice today'}
+        </button>
+        ${logs.length>0 ? `<span class="log-count">${logs.length}× this plan</span>` : ''}
+      </div>
+    </div>`;
+  return card;
+}
+
+// ─── INTERACTIONS ─────────────────────────────────────────────────
+function toggleBody(id) { document.getElementById(`body-${id}`)?.classList.toggle('collapsed'); }
+
+function togglePin(id, title) {
+  state.pins[id] = !state.pins[id];
+  const card = document.getElementById(`card-${id}`);
+  card?.classList.toggle('pinned', state.pins[id]);
+  card?.querySelector('.pin-btn')?.classList.toggle('active', state.pins[id]);
+  updatePinnedBar();
+}
+
+function toggleCheck(id) {
+  state.checks[id] = !state.checks[id];
+  const card = document.getElementById(`card-${id}`);
+  const body = document.getElementById(`body-${id}`);
+  card?.classList.toggle('checked', state.checks[id]);
+  card?.querySelector('.check-btn')?.classList.toggle('active', state.checks[id]);
+  if (state.checks[id]) body?.classList.add('collapsed');
+}
+
+function logPractice(id, sectionKey) {
+  if (!state.logs[id]) state.logs[id] = [];
+  const ts = todayStr();
+  if (state.logs[id].includes(ts)) return;
+  state.logs[id].push(ts);
+
+  const btn = document.getElementById(`log-${id}`);
+  if (btn) {
+    btn.classList.add('logged'); btn.disabled = true;
+    btn.innerHTML = `✓ Practiced <span class="log-date">· ${ts}</span>`;
+    const count = state.logs[id].length;
+    let countEl = btn.nextElementSibling;
+    if (countEl?.classList.contains('log-count')) countEl.textContent = `${count}× this plan`;
+    else { const s=document.createElement('span'); s.className='log-count'; s.textContent=`${count}× this plan`; btn.after(s); }
+  }
+  // Flash card briefly
+  const card = document.getElementById(`card-${id}`);
+  if (card) { card.style.boxShadow='0 0 0 2px rgba(61,107,70,.35)'; setTimeout(()=>card.style.boxShadow='',700); }
+  // Production: firebase write → { userId, cardId, sectionKey, weekNum: currentWeek, date: ts, totalCount: state.logs[id].length }
+  console.log('[YDJ] Practice logged', { id, sectionKey, week: currentWeek, date: ts });
+}
+
+function toggleSectionCollapse(key) {
+  state.collapsed[key] = !state.collapsed[key];
+  const sec = document.getElementById(`sec-${key}`);
+  sec?.querySelector('.section-items')?.classList.toggle('collapsed', state.collapsed[key]);
+  const btn = sec?.querySelector('.section-collapse-btn');
+  if (btn) btn.textContent = state.collapsed[key] ? '▶' : '▼';
+}
+
+function updatePinnedBar() {
+  const items = Object.entries(state.pins).filter(([,v])=>v)
+    .map(([k])=>document.getElementById(`card-${k}`)?.querySelector('.item-title')?.textContent).filter(Boolean);
+  const bar = document.getElementById('pinnedBar');
+  bar.classList.toggle('visible', items.length>0);
+  document.getElementById('pinnedList').innerHTML = items.map(t=>`<span class="pinned-tag">📌 ${t}</span>`).join('');
+}
+
+function todayStr() { return today.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
+
+// ─── AI FETCH — CORRECTED PSG PROMPT ─────────────────────────────
+async function fetchWeekPlan(w) {
+  const days  = w * 7;
+  const theme = WEEK_THEMES[w] || 'Preparation';
+
+  const system = `You are the YDJ Show Preparation Coach — a precise dressage performance coach preparing an adult amateur to show Prix St. Georges (PSG) approximately ${days} days from now. This is week ${w} of 8 in the countdown. Theme: "${theme}" — ${WEEK_SUBS[w]}.
+
+RIDER DATA (from training logs — use these specifically, not generically):
+- Primary horse challenge: ${RIDER.horse_challenge}
+- Half-pirouettes: ${RIDER.pirouettes}
+- Flying changes: ${RIDER.changes}
+- Straightness: ${RIDER.straightness}
+- Mental patterns: ${RIDER.mental}
+- Position patterns: ${RIDER.position}
+- Physical patterns: ${RIDER.physical}
+- Trainer notes: ${RIDER.clinic_notes.join(' | ')}
+
+ACCURATE PSG REQUIREMENTS — use these facts precisely:
+Level standard: ${PSG.level_truth}
+Test movements: ${PSG.movements.join(' | ')}
+Geometry (CRITICAL): ${PSG.geometry.join(' | ')}
+Common faults to address: ${PSG.watch_list.join(' | ')}
+Collective marks: ${PSG.collectives}
+
+TERMINOLOGY RULES (never violate these):
+- "Counter change of hand" (zig-zag half-pass) is the PSG canter movement — "counter canter" is a separate training tool not named in PSG
+- 8m voltes appear in PSG — NOT 10m circles (lower level)
+- Half-pirouettes — NOT full pirouettes
+- PSG flying changes are 4-tempi and 3-tempi ONLY
+
+Generate exactly 2 items for EACH of three sections. Each item must:
+1. Reference this specific rider's actual patterns
+2. Be calibrated to week ${w} of 8 (${theme} phase, ${days} days out)
+3. Use correct PSG terminology and facts above
+4. Give a "cue" that is a single crisp action directive for THIS week
+
+Respond ONLY with valid JSON, no markdown, no preamble:
+{
+  "mental": [
+    {"title":"5 words max","body":"2-3 sentences: this rider's mental pattern + competition-prep lens at ${days} days out.","cue":"One specific mental-skill practice for this week."},
+    {"title":"…","body":"…","cue":"…"}
+  ],
+  "technical": [
+    {"title":"5 words max","body":"2-3 sentences: this rider's technical data + specific PSG requirement.","cue":"One saddle-time directive for this week."},
+    {"title":"…","body":"…","cue":"…"}
+  ],
+  "physical": [
+    {"title":"5 words max","body":"2-3 sentences: this rider's body patterns + what the body needs at this countdown stage.","cue":"One specific off-horse or on-horse kinesthetic practice."},
+    {"title":"…","body":"…","cue":"…"}
+  ]
+}`;
+
+  const res  = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000,
+      system, messages:[{role:'user',content:`Generate week ${w} PSG prep plan. Return valid JSON only.`}] })
+  });
+  const d   = await res.json();
+  const raw = d.content[0].text.replace(/```json|```/g,'').trim();
+  return JSON.parse(raw);
+}
+
+// ─── PACKING LIST ─────────────────────────────────────────────────
+const PACKING = {
+  tack: ['Competition bridle & reins','Show saddle & girth','White square pad','Stirrups & leathers','Warm-up brushing boots','Standing wraps & pads','Fly spray','Hoof pick & polish','Spare bit','Halter & lead rope','Water buckets','Hay & feed'],
+  attire: ['Shadbelly or dark show coat','White breeches','Top hat or ASTM helmet','White gloves','Tall boots & boot pulls','Regulation spurs','Shirt & stock tie','Stock pin'],
+  docs: ['USDF horse ID / passport','Entry confirmation','Current Coggins / health cert','Ride times printout','PSG test sheet (annotated)','Emergency contact card']
+};
+
+function buildPackingList() {
+  [['tack'],['attire'],['docs']].forEach(([cat]) => {
+    const el = document.getElementById(`pack${cat[0].toUpperCase()+cat.slice(1)}`);
+    if (!el) return;
+    el.innerHTML = PACKING[cat].map((item,i) => {
+      const id=`pack_${cat}_${i}`;
+      return `<div class="pack-item"><span class="pack-check" id="${id}" onclick="togglePack('${id}')">☐</span><span>${item}</span></div>`;
+    }).join('');
+  });
+}
+
+function togglePack(id) {
+  state.packChecks[id]=!state.packChecks[id];
+  const el=document.getElementById(id);
+  el.textContent=state.packChecks[id]?'☑':'☐';
+  el.classList.toggle('packed',state.packChecks[id]);
+}
+
+function togglePacking() {
+  document.getElementById('packingList').classList.toggle('open');
+  document.getElementById('packingCaret').classList.toggle('open');
+}
+
+// ─── TEST PANEL ───────────────────────────────────────────────────
+let activeTab = 'overview';
+let concernsBuilt = false;
+
+function toggleTestPanel() {
+  const panel = document.getElementById('testPanel');
+  const caret = document.getElementById('testCaret');
+  const isOpen = panel.classList.toggle('open');
+  caret.classList.toggle('open', isOpen);
+  if (isOpen && !concernsBuilt) { buildConcerns(); concernsBuilt = true; }
+}
+
+function switchTab(name, btn) {
+  activeTab = name;
+  document.querySelectorAll('.test-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.test-tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(`tab-${name}`)?.classList.add('active');
+  if (name === 'concerns' && !concernsBuilt) { buildConcerns(); concernsBuilt = true; }
+}
+
+// Concern items — movements + directives the rider can flag
+const CONCERN_ITEMS = [
+  { id:'ext-trot',    text:'Extended trot',                     note:'Double coefficient — most visible movement in test', coeff:true },
+  { id:'ext-canter',  text:'Extended canter',                   note:'Double coefficient — judges see return to collection too', coeff:true },
+  { id:'halt-rb',     text:'Halt / immobility / rein back',     note:'Double coefficient — often undertrained', coeff:true },
+  { id:'half-pir-c',  text:'Half-pirouettes in canter',         note:'New at PSG · 3–4 stride requirement; energy upward', coeff:false },
+  { id:'half-pir-w',  text:'Half-pirouettes in walk',           note:'New at PSG · often tighter and less practiced', coeff:false },
+  { id:'zig-zag',     text:'Counter change of hand (zig-zag)',  note:'New at PSG · prompt change of bend; consistent angle', coeff:false },
+  { id:'4-tempi',     text:'4-tempi changes × 5',               note:'Straightness matters as much as timing', coeff:false },
+  { id:'3-tempi',     text:'3-tempi changes × 5',               note:'Straightness matters as much as timing', coeff:false },
+  { id:'shoulder-in', text:'Shoulder-in (both reins)',          note:'30° / three tracks; not four-track over-bending', coeff:false },
+  { id:'half-pass-t', text:'Half-pass in trot',                 note:'Horse nearly parallel to long side; clear crossing', coeff:false },
+  { id:'half-pass-c', text:'Half-pass in canter',               note:'Maintain collection and rhythm through crossing', coeff:false },
+  { id:'8m-volte',    text:'8m voltes',                         note:'New at PSG · will bulge if even slightly over-size', coeff:false },
+  { id:'ext-walk',    text:'Extended walk',                     note:'Total freedom and clear overtrack; no tension in back', coeff:false },
+  { id:'submission',  text:'Submission (collective ×2)',        note:'Jaw tension, resistance, behind-the-leg — all penalized here', coeff:true },
+  { id:'harmony',     text:'General Impression (collective ×2)', note:'Overall harmony; hard to recover once lost', coeff:true },
+];
+
+function buildConcerns() {
+  const el = document.getElementById('concernsList');
+  if (!el) return;
+  el.innerHTML = CONCERN_ITEMS.map(item => {
+    const isFlagged = !!state.concerns?.[item.id];
+    return `<div class="concern-row${isFlagged?' flagged':''}" id="concern-${item.id}" onclick="toggleConcern('${item.id}')">
+      <div class="concern-check">${isFlagged?'✓':''}</div>
+      <div>
+        <div class="concern-text">${item.text}${item.coeff?' <span style="font-size:10px;color:var(--tech-color);font-weight:700;margin-left:4px">×2</span>':''}</div>
+        <div class="concern-note">${item.note}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleConcern(id) {
+  if (!state.concerns) state.concerns = {};
+  state.concerns[id] = !state.concerns[id];
+  const row = document.getElementById(`concern-${id}`);
+  const check = row?.querySelector('.concern-check');
+  if (row) {
+    row.classList.toggle('flagged', state.concerns[id]);
+    if (check) check.innerHTML = state.concerns[id] ? '✓' : '';
+  }
+  // Production: update prep plan generation to pass flagged concerns as priority signals
+  const flagged = Object.entries(state.concerns).filter(([,v])=>v).map(([k])=>k);
+  console.log('[YDJ] Flagged concerns:', flagged);
+}
+</script>
+</body>
+</html>

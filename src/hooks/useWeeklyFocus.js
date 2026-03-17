@@ -112,11 +112,11 @@ export default function useWeeklyFocus() {
     ]);
 
     return {
-      coaching: coachingData.status === 'fulfilled' ? extractCoachingSnapshot(coachingData.value) : null,
+      coaching: coachingData.status === 'fulfilled' ? extractCoachingSnapshot(coachingData.value, weekId) : null,
       gpt: gptData.status === 'fulfilled' ? extractGPTSnapshot(gptData.value) : null,
       physical: physData.status === 'fulfilled' ? extractPhysicalSnapshot(physData.value) : null,
     };
-  }, []);
+  }, [weekId]);
 
   // ── Read show plan content ──
   const readShowContent = useCallback(async (uid, showPreps) => {
@@ -146,7 +146,7 @@ export default function useWeeklyFocus() {
 
     if (section === 'coaching') {
       const data = await readCoachingCaches(uid);
-      const snap = extractCoachingSnapshot(data);
+      const snap = extractCoachingSnapshot(data, weekId);
       if (snap) {
         setCoaching({ title: snap.title, excerpts: snap.excerpts, reflectionNudge: snap.reflectionNudge });
         snapshotRef.current = { ...snapshotRef.current, coaching: snap.sourceGeneratedAt };
@@ -346,17 +346,17 @@ export default function useWeeklyFocus() {
           saveWeekState(uid, weekId, { contentSnapshot });
         }
 
-        // Celebration — handle locking
+        // Celebration — use weekId rotation, then lock for the week
         if (weekState?.celebrationId) {
           const lockedRef = reflections.find(r => r.id === weekState.celebrationId);
           if (lockedRef) {
-            setCelebration(selectCelebration([lockedRef]));
+            setCelebration(selectCelebration([lockedRef], weekId));
           } else {
-            const cel = selectCelebration(reflections);
+            const cel = selectCelebration(reflections, weekId);
             setCelebration(cel);
           }
         } else {
-          const cel = selectCelebration(reflections);
+          const cel = selectCelebration(reflections, weekId);
           setCelebration(cel);
           if (cel?.id) {
             saveWeekState(uid, weekId, { celebrationId: cel.id });

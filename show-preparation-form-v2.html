@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Show Preparation Planner | Your Dressage Journey</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --parchment:      #f5ede0;
+  --parchment-dark: #e8d9c4;
+  --parchment-mid:  #ede1ce;
+  --parchment-off:  #faf6f0;
+  --ink:            #2c1f14;
+  --ink-mid:        #4a3220;
+  --ink-light:      #6b4f38;
+  --gold:           #b8862a;
+  --gold-light:     #d4a84b;
+  --gold-pale:      #f0d89a;
+  --track:          #8b6340;
+  --rust:           #7a3020;
+  --forest:         #2a4a30;
+  --forest-light:   #3d6b46;
+  --tech-color:     #7a3020;
+  --tech-bg:        rgba(122,48,32,0.07);
+  --tech-border:    rgba(122,48,32,0.22);
+  --mental-color:   #2e5c82;
+  --mental-bg:      rgba(46,92,130,0.06);
+  --mental-border:  rgba(46,92,130,0.22);
+  --body-color:     #2a4a30;
+  --body-bg:        rgba(42,74,48,0.06);
+  --body-border:    rgba(42,74,48,0.22);
+  --sidebar-w:      310px;
+}
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Work Sans', sans-serif;
+  background: var(--parchment);
+  color: var(--ink);
+  min-height: 100vh;
+  line-height: 1.55;
+}
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
+}
+
+/* ── PAGE ─────────────────────────────────────────── */
+.page { position: relative; z-index: 1; max-width: 1160px; margin: 0 auto; padding: 28px 20px 80px; }
+
+.page-header {
+  margin-bottom: 24px;
+  padding: 28px 36px;
+  background: linear-gradient(135deg, #3a1a0e 0%, #5c2d1a 60%, #7a3020 100%);
+  border-radius: 16px;
+  position: relative; overflow: hidden;
+  animation: fadeUp .35s ease both;
+}
+.page-header::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 80% 50%, rgba(212,168,75,.10) 0%, transparent 70%);
+}
+.header-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: rgba(212,168,75,.65); margin-bottom: 6px; position: relative; }
+.header-title { font-family: 'Playfair Display', serif; font-size: clamp(22px,4vw,30px); font-weight: 700; color: white; line-height: 1.2; position: relative; }
+.header-sub { font-size: 13px; color: rgba(255,255,255,.5); margin-top: 6px; position: relative; }
+
+.success-banner { display: none; background: var(--forest); color: white; padding: 14px 20px; border-radius: 10px; margin-bottom: 20px; font-size: 14px; font-weight: 500; text-align: center; }
+.success-banner.show { display: block; animation: fadeUp .3s ease both; }
+
+/* ── TWO-COLUMN ───────────────────────────────────── */
+.layout { display: grid; grid-template-columns: var(--sidebar-w) 1fr; gap: 24px; align-items: start; }
+
+/* ── SIDEBAR ─────────────────────────────────────── */
+.test-sidebar {
+  position: sticky; top: 20px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto; overflow-x: hidden;
+  scrollbar-width: thin; scrollbar-color: var(--parchment-dark) transparent;
+  border-radius: 14px;
+  background: white;
+  border: 1.5px solid var(--parchment-dark);
+  animation: fadeUp .35s .07s ease both;
+}
+.test-sidebar::-webkit-scrollbar { width: 4px; }
+.test-sidebar::-webkit-scrollbar-thumb { background: var(--parchment-dark); border-radius: 2px; }
+
+.sidebar-head {
+  padding: 16px 18px 12px;
+  border-bottom: 1.5px solid var(--parchment-dark);
+  background: linear-gradient(135deg, #f8efe4 0%, white 100%);
+  border-radius: 14px 14px 0 0;
+}
+.sidebar-eyebrow { font-size: 9.5px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--ink-light); margin-bottom: 4px; }
+.sidebar-title { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700; color: var(--ink); line-height: 1.3; }
+.sidebar-sub { font-size: 11px; color: var(--ink-light); margin-top: 3px; }
+
+/* test switcher pills */
+.test-switcher {
+  display: flex; flex-wrap: wrap; gap: 5px;
+  padding: 10px 18px 0;
+}
+.test-pill {
+  font-size: 10.5px; font-weight: 600; padding: 3px 10px; border-radius: 12px;
+  border: 1.5px solid var(--parchment-dark); background: var(--parchment-off);
+  color: var(--ink-mid); cursor: pointer; transition: all .15s;
+  font-family: 'Work Sans', sans-serif; white-space: nowrap;
+}
+.test-pill:hover { border-color: var(--gold-light); color: var(--ink); }
+.test-pill.active { background: var(--rust); border-color: var(--rust); color: white; }
+.test-switcher-empty { font-size: 11px; color: var(--ink-light); font-style: italic; padding: 10px 18px 0; }
+
+.sidebar-flag-badge {
+  display: inline-block; font-size: 10px; font-weight: 600;
+  padding: 2px 8px; border-radius: 10px;
+  background: rgba(122,48,32,.08); color: var(--tech-color);
+  border: 1px solid var(--tech-border); margin: 6px 18px 0; display: block;
+}
+
+/* tabs */
+.test-tabs {
+  display: flex;
+  border-bottom: 1.5px solid var(--parchment-dark);
+  background: var(--parchment);
+  margin-top: 8px;
+}
+.test-tab {
+  flex: 1; padding: 9px 4px;
+  font-size: 9.5px; font-weight: 600; letter-spacing: .35px; text-transform: uppercase;
+  border: none; background: transparent; cursor: pointer;
+  color: var(--ink-light); transition: all .15s;
+  border-bottom: 2.5px solid transparent; margin-bottom: -1.5px;
+  font-family: 'Work Sans', sans-serif;
+}
+.test-tab:hover { color: var(--ink); }
+.test-tab.active { color: var(--tech-color); border-bottom-color: var(--tech-color); background: white; }
+
+.test-tab-content { display: none; padding: 16px 18px 20px; }
+.test-tab-content.active { display: block; animation: fadeUp .18s ease both; }
+
+/* "select a test" placeholder */
+.sidebar-no-test {
+  padding: 28px 18px;
+  text-align: center;
+  color: var(--ink-light);
+}
+.sidebar-no-test-icon { font-size: 28px; margin-bottom: 10px; opacity: .55; }
+.sidebar-no-test-msg { font-size: 12.5px; line-height: 1.55; }
+.sidebar-no-test-arrow { font-size: 11px; color: var(--gold); margin-top: 8px; font-weight: 600; }
+
+/* overview */
+.test-meta-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 1px; background: var(--parchment-dark);
+  border: 1.5px solid var(--parchment-dark);
+  border-radius: 8px; overflow: hidden; margin-bottom: 16px;
+}
+.test-meta-cell { background: white; padding: 9px 10px; text-align: center; }
+.test-meta-val { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700; color: var(--ink); }
+.test-meta-key { font-size: 9.5px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-light); margin-top: 2px; }
+
+.test-directives-title { font-size: 10.5px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-light); margin-bottom: 10px; }
+.test-directive { font-size: 12px; color: var(--ink-mid); line-height: 1.5; padding: 5px 0; border-bottom: 1px solid var(--parchment-mid); }
+.test-directive:last-child { border-bottom: none; }
+.test-directive strong { color: var(--ink); }
+
+/* movements */
+.movement-group { margin-bottom: 14px; }
+.mg-header { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
+.mg-dot { width: 8px; height: 8px; border-radius: 50%; }
+.mg-label { font-size: 10.5px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-mid); }
+.mg-items { display: flex; flex-wrap: wrap; gap: 5px; }
+.mg-chip { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 10px; background: var(--parchment); border: 1.5px solid var(--parchment-dark); color: var(--ink-mid); }
+.mg-chip.coeff { background: var(--tech-bg); border-color: var(--tech-border); color: var(--tech-color); font-weight: 600; }
+.mg-chip.coeff::after { content: '×2'; font-size: 9px; font-weight: 700; margin-left: 3px; opacity: .75; }
+.mg-chip.new-at { background: var(--mental-bg); border-color: var(--mental-border); color: var(--mental-color); }
+.movement-note { font-size: 10.5px; color: var(--ink-light); margin-top: 10px; line-height: 1.6; }
+
+/* coefficients */
+.coeff-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+.coeff-table th { font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-light); padding: 5px 7px; border-bottom: 2px solid var(--parchment-dark); text-align: left; }
+.coeff-table td { font-size: 11px; padding: 7px 7px; border-bottom: 1px solid var(--parchment-mid); vertical-align: top; line-height: 1.4; color: var(--ink-mid); }
+.coeff-table tr:last-child td { border-bottom: none; }
+.coeff-badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 6px; background: rgba(122,48,32,.10); color: var(--tech-color); border: 1px solid rgba(122,48,32,.2); white-space: nowrap; }
+.coeff-badge.collective { background: rgba(46,92,130,.10); color: var(--mental-color); border-color: rgba(46,92,130,.22); }
+
+/* flag for prep */
+.flag-intro { font-size: 11.5px; color: var(--ink-light); margin-bottom: 12px; line-height: 1.55; font-style: italic; }
+.concern-row {
+  display: flex; align-items: flex-start; gap: 9px; padding: 6px 0;
+  border-bottom: 1px solid var(--parchment-mid); cursor: pointer;
+  border-radius: 4px; transition: background .12s;
+}
+.concern-row:last-child { border-bottom: none; }
+.concern-row:hover { background: var(--parchment-off); margin: 0 -4px; padding-left: 4px; padding-right: 4px; }
+.concern-check {
+  width: 16px; height: 16px; border: 1.5px solid var(--parchment-dark); border-radius: 4px;
+  flex-shrink: 0; margin-top: 2px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; transition: all .15s; color: transparent; background: white;
+}
+.concern-row.flagged .concern-check { background: var(--tech-color); border-color: var(--tech-color); color: white; }
+.concern-text { font-size: 12px; color: var(--ink-mid); line-height: 1.4; }
+.concern-row.flagged .concern-text { color: var(--ink); font-weight: 500; }
+.concern-note { font-size: 10px; color: var(--ink-light); margin-top: 1px; }
+
+.flag-summary {
+  background: rgba(122,48,32,.05); border: 1px solid rgba(122,48,32,.18);
+  border-radius: 8px; padding: 8px 10px; margin-top: 14px;
+}
+.flag-summary-label { font-size: 9.5px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--tech-color); margin-bottom: 6px; }
+.flag-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.flag-chip { font-size: 10.5px; font-weight: 500; padding: 2px 8px; border-radius: 10px; background: var(--tech-bg); border: 1px solid var(--tech-border); color: var(--tech-color); }
+.flag-chip .x2 { font-size: 9px; opacity: .75; margin-left: 2px; }
+.flag-summary-empty { font-size: 11px; color: var(--ink-light); font-style: italic; }
+
+/* ── FORM MAIN ───────────────────────────────────── */
+.form-main { animation: fadeUp .35s .12s ease both; }
+
+.form-card {
+  background: white; border-radius: 14px;
+  border: 1.5px solid var(--parchment-dark);
+  overflow: hidden; margin-bottom: 20px;
+}
+
+.form-section { padding: 28px 32px; border-bottom: 2px solid var(--parchment); }
+.form-section:last-child { border-bottom: none; }
+
+.section-header { margin-bottom: 22px; padding-bottom: 14px; border-bottom: 2px solid var(--gold-pale); }
+.section-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+.section-desc { color: var(--ink-light); font-size: 13px; line-height: 1.5; }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+.form-row > .form-group { margin-bottom: 0; }
+.form-group { margin-bottom: 18px; }
+.form-group:last-child { margin-bottom: 0; }
+
+label { display: block; font-weight: 500; font-size: 13.5px; color: var(--ink); margin-bottom: 6px; }
+.label-opt { font-size: 11.5px; font-weight: 400; font-style: italic; color: var(--ink-light); }
+
+input[type="text"],
+input[type="date"],
+select,
+textarea {
+  width: 100%; padding: 11px 14px;
+  border: 1.5px solid var(--parchment-dark); border-radius: 9px;
+  font-family: 'Work Sans', sans-serif; font-size: 14px;
+  color: var(--ink); background: var(--parchment-off);
+  transition: border-color .2s, box-shadow .2s;
+}
+input[type="text"]:focus, input[type="date"]:focus, select:focus, textarea:focus {
+  outline: none; border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(184,134,42,.12); background: white;
+}
+textarea { min-height: 80px; resize: vertical; }
+textarea.tall { min-height: 110px; }
+
+/* date toggle */
+.date-toggle-group {
+  display: flex; border: 1.5px solid var(--parchment-dark); border-radius: 9px; overflow: hidden; margin-bottom: 14px;
+}
+.date-toggle-group input[type="radio"] { display: none; }
+.date-toggle-group label {
+  flex: 1; padding: 10px 14px; text-align: center; cursor: pointer; margin: 0;
+  background: white; color: var(--ink-light); font-weight: 500; font-size: 13.5px;
+  transition: all .18s; border-right: 1px solid var(--parchment-dark);
+}
+.date-toggle-group label:last-of-type { border-right: none; }
+.date-toggle-group input[type="radio"]:checked + label { background: var(--ink-mid); color: white; }
+.date-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.date-end-field { display: none; }
+
+/* radio / checkbox */
+.radio-group, .checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+.radio-item, .checkbox-item { display: flex; align-items: center; gap: 7px; font-size: 13.5px; cursor: pointer; }
+input[type="radio"], input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--tech-color); flex-shrink: 0; margin: 0; }
+.radio-item label, .checkbox-item label { margin: 0; font-weight: 400; cursor: pointer; }
+
+/* show type toggle */
+.show-type-toggle {
+  display: flex; gap: 0; border: 1.5px solid var(--parchment-dark); border-radius: 9px; overflow: hidden; margin-bottom: 0;
+}
+.show-type-toggle input[type="radio"] { display: none; }
+.show-type-toggle label {
+  flex: 1; padding: 10px 12px; text-align: center; cursor: pointer; margin: 0;
+  background: white; color: var(--ink-light); font-weight: 500; font-size: 13px;
+  transition: all .18s; border-right: 1px solid var(--parchment-dark);
+}
+.show-type-toggle label:last-of-type { border-right: none; }
+.show-type-toggle input[type="radio"]:checked + label { background: var(--ink-mid); color: white; }
+
+/* test type toggle */
+.test-type-toggle {
+  display: flex; gap: 14px; margin-bottom: 18px;
+  padding: 14px 16px; background: var(--parchment-off);
+  border-radius: 10px; border: 1.5px solid var(--parchment-dark);
+}
+.test-type-toggle .radio-item label { font-weight: 500; }
+
+/* test slots */
+.test-slots { display: flex; flex-direction: column; gap: 10px; }
+.test-slot { display: flex; align-items: center; gap: 10px; }
+.slot-number {
+  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+  background: var(--gold-pale); color: var(--gold); border: 1.5px solid rgba(184,134,42,.35);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 11.5px;
+}
+.test-slot select { flex: 1; }
+.test-note { font-size: 12px; color: var(--ink-light); font-style: italic; margin-top: 10px; }
+
+/* numbered rows */
+.numbered-row { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+.numbered-row:last-child { margin-bottom: 0; }
+.numbered-row input { flex: 1; }
+.row-num {
+  width: 27px; height: 27px; border-radius: 50%; flex-shrink: 0;
+  background: var(--gold-pale); color: var(--gold); border: 1.5px solid rgba(184,134,42,.35);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 12px;
+}
+
+/* info box */
+.info-box {
+  background: var(--parchment); border-left: 3.5px solid var(--gold);
+  padding: 12px 16px; border-radius: 6px; margin-bottom: 18px;
+  font-size: 12.5px; color: var(--ink-light); line-height: 1.6;
+}
+.info-box strong { color: var(--ink); }
+
+/* ── CONCERNS INTEGRATION ────────────────────────── */
+.flags-callout {
+  border: 1.5px solid var(--tech-border); border-radius: 10px;
+  padding: 14px 16px; margin-bottom: 18px; background: rgba(122,48,32,.04);
+}
+.flags-callout-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.flags-callout-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--tech-color); }
+.flags-callout-meta { display: flex; align-items: center; gap: 6px; }
+.flags-callout-count { font-size: 11px; font-weight: 600; background: var(--tech-color); color: white; padding: 1px 7px; border-radius: 10px; display: none; }
+.flags-callout-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.fc-chip {
+  font-size: 11.5px; font-weight: 500; padding: 3px 10px; border-radius: 10px;
+  background: white; border: 1.5px solid var(--tech-border); color: var(--tech-color);
+  display: flex; align-items: center; gap: 4px;
+}
+.fc-chip .x2-badge { font-size: 9px; font-weight: 700; background: var(--tech-color); color: white; padding: 0 4px; border-radius: 3px; }
+.fc-chip .test-label { font-size: 9px; color: var(--ink-light); margin-left: 2px; }
+.flags-empty-state { font-size: 12px; color: var(--ink-light); font-style: italic; display: flex; align-items: flex-start; gap: 7px; }
+.flags-sidebar-hint { font-size: 11px; color: var(--ink-light); margin-top: 8px; line-height: 1.5; display: none; }
+
+.other-concerns-label { font-size: 12px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; color: var(--ink-light); margin-bottom: 10px; margin-top: 4px; }
+
+
+/* ── PANELS (packing / reflection) ──────────────── */
+.panel-block {
+  background: linear-gradient(135deg, var(--parchment-off) 0%, white 100%);
+  border: 1.5px solid var(--parchment-dark); border-radius: 12px;
+  padding: 22px 26px; display: flex; align-items: center; gap: 20px;
+}
+.panel-icon { font-size: 2.4em; flex-shrink: 0; line-height: 1; }
+.panel-text h3 { font-family: 'Playfair Display', serif; font-size: 17px; color: var(--ink); margin-bottom: 5px; }
+.panel-text p { font-size: 12.5px; color: var(--ink-light); margin-bottom: 12px; line-height: 1.55; }
+.btn-panel {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--ink-mid); color: white; padding: 10px 18px;
+  border-radius: 9px; text-decoration: none; font-family: 'Work Sans', sans-serif;
+  font-weight: 600; font-size: 13px; transition: all .2s; border: none; cursor: pointer;
+}
+.btn-panel:hover { background: var(--rust); transform: translateY(-1px); }
+
+/* char count */
+.char-count { font-size: 11px; color: var(--ink-light); text-align: right; margin-top: 4px; }
+
+/* ── SUBMIT ──────────────────────────────────────── */
+.submit-section { padding: 24px 32px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.btn-primary {
+  flex: 1; padding: 14px 28px;
+  background: linear-gradient(135deg, var(--ink-mid) 0%, var(--rust) 100%);
+  color: white; border: none; border-radius: 10px;
+  font-family: 'Work Sans', sans-serif; font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: all .2s;
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(122,48,32,.25); }
+.btn-secondary {
+  padding: 14px 22px; background: var(--parchment); color: var(--ink-mid);
+  border: 1.5px solid var(--parchment-dark); border-radius: 10px;
+  font-family: 'Work Sans', sans-serif; font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: all .18s; white-space: nowrap;
+}
+.btn-secondary:hover { background: var(--parchment-dark); }
+
+/* ── MOBILE ──────────────────────────────────────── */
+.mobile-test-toggle { display: none; background: white; border: 1.5px solid var(--parchment-dark); border-radius: 12px; margin-bottom: 20px; overflow: hidden; }
+.mobile-test-bar { display: flex; align-items: center; gap: 10px; padding: 14px 16px; cursor: pointer; }
+.mobile-test-icon { font-size: 18px; }
+.mobile-test-info { flex: 1; }
+.mobile-test-name { font-size: 14px; font-weight: 600; color: var(--ink); }
+.mobile-test-sub { font-size: 11px; color: var(--ink-light); }
+.mobile-flag-count { font-size: 11px; font-weight: 600; background: var(--tech-color); color: white; padding: 2px 8px; border-radius: 10px; display: none; }
+.mobile-flag-count.has-flags { display: inline-block; }
+.mobile-caret { font-size: 12px; color: var(--ink-light); transition: transform .2s; }
+.mobile-caret.open { transform: rotate(180deg); }
+.mobile-test-body { display: none; border-top: 1px solid var(--parchment-dark); }
+.mobile-test-body.open { display: block; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes sidebarPulse { 0%,100%{border-color:var(--parchment-dark)} 40%{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,134,42,.15)} }
+.test-sidebar.just-activated { animation: sidebarPulse 1.4s ease; }
+
+@media (max-width: 820px) {
+  .layout { grid-template-columns: 1fr; }
+  .test-sidebar { display: none; }
+  .mobile-test-toggle { display: block; }
+  .form-row { grid-template-columns: 1fr; }
+  .date-fields { grid-template-columns: 1fr; }
+  .form-section { padding: 22px 20px; }
+  .submit-section { flex-direction: column; padding: 20px; }
+  .btn-primary, .btn-secondary { width: 100%; text-align: center; }
+  .panel-block { flex-direction: column; gap: 14px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="page-header">
+    <div class="header-eyebrow">Your Dressage Journey</div>
+    <div class="header-title">Show Preparation Planner</div>
+    <div class="header-sub">Select your tests · flag movements in the sidebar · let the AI build your prep plan</div>
+  </div>
+
+  <div class="success-banner" id="successBanner">
+    ✓ Show prep saved — generating your personalized preparation roadmap…
+  </div>
+
+  <!-- MOBILE SIDEBAR TOGGLE -->
+  <div class="mobile-test-toggle" id="mobileTestToggle">
+    <div class="mobile-test-bar" onclick="toggleMobileTest()">
+      <span class="mobile-test-icon">📋</span>
+      <div class="mobile-test-info">
+        <div class="mobile-test-name" id="mobileSidebarTitle">Test Reference</div>
+        <div class="mobile-test-sub">Select a test below · then tap here to flag movements</div>
+      </div>
+      <span class="mobile-flag-count" id="mobileFlagCount">0 flagged</span>
+      <span class="mobile-caret" id="mobileCaret">▼</span>
+    </div>
+    <div class="mobile-test-body" id="mobileTestBody"></div>
+  </div>
+
+  <div class="layout">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="test-sidebar" id="testSidebar">
+      <div class="sidebar-head">
+        <div class="sidebar-eyebrow">Test Reference</div>
+        <div class="sidebar-title" id="sidebarTestTitle">No test selected yet</div>
+        <div class="sidebar-sub" id="sidebarTestSub">Select your tests in Section 3 of the form</div>
+      </div>
+
+      <!-- test switcher (shown when >1 test selected) -->
+      <div id="testSwitcherWrap">
+        <div class="sidebar-no-test" id="sidebarNoTest">
+          <div class="sidebar-no-test-icon">📋</div>
+          <div class="sidebar-no-test-msg">Select a test in <strong>Section 3</strong> of the form and this panel will load the movements, coefficients, and Flag for Prep checklist for that test.</div>
+          <div class="sidebar-no-test-arrow">↓ scroll to Section 3 to select your tests</div>
+        </div>
+        <div id="testSwitcherPills" style="display:none">
+          <div class="test-switcher" id="testPillsContainer"></div>
+          <div class="sidebar-flag-badge" id="sidebarFlagBadge">0 movements flagged</div>
+          <div class="test-tabs" id="testTabsBar">
+            <button class="test-tab" onclick="switchSidebarTab('overview',this)">Overview</button>
+            <button class="test-tab" onclick="switchSidebarTab('movements',this)">Movements</button>
+            <button class="test-tab" onclick="switchSidebarTab('coefficients',this)">Coefficients</button>
+            <button class="test-tab active" onclick="switchSidebarTab('flag',this)">Flag for Prep</button>
+          </div>
+          <div class="test-tab-content" id="tab-overview"></div>
+          <div class="test-tab-content" id="tab-movements"></div>
+          <div class="test-tab-content" id="tab-coefficients"></div>
+          <div class="test-tab-content active" id="tab-flag"></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── FORM ── -->
+    <main class="form-main">
+      <form id="showPrepForm" onsubmit="handleSubmit(event)">
+
+        <!-- SECTION 1: SHOW DETAILS -->
+        <div class="form-card">
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-title">Show Details</div>
+              <div class="section-desc">Tell us about the show you're preparing for</div>
+            </div>
+
+            <div class="form-group">
+              <label for="showName">Show Name</label>
+              <input type="text" id="showName" name="showName" placeholder="e.g., Sunridge Spring Dressage, NEDA Fall Festival" required>
+            </div>
+
+            <div class="form-group">
+              <label>Show Duration</label>
+              <div class="date-toggle-group">
+                <input type="radio" id="singleDay" name="showDuration" value="single" checked>
+                <label for="singleDay">One Day</label>
+                <input type="radio" id="multiDay" name="showDuration" value="multi">
+                <label for="multiDay">Multiple Days</label>
+              </div>
+              <div class="date-fields">
+                <div class="form-group" style="margin-bottom:0">
+                  <label for="showDateStart" id="startDateLabel">Show Date</label>
+                  <input type="date" id="showDateStart" name="showDateStart" required>
+                </div>
+                <div class="form-group date-end-field" id="endDateGroup" style="margin-bottom:0">
+                  <label for="showDateEnd">End Date</label>
+                  <input type="date" id="showDateEnd" name="showDateEnd">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Show Type</label>
+              <div class="show-type-toggle">
+                <input type="radio" id="type-recognized" name="showType" value="recognized" required>
+                <label for="type-recognized">Recognized</label>
+                <input type="radio" id="type-schooling" name="showType" value="schooling">
+                <label for="type-schooling">Schooling</label>
+                <input type="radio" id="type-other-show" name="showType" value="other">
+                <label for="type-other-show">Other</label>
+              </div>
+            </div>
+
+            <div class="form-group" id="showTypeOtherGroup" style="display:none">
+              <label for="showTypeOther">Please specify</label>
+              <input type="text" id="showTypeOther" name="showTypeOther" placeholder="Describe the show type">
+            </div>
+
+            <div class="form-group">
+              <label for="showLocation">Location <span class="label-opt">(optional)</span></label>
+              <input type="text" id="showLocation" name="showLocation" placeholder="Venue name or city">
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 2: YOUR HORSE -->
+        <div class="form-card">
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-title">Your Horse</div>
+              <div class="section-desc">Tell us about the partner you're bringing into the ring</div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="horseName">Horse for This Show</label>
+                <select id="horseName" name="horseName" required>
+                  <option value="">Select horse…</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="currentLevel">Current Training Level</label>
+                <input type="text" id="currentLevel" name="currentLevel" placeholder="e.g., Training Level, 2nd Level, PSG" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Experience showing this horse</label>
+              <div class="radio-group">
+                <div class="radio-item">
+                  <input type="radio" id="exp-first" name="showExperience" value="first-time">
+                  <label for="exp-first">First time showing together</label>
+                </div>
+                <div class="radio-item">
+                  <input type="radio" id="exp-some" name="showExperience" value="some-experience">
+                  <label for="exp-some">Some experience</label>
+                </div>
+                <div class="radio-item">
+                  <input type="radio" id="exp-regular" name="showExperience" value="regular">
+                  <label for="exp-regular">Regular show partners</label>
+                </div>
+              </div>
+            </div>
+
+
+          </div>
+        </div>
+
+        <!-- SECTION 3: TESTS -->
+        <div class="form-card">
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-title">Tests You're Riding</div>
+              <div class="section-desc">Select your tests here — the reference panel on the left will load immediately so you can flag movements for each test before filling out your concerns</div>
+            </div>
+
+            <div class="test-type-toggle">
+              <div class="radio-item">
+                <input type="radio" id="testTypeStandard" name="testType" value="standard" checked onchange="buildTestSlots(false)">
+                <label for="testTypeStandard">Standard Tests</label>
+              </div>
+              <div class="radio-item">
+                <input type="radio" id="testTypeFreestyle" name="testType" value="freestyle" onchange="buildTestSlots(true)">
+                <label for="testTypeFreestyle">Freestyle</label>
+              </div>
+            </div>
+
+            <div class="test-slots" id="testSlots"></div>
+
+            <p class="test-note">Select only the tests you plan to ride. Unused slots can be left blank.</p>
+          </div>
+        </div>
+
+        <!-- SECTION 4: GOALS -->
+        <div class="form-card">
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-title">Your Goals</div>
+              <div class="section-desc">What do you want to achieve at this show? (Up to 3)</div>
+            </div>
+
+            <div class="info-box">
+              <strong>Tip:</strong> Process goals outperform outcome goals here. "Maintain relaxation through the extended trot" gives the AI more to work with than "score well."
+            </div>
+
+            <div class="numbered-row">
+              <div class="row-num">1</div>
+              <input type="text" id="goal1" name="goal1" placeholder="Primary goal" required>
+            </div>
+            <div class="numbered-row">
+              <div class="row-num">2</div>
+              <input type="text" id="goal2" name="goal2" placeholder="Second goal (optional)">
+            </div>
+            <div class="numbered-row">
+              <div class="row-num">3</div>
+              <input type="text" id="goal3" name="goal3" placeholder="Third goal (optional)">
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 5: CONCERNS -->
+        <div class="form-card">
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-title">Your Concerns</div>
+              <div class="section-desc">Flagged movements and anything else that's on your mind</div>
+            </div>
+
+            <!-- FLAGS CALLOUT -->
+            <div class="flags-callout" id="flagsCallout">
+              <div class="flags-callout-head">
+                <span class="flags-callout-label">Flagged movements</span>
+                <div class="flags-callout-meta">
+                  <span class="flags-callout-count" id="flagsCalloutCount">0</span>
+                </div>
+              </div>
+              <div class="flags-callout-chips" id="flagsCalloutChips">
+                <div class="flags-empty-state">
+                  <span>→</span>
+                  <span>Select your tests above · then use <strong>Flag for Prep</strong> in the sidebar to flag movements — they'll appear here as priority signals for the AI.</span>
+                </div>
+              </div>
+              <div class="flags-sidebar-hint" id="flagsSidebarHint">
+                Double-coefficient movements are weighted more heavily in the Technical prep output.
+              </div>
+            </div>
+
+            <div class="other-concerns-label">Other concerns</div>
+            <div class="info-box">
+              <strong>Think:</strong> nerves, warm-up behavior, logistics, past experiences at this venue, anything that isn't a specific test movement.
+            </div>
+            <div class="numbered-row">
+              <div class="row-num">1</div>
+              <input type="text" id="concern1" name="concern1" placeholder="Primary concern">
+            </div>
+            <div class="numbered-row">
+              <div class="row-num">2</div>
+              <input type="text" id="concern2" name="concern2" placeholder="Second concern (optional)">
+            </div>
+            <div class="numbered-row">
+              <div class="row-num">3</div>
+              <input type="text" id="concern3" name="concern3" placeholder="Third concern (optional)">
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 6: RESOURCES -->
+        <div class="form-card">
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-title">Resources &amp; Preparation Time</div>
+              <div class="section-desc">Help us tailor your plan to what you actually have available</div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="ridingFrequency">Riding days per week until the show</label>
+                <select id="ridingFrequency" name="ridingFrequency">
+                  <option value="">Select…</option>
+                  <option value="1-2">1–2 days/week</option>
+                  <option value="3-4">3–4 days/week</option>
+                  <option value="5-6">5–6 days/week</option>
+                  <option value="7">7 days/week</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Trainer / coach access</label>
+                <div class="radio-group">
+                  <div class="radio-item"><input type="radio" id="coach-weekly" name="coachAccess" value="weekly"><label for="coach-weekly">Weekly</label></div>
+                  <div class="radio-item"><input type="radio" id="coach-biweekly" name="coachAccess" value="biweekly"><label for="coach-biweekly">Every 2 weeks</label></div>
+                  <div class="radio-item"><input type="radio" id="coach-monthly" name="coachAccess" value="monthly"><label for="coach-monthly">Monthly</label></div>
+                  <div class="radio-item"><input type="radio" id="coach-occasional" name="coachAccess" value="occasional"><label for="coach-occasional">Occasional</label></div>
+                  <div class="radio-item"><input type="radio" id="coach-none" name="coachAccess" value="none"><label for="coach-none">Self-training</label></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Available resources <span class="label-opt">(check all that apply)</span></label>
+              <div class="checkbox-group">
+                <div class="checkbox-item"><input type="checkbox" id="res-mirrors" name="resources" value="mirrors"><label for="res-mirrors">Mirrors in arena</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="res-video" name="resources" value="video"><label for="res-video">Video capability</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="res-ground" name="resources" value="ground-person"><label for="res-ground">Ground person / eyes on the ground</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="res-facility" name="resources" value="show-facility"><label for="res-facility">Can school at the show venue</label></div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="constraints">Time or resource constraints <span class="label-opt">(optional)</span></label>
+              <textarea id="constraints" name="constraints" placeholder="Travel schedule, horse soundness issues, weather-dependent access, anything limiting your prep window…"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 7: ANYTHING ELSE -->
+        <div class="form-card">
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-title">Anything Else?</div>
+              <div class="section-desc">Context the AI should have that isn't covered above</div>
+            </div>
+
+            <div class="form-group">
+              <label for="additionalInfo">Additional context <span class="label-opt">(optional)</span></label>
+              <textarea id="additionalInfo" name="additionalInfo" class="tall" placeholder="Mental game focus areas, past experiences at this show or venue, specific anxiety triggers, logistics you're navigating, motivation strategies that work for you…"></textarea>
+              <div class="char-count"><span id="additionalInfoCount">0</span> characters</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 8: PACKING LIST -->
+        <div class="form-card">
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-title">Show Packing List</div>
+              <div class="section-desc">Don't leave anything behind</div>
+            </div>
+            <div class="panel-block">
+              <div class="panel-icon">🧳</div>
+              <div class="panel-text">
+                <h3>Open Your Packing Checklist</h3>
+                <p>Covers everything from shipping boots to stock ties — organized by category with collapsible sections, custom item support, and progress tracking. Items save automatically so you can check things off as you load the trailer.</p>
+                <a href="horse-show-packing-list.html" class="btn-panel">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                  Open Packing List
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 9: AFTER THE SHOW -->
+        <div class="form-card">
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-title">After the Show</div>
+              <div class="section-desc">Complete your circle — record what actually happened</div>
+            </div>
+            <div class="panel-block">
+              <div class="panel-icon">🏟️</div>
+              <div class="panel-text">
+                <h3>Log Your Post-Show Reflection</h3>
+                <p>Once the ribbons are handed out and the trailer is loaded, come back to capture what you felt, learned, and want to carry forward. Your post-show reflection becomes part of the pattern analysis that makes your journey insights richer over time.</p>
+                <a href="journey-event-log.html" class="btn-panel">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                  Record Show Reflection
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUBMIT -->
+        <div class="form-card">
+          <div class="submit-section">
+            <button type="submit" class="btn-primary">Generate My Preparation Plan</button>
+            <button type="button" class="btn-secondary" onclick="saveAsDraft()">Save Draft</button>
+          </div>
+        </div>
+
+      </form>
+    </main>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────
+// TEST DATABASE (PSG hardcoded; others show placeholder until DB wired in)
+// Production: load from comprehensive_dressage_test_database.json by test key
+// ─────────────────────────────────────────────────────
+// Source: fei_test_database_complete.json + comprehensive_dressage_test_database_with_coefficients.json
+// Production: replace this object with a runtime fetch/parse of those files indexed by test_id
+const TEST_DATA = {
+  psg: {
+    label: 'Prix St. Georges',
+    shortLabel: 'PSG',
+    org: 'FEI', duration: '5:50', minAge: '7+', arena: '20×60',
+    // Collective mark: Harmony ×2 (cooperation, lightness, effectiveness, sensitivity of aids, adherence to training scale)
+    directives: [
+      { title: 'Regularity & Freedom', body: 'Pure, clear rhythm with engagement and elasticity in all gaits' },
+      { title: 'Collection & Self-Carriage', body: 'The horse carries itself; the rider\'s hand supports but does not hold the balance' },
+      { title: 'Impulsion', body: 'Stored energy that can be released into any movement; not speed' },
+      { title: 'Straightness', body: 'Hind feet track up on forefeet; no haunches trailing or shoulders escaping' },
+      { title: 'Submission', body: 'Willing, attentive, harmonious; jaw or neck tension reads immediately as resistance' },
+      { title: 'Harmony (collective ×2)', body: 'Cooperation, lightness, effectiveness, sensitivity of aids, and adherence to the training scale — the only doubled collective in this test' },
+    ],
+    movementGroups: [
+      { label: 'Trot Work', color: '#2e5c82', movements: [
+        { text: 'Collected trot' },
+        { text: 'Medium trot' },
+        { text: 'Extended trot' },
+        { text: 'Shoulder-in' },
+        { text: 'Half-pass right', coeff: true },
+        { text: 'Half-pass left', coeff: true },
+        { text: '8m volte', newAt: true },
+      ]},
+      { label: 'Canter Work', color: '#3d6b46', movements: [
+        { text: 'Collected canter' },
+        { text: 'Extended canter' },
+        { text: 'Half-pass with flying changes' },
+        { text: 'Single flying changes' },
+        { text: '4-tempi changes × 5', newAt: true },
+        { text: '3-tempi changes × 5', newAt: true },
+        { text: 'Half-pirouette left (3–4 strides)', coeff: true, newAt: true },
+        { text: 'Half-pirouette right (3–4 strides)', coeff: true, newAt: true },
+        { text: 'Counter canter' },
+      ]},
+      { label: 'Walk', color: '#b8862a', movements: [
+        { text: 'Collected walk', coeff: true },
+        { text: 'Extended walk', coeff: true },
+        { text: 'Half-pirouette in walk left', newAt: true },
+        { text: 'Half-pirouette in walk right', newAt: true },
+      ]},
+      { label: 'Halt', color: '#6b4f38', movements: [
+        { text: 'Halt — immobility' },
+      ]},
+    ],
+    // Source: comprehensive_dressage_test_database_with_coefficients.json → prix_st_georges
+    coefficients: [
+      { movement: 'Trot half-pass right', badge: '×2', type: 'movement', why: 'Horse must be parallel to long side, clear crossing, consistent bend throughout.' },
+      { movement: 'Trot half-pass left', badge: '×2', type: 'movement', why: 'Each rein scored separately — asymmetry between left and right is exposed here.' },
+      { movement: 'Collected walk', badge: '×2', type: 'movement', why: 'Clear four-beat rhythm, self-carriage, and suppleness through the back. Tension destroys it.' },
+      { movement: 'Extended walk', badge: '×2', type: 'movement', why: 'Maximum overstride with total freedom in the neck. Restriction of any kind is penalized.' },
+      { movement: 'Half-pirouette left (canter)', badge: '×2', type: 'movement', why: 'New at PSG. 3–4 strides, energy upward, clear jump of the canter maintained.' },
+      { movement: 'Half-pirouette right (canter)', badge: '×2', type: 'movement', why: 'New at PSG. Each direction scored separately — the weaker rein has nowhere to hide.' },
+      { movement: 'Harmony', badge: '×2', type: 'collective', why: 'Cooperation, lightness, effectiveness, sensitivity of aids, adherence to training scale. The only doubled collective in this test.' },
+    ],
+    // Flag for Prep checklist — coefficient items first, then key movements by difficulty/newness
+    concernItems: [
+      { id:'hp-trot-r',   text:'Trot half-pass right',             note:'Double coefficient — each rein scored independently', coeff:true },
+      { id:'hp-trot-l',   text:'Trot half-pass left',              note:'Double coefficient — asymmetry between reins is fully exposed', coeff:true },
+      { id:'coll-walk',   text:'Collected walk',                   note:'Double coefficient — tension destroys the four-beat rhythm', coeff:true },
+      { id:'ext-walk',    text:'Extended walk',                    note:'Double coefficient — maximum overstride; any restriction penalized', coeff:true },
+      { id:'hpir-c-l',    text:'Half-pirouette left (canter)',     note:'Double coefficient · new at PSG · 3–4 strides; energy must stay upward', coeff:true },
+      { id:'hpir-c-r',    text:'Half-pirouette right (canter)',    note:'Double coefficient · new at PSG · weaker rein has nowhere to hide', coeff:true },
+      { id:'harmony',     text:'Harmony (collective ×2)',          note:'Cooperation, lightness, sensitivity of aids, training scale adherence', coeff:true },
+      { id:'4-tempi',     text:'4-tempi changes × 5',             note:'New at PSG · straightness and rhythm matter as much as timing', coeff:false },
+      { id:'3-tempi',     text:'3-tempi changes × 5',             note:'New at PSG · loss of rhythm or straightness drops the score quickly', coeff:false },
+      { id:'hpir-w-l',    text:'Half-pirouette in walk left',      note:'New at PSG · clear two-beat walk must be maintained throughout', coeff:false },
+      { id:'hpir-w-r',    text:'Half-pirouette in walk right',     note:'New at PSG · each direction assessed separately', coeff:false },
+      { id:'hp-cant',     text:'Half-pass with flying changes',    note:'Change of bend must be prompt; consistent angle and crossing', coeff:false },
+      { id:'single-fc',   text:'Single flying changes',            note:'Straightness and uphill tendency are both scored', coeff:false },
+      { id:'8m-volte',    text:'8m volte',                        note:'New at PSG · will bulge if even slightly over-size; geometry matters', coeff:false },
+      { id:'shoulder-in', text:'Shoulder-in',                     note:'30° / three tracks; not four-track overbending', coeff:false },
+      { id:'ext-trot',    text:'Extended trot',                   note:'Uphill tendency and clear return to collection both scored', coeff:false },
+      { id:'ext-canter',  text:'Extended canter',                 note:'Judges see the full long diagonal; return to collection is part of the picture', coeff:false },
+      { id:'halt',        text:'Halt — immobility',               note:'Square halt, genuine immobility before moving off', coeff:false },
+    ]
+  }
+  // Inter I, Inter II, GP, GP Special: populated from fei_test_database_complete.json in production.
+};
+
+// Test list for dropdown slots
+const standardTests = [
+  { value: '', label: '— Select a test —' },
+  { value: 'intro_a', label: 'Intro — Test A' }, { value: 'intro_b', label: 'Intro — Test B' }, { value: 'intro_c', label: 'Intro — Test C' },
+  { value: 'training_1', label: 'Training Level — Test 1' }, { value: 'training_2', label: 'Training Level — Test 2' }, { value: 'training_3', label: 'Training Level — Test 3' },
+  { value: 'first_1', label: 'First Level — Test 1' }, { value: 'first_2', label: 'First Level — Test 2' }, { value: 'first_3', label: 'First Level — Test 3' },
+  { value: 'second_1', label: 'Second Level — Test 1' }, { value: 'second_2', label: 'Second Level — Test 2' }, { value: 'second_3', label: 'Second Level — Test 3' },
+  { value: 'third_1', label: 'Third Level — Test 1' }, { value: 'third_2', label: 'Third Level — Test 2' }, { value: 'third_3', label: 'Third Level — Test 3' },
+  { value: 'fourth_1', label: 'Fourth Level — Test 1' }, { value: 'fourth_2', label: 'Fourth Level — Test 2' }, { value: 'fourth_3', label: 'Fourth Level — Test 3' },
+  { value: 'psg', label: 'FEI — Prix St. Georges' },
+  { value: 'inter_1', label: 'FEI — Intermediate I' },
+  { value: 'inter_2', label: 'FEI — Intermediate II' },
+  { value: 'grand_prix', label: 'FEI — Grand Prix' },
+  { value: 'gp_special', label: 'FEI — Grand Prix Special' },
+];
+
+const freestyleTests = [
+  { value: '', label: '— Select a freestyle —' },
+  { value: 'fs_training', label: 'Training Level Freestyle' },
+  { value: 'fs_first', label: 'First Level Freestyle' },
+  { value: 'fs_second', label: 'Second Level Freestyle' },
+  { value: 'fs_third', label: 'Third Level Freestyle' },
+  { value: 'fs_fourth', label: 'Fourth Level Freestyle' },
+];
+
+// ── STATE ─────────────────────────────────────────────
+// flagState[testKey][itemId] = boolean
+const flagState = {};
+let activeTestKey = null;
+let activeSidebarTab = 'flag';
+
+// ── INIT ──────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  buildTestSlots(false);
+  loadHorseProfiles();
+  setupDateToggle();
+  setupShowTypeToggle();
+  setupCharCounter();
+  loadDraft();
+});
+
+// ── TEST SLOTS ────────────────────────────────────────
+function buildTestSlots(isFreestyle) {
+  const container = document.getElementById('testSlots');
+  const tests = isFreestyle ? freestyleTests : standardTests;
+  const maxSlots = isFreestyle ? 2 : 6;
+  container.innerHTML = '';
+  for (let i = 1; i <= maxSlots; i++) {
+    const div = document.createElement('div');
+    div.className = 'test-slot';
+    const num = document.createElement('div');
+    num.className = 'slot-number';
+    num.textContent = i;
+    const sel = document.createElement('select');
+    sel.id = 'test' + i;
+    sel.name = 'test' + i;
+    sel.addEventListener('change', onTestSelectionChange);
+    tests.forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t.value; opt.textContent = t.label;
+      sel.appendChild(opt);
+    });
+    div.appendChild(num); div.appendChild(sel);
+    container.appendChild(div);
+  }
+  onTestSelectionChange();
+}
+
+// ── TEST SELECTION → SIDEBAR ──────────────────────────
+function onTestSelectionChange() {
+  const selectedTests = getSelectedTests();
+  updateSidebarPills(selectedTests);
+  renderFlagState();
+}
+
+function getSelectedTests() {
+  const results = [];
+  for (let i = 1; i <= 6; i++) {
+    const sel = document.getElementById('test' + i);
+    if (sel && sel.value) {
+      const label = sel.options[sel.selectedIndex]?.text || sel.value;
+      results.push({ value: sel.value, label });
+    }
+  }
+  return results;
+}
+
+function updateSidebarPills(tests) {
+  const noTest = document.getElementById('sidebarNoTest');
+  const pillsWrap = document.getElementById('testSwitcherPills');
+  const pillsContainer = document.getElementById('testPillsContainer');
+
+  if (tests.length === 0) {
+    noTest.style.display = 'block';
+    pillsWrap.style.display = 'none';
+    document.getElementById('sidebarTestTitle').textContent = 'No test selected yet';
+    document.getElementById('sidebarTestSub').textContent = 'Select your tests in Section 3 of the form';
+    activeTestKey = null;
+    return;
+  }
+
+  noTest.style.display = 'none';
+  pillsWrap.style.display = 'block';
+
+  // pulse the sidebar border on first activation
+  const sidebar = document.getElementById('testSidebar');
+  if (sidebar && !sidebar.dataset.everActivated) {
+    sidebar.dataset.everActivated = '1';
+    sidebar.classList.add('just-activated');
+    setTimeout(() => sidebar.classList.remove('just-activated'), 1500);
+  }
+
+  // if current active test was deselected, switch to first
+  const keys = tests.map(t => t.value);
+  if (!activeTestKey || !keys.includes(activeTestKey)) {
+    activeTestKey = tests[0].value;
+  }
+
+  // build pills
+  pillsContainer.innerHTML = '';
+  tests.forEach(t => {
+    const pill = document.createElement('button');
+    pill.type = 'button';
+    pill.className = 'test-pill' + (t.value === activeTestKey ? ' active' : '');
+    pill.textContent = getShortLabel(t.value, t.label);
+    pill.onclick = () => switchActiveTest(t.value);
+    pillsContainer.appendChild(pill);
+  });
+
+  // hide pills row itself if only 1 test selected (parent stays visible)
+  pillsContainer.style.display = tests.length > 1 ? 'flex' : 'none';
+
+  renderSidebarForTest(activeTestKey, tests.find(t => t.value === activeTestKey)?.label);
+}
+
+function getShortLabel(value, fullLabel) {
+  const map = { psg:'PSG', inter_1:'Inter I', inter_2:'Inter II', grand_prix:'GP', gp_special:'GPS' };
+  if (map[value]) return map[value];
+  // e.g. "Training Level — Test 1" → "TL T1"
+  return fullLabel.replace('Level — Test', 'L T').replace(' — Test ', ' T').replace('Intro — ', '').replace('FEI — ', '').replace('Freestyle','FS');
+}
+
+function switchActiveTest(testKey) {
+  activeTestKey = testKey;
+  const tests = getSelectedTests();
+  document.querySelectorAll('.test-pill').forEach(p => {
+    p.classList.toggle('active', p.textContent === getShortLabel(testKey, tests.find(t=>t.value===testKey)?.label||testKey));
+  });
+  renderSidebarForTest(testKey, tests.find(t => t.value === testKey)?.label);
+  renderFlagState();
+}
+
+function renderSidebarForTest(testKey, label) {
+  const data = TEST_DATA[testKey];
+  document.getElementById('sidebarTestTitle').textContent = label || testKey;
+  document.getElementById('sidebarTestSub').textContent = data
+    ? `${data.org} · use Flag for Prep to prioritize your AI output`
+    : 'Full movement data coming soon — you can still flag general concerns below';
+
+  if (!flagState[testKey]) flagState[testKey] = {};
+
+  renderOverviewTab(data);
+  renderMovementsTab(data);
+  renderCoefficientsTab(data);
+  renderFlagTab(data, testKey);
+
+  // restore active tab
+  document.querySelectorAll('.test-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.test-tab-content').forEach(t => t.classList.remove('active'));
+  const activeTabEl = document.querySelector(`#testTabsBar .test-tab:nth-child(${['overview','movements','coefficients','flag'].indexOf(activeSidebarTab)+1})`);
+  if (activeTabEl) activeTabEl.classList.add('active');
+  const activeContentEl = document.getElementById(`tab-${activeSidebarTab}`);
+  if (activeContentEl) activeContentEl.classList.add('active');
+}
+
+// ── RENDER TAB CONTENT ────────────────────────────────
+function renderOverviewTab(data) {
+  const el = document.getElementById('tab-overview');
+  if (!data) { el.innerHTML = '<div class="flag-intro">Overview data will be available once this test is added to the database.</div>'; return; }
+  el.innerHTML = `
+    <div class="test-meta-grid">
+      <div class="test-meta-cell"><div class="test-meta-val">${data.org}</div><div class="test-meta-key">Org</div></div>
+      <div class="test-meta-cell"><div class="test-meta-val">${data.duration}</div><div class="test-meta-key">Duration</div></div>
+      <div class="test-meta-cell"><div class="test-meta-val">${data.minAge}</div><div class="test-meta-key">Min Age</div></div>
+      <div class="test-meta-cell"><div class="test-meta-val">${data.arena}</div><div class="test-meta-key">Arena</div></div>
+    </div>
+    <div class="test-directives-title">What Judges Are Watching For</div>
+    ${data.directives.map(d => `<div class="test-directive"><strong>${d.title}</strong> — ${d.body}</div>`).join('')}`;
+}
+
+function renderMovementsTab(data) {
+  const el = document.getElementById('tab-movements');
+  if (!data) { el.innerHTML = '<div class="flag-intro">Movement data will be available once this test is added to the database.</div>'; return; }
+  el.innerHTML = data.movementGroups.map(g => `
+    <div class="movement-group">
+      <div class="mg-header"><div class="mg-dot" style="background:${g.color}"></div><div class="mg-label">${g.label}</div></div>
+      <div class="mg-items">${g.movements.map(m =>
+        `<span class="mg-chip${m.coeff?' coeff':''}${m.newAt?' new-at':''}">${m.text}</span>`
+      ).join('')}</div>
+    </div>`).join('') +
+    `<div class="movement-note"><span style="color:var(--mental-color);font-weight:600">Blue chips</span> = new at this level &nbsp;·&nbsp; <span style="color:var(--tech-color);font-weight:600">Rust chips marked ×2</span> = double coefficient</div>`;
+}
+
+function renderCoefficientsTab(data) {
+  const el = document.getElementById('tab-coefficients');
+  if (!data) { el.innerHTML = '<div class="flag-intro">Coefficient data will be available once this test is added to the database.</div>'; return; }
+  el.innerHTML = `<table class="coeff-table">
+    <thead><tr><th>Movement</th><th style="width:48px;text-align:center">Coeff</th><th>Why It Matters</th></tr></thead>
+    <tbody>${data.coefficients.map(c =>
+      `<tr><td>${c.movement}</td><td style="text-align:center"><span class="coeff-badge${c.type==='collective'?' collective':''}">${c.badge}</span></td><td>${c.why}</td></tr>`
+    ).join('')}</tbody></table>
+    <div class="info-box" style="margin-bottom:0;font-size:11px">Verify coefficients against the current official test sheet before competing.</div>`;
+}
+
+function renderFlagTab(data, testKey) {
+  const el = document.getElementById('tab-flag');
+  if (!data) {
+    el.innerHTML = `<div class="flag-intro">Movement flagging for this test will be available once its data is added to the database. You can still describe concerns in the free-text fields below.</div>`;
+    return;
+  }
+  const flags = flagState[testKey] || {};
+  el.innerHTML = `<div class="flag-intro">Flag movements or directives to prioritize in your prep plan. Double-coefficient items carry extra weight in the Technical output.</div>
+    <div id="concernsList-${testKey}">
+    ${data.concernItems.map(item => `
+      <div class="concern-row${flags[item.id]?' flagged':''}" id="concern-${testKey}-${item.id}" onclick="toggleFlag('${testKey}','${item.id}')">
+        <div class="concern-check">${flags[item.id]?'✓':''}</div>
+        <div>
+          <div class="concern-text">${item.text}${item.coeff?' <span style="font-size:9px;color:var(--tech-color);font-weight:700;margin-left:3px">×2</span>':''}</div>
+          <div class="concern-note">${item.note}</div>
+        </div>
+      </div>`).join('')}
+    </div>
+    <div class="flag-summary">
+      <div class="flag-summary-label">Flagged for AI</div>
+      <div class="flag-chips" id="flagChips-${testKey}">
+        <span class="flag-summary-empty">None flagged yet</span>
+      </div>
+    </div>`;
+  updateSidebarChips(testKey);
+}
+
+// ── FLAG TOGGLE ───────────────────────────────────────
+function toggleFlag(testKey, itemId) {
+  if (!flagState[testKey]) flagState[testKey] = {};
+  flagState[testKey][itemId] = !flagState[testKey][itemId];
+  const row = document.getElementById(`concern-${testKey}-${itemId}`);
+  const check = row?.querySelector('.concern-check');
+  if (row) {
+    row.classList.toggle('flagged', flagState[testKey][itemId]);
+    if (check) check.innerHTML = flagState[testKey][itemId] ? '✓' : '';
+  }
+  updateSidebarChips(testKey);
+  renderFlagState();
+}
+
+function updateSidebarChips(testKey) {
+  const el = document.getElementById(`flagChips-${testKey}`);
+  if (!el) return;
+  const data = TEST_DATA[testKey];
+  const flags = flagState[testKey] || {};
+  const flagged = data ? data.concernItems.filter(i => flags[i.id]) : [];
+  el.innerHTML = flagged.length === 0
+    ? '<span class="flag-summary-empty">None flagged yet</span>'
+    : flagged.map(i => `<span class="flag-chip${i.coeff?' coeff':''}">${i.text}${i.coeff?'<span class="x2"> ×2</span>':''}</span>`).join('');
+}
+
+// ── RENDER ALL FLAGS INTO FORM CALLOUT ────────────────
+function renderFlagState() {
+  // aggregate all flags across all tests
+  const allFlagged = [];
+  let totalCount = 0;
+  let hasCoeff = false;
+
+  Object.entries(flagState).forEach(([testKey, flags]) => {
+    const data = TEST_DATA[testKey];
+    if (!data) return;
+    const testLabel = getSelectedTests().find(t => t.value === testKey)?.label || testKey;
+    data.concernItems.filter(i => flags[i.id]).forEach(item => {
+      allFlagged.push({ ...item, testKey, testLabel });
+      if (item.coeff) hasCoeff = true;
+      totalCount++;
+    });
+  });
+
+  // sidebar badge
+  const badge = document.getElementById('sidebarFlagBadge');
+  if (badge) {
+    const currentTestFlagged = activeTestKey
+      ? (TEST_DATA[activeTestKey]?.concernItems || []).filter(i => flagState[activeTestKey]?.[i.id]).length
+      : 0;
+    badge.textContent = currentTestFlagged === 0 ? '0 movements flagged' : `${currentTestFlagged} flagged for this test`;
+  }
+
+  // form callout
+  const calloutChips = document.getElementById('flagsCalloutChips');
+  const calloutCount = document.getElementById('flagsCalloutCount');
+  const hint = document.getElementById('flagsSidebarHint');
+  const tests = getSelectedTests();
+
+  if (!calloutChips) return;
+
+  if (totalCount === 0) {
+    calloutChips.innerHTML = `<div class="flags-empty-state"><span>→</span><span>${
+      tests.length === 0
+        ? 'Select your tests above · then use <strong>Flag for Prep</strong> in the sidebar to flag movements.'
+        : 'Use <strong>Flag for Prep</strong> in the test reference sidebar to flag movements — they\'ll appear here.'
+    }</span></div>`;
+    if (calloutCount) calloutCount.style.display = 'none';
+    if (hint) hint.style.display = 'none';
+  } else {
+    const showTestLabel = Object.keys(flagState).filter(k => {
+      const data = TEST_DATA[k];
+      return data && data.concernItems.some(i => flagState[k]?.[i.id]);
+    }).length > 1;
+
+    calloutChips.innerHTML = allFlagged.map(item => `
+      <div class="fc-chip">
+        ${item.text}
+        ${item.coeff ? '<span class="x2-badge">×2</span>' : ''}
+        ${showTestLabel ? `<span class="test-label">${getShortLabel(item.testKey, item.testLabel)}</span>` : ''}
+      </div>`).join('');
+    if (calloutCount) { calloutCount.textContent = totalCount; calloutCount.style.display = 'inline-block'; }
+    if (hint) hint.style.display = hasCoeff ? 'block' : 'none';
+  }
+
+  // mobile count badge
+  const mobileCount = document.getElementById('mobileFlagCount');
+  if (mobileCount) {
+    mobileCount.textContent = `${totalCount} flagged`;
+    mobileCount.classList.toggle('has-flags', totalCount > 0);
+  }
+}
+
+// ── SIDEBAR TAB SWITCHING ─────────────────────────────
+function switchSidebarTab(name, btn) {
+  activeSidebarTab = name;
+  document.querySelectorAll('#testTabsBar .test-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.test-tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(`tab-${name}`)?.classList.add('active');
+}
+
+// ── MOBILE PANEL ──────────────────────────────────────
+function toggleMobileTest() {
+  const body = document.getElementById('mobileTestBody');
+  const caret = document.getElementById('mobileCaret');
+  const isOpen = body.classList.toggle('open');
+  caret.classList.toggle('open', isOpen);
+  if (isOpen && !body.dataset.built) {
+    body.innerHTML = '<div style="padding:4px 0">' + document.getElementById('testSidebar').innerHTML + '</div>';
+    body.dataset.built = '1';
+    // re-attach interactions
+    body.querySelectorAll('.test-tab').forEach(btn => {
+      const m = btn.getAttribute('onclick')?.match(/switchSidebarTab\('(\w+)'/);
+      if (m) btn.onclick = () => switchSidebarTab(m[1], btn);
+    });
+    body.querySelectorAll('.test-pill').forEach(pill => {
+      const tests = getSelectedTests();
+      const match = tests.find(t => getShortLabel(t.value, t.label) === pill.textContent);
+      if (match) pill.onclick = () => switchActiveTest(match.value);
+    });
+  }
+}
+
+// ── FORM HELPERS ──────────────────────────────────────
+function setupDateToggle() {
+  document.querySelectorAll('input[name="showDuration"]').forEach(r => r.addEventListener('change', function() {
+    const isMulti = this.value === 'multi';
+    document.getElementById('endDateGroup').style.display = isMulti ? 'block' : 'none';
+    document.getElementById('showDateEnd').required = isMulti;
+    document.getElementById('startDateLabel').textContent = isMulti ? 'Start Date' : 'Show Date';
+  }));
+}
+
+function setupShowTypeToggle() {
+  document.querySelectorAll('input[name="showType"]').forEach(r => r.addEventListener('change', function() {
+    document.getElementById('showTypeOtherGroup').style.display = this.value === 'other' ? 'block' : 'none';
+  }));
+}
+
+function setupCharCounter() {
+  const ta = document.getElementById('additionalInfo');
+  const counter = document.getElementById('additionalInfoCount');
+  ta?.addEventListener('input', () => { counter.textContent = ta.value.length; });
+}
+
+function loadHorseProfiles() {
+  const sel = document.getElementById('horseName');
+  ['Rocket Star', 'Pony', 'Astrid', 'D'].forEach(h => {
+    const opt = document.createElement('option');
+    opt.value = h; opt.textContent = h;
+    sel.appendChild(opt);
+  });
+}
+
+// ── COLLECT & SUBMIT ──────────────────────────────────
+function collectFormData() {
+  const fd = new FormData(document.getElementById('showPrepForm'));
+  const tests = getSelectedTests();
+
+  // build per-test flag summary
+  const flagsByTest = tests.map(t => {
+    const data = TEST_DATA[t.value];
+    const flags = flagState[t.value] || {};
+    const flagged = data ? data.concernItems.filter(i => flags[i.id]) : [];
+    return {
+      test: t.value, label: t.label,
+      flaggedMovements: flagged.map(i => ({ id: i.id, text: i.text, coeff: i.coeff })),
+      doubleCoeffFlags: flagged.filter(i => i.coeff).map(i => i.text)
+    };
+  });
+
+  return {
+    timestamp: new Date().toISOString(),
+    showDetails: {
+      name: fd.get('showName'), duration: fd.get('showDuration'),
+      dateStart: fd.get('showDateStart'), dateEnd: fd.get('showDateEnd') || null,
+      type: fd.get('showType'), typeOther: fd.get('showTypeOther') || null,
+      location: fd.get('showLocation'),
+    },
+    tests: { type: fd.get('testType'), selected: tests.map(t => t.value), flagsByTest },
+    horse: {
+      name: fd.get('horseName'), currentLevel: fd.get('currentLevel'),
+      experience: fd.get('showExperience'),
+    },
+    goals: [fd.get('goal1'), fd.get('goal2'), fd.get('goal3')].filter(Boolean),
+    concerns: {
+      flaggedByTest: flagsByTest,
+      additionalConcerns: [fd.get('concern1'), fd.get('concern2'), fd.get('concern3')].filter(Boolean)
+    },
+    resources: {
+      ridingFrequency: fd.get('ridingFrequency'), coachAccess: fd.get('coachAccess'),
+      available: fd.getAll('resources'), constraints: fd.get('constraints'),
+    },
+    additional: { info: fd.get('additionalInfo') }
+  };
+}
+
+function handleSubmit(e) {
+  e.preventDefault();
+  const data = collectFormData();
+  try { localStorage.setItem('ydj_show_prep_latest', JSON.stringify(data)); } catch {}
+  document.getElementById('successBanner').classList.add('show');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  console.log('[YDJ] Show Prep Data:', data);
+}
+
+function saveAsDraft() {
+  const data = collectFormData();
+  try { localStorage.setItem('ydj_show_prep_draft', JSON.stringify(data)); } catch {}
+  const btn = document.querySelector('.btn-secondary');
+  const orig = btn.textContent;
+  btn.textContent = '✓ Draft saved';
+  btn.style.color = 'var(--forest)';
+  setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 2200);
+}
+
+// ── LOAD DRAFT ────────────────────────────────────────
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem('ydj_show_prep_draft');
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    const sd = d.showDetails || {};
+    setValue('showName', sd.name);
+    setValue('showDateStart', sd.dateStart);
+    setValue('showLocation', sd.location);
+    if (sd.duration === 'multi') {
+      document.getElementById('multiDay').checked = true;
+      document.getElementById('endDateGroup').style.display = 'block';
+      document.getElementById('startDateLabel').textContent = 'Start Date';
+      setValue('showDateEnd', sd.dateEnd);
+    }
+    if (sd.type) {
+      const r = document.querySelector(`input[name="showType"][value="${sd.type}"]`);
+      if (r) { r.checked = true; if (sd.type === 'other') document.getElementById('showTypeOtherGroup').style.display = 'block'; }
+      setValue('showTypeOther', sd.typeOther);
+    }
+    const ts = d.tests || {};
+    if (ts.type === 'freestyle') {
+      document.getElementById('testTypeFreestyle').checked = true;
+      buildTestSlots(true);
+    }
+    (ts.selected || []).forEach((v, i) => {
+      const sel = document.getElementById('test' + (i + 1));
+      if (sel) { sel.value = v; }
+    });
+    // restore flag state from draft
+    (ts.flagsByTest || []).forEach(ft => {
+      if (!flagState[ft.test]) flagState[ft.test] = {};
+      (ft.flaggedMovements || []).forEach(m => { flagState[ft.test][m.id] = true; });
+    });
+    const h = d.horse || {};
+    setValue('horseName', h.name);
+    setValue('currentLevel', h.currentLevel);
+    (d.goals || []).forEach((g, i) => setValue('goal' + (i + 1), g));
+    const concerns = d.concerns?.additionalConcerns || d.concerns || [];
+    (Array.isArray(concerns) ? concerns : []).forEach((c, i) => setValue('concern' + (i + 1), c));
+    const res = d.resources || {};
+    setValue('ridingFrequency', res.ridingFrequency);
+    if (res.coachAccess) { const r = document.querySelector(`input[name="coachAccess"][value="${res.coachAccess}"]`); if (r) r.checked = true; }
+    (res.available || []).forEach(v => { const cb = document.querySelector(`input[name="resources"][value="${v}"]`); if (cb) cb.checked = true; });
+    setValue('constraints', res.constraints);
+    setValue('additionalInfo', d.additional?.info || d.additionalInfo);
+    onTestSelectionChange();
+  } catch (e) { console.warn('Could not load draft:', e); }
+}
+
+function setValue(id, val) {
+  const el = document.getElementById(id);
+  if (el && val != null) el.value = val;
+}
+</script>
+</body>
+</html>

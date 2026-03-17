@@ -1,0 +1,317 @@
+{
+  "metadata": {
+    "organization": "Fédération Equestre Internationale (FEI)",
+    "test_code": "D-PSG-2009-2026",
+    "effective_dates": "2009-2026",
+    "parsed_date": "2026-03-15",
+    "note": "Movement sequence reconstructed from FEI D-PSG-2009-2026. Verify markers and directives against official 2026 PDF before production use.",
+    "level": "Prix St. Georges",
+    "total_tests": 1
+  },
+
+  "tests": [
+    {
+      "test_id": "prix_st_georges",
+      "name": "Prix St. Georges",
+      "test_code": "D-PSG-2009-2026",
+      "level": "Prix St. Georges",
+      "organization": "FEI",
+      "year": 2026,
+
+      "test_info": {
+        "max_points": 340,
+        "base_points": 320,
+        "arena_size": "Standard (20m x 60m)",
+        "duration": "5:50",
+        "min_horse_age": 7,
+        "trot_note": "All trot work to be ridden sitting"
+      },
+
+      "purpose": "To test that the horse is supple, loose and correctly on the aids; shows self-carriage and impulsion; demonstrates correct and balanced execution of all movements.",
+
+      "movements": [
+        {
+          "number": 1,
+          "marker": "A",
+          "location": "X",
+          "description": "Enter collected canter. Halt, immobility, salute. Proceed collected trot",
+          "directives": "Straightness on centerline; quality and regularity of canter; quality of halt; immobility; attentiveness; transition to trot",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 2,
+          "marker": "C",
+          "location": null,
+          "description": "Track right. Collected trot",
+          "directives": "Bend and balance in turn; quality and regularity of collected trot",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 3,
+          "marker": "MXK",
+          "location": null,
+          "description": "Extended trot",
+          "directives": "Clear lengthening of stride and frame; regularity; impulsion; straightness; upward and downward transitions",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 4,
+          "marker": "KAF",
+          "location": null,
+          "description": "Collected trot",
+          "directives": "Quality and regularity of collected trot; balance in corners",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 5,
+          "marker": "FXH",
+          "location": null,
+          "description": "Half-pass left",
+          "directives": "Regularity and quality of trot; bend; alignment; angle; crossing of legs; balance and fluency",
+          "coefficient": 2,
+          "remarks": ""
+        },
+        {
+          "number": 6,
+          "marker": "C",
+          "location": null,
+          "description": "Medium walk",
+          "directives": "Willing, calm transition; regularity, quality, overtrack of medium walk",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 7,
+          "marker": "HXF",
+          "location": null,
+          "description": "Extended walk",
+          "directives": "Regularity and quality of walks; maximum ground cover with overtrack, allowing complete freedom to stretch the neck forward and downward; straightness; willing transitions",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 8,
+          "marker": "FA",
+          "location": null,
+          "description": "Collected walk",
+          "directives": "Willing, calm transition; regularity, quality, engagement of collected walk",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 9,
+          "marker": "A",
+          "location": null,
+          "description": "Half pirouette left. Proceed collected walk",
+          "directives": "Bend; regularity of walk; size; balance; engagement; willing transition out",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 10,
+          "marker": "Between A & K",
+          "location": null,
+          "description": "Half pirouette right. Proceed collected walk",
+          "directives": "Bend; regularity of walk; size; balance; engagement; willing transition out",
+          "coefficient": 2,
+          "remarks": ""
+        },
+        {
+          "number": 11,
+          "marker": "KE",
+          "location": null,
+          "description": "Collected walk",
+          "directives": "Regularity, quality, and engagement of collected walk",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 12,
+          "marker": "E",
+          "location": null,
+          "description": "Collected trot. Volte left 8m",
+          "directives": "Willing transition; regularity and quality of trot; shape and size of volte; bend; balance",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 13,
+          "marker": "EXB",
+          "location": null,
+          "description": "Half-pass right",
+          "directives": "Regularity and quality of trot; bend; alignment; angle; crossing of legs; balance and fluency",
+          "coefficient": 2,
+          "remarks": ""
+        },
+        {
+          "number": 14,
+          "marker": "B",
+          "location": null,
+          "description": "Volte right 8m",
+          "directives": "Regularity and quality of trot; shape and size of volte; bend; balance",
+          "coefficient": 2,
+          "remarks": ""
+        },
+        {
+          "number": 15,
+          "marker": "BXE",
+          "location": null,
+          "description": "Half-pass left",
+          "directives": "Regularity and quality of trot; bend; alignment; angle; crossing of legs; balance and fluency",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 16,
+          "marker": "Between E & H",
+          "location": null,
+          "description": "Collected canter left lead",
+          "directives": "Willing, balanced transition; quality and regularity of canter",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 17,
+          "marker": "HXF",
+          "location": null,
+          "description": "Half-pass left in canter",
+          "directives": "Regularity and quality of canter; bend; alignment; angle; balance and fluency",
+          "coefficient": null,
+          "remarks": "Flying change on reaching the track at F"
+        },
+        {
+          "number": 18,
+          "marker": "FXH",
+          "location": null,
+          "description": "Half-pass right in canter",
+          "directives": "Regularity and quality of canter; bend; alignment; angle; balance and fluency",
+          "coefficient": 2,
+          "remarks": "Flying change on reaching the track at H"
+        },
+        {
+          "number": 19,
+          "marker": "C",
+          "location": null,
+          "description": "Half pirouette right in canter. Collected canter",
+          "directives": "Bend; size (3-4 strides); regularity; engagement and uphill tendency; balance; willing transition",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 20,
+          "marker": "MXK",
+          "location": null,
+          "description": "5 flying changes every 4th stride",
+          "directives": "Regularity and quality of canter; straightness; rhythm; expression of each change; willing, fluent transitions",
+          "coefficient": 2,
+          "remarks": ""
+        },
+        {
+          "number": 21,
+          "marker": "A",
+          "location": null,
+          "description": "Half pirouette left in canter. Collected canter",
+          "directives": "Bend; size (3-4 strides); regularity; engagement and uphill tendency; balance; willing transition",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 22,
+          "marker": "KXM",
+          "location": null,
+          "description": "5 flying changes every 3rd stride",
+          "directives": "Regularity and quality of canter; straightness; rhythm; expression of each change; willing, fluent transitions",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 23,
+          "marker": "C",
+          "location": null,
+          "description": "Collected canter. Counter canter loop",
+          "directives": "Quality and regularity of collected canter; balance and self-carriage in counter canter",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 24,
+          "marker": "MXK",
+          "location": null,
+          "description": "Extended canter",
+          "directives": "Clear lengthening of stride and frame; regularity; impulsion; straightness; upward and downward transitions",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 25,
+          "marker": "KAF",
+          "location": null,
+          "description": "Collected canter",
+          "directives": "Willing, balanced transition; quality and regularity of collected canter; balance in corners",
+          "coefficient": null,
+          "remarks": ""
+        },
+        {
+          "number": 26,
+          "marker": "A",
+          "location": "X",
+          "description": "Down centerline. Halt, immobility, salute",
+          "directives": "Bend and balance in turn; regularity and quality of canter; willing, balanced transition; straightness; attentiveness; immobility",
+          "coefficient": null,
+          "remarks": "Leave arena at A in walk."
+        }
+      ],
+
+      "collective_marks": [
+        {
+          "category": "Paces",
+          "description": "Freedom and regularity",
+          "coefficient": 1
+        },
+        {
+          "category": "Impulsion",
+          "description": "Desire to move forward; elasticity of the steps; suppleness of the back; engagement of the hindquarters",
+          "coefficient": 2
+        },
+        {
+          "category": "Submission",
+          "description": "Willing cooperation; harmony; attention and confidence; acceptance of bit and lateral and diagonal aids; straightness; lightness of forehand and ease of movements",
+          "coefficient": 2
+        },
+        {
+          "category": "Rider's position and seat",
+          "description": "Alignment; posture; stability; weight placement; following mechanics of the gaits",
+          "coefficient": 1
+        },
+        {
+          "category": "Rider's correct and effective use of aids",
+          "description": "Clarity; subtlety; independence; accuracy of test",
+          "coefficient": 1
+        }
+      ],
+
+      "errors": {
+        "first_error": 2,
+        "second_error": 4,
+        "third_error": "Elimination"
+      },
+
+      "verification_notes": {
+        "generated_from": "FEI D-PSG-2009-2026 training knowledge",
+        "verify_before_production": [
+          "Confirm total movement count against official 2026 PDF",
+          "Confirm coefficient movement numbers — database lists 5, 10, 13, 14, 18, 20; verify against PDF",
+          "Confirm half pirouette in walk exact markers (movements 9 and 10)",
+          "Confirm counter canter placement and pattern (movement 23)",
+          "Confirm 4-tempi count (5 changes) and 3-tempi count (5 changes)",
+          "Confirm entry is collected canter — correct for PSG",
+          "Check 2026 PDF for any revisions from 2009 version"
+        ]
+      }
+    }
+  ]
+}

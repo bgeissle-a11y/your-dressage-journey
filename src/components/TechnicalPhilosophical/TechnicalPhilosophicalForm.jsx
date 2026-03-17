@@ -9,6 +9,7 @@ import {
   GAIT_UNDERSTANDING_SCALES,
   RIDER_SKILL_SCALES
 } from '../../services';
+import useFormRecovery from '../../hooks/useFormRecovery';
 import FormSection from '../Forms/FormSection';
 import FormField from '../Forms/FormField';
 import VoiceInput from '../Forms/VoiceInput';
@@ -65,11 +66,16 @@ export default function TechnicalPhilosophicalForm() {
   const isEdit = Boolean(id);
 
   const textareaRefs = useRef({});
+  const [draftId, setDraftId] = useState(null);
 
   const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
+
+  const { hasRecovery, applyRecovery, dismissRecovery, clearRecovery } = useFormRecovery(
+    'ydj-technical-assessment-recovery', formData, setFormData
+  );
 
   useEffect(() => {
     if (id) loadExisting();
@@ -181,15 +187,18 @@ export default function TechnicalPhilosophicalForm() {
     const data = { ...formData, isDraft };
 
     let result;
-    if (isEdit) {
-      result = await updateTechnicalAssessment(id, data);
+    const existingId = isEdit ? id : draftId;
+    if (existingId) {
+      result = await updateTechnicalAssessment(existingId, data);
     } else {
       result = await createTechnicalAssessment(currentUser.uid, data);
+      if (result.success && result.id) setDraftId(result.id);
     }
 
     setLoading(false);
 
     if (result.success) {
+      clearRecovery();
       navigate('/technical-assessments');
     } else {
       setErrors({ submit: result.error });
@@ -210,6 +219,18 @@ export default function TechnicalPhilosophicalForm() {
       <form onSubmit={handleSubmit} autoComplete="off">
         <div className="form-card">
           {errors.submit && <div className="form-section"><div className="form-alert form-alert-error">{errors.submit}</div></div>}
+
+          {hasRecovery && (
+            <div className="form-section">
+              <div className="form-alert form-alert-info" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <span>You have unsaved data from a previous session. Would you like to restore it?</span>
+                <span style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button type="button" className="btn btn-primary" style={{ fontSize: '0.85rem', padding: '0.35rem 0.75rem' }} onClick={applyRecovery}>Restore</button>
+                  <button type="button" className="btn btn-secondary" style={{ fontSize: '0.85rem', padding: '0.35rem 0.75rem' }} onClick={dismissRecovery}>Dismiss</button>
+                </span>
+              </div>
+            </div>
+          )}
 
           <div className="section-intro">
             Great riding is built on two foundations: what you know, and what you can feel. This assessment explores your theoretical understanding of the arena, the horse's movement, dressage principles, and your own body as an instrument of communication. Your honest reflection here helps your coaching voices offer guidance that meets you exactly where you are — not where you think you should be.

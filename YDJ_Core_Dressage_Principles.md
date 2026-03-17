@@ -42,7 +42,15 @@ The horse should find the contact pleasant and seek the bit in a forward-downwar
 **AI Application:** When riders mention pulling, heaviness in the hand, head position issues, being "behind the vertical," or struggling to "get the horse on the bit," the AI should reframe this as a trust/connection issue originating from behind, not a head/neck problem to fix from the front. The correction always starts with the hind legs, not the hands.
 
 ### Priority Rule
-When the AI encounters training data where any of these three principles is compromised, it should prioritize restoring them over pursuing more advanced work. A rider at Fourth Level who has lost relaxation needs relaxation work, not flying change practice. The AI should never recommend advancing technical difficulty when the foundations are showing cracks.
+When the AI encounters training data where relaxation, forwardness, or trust in the
+hand is compromised, it should prioritize restoring the specific affected principle
+before pursuing more advanced work — and name it explicitly in coaching output. A
+rider at Fourth Level who has lost relaxation needs relaxation work, not flying change
+practice. A rider whose horse is leaning on the contact needs work toward a seeking,
+pleasant contact, not more collection. The AI should never recommend advancing
+technical difficulty when the foundations are showing cracks, and should always name
+which foundation is at issue rather than referring to "the basics" or "the three
+principles" generically.
 
 ---
 
@@ -142,7 +150,10 @@ These statements represent the core philosophy that should permeate all AI coach
 
 These are explicit rules the AI must follow:
 
-**Rule P1:** Never recommend advancing to a more complex movement or exercise when debrief data shows the three basic principles (relaxation, forwardness, trust in hand) are compromised. Always recommend restoring basics first.
+**Rule P1:** Never recommend advancing to a more complex movement or exercise when
+debrief data shows relaxation, forwardness, or trust in the rider's hand is
+compromised. Always name the specific principle at issue and recommend restoring it
+before advancing — do not refer to "the basics" or "the three principles" generically.
 
 **Rule P2:** When analyzing contact/connection issues, always trace the root cause to the hind legs and throughness before addressing the front end. Never recommend hand-based fixes for what are fundamentally engagement problems.
 

@@ -1,6 +1,20 @@
-import { getWeekMonday } from '../../services/weeklyFocusService';
+import { getWeekMonday, getWeekId } from '../../services/weeklyFocusService';
 
 const VOICE_IDS = ['classical_master', 'empathetic_coach', 'technical_coach', 'practical_strategist'];
+
+/**
+ * Extract the numeric week number from a weekId (e.g. "2026-W12" → 12).
+ * Used as a rotation seed so content varies each week.
+ */
+function weekRotationSeed(weekId) {
+  if (!weekId) {
+    const id = getWeekId();
+    const m = id.match(/W(\d+)/);
+    return m ? parseInt(m[1], 10) : 0;
+  }
+  const m = weekId.match(/W(\d+)/);
+  return m ? parseInt(m[1], 10) : 0;
+}
 
 /**
  * Compute which week of the 4-week GPT cycle we're in.
@@ -50,22 +64,26 @@ export function deriveWeeklyAssignments(gptResult, cycleWeek) {
  * Extract coaching snapshot from multi-voice coaching result.
  * Collects weeklyFocusExcerpt from each voice, takes up to 2.
  * Falls back to narrative fields when weeklyFocusExcerpt not yet available.
+ * Uses weekId to rotate which excerpts/fields are highlighted each week.
  */
-export function extractCoachingSnapshot(coachingResult) {
+export function extractCoachingSnapshot(coachingResult, weekId) {
   if (!coachingResult?.voices) return null;
 
+  const seed = weekRotationSeed(weekId);
   const excerpts = [];
   let title = null;
   let reflectionNudge = null;
   let generatedAt = coachingResult.generatedAt || null;
 
   // First pass: collect weeklyFocusExcerpt fields (preferred)
+  // Rotate starting voice each week so different pairs surface
+  const allExcerpts = [];
   for (let i = 0; i < 4; i++) {
     const voice = coachingResult.voices[i];
     if (!voice || voice._error) continue;
 
-    if (voice.weeklyFocusExcerpt && excerpts.length < 2) {
-      excerpts.push({ voice: VOICE_IDS[i], text: voice.weeklyFocusExcerpt });
+    if (voice.weeklyFocusExcerpt) {
+      allExcerpts.push({ voice: VOICE_IDS[i], text: voice.weeklyFocusExcerpt });
     }
     if (i === 3 && voice.weeklyFocusTitle) {
       title = voice.weeklyFocusTitle;
@@ -75,33 +93,55 @@ export function extractCoachingSnapshot(coachingResult) {
     }
   }
 
+  if (allExcerpts.length > 0) {
+    // Rotate: pick 2 starting from a week-dependent offset
+    const offset = seed % allExcerpts.length;
+    for (let j = 0; j < Math.min(2, allExcerpts.length); j++) {
+      excerpts.push(allExcerpts[(offset + j) % allExcerpts.length]);
+    }
+  }
+
   // Fallback: if no weeklyFocusExcerpt, derive from existing voice fields
+  // Rotate the order each week so different voices are featured
   if (excerpts.length === 0) {
     const fallbackFields = [
-      // voice 2 (Technical): key_observations[0]
-      { idx: 2, extract: v => v.key_observations?.[0] },
-      // voice 3 (Practical): priorities[0]
-      { idx: 3, extract: v => v.priorities?.[0] },
-      // voice 1 (Empathetic): partnership_insights[0]
-      { idx: 1, extract: v => v.partnership_insights?.[0] },
-      // voice 0 (Classical): philosophical_reflection
-      { idx: 0, extract: v => v.philosophical_reflection },
+      { idx: 2, field: 'technical', extract: v => v.key_observations?.[0] },
+      { idx: 3, field: 'practical', extract: v => v.priorities?.[0] },
+      { idx: 1, field: 'empathetic', extract: v => v.partnership_insights?.[0] },
+      { idx: 0, field: 'classical', extract: v => v.philosophical_reflection },
     ];
 
+    // Collect all available fallback excerpts
+    const available = [];
     for (const fb of fallbackFields) {
       const voice = coachingResult.voices[fb.idx];
       if (!voice || voice._error) continue;
       const text = fb.extract(voice);
-      if (text && typeof text === 'string' && text.length > 20 && excerpts.length < 2) {
-        excerpts.push({ voice: VOICE_IDS[fb.idx], text });
+      if (text && typeof text === 'string' && text.length > 20) {
+        available.push({ voice: VOICE_IDS[fb.idx], text });
       }
     }
 
-    // Fallback title from practical strategist weekly_plan.focus
+    // Rotate: pick 2 starting from a week-dependent offset
+    if (available.length > 0) {
+      const offset = seed % available.length;
+      for (let j = 0; j < Math.min(2, available.length); j++) {
+        excerpts.push(available[(offset + j) % available.length]);
+      }
+    }
+
+    // Fallback title — rotate between available title sources
     if (!title) {
+      const titleSources = [];
       const v3 = coachingResult.voices[3];
-      if (v3?.weekly_plan?.focus) {
-        title = v3.weekly_plan.focus;
+      if (v3?.weekly_plan?.focus) titleSources.push(v3.weekly_plan.focus);
+      if (v3?.weekly_plan?.theme) titleSources.push(v3.weekly_plan.theme);
+      const v2 = coachingResult.voices[2];
+      if (v2?.key_observations?.[0] && v2.key_observations[0].length < 60) {
+        titleSources.push(v2.key_observations[0]);
+      }
+      if (titleSources.length > 0) {
+        title = titleSources[seed % titleSources.length];
       }
     }
   }
@@ -314,15 +354,18 @@ export function buildShowSnapshot(showPreps, showPlanCache, currentWeekStart) {
 
 /**
  * Select the celebration from positive reflections.
+ * Uses weekId to rotate through different reflections each week.
  */
-export function selectCelebration(reflections) {
+export function selectCelebration(reflections, weekId) {
   const positive = reflections
     .filter(r => ['personal', 'validation', 'aha'].includes(r.category))
     .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
 
   if (positive.length === 0) return null;
 
-  const r = positive[0];
+  // Rotate: pick a different reflection each week
+  const seed = weekRotationSeed(weekId);
+  const r = positive[seed % positive.length];
   return {
     id: r.id,
     quote: r.mainReflection || r.response || r.text || '',
