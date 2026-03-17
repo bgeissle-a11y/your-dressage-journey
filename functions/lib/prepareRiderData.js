@@ -92,6 +92,32 @@ async function fetchUserDoc(uid) {
 }
 
 /**
+ * Fetch the current ISO week's weeklyContext document for a user.
+ * Returns the document data or null if not found.
+ */
+async function fetchCurrentWeeklyContext(uid) {
+  try {
+    const now = new Date();
+    // ISO week ID: YYYY-Www
+    const d = new Date(now);
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7));
+    const yearStart = new Date(d.getFullYear(), 0, 1);
+    const weekNum = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+    const weekId = `${d.getFullYear()}-W${String(weekNum).padStart(2, "0")}`;
+
+    const snap = await db.collection("users").doc(uid).collection("weeklyContext").doc(weekId).get();
+    if (snap.exists) {
+      return convertTimestamps({ id: snap.id, ...snap.data() });
+    }
+    return null;
+  } catch (error) {
+    console.warn("[prepareRiderData] fetchCurrentWeeklyContext error:", error.message);
+    return null;
+  }
+}
+
+/**
  * Build merged horseSummaries array combining horse profile data
  * with per-horse ride statistics. Per Platform Outputs spec.
  */
@@ -188,6 +214,7 @@ async function prepareRiderData(uid, outputType = null) {
     technicalAssessments,
     horseHealthEntries,
     lessonNotes,
+    weeklyContextDoc,
   ] = await Promise.all([
     fetchUserDoc(uid),
     fetchCollection("riderProfiles", uid),
@@ -203,6 +230,7 @@ async function prepareRiderData(uid, outputType = null) {
     fetchCollection("technicalPhilosophicalAssessments", uid),
     fetchCollection("horseHealthEntries", uid),
     fetchCollection("lessonNotes", uid),
+    fetchCurrentWeeklyContext(uid),
   ]);
 
   // Filter out drafts
@@ -235,7 +263,7 @@ async function prepareRiderData(uid, outputType = null) {
   const riderProfile = riderProfiles[0] || null;
   const profile = aggregateProfile(riderProfile, horseProfiles);
   const rideHistory = aggregateRideHistory(nonDraftDebriefs);
-  const reflectionsSummary = aggregateReflections(reflections);
+  const reflectionsSummary = aggregateReflections(reflections, weeklyContextDoc);
   const journey = aggregateJourney(journeyEvents);
   const observationsSummary = aggregateObservations(observations);
   const eventPrep = aggregateEventPrep(eventPrepPlans);

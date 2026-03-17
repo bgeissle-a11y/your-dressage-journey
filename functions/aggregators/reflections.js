@@ -38,9 +38,22 @@ function extractTopWords(texts, limit) {
 
 /**
  * @param {Object[]} reflections - Array of reflection documents
+ * @param {Object|null} weeklyContext - Current week's weekly context document (optional)
  * @returns {Object} Aggregated reflection summary
  */
-function aggregateReflections(reflections) {
+function aggregateReflections(reflections, weeklyContext) {
+  const weeklyCtx = weeklyContext ? {
+    confidenceTrend: weeklyContext.confidenceTrend || null,
+    coachQuestions: weeklyContext.coachQuestions || null,
+    selfObservedPatterns: weeklyContext.selfObservedPatterns || null,
+    weekId: weeklyContext.weekId || null,
+  } : {
+    confidenceTrend: null,
+    coachQuestions: null,
+    selfObservedPatterns: null,
+    weekId: null,
+  };
+
   if (!reflections || !reflections.length) {
     return {
       totalReflections: 0,
@@ -52,6 +65,7 @@ function aggregateReflections(reflections) {
       byCategory: {},
       emotionalThemes: { feelings: [] },
       recurringPatterns: { obstacleStrategies: [], influences: [] },
+      weeklyContext: weeklyCtx,
     };
   }
 
@@ -117,6 +131,7 @@ function aggregateReflections(reflections) {
     byCategory,
     emotionalThemes: { feelings },
     recurringPatterns: { obstacleStrategies, influences },
+    weeklyContext: weeklyCtx,
   };
 }
 

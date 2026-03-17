@@ -166,6 +166,13 @@ export {
   LESSON_TYPES
 } from './lessonNotesService';
 
+// Weekly context (reflection pre-step)
+export {
+  getWeeklyContext,
+  saveWeeklyContext,
+  getWeekId
+} from './weeklyContextService';
+
 // Horse health & soundness
 export {
   createHealthEntry,

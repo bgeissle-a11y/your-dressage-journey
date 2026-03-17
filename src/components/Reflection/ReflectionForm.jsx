@@ -1,10 +1,18 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { createReflection, getReflection, updateReflection, REFLECTION_CATEGORIES } from '../../services';
+import { createReflection, getReflection, updateReflection, REFLECTION_CATEGORIES, getWeeklyContext, saveWeeklyContext, getWeekId } from '../../services';
 import FormField from '../Forms/FormField';
+import FormSection from '../Forms/FormSection';
+import RadioGroup from '../Forms/RadioGroup';
 import VoiceInput from '../Forms/VoiceInput';
 import '../Forms/Forms.css';
+
+const CONFIDENCE_TREND_OPTIONS = [
+  { value: 'higher', label: 'Higher / building' },
+  { value: 'same', label: 'About the same' },
+  { value: 'lower', label: 'Lower / uncertain' }
+];
 
 const CATEGORY_COLORS = {
   personal: '#4A90E2',
@@ -130,25 +138,67 @@ export default function ReflectionForm() {
   const obstacleRef = useRef(null);
   const feelingRef = useRef(null);
   const influenceRef = useRef(null);
+  const coachQuestionsRef = useRef(null);
+  const selfObservedPatternsRef = useRef(null);
 
   const [category, setCategory] = useState('');
   const [prompt, setPrompt] = useState('');
   const [passesRemaining, setPassesRemaining] = useState(3);
   const [usedPromptIndices, setUsedPromptIndices] = useState([]);
-  const [step, setStep] = useState('category'); // category | prompt | reflect
+  const [step, setStep] = useState('loading'); // loading | weeklyContext | category | prompt | reflect
   const [formData, setFormData] = useState({
     mainReflection: '',
     obstacleStrategy: '',
     feeling: '',
     influence: ''
   });
+  const [weeklyData, setWeeklyData] = useState({
+    confidenceTrend: '',
+    coachQuestions: '',
+    selfObservedPatterns: ''
+  });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
 
   useEffect(() => {
-    if (id) loadExisting();
-  }, [id]);
+    if (id) {
+      loadExisting();
+    } else {
+      checkWeeklyContext();
+    }
+  }, [id, currentUser]);
+
+  async function checkWeeklyContext() {
+    if (!currentUser) return;
+    const result = await getWeeklyContext(currentUser.uid);
+    if (result.success && result.data) {
+      // Weekly context already submitted this week — skip Step 0
+      setStep('category');
+    } else {
+      setStep('weeklyContext');
+    }
+  }
+
+  function handleWeeklyChange(e) {
+    const { name, value } = e.target;
+    setWeeklyData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+  }
+
+  function handleStartReflection() {
+    if (!weeklyData.confidenceTrend) {
+      setErrors({ confidenceTrend: 'Please select your confidence trend' });
+      return;
+    }
+    // Fire-and-forget save
+    saveWeeklyContext(currentUser.uid, {
+      confidenceTrend: weeklyData.confidenceTrend,
+      coachQuestions: weeklyData.coachQuestions || null,
+      selfObservedPatterns: weeklyData.selfObservedPatterns || null,
+    });
+    setStep('category');
+  }
 
   async function loadExisting() {
     setLoadingData(true);
@@ -241,8 +291,8 @@ export default function ReflectionForm() {
     }
   }
 
-  if (loadingData) {
-    return <div className="loading-state">Loading reflection...</div>;
+  if (loadingData || step === 'loading') {
+    return <div className="loading-state">Loading...</div>;
   }
 
   const categoryLabel = REFLECTION_CATEGORIES.find(c => c.value === category)?.label || '';
@@ -254,6 +304,43 @@ export default function ReflectionForm() {
         <h1>{isEdit ? 'Edit Reflection' : 'New Reflection'}</h1>
         <p>A space for reflection and growth</p>
       </div>
+
+      {/* Step 0: Weekly Context */}
+      {step === 'weeklyContext' && (
+        <div className="form-card">
+          <FormSection title="This Week" description="A quick check-in before your reflection — how's the week going?">
+            <FormField label="Compared to last week, your confidence as a rider feels..." error={errors.confidenceTrend} helpText="This isn't about how the rides went — it's about your sense of yourself as a rider right now.">
+              <RadioGroup
+                name="confidenceTrend"
+                options={CONFIDENCE_TREND_OPTIONS}
+                value={weeklyData.confidenceTrend}
+                onChange={handleWeeklyChange}
+                disabled={loading}
+              />
+            </FormField>
+            <FormField label="Anything you want your coaches to focus on this week?" optional helpText="You can ask a question, name something you're wrestling with, flag a pattern you've noticed, or point them somewhere specific. They read everything you write here.">
+              <textarea ref={coachQuestionsRef} name="coachQuestions" value={weeklyData.coachQuestions} onChange={handleWeeklyChange} disabled={loading} placeholder={'e.g. "Why do I keep pulling in downward transitions?" / "Is my left hip issue showing up in my data?" / "Help me think through whether I\'m ready to show."'} style={{ minHeight: '100px' }} />
+              <VoiceInput textareaRef={coachQuestionsRef} onTranscript={text => {
+                setWeeklyData(prev => ({ ...prev, coachQuestions: text }));
+              }} />
+            </FormField>
+            <FormField label="What patterns did you notice in your riding this week?" optional helpText="Before you read your coaching output, what did you see? This is your own analysis — the AI will compare its findings to yours.">
+              <textarea ref={selfObservedPatternsRef} name="selfObservedPatterns" value={weeklyData.selfObservedPatterns} onChange={handleWeeklyChange} disabled={loading} placeholder="What recurring themes, challenges, or breakthroughs showed up this week? What do you think is going on?" style={{ minHeight: '100px' }} />
+              <VoiceInput textareaRef={selfObservedPatternsRef} onTranscript={text => {
+                setWeeklyData(prev => ({ ...prev, selfObservedPatterns: text }));
+              }} />
+            </FormField>
+          </FormSection>
+          <div className="form-actions">
+            <button type="button" className="btn btn-secondary" onClick={() => navigate('/reflections')}>
+              Cancel
+            </button>
+            <button type="button" className="btn btn-primary" onClick={handleStartReflection} disabled={!weeklyData.confidenceTrend}>
+              Start my reflection
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Step 1: Category Selection */}
       {step === 'category' && (
