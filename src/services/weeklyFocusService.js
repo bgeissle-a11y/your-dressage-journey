@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase-config';
 
 /**
@@ -133,6 +133,40 @@ export async function readPhysicalCache(uid) {
     ...cached.result,
     generatedAt: cached.generatedAt,
   };
+}
+
+/**
+ * Read the Practice Card cache for a user.
+ * Returns the practiceCard data or null if not found.
+ */
+export async function readPracticeCardCache(uid) {
+  const cached = await readAnalysisCache(uid, "coaching_practiceCard");
+  if (!cached?.result) return null;
+  return {
+    ...cached.result,
+    generatedAt: cached.generatedAt,
+  };
+}
+
+/**
+ * Write confirmedAt timestamp for a Practice Card.
+ * Called when the rider taps "Ready to ride".
+ */
+export async function confirmPracticeCard(uid) {
+  try {
+    const docId = `${uid}_coaching_practiceCard`;
+    const ref = doc(db, "analysisCache", docId);
+    const now = new Date();
+    const confirmedDate = now.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
+    await updateDoc(ref, {
+      "result.confirmedAt": now.toISOString(),
+      "result.confirmedDate": confirmedDate,
+    });
+    return { success: true, confirmedAt: now.toISOString(), confirmedDate };
+  } catch (error) {
+    console.error("[weeklyFocusService] confirmPracticeCard error:", error);
+    return { success: false, error: error.message };
+  }
 }
 
 /**

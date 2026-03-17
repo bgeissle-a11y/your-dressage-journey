@@ -235,11 +235,32 @@ async function handler(request) {
       }
     }
 
-    const quickInsights = results[4].status === "fulfilled"
+    let quickInsights = results[4].status === "fulfilled"
       ? results[4].value
       : null;
     if (results[4].status === "rejected") {
       console.error("[coaching] Quick insights failed:", results[4].reason?.message || results[4].reason);
+    }
+
+    // Extract practiceCard from Quick Insights and cache separately
+    if (quickInsights && quickInsights.practiceCard) {
+      try {
+        const practiceCardData = {
+          ...quickInsights.practiceCard,
+          generatedAt: generatedAt,
+          weekOf: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
+          horseName: riderData.horseProfiles?.[0]?.horseName || "your horse",
+          confirmedAt: null,
+          confirmedDate: null,
+        };
+        await setCache(riderData.uid, "coaching_practiceCard", practiceCardData, {
+          dataSnapshotHash: riderData.dataSnapshot?.hash,
+          tierLabel: riderData.tier?.label || "unknown",
+          dataTier: riderData.dataTier,
+        });
+      } catch (pcErr) {
+        console.error("[coaching] Failed to save practiceCard:", pcErr.message);
+      }
     }
 
     // If ALL voices failed, throw so the client gets an error

@@ -49,6 +49,7 @@ import RiderAssessmentForm from './components/RiderAssessment/RiderAssessmentFor
 import TechnicalPhilosophicalList from './components/TechnicalPhilosophical/TechnicalPhilosophicalList';
 import TechnicalPhilosophicalForm from './components/TechnicalPhilosophical/TechnicalPhilosophicalForm';
 
+import PracticeCard from './components/PracticeCard/PracticeCard';
 import './App.css';
 
 // Initialize GA4 once on app load
@@ -118,6 +119,9 @@ function App() {
             <Route path="/horse-health" element={<HealthEntryList />} />
             <Route path="/horse-health/new" element={<HealthEntryForm />} />
             <Route path="/horse-health/:id/edit" element={<HealthEntryForm />} />
+
+            {/* Practice Card */}
+            <Route path="/practice-card" element={<PracticeCard />} />
 
             {/* Show Prep */}
             <Route path="/show-prep" element={<ShowPrepList />} />

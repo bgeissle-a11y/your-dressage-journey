@@ -6,6 +6,7 @@ import { db } from '../firebase-config';
 import useDashboardData from '../hooks/useDashboardData';
 import useWeeklyFocus from '../hooks/useWeeklyFocus';
 import WeeklyFocusContent from '../components/WeeklyFocus/WeeklyFocusContent';
+import { PracticeCardCompact } from '../components/PracticeCard/PracticeCard';
 import {
   getAllDebriefs,
   getAllReflections,
@@ -409,6 +410,7 @@ export default function Dashboard() {
             hasNewerContent={wf.hasNewerContent}
             updateToLatest={wf.updateToLatest}
           />
+          <PracticeCardCompact />
         </div>
       </div>
     );

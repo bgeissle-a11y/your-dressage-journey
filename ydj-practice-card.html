@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YDJ Practice Card — Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --parchment: #F7F2E8;
+  --parchment-dark: #E8DFC8;
+  --cream: #FDFAF3;
+  --ink: #2C1810;
+  --ink-mid: #6B4A3A;
+  --ink-light: #9A7A6A;
+  --gold: #B8862A;
+  --gold-faint: #F5EAC8;
+  --rust: #8B4A2A;
+  --rust-faint: #F5E0D5;
+  --forest: #2D6A4F;
+  --forest-faint: #D0EAE0;
+  --sky: #3D6E8A;
+  --sky-faint: #D5E8F2;
+  --frame: #1C1C1E;
+  --frame-mid: #2C2C2E;
+  --sans: 'Work Sans', system-ui, sans-serif;
+  --serif: 'Playfair Display', Georgia, serif;
+}
+
+body {
+  font-family: var(--sans);
+  background: #F4F2EE;
+  color: #1A1A1A;
+  min-height: 100vh;
+  padding: 2rem 1.5rem;
+}
+
+.container { max-width: 880px; margin: 0 auto; }
+
+.page-header { margin-bottom: 1.5rem; }
+.page-title { font-family: var(--serif); font-size: 22px; color: var(--ink); margin-bottom: 4px; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.badge { font-size: 11px; font-family: var(--sans); font-weight: 500; color: var(--ink-light); background: white; border: 1px solid var(--parchment-dark); padding: 2px 10px; border-radius: 20px; }
+.page-sub { font-size: 13px; color: #666; line-height: 1.6; max-width: 620px; }
+
+.layout { display: grid; grid-template-columns: 1fr 272px; gap: 28px; align-items: start; }
+
+/* ── Left panel ── */
+.left-panel {}
+.section-cap { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #888; margin-bottom: 10px; }
+
+.rider-bar {
+  display: flex; gap: 20px; flex-wrap: wrap;
+  padding: 8px 14px; background: white;
+  border-radius: 8px; border: 1px solid var(--parchment-dark);
+  margin-bottom: 10px;
+}
+.rider-field { font-size: 12.5px; color: var(--ink); }
+.rider-field span { font-size: 10px; color: #999; margin-right: 4px; }
+
+.data-row {
+  background: white;
+  border-radius: 8px;
+  border-left: 3px solid transparent;
+  padding: 9px 12px 9px 13px;
+  margin-bottom: 8px;
+}
+.data-row-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 4px; }
+.data-label { font-size: 11px; font-weight: 600; color: #888; }
+.data-feeds { font-size: 9.5px; font-weight: 600; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.03em; white-space: nowrap; flex-shrink: 0; }
+.data-value { font-size: 12.5px; line-height: 1.5; color: var(--ink); }
+
+.gen-btn {
+  width: 100%; margin-top: 16px;
+  padding: 12px 16px;
+  font-family: var(--serif); font-size: 14px;
+  background: var(--ink); color: var(--parchment);
+  border: none; border-radius: 8px;
+  cursor: pointer; transition: background 0.15s;
+}
+.gen-btn:hover { background: var(--ink-mid); }
+.gen-btn:disabled { opacity: 0.6; cursor: wait; }
+
+.clr-btn {
+  width: 100%; margin-top: 8px;
+  padding: 8px 16px; font-size: 12.5px;
+  background: transparent; color: var(--ink-light);
+  border: 1px solid var(--parchment-dark); border-radius: 8px;
+  cursor: pointer; display: none;
+}
+.clr-btn:hover { background: var(--parchment); }
+
+.error-box {
+  margin-top: 8px; padding: 8px 12px;
+  background: #FEF0F0; border: 1px solid #FBBFBF;
+  border-radius: 6px; font-size: 12px; color: #C00;
+  display: none;
+}
+
+.notes-box {
+  margin-top: 14px; padding: 12px 14px;
+  background: white; border-radius: 8px;
+  border: 1px solid var(--parchment-dark);
+  display: none;
+}
+.notes-cap { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #999; margin-bottom: 6px; }
+.notes-text { font-size: 12px; line-height: 1.65; color: #777; }
+
+/* ── Right panel — phone ── */
+.right-panel { position: sticky; top: 24px; }
+.phone-label { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #888; margin-bottom: 12px; text-align: center; }
+.phone-wrap { display: flex; justify-content: center; }
+
+.phone-frame {
+  background: var(--frame);
+  border-radius: 42px;
+  padding: 16px 8px;
+  width: 254px;
+  box-shadow: 0 0 0 1px #3A3A3C, 0 20px 50px rgba(0,0,0,0.25);
+}
+.phone-notch { display: flex; justify-content: center; margin-bottom: 8px; }
+.phone-pill { height: 4px; background: var(--frame-mid); border-radius: 2px; }
+.phone-screen {
+  background: var(--cream);
+  border-radius: 30px;
+  height: 524px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+.phone-home { display: flex; justify-content: center; margin-top: 10px; }
+
+/* Empty state */
+.empty-state {
+  height: 100%; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 28px; text-align: center;
+}
+.empty-title { font-family: var(--serif); font-size: 13px; color: var(--ink-light); margin-bottom: 8px; }
+.empty-sub { font-size: 11.5px; color: var(--ink-light); line-height: 1.6; max-width: 158px; }
+
+/* Card content */
+.card-header {
+  text-align: center;
+  padding: 18px 14px 13px;
+  border-bottom: 1px solid var(--parchment-dark);
+  background: var(--cream);
+}
+.card-wordmark { font-family: var(--serif); font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+.card-title { font-family: var(--serif); font-size: 18px; color: var(--ink); line-height: 1.2; margin-bottom: 5px; }
+.card-meta { font-size: 10.5px; color: var(--ink-light); }
+
+.card-body { padding: 13px 14px 0; background: var(--cream); }
+
+.card-section {
+  border-left: 3px solid transparent;
+  border-radius: 0 7px 7px 0;
+  padding: 10px 11px 10px 13px;
+  margin-bottom: 11px;
+}
+.card-section-lbl {
+  font-family: var(--serif);
+  font-size: 7.5px; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  margin-bottom: 7px;
+}
+.goal-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 6px; }
+.goal-row:last-child { margin-bottom: 0; }
+.goal-num { font-family: var(--serif); font-size: 12.5px; font-weight: 600; min-width: 15px; line-height: 1.45; }
+.goal-text { font-size: 12px; line-height: 1.5; color: var(--ink); }
+.cue-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 6px; }
+.cue-row:last-child { margin-bottom: 0; }
+.cue-dot { font-size: 7px; min-width: 10px; margin-top: 5px; line-height: 1; }
+.cue-text { font-size: 12px; line-height: 1.5; color: var(--ink); }
+.italic-text { font-family: var(--serif); font-style: italic; font-size: 12.5px; line-height: 1.65; color: var(--ink-mid); }
+.rehearsal-text { font-size: 11.5px; line-height: 1.65; color: var(--ink-mid); }
+
+.card-question {
+  background: var(--parchment); border: 1px solid var(--parchment-dark);
+  border-radius: 7px; padding: 10px 11px 11px 12px; margin-bottom: 12px;
+}
+
+.card-footer { text-align: center; padding: 10px 0 16px; background: var(--cream); }
+.card-footer-text { font-family: var(--serif); font-style: italic; font-size: 9px; color: var(--ink-light); letter-spacing: 0.1em; }
+
+.phone-sublabel { margin-top: 12px; text-align: center; font-size: 10.5px; color: #999; line-height: 1.5; display: none; }
+
+/* Spinner */
+.spinner {
+  display: inline-block; width: 11px; height: 11px;
+  border: 2px solid currentColor; border-top-color: transparent;
+  border-radius: 50%; animation: spin 0.7s linear infinite;
+  margin-right: 6px; vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 640px) {
+  .layout { grid-template-columns: 1fr; }
+  .right-panel { position: static; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="page-header">
+    <div class="page-title">
+      YDJ Practice Card
+      <span class="badge">Prototype · Barb / Rocket Star</span>
+    </div>
+    <p class="page-sub">Each section is drawn from a different coaching data source. Labels on the right show which card section each input feeds. Click Generate to call the AI and build a real card.</p>
+  </div>
+
+  <div class="layout">
+    <!-- Left -->
+    <div class="left-panel">
+      <div class="section-cap">Coaching data feeding this card</div>
+
+      <div class="rider-bar">
+        <div class="rider-field"><span>Rider</span>Barb</div>
+        <div class="rider-field"><span>Horse</span>Rocket Star</div>
+        <div class="rider-field"><span>Level</span>Prix St. Georges</div>
+      </div>
+
+      <div id="data-rows"></div>
+
+      <button class="gen-btn" id="genBtn" onclick="doGenerate()">Generate this week's card ↗</button>
+      <button class="clr-btn" id="clrBtn" onclick="doClear()">Clear card</button>
+      <div class="error-box" id="errBox"></div>
+
+      <div class="notes-box" id="notesBox">
+        <div class="notes-cap">Prototype notes</div>
+        <div class="notes-text">In production this card is generated within the existing Multi-Voice Coaching API call — no additional cost or infrastructure. It is surfaced on the dashboard home screen and delivered as a push notification on non-riding days. The rider sees it for 60 seconds before it prompts them to confirm they've read it (marking it "ready to ride").</div>
+      </div>
+    </div>
+
+    <!-- Right: phone -->
+    <div class="right-panel">
+      <div class="phone-label">Barn-ready card</div>
+      <div class="phone-wrap">
+        <div class="phone-frame">
+          <div class="phone-notch"><div class="phone-pill" style="width:54px"></div></div>
+          <div class="phone-screen" id="phoneScreen">
+            <div class="empty-state">
+              <div class="empty-title">Your card will appear here</div>
+              <div class="empty-sub">Generate to see this week's practice focus for Rocket Star</div>
+            </div>
+          </div>
+          <div class="phone-home"><div class="phone-pill" style="width:82px"></div></div>
+        </div>
+      </div>
+      <div class="phone-sublabel" id="phoneSub">Riders access this on their phone before mounting. Designed for one-hand, glanceable barn use.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+var INPUTS = [
+  {
+    label: 'Training focus this week',
+    value: 'Trot half-passes (B→G and E→G), canter pirouette preparation — 4 rides this week',
+    feeds: 'Process goals',
+    color: '#B8862A',
+    faint: '#F5EAC8'
+  },
+  {
+    label: 'Recurring challenge',
+    value: 'Rocket Star tightens through his back when collection increases; relaxation lost before throughness is established',
+    feeds: 'In-saddle cues',
+    color: '#8B4A2A',
+    faint: '#F5E0D5'
+  },
+  {
+    label: 'Trainer feedback',
+    value: 'Martin: "Throughness first — collection without relaxation is compression." Cindy clinic: "Let him swing into your hand before asking him to carry."',
+    feeds: 'Image / analogy',
+    color: '#2D6A4F',
+    faint: '#D0EAE0'
+  },
+  {
+    label: 'Physical pattern (rider)',
+    value: 'Bracing through lower back in canter — blocks the swing being asked for in the horse',
+    feeds: 'In-saddle cues',
+    color: '#8B4A2A',
+    faint: '#F5E0D5'
+  },
+  {
+    label: 'Recent aha moment',
+    value: '"Stopped thinking collect, started thinking carry — the half-pass felt completely different, lighter, more through"',
+    feeds: 'Mental rehearsal',
+    color: '#3D6E8A',
+    faint: '#D5E8F2'
+  },
+  {
+    label: 'Upcoming milestone',
+    value: 'First PSG at regional championship schooling show in 3 weeks',
+    feeds: 'Carry question',
+    color: '#6B4A3A',
+    faint: '#F7F2E8'
+  }
+];
+
+function buildDataRows() {
+  var html = '';
+  for (var i = 0; i < INPUTS.length; i++) {
+    var d = INPUTS[i];
+    html += '<div class="data-row" style="border-left-color:' + d.color + '">';
+    html += '<div class="data-row-top">';
+    html += '<span class="data-label">' + d.label + '</span>';
+    html += '<span class="data-feeds" style="color:' + d.color + ';background:' + d.faint + '">→ ' + d.feeds + '</span>';
+    html += '</div>';
+    html += '<div class="data-value">' + d.value + '</div>';
+    html += '</div>';
+  }
+  document.getElementById('data-rows').innerHTML = html;
+}
+
+function showEmpty(t, s) {
+  document.getElementById('phoneScreen').innerHTML =
+    '<div class="empty-state">' +
+    '<div class="empty-title">' + t + '</div>' +
+    '<div class="empty-sub">' + s + '</div>' +
+    '</div>';
+}
+
+function renderCard(card) {
+  var g = card.processGoals;
+  var cu = card.inSaddleCues;
+  var h = '';
+
+  h += '<div class="card-header">';
+  h += '<div class="card-wordmark">Your Dressage Journey</div>';
+  h += '<div class="card-title">Practice Card</div>';
+  h += '<div class="card-meta">Rocket Star &nbsp;·&nbsp; March 17, 2026</div>';
+  h += '</div>';
+
+  h += '<div class="card-body">';
+
+  // Process goals
+  h += '<div class="card-section" style="background:#F5EAC8;border-left-color:#B8862A">';
+  h += '<div class="card-section-lbl" style="color:#B8862A">This ride, focus on</div>';
+  for (var i = 0; i < g.length; i++) {
+    h += '<div class="goal-row">';
+    h += '<span class="goal-num" style="color:#B8862A">' + (i + 1) + '</span>';
+    h += '<span class="goal-text">' + g[i] + '</span>';
+    h += '</div>';
+  }
+  h += '</div>';
+
+  // In-saddle cues
+  h += '<div class="card-section" style="background:#F5E0D5;border-left-color:#8B4A2A">';
+  h += '<div class="card-section-lbl" style="color:#8B4A2A">In the saddle — feel for</div>';
+  for (var i = 0; i < cu.length; i++) {
+    h += '<div class="cue-row">';
+    h += '<span class="cue-dot" style="color:#8B4A2A">◆</span>';
+    h += '<span class="cue-text">' + cu[i] + '</span>';
+    h += '</div>';
+  }
+  h += '</div>';
+
+  // Analogy
+  h += '<div class="card-section" style="background:#D0EAE0;border-left-color:#2D6A4F">';
+  h += '<div class="card-section-lbl" style="color:#2D6A4F">This week\'s image</div>';
+  h += '<div class="italic-text">' + card.analogy + '</div>';
+  h += '</div>';
+
+  // Mental rehearsal
+  h += '<div class="card-section" style="background:#D5E8F2;border-left-color:#3D6E8A">';
+  h += '<div class="card-section-lbl" style="color:#3D6E8A">Between rides</div>';
+  h += '<div class="rehearsal-text">' + card.mentalRehearsal + '</div>';
+  h += '</div>';
+
+  // Carry question
+  h += '<div class="card-question">';
+  h += '<div class="card-section-lbl" style="color:#9A7A6A">Carry this question</div>';
+  h += '<div class="italic-text" style="color:#2C1810">' + card.carryQuestion + '</div>';
+  h += '</div>';
+
+  h += '<div class="card-footer"><div class="card-footer-text">Illuminate Your Journey</div></div>';
+  h += '</div>';
+
+  document.getElementById('phoneScreen').innerHTML = h;
+  document.getElementById('phoneSub').style.display = 'block';
+  document.getElementById('notesBox').style.display = 'block';
+  document.getElementById('clrBtn').style.display = 'block';
+}
+
+function doGenerate() {
+  var btn = document.getElementById('genBtn');
+  var err = document.getElementById('errBox');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Generating…';
+  err.style.display = 'none';
+  showEmpty('Thinking…', 'Assembling your card from this week's coaching data');
+
+  var prompt = 'Generate a weekly In-Saddle Practice Card. Return ONLY valid JSON, no markdown fences.\n\n' +
+    'RIDER: Barb | HORSE: Rocket Star | LEVEL: Prix St. Georges\n' +
+    'Training focus: Trot half-passes (B→G and E→G), canter pirouette preparation — 4 rides this week\n' +
+    'Challenge: Rocket Star tightens through his back when collection increases; relaxation lost before throughness\n' +
+    'Trainer feedback — Martin: "Throughness first — collection without relaxation is compression, not collection." Cindy: "Let him swing into your hand before asking him to carry."\n' +
+    'Rider physical pattern: Bracing through lower back in canter — blocks the swing being asked for in the horse\n' +
+    'Recent insight: "Stopped thinking collect, started thinking carry — the half-pass felt lighter, more through"\n' +
+    'Upcoming: First PSG at regional championship schooling show in 3 weeks\n\n' +
+    'RULES:\n' +
+    '- processGoals: 3 items, verb-first, specific, achievable in one ride. Name relaxation, forwardness, or contact by name when relevant — do not refer to "the three principles" collectively.\n' +
+    '- inSaddleCues: 2 items. EXTERNAL FOCUS only — what does Rocket Star\'s movement feel like when throughness is present? Frame as feel of the horse or movement effect, not rider body instruction.\n' +
+    '- analogy: one vivid image or metaphor, 1–2 sentences, memorable enough to carry into the arena. Draw from the swing/carry/throughness theme.\n' +
+    '- mentalRehearsal: 2–3 sentences. Start mid-ride with Rocket Star at a specific moment in the arena. Reference the feeling of swing or throughness they are seeking.\n' +
+    '- carryQuestion: one inquiry that opens awareness, not a goal. Makes the rider curious, not anxious.\n\n' +
+    'Return exactly: {"processGoals":["goal 1","goal 2","goal 3"],"inSaddleCues":["cue 1","cue 2"],"analogy":"text","mentalRehearsal":"text","carryQuestion":"text"}';
+
+  fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(data) {
+    var text = data.content[0].text.replace(/```json|```/g, '').trim();
+    var card = JSON.parse(text);
+    renderCard(card);
+    btn.innerHTML = 'Regenerate card ↗';
+    btn.disabled = false;
+  })
+  .catch(function(e) {
+    console.error(e);
+    err.textContent = 'Generation failed — check the browser console for details.';
+    err.style.display = 'block';
+    showEmpty('Couldn\'t generate', 'Try clicking Generate again');
+    btn.innerHTML = 'Generate this week\'s card ↗';
+    btn.disabled = false;
+  });
+}
+
+function doClear() {
+  showEmpty('Your card will appear here', 'Generate to see this week\'s practice focus for Rocket Star');
+  document.getElementById('clrBtn').style.display = 'none';
+  document.getElementById('notesBox').style.display = 'none';
+  document.getElementById('phoneSub').style.display = 'none';
+  document.getElementById('genBtn').innerHTML = 'Generate this week\'s card ↗';
+}
+
+buildDataRows();
+</script>
+</body>
+</html>

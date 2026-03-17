@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   createDebrief, getDebrief, updateDebrief,
@@ -7,6 +7,7 @@ import {
   SESSION_TYPES, RIDER_ENERGY_LEVELS, HORSE_ENERGY_LEVELS, MENTAL_STATES,
   MOVEMENT_CATEGORIES, RIDE_ARC_OPTIONS
 } from '../../services';
+import useFormRecovery from '../../hooks/useFormRecovery';
 import FormSection from '../Forms/FormSection';
 import FormField from '../Forms/FormField';
 import RadioGroup from '../Forms/RadioGroup';
@@ -70,17 +71,19 @@ export default function DebriefForm() {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const isEdit = Boolean(id);
 
   const narrativeRefs = useRef({});
 
+  const [draftId, setDraftId] = useState(null);
   const [horseNames, setHorseNames] = useState([]);
   const [intentions, setIntentions] = useState(loadSavedIntentions);
   const [newIntention, setNewIntention] = useState('');
   const [editingIntention, setEditingIntention] = useState(null);
 
   const [formData, setFormData] = useState({
-    rideDate: new Date().toISOString().split('T')[0],
+    rideDate: searchParams.get("date") || new Date().toISOString().split('T')[0],
     horseName: '',
     sessionType: '',
     overallQuality: 5,
@@ -104,6 +107,10 @@ export default function DebriefForm() {
   const [loading, setLoading] = useState(false);
   const [overallQualityTouched, setOverallQualityTouched] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
+
+  const { hasRecovery, applyRecovery, dismissRecovery, clearRecovery } = useFormRecovery(
+    'ydj-debrief-recovery', formData, setFormData
+  );
 
   useEffect(() => {
     loadHorses();
@@ -260,15 +267,18 @@ export default function DebriefForm() {
     };
 
     let result;
-    if (isEdit) {
-      result = await updateDebrief(id, data);
+    const existingId = isEdit ? id : draftId;
+    if (existingId) {
+      result = await updateDebrief(existingId, data);
     } else {
       result = await createDebrief(currentUser.uid, data);
+      if (result.success && result.id) setDraftId(result.id);
     }
 
     setLoading(false);
 
     if (result.success) {
+      clearRecovery();
       navigate('/debriefs');
     } else {
       setErrors({ submit: result.error });
@@ -289,6 +299,18 @@ export default function DebriefForm() {
       <form onSubmit={handleSubmit} autoComplete="off">
         <div className="form-card">
           {errors.submit && <div className="form-section"><div className="form-alert form-alert-error">{errors.submit}</div></div>}
+
+          {hasRecovery && (
+            <div className="form-section">
+              <div className="form-alert form-alert-info" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <span>You have unsaved data from a previous session. Would you like to restore it?</span>
+                <span style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button type="button" className="btn btn-primary" style={{ fontSize: '0.85rem', padding: '0.35rem 0.75rem' }} onClick={applyRecovery}>Restore</button>
+                  <button type="button" className="btn btn-secondary" style={{ fontSize: '0.85rem', padding: '0.35rem 0.75rem' }} onClick={dismissRecovery}>Dismiss</button>
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Section 1: Ride Basics */}
           <FormSection title="Ride Basics">
