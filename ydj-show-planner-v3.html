@@ -556,36 +556,189 @@ const RIDER = {
   ]
 };
 
-// ─── ACCURATE PSG FACTS ───────────────────────────────────────────
-const PSG = {
-  level_truth: "PSG is the first FEI level. Judges expect genuine collection with self-carriage — the horse must never appear to rely on the rider's hand for balance. Every movement must show the horse in front of the aids.",
-  movements: [
-    "Shoulder-in (both reins) — 30° angle, three tracks",
-    "Travers and renvers in trot and canter",
-    "Half-pass in trot and canter",
-    "Counter change of hand (zig-zag half-pass) in canter — NOT counter canter; this is a direction change of half-pass at the centerline",
-    "Flying changes in sequence: 4-tempi and 3-tempi only (not 1s or 2s)",
-    "Half-pirouettes in canter — NOT full pirouettes",
-    "Extended and collected trot",
-    "Extended and collected canter",
-    "Extended walk",
-    "Rein back"
-  ],
-  geometry: [
-    "8m voltes appear in PSG — NOT 10m circles; these are demanding and will visibly bulge if even slightly over-size",
-    "Shoulder-in: 30° from wall, three tracks — the four-track error (too much neck bend) is a common fault",
-    "Half-pass angle should show horse nearly parallel to the long side with clear diagonal crossing of legs",
-    "Counter change of hand: direction of half-pass reverses at centerline; angle and energy must be maintained through each change of bend",
-    "Collected work must show a visibly uphill balance — the forehand feels lighter than the hindquarters"
-  ],
-  watch_list: [
-    "Half-pirouettes: canter rhythm must be maintained; judges penalize 'door-hinge' rotation and energy going backward or outward",
-    "Changes in sequence: straightness matters as much as timing; a crooked 3-tempi costs more than a late one",
-    "Counter change of hand (zig-zag): prompt change of bend, consistent angle each direction",
-    "All transitions into/out of collection: abrupt is not collected"
-  ],
-  collectives: "Submission and impulsion carry significant collective weight. Submission means willing harmony — not obedience under tension."
+// ─── TEST DATA (all FEI tests + USDF stubs) ──────────────────────────
+const TEST_DATA = {
+  prix_st_georges: {
+    label: 'Prix St. Georges', shortLabel: 'PSG', org: 'FEI', year: '2022/2026',
+    duration: '5:50', minAge: '7+', arena: '20×60', maxPoints: 340,
+    keyDiff: 'Introduction of half-pirouettes in canter (3–4 strides), 3-tempis and 4-tempis, half-pirouettes in walk, 8m voltes.',
+    hasFullData: true,
+    movementGroups: [
+      { label: 'Trot', color: '#2e5c82', movements: [
+        { text: 'Collected trot' }, { text: 'Medium trot' }, { text: 'Extended trot' },
+        { text: 'Shoulder-in' }, { text: 'Half-pass right', coeff: true }, { text: 'Half-pass left', coeff: true },
+        { text: '8m volte', newAt: true },
+      ]},
+      { label: 'Canter', color: '#3d6b46', movements: [
+        { text: 'Collected canter' }, { text: 'Extended canter' },
+        { text: 'Counter change of hand (zig-zag half-pass)' },
+        { text: 'Single flying changes' },
+        { text: '4-tempi changes × 5', newAt: true }, { text: '3-tempi changes × 5', newAt: true },
+        { text: 'Half-pirouette left (3–4 strides)', coeff: true, newAt: true },
+        { text: 'Half-pirouette right (3–4 strides)', coeff: true, newAt: true },
+        { text: 'Counter canter' },
+      ]},
+      { label: 'Walk', color: '#b8862a', movements: [
+        { text: 'Collected walk', coeff: true }, { text: 'Extended walk', coeff: true },
+        { text: 'Half-pirouette in walk left', newAt: true }, { text: 'Half-pirouette in walk right', newAt: true },
+      ]},
+      { label: 'Other', color: '#6b4f38', movements: [
+        { text: 'Halt — immobility' },
+      ]},
+    ],
+    coefficients: [
+      { movement: 'Trot half-pass right', badge: '×2', type: 'movement', why: 'Horse nearly parallel to long side, clear crossing, consistent bend. Each rein scored independently.' },
+      { movement: 'Trot half-pass left', badge: '×2', type: 'movement', why: 'Asymmetry between left and right is fully exposed — each rein stands alone.' },
+      { movement: 'Collected walk', badge: '×2', type: 'movement', why: 'Clear four-beat rhythm, self-carriage, suppleness through the back. Tension destroys it.' },
+      { movement: 'Extended walk', badge: '×2', type: 'movement', why: 'Maximum overstride with total freedom in the neck. Any restriction is penalized.' },
+      { movement: 'Half-pirouette left (canter)', badge: '×2', type: 'movement', why: 'New at PSG. 3–4 strides, energy upward, clear jump of canter maintained throughout.' },
+      { movement: 'Half-pirouette right (canter)', badge: '×2', type: 'movement', why: 'New at PSG. Each direction scored separately — the weaker rein has nowhere to hide.' },
+      { movement: 'Harmony', badge: '×2', type: 'collective', why: 'Cooperation, lightness, effectiveness, sensitivity of aids, adherence to training scale. The judge\'s holistic read of the partnership across the entire test.' },
+    ],
+    assessItems: [
+      { id:'hp-tr', text:'Trot half-pass right', note:'Double coefficient · each rein scored independently', coeff:true, gaitGroup:'trot' },
+      { id:'hp-tl', text:'Trot half-pass left', note:'Double coefficient · asymmetry fully exposed', coeff:true, gaitGroup:'trot' },
+      { id:'cw',    text:'Collected walk', note:'Double coefficient · tension destroys the four-beat rhythm', coeff:true, gaitGroup:'walk' },
+      { id:'ew',    text:'Extended walk', note:'Double coefficient · maximum overstride; any restriction penalized', coeff:true, gaitGroup:'walk' },
+      { id:'hpl',   text:'Half-pirouette left (canter)', note:'Double coefficient · new at PSG · 3–4 strides; energy upward', coeff:true, gaitGroup:'canter' },
+      { id:'hpr',   text:'Half-pirouette right (canter)', note:'Double coefficient · new at PSG', coeff:true, gaitGroup:'canter' },
+      { id:'4t',    text:'4-tempi changes × 5', note:'New at PSG · straightness and rhythm matter as much as timing', coeff:false, gaitGroup:'canter' },
+      { id:'3t',    text:'3-tempi changes × 5', note:'New at PSG · loss of rhythm or straightness drops score quickly', coeff:false, gaitGroup:'canter' },
+      { id:'hpwl',  text:'Half-pirouette in walk left', note:'New at PSG · clear two-beat walk maintained throughout', coeff:false, gaitGroup:'walk' },
+      { id:'hpwr',  text:'Half-pirouette in walk right', note:'New at PSG', coeff:false, gaitGroup:'walk' },
+      { id:'cch',   text:'Counter change of hand (zig-zag half-pass)', note:'Prompt change of bend; consistent angle and crossing', coeff:false, gaitGroup:'canter' },
+      { id:'sfc',   text:'Single flying changes', note:'Straightness and uphill tendency both scored', coeff:false, gaitGroup:'canter' },
+      { id:'8v',    text:'8m volte', note:'New at PSG · geometry matters; will bulge if over-size', coeff:false, gaitGroup:'trot' },
+      { id:'si',    text:'Shoulder-in', note:'30° / three tracks; not four-track overbending', coeff:false, gaitGroup:'trot' },
+      { id:'et',    text:'Extended trot', note:'Uphill tendency and clear return to collection both scored', coeff:false, gaitGroup:'trot' },
+      { id:'ec',    text:'Extended canter', note:'Return to collection is part of the picture', coeff:false, gaitGroup:'canter' },
+      { id:'halt',  text:'Halt — immobility', note:'Square halt, genuine immobility before moving off', coeff:false, gaitGroup:'other' },
+      { id:'harmony', text:'Harmony (collective ×2)', note:'Cooperation, lightness, sensitivity of aids, training scale adherence — the judge\'s overall read of the partnership', coeff:true, gaitGroup:'collective' },
+    ],
+  },
+  intermediate_1: {
+    label: 'Intermediate I', shortLabel: 'Inter I', org: 'FEI', year: '2023/2026',
+    duration: '5:30', minAge: '7+', arena: '20×60', maxPoints: 340, hasFullData: true,
+    assessItems: [
+      { id:'hp-tr', text:'Trot half-pass right', note:'Double coefficient · each rein scored independently', coeff:true, gaitGroup:'trot' },
+      { id:'hp-tl', text:'Trot half-pass left', note:'Double coefficient · asymmetry fully exposed', coeff:true, gaitGroup:'trot' },
+      { id:'cw',    text:'Collected walk', note:'Double coefficient', coeff:true, gaitGroup:'walk' },
+      { id:'ew',    text:'Extended walk', note:'Double coefficient · maximum overstride; any restriction penalized', coeff:true, gaitGroup:'walk' },
+      { id:'zig',   text:'Zigzag (3 half-passes, flying changes)', note:'Double coefficient · new at Inter I', coeff:true, gaitGroup:'canter' },
+      { id:'pirl',  text:'Full pirouette left (6–8 strides)', note:'Double coefficient · new at Inter I', coeff:true, gaitGroup:'canter' },
+      { id:'pirr',  text:'Full pirouette right (6–8 strides)', note:'Double coefficient · new at Inter I', coeff:true, gaitGroup:'canter' },
+      { id:'2t',    text:'2-tempi changes × 7', note:'New at Inter I', coeff:false, gaitGroup:'canter' },
+      { id:'3t',    text:'3-tempi changes × 5', note:'Carried from PSG', coeff:false, gaitGroup:'canter' },
+      { id:'rb',    text:'Rein back (5 steps)', note:'New at Inter I', coeff:false, gaitGroup:'other' },
+      { id:'halt',  text:'Halt — immobility', note:'Square halt, genuine immobility', coeff:false, gaitGroup:'other' },
+      { id:'harmony', text:'Harmony (collective ×2)', note:'Cooperation, lightness, sensitivity of aids, training scale adherence — the judge\'s overall read of the partnership', coeff:true, gaitGroup:'collective' },
+    ],
+  },
+  intermediate_2: {
+    label: 'Intermediate II', shortLabel: 'Inter II', org: 'FEI', year: '2023/2026',
+    duration: '5:25', minAge: '8+', arena: '20×60', maxPoints: 320, hasFullData: true,
+    assessItems: [
+      { id:'tz',    text:'Trot zigzag (3 half-passes)', note:'Double coefficient · new at Inter II', coeff:true, gaitGroup:'trot' },
+      { id:'ew',    text:'Extended walk', note:'Double coefficient', coeff:true, gaitGroup:'walk' },
+      { id:'cw',    text:'Collected walk', note:'Double coefficient', coeff:true, gaitGroup:'walk' },
+      { id:'pirl',  text:'Full pirouette left (6–8 strides)', note:'Double coefficient', coeff:true, gaitGroup:'canter' },
+      { id:'pirr',  text:'Full pirouette right (6–8 strides)', note:'Double coefficient', coeff:true, gaitGroup:'canter' },
+      { id:'pass',  text:'Passage', note:'New at Inter II · entirely new movement category', coeff:false, gaitGroup:'trot' },
+      { id:'piaf',  text:'Piaffe (8–10 steps)', note:'New at Inter II · entirely new movement category', coeff:false, gaitGroup:'trot' },
+      { id:'pp',    text:'Transitions passage–piaffe–passage', note:'New at Inter II', coeff:false, gaitGroup:'trot' },
+      { id:'1t',    text:'1-tempi changes × 11', note:'New at Inter II', coeff:false, gaitGroup:'canter' },
+      { id:'halt',  text:'Halt — immobility', note:'Square halt, genuine immobility', coeff:false, gaitGroup:'other' },
+      { id:'harmony', text:'Harmony (collective ×2)', note:'Cooperation, lightness, sensitivity of aids, training scale adherence — the judge\'s overall read of the partnership', coeff:true, gaitGroup:'collective' },
+    ],
+  },
+  grand_prix: {
+    label: 'Grand Prix', shortLabel: 'GP', org: 'FEI', year: '2022/2026',
+    duration: '6:30', minAge: '8+', arena: '20×60', maxPoints: 480, hasFullData: true,
+    assessItems: [
+      { id:'hp-tr', text:'Trot half-pass right', note:'Double coefficient', coeff:true, gaitGroup:'trot' },
+      { id:'hp-tl', text:'Trot half-pass left', note:'Double coefficient', coeff:true, gaitGroup:'trot' },
+      { id:'pf-d',  text:'Piaffe 12–15 steps at D', note:'Double coefficient · first piaffe', coeff:true, gaitGroup:'trot' },
+      { id:'ew',    text:'Extended walk', note:'Double coefficient', coeff:true, gaitGroup:'walk' },
+      { id:'cw',    text:'Collected walk', note:'Double coefficient', coeff:true, gaitGroup:'walk' },
+      { id:'pf-i',  text:'Piaffe 12–15 steps at I', note:'Double coefficient · second piaffe', coeff:true, gaitGroup:'trot' },
+      { id:'zig',   text:'Zigzag (5 half-passes, canter)', note:'Double coefficient', coeff:true, gaitGroup:'canter' },
+      { id:'1t',    text:'1-tempi changes × 15', note:'Double coefficient', coeff:true, gaitGroup:'canter' },
+      { id:'pirl',  text:'Full pirouette left (6–8 strides)', note:'Double coefficient', coeff:true, gaitGroup:'canter' },
+      { id:'pirr',  text:'Full pirouette right (6–8 strides)', note:'Double coefficient', coeff:true, gaitGroup:'canter' },
+      { id:'pf-x',  text:'Piaffe 12–15 steps at X', note:'Double coefficient · third piaffe', coeff:true, gaitGroup:'trot' },
+      { id:'rb',    text:'Rein back (5 steps)', note:'5 clean steps, straight, willing', coeff:false, gaitGroup:'other' },
+      { id:'halt',  text:'Halt — immobility', note:'Square halt, genuine immobility', coeff:false, gaitGroup:'other' },
+      { id:'harmony', text:'Harmony (collective ×2)', note:'Cooperation, lightness, sensitivity of aids, training scale adherence — the judge\'s overall read of the partnership', coeff:true, gaitGroup:'collective' },
+    ],
+  },
+  grand_prix_special: {
+    label: 'Grand Prix Special', shortLabel: 'GPS', org: 'FEI', year: '2022/2026',
+    duration: '6:40', minAge: '8+', arena: '20×60', maxPoints: 450, hasFullData: true,
+    assessItems: [
+      { id:'hp-tl', text:'Trot half-pass left', note:'Double coefficient', coeff:true, gaitGroup:'trot' },
+      { id:'hp-tr', text:'Trot half-pass right', note:'Double coefficient', coeff:true, gaitGroup:'trot' },
+      { id:'ew',    text:'Extended walk', note:'Double coefficient', coeff:true, gaitGroup:'walk' },
+      { id:'cw',    text:'Collected walk', note:'Double coefficient', coeff:true, gaitGroup:'walk' },
+      { id:'pf-g',  text:'Piaffe 12–15 steps at G', note:'Double coefficient · first GPS piaffe', coeff:true, gaitGroup:'trot' },
+      { id:'pf-i',  text:'Piaffe 12–15 steps at I', note:'Double coefficient', coeff:true, gaitGroup:'trot' },
+      { id:'pirl',  text:'Full pirouette left on centerline (6–8 strides)', note:'Double coefficient · no wall for reference', coeff:true, gaitGroup:'canter' },
+      { id:'pirr',  text:'Full pirouette right on centerline (6–8 strides)', note:'Double coefficient', coeff:true, gaitGroup:'canter' },
+      { id:'pf-x',  text:'Piaffe 12–15 steps at X', note:'Double coefficient · third piaffe', coeff:true, gaitGroup:'trot' },
+      { id:'halt',  text:'Halt — immobility', note:'Square halt, genuine immobility', coeff:false, gaitGroup:'other' },
+      { id:'harmony', text:'Harmony (collective ×2)', note:'Cooperation, lightness, sensitivity of aids, training scale adherence — the judge\'s overall read of the partnership', coeff:true, gaitGroup:'collective' },
+    ],
+  },
+  // USDF stubs
+  intro_a: { label: 'Introductory — Test A', shortLabel: 'Intro A', hasFullData: false },
+  intro_b: { label: 'Introductory — Test B', shortLabel: 'Intro B', hasFullData: false },
+  intro_c: { label: 'Introductory — Test C', shortLabel: 'Intro C', hasFullData: false },
+  training_1: { label: 'Training Level — Test 1', shortLabel: 'TL 1', hasFullData: false },
+  training_2: { label: 'Training Level — Test 2', shortLabel: 'TL 2', hasFullData: false },
+  training_3: { label: 'Training Level — Test 3', shortLabel: 'TL 3', hasFullData: false },
+  first_1: { label: 'First Level — Test 1', shortLabel: '1st 1', hasFullData: false },
+  first_2: { label: 'First Level — Test 2', shortLabel: '1st 2', hasFullData: false },
+  first_3: { label: 'First Level — Test 3', shortLabel: '1st 3', hasFullData: false },
+  second_1: { label: 'Second Level — Test 1', shortLabel: '2nd 1', hasFullData: false },
+  second_2: { label: 'Second Level — Test 2', shortLabel: '2nd 2', hasFullData: false },
+  second_3: { label: 'Second Level — Test 3', shortLabel: '2nd 3', hasFullData: false },
+  third_1: { label: 'Third Level — Test 1', shortLabel: '3rd 1', hasFullData: false },
+  third_2: { label: 'Third Level — Test 2', shortLabel: '3rd 2', hasFullData: false },
+  third_3: { label: 'Third Level — Test 3', shortLabel: '3rd 3', hasFullData: false },
+  fourth_1: { label: 'Fourth Level — Test 1', shortLabel: '4th 1', hasFullData: false },
+  fourth_2: { label: 'Fourth Level — Test 2', shortLabel: '4th 2', hasFullData: false },
+  fourth_3: { label: 'Fourth Level — Test 3', shortLabel: '4th 3', hasFullData: false },
 };
+
+const PSG = TEST_DATA.prix_st_georges;
+
+// PSG prompt-facing data — used by fetchWeekPlan() AI prompt
+PSG.level_truth = "PSG is the first FEI level. Judges expect genuine collection with self-carriage — the horse must never appear to rely on the rider's hand for balance. Every movement must show the horse in front of the aids.";
+PSG.movements = [
+  "Shoulder-in (both reins) — 30° angle, three tracks",
+  "Travers and renvers in trot and canter",
+  "Half-pass in trot and canter",
+  "Counter change of hand (zig-zag half-pass) in canter — NOT counter canter; this is a direction change of half-pass at the centerline",
+  "Flying changes in sequence: 4-tempi and 3-tempi only (not 1s or 2s)",
+  "Half-pirouettes in canter — NOT full pirouettes",
+  "Extended and collected trot",
+  "Extended and collected canter",
+  "Extended walk",
+  "Rein back"
+];
+PSG.geometry = [
+  "8m voltes appear in PSG — NOT 10m circles; these are demanding and will visibly bulge if even slightly over-size",
+  "Shoulder-in: 30° from wall, three tracks — the four-track error (too much neck bend) is a common fault",
+  "Half-pass angle should show horse nearly parallel to the long side with clear diagonal crossing of legs",
+  "Counter change of hand: direction of half-pass reverses at centerline; angle and energy must be maintained through each change of bend",
+  "Collected work must show a visibly uphill balance — the forehand feels lighter than the hindquarters"
+];
+PSG.watch_list = [
+  "Half-pirouettes: canter rhythm must be maintained; judges penalize 'door-hinge' rotation and energy going backward or outward",
+  "Changes in sequence: straightness matters as much as timing; a crooked 3-tempi costs more than a late one",
+  "Counter change of hand (zig-zag): prompt change of bend, consistent angle each direction",
+  "All transitions into/out of collection: abrupt is not collected"
+];
+PSG.collectives = "Submission and impulsion carry significant collective weight. Submission means willing harmony — not obedience under tension.";
 
 // ─── SECTION CONFIG ───────────────────────────────────────────────
 const CFG = {
@@ -938,23 +1091,7 @@ function switchTab(name, btn) {
 }
 
 // Concern items — movements + directives the rider can flag
-const CONCERN_ITEMS = [
-  { id:'ext-trot',    text:'Extended trot',                     note:'Double coefficient — most visible movement in test', coeff:true },
-  { id:'ext-canter',  text:'Extended canter',                   note:'Double coefficient — judges see return to collection too', coeff:true },
-  { id:'halt-rb',     text:'Halt / immobility / rein back',     note:'Double coefficient — often undertrained', coeff:true },
-  { id:'half-pir-c',  text:'Half-pirouettes in canter',         note:'New at PSG · 3–4 stride requirement; energy upward', coeff:false },
-  { id:'half-pir-w',  text:'Half-pirouettes in walk',           note:'New at PSG · often tighter and less practiced', coeff:false },
-  { id:'zig-zag',     text:'Counter change of hand (zig-zag)',  note:'New at PSG · prompt change of bend; consistent angle', coeff:false },
-  { id:'4-tempi',     text:'4-tempi changes × 5',               note:'Straightness matters as much as timing', coeff:false },
-  { id:'3-tempi',     text:'3-tempi changes × 5',               note:'Straightness matters as much as timing', coeff:false },
-  { id:'shoulder-in', text:'Shoulder-in (both reins)',          note:'30° / three tracks; not four-track over-bending', coeff:false },
-  { id:'half-pass-t', text:'Half-pass in trot',                 note:'Horse nearly parallel to long side; clear crossing', coeff:false },
-  { id:'half-pass-c', text:'Half-pass in canter',               note:'Maintain collection and rhythm through crossing', coeff:false },
-  { id:'8m-volte',    text:'8m voltes',                         note:'New at PSG · will bulge if even slightly over-size', coeff:false },
-  { id:'ext-walk',    text:'Extended walk',                     note:'Total freedom and clear overtrack; no tension in back', coeff:false },
-  { id:'submission',  text:'Submission (collective ×2)',        note:'Jaw tension, resistance, behind-the-leg — all penalized here', coeff:true },
-  { id:'harmony',     text:'General Impression (collective ×2)', note:'Overall harmony; hard to recover once lost', coeff:true },
-];
+const CONCERN_ITEMS = TEST_DATA.prix_st_georges.assessItems;
 
 function buildConcerns() {
   const el = document.getElementById('concernsList');
