@@ -32,6 +32,22 @@
         "destination": "/first-glimpse-quick.html"
       },
       {
+        "source": "/ydj-learn-more.html",
+        "destination": "/ydj-learn-more.html"
+      },
+      {
+        "source": "/ydj-ndpc-demo.html",
+        "destination": "/ydj-ndpc-demo.html"
+      },
+      {
+        "source": "/ydj-first-glimpse-quick.html",
+        "destination": "/ydj-first-glimpse-quick.html"
+      },
+      {
+        "source": "/ydj-science.html",
+        "destination": "/ydj-science.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
