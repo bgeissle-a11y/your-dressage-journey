@@ -231,6 +231,14 @@ export default function DebriefForm() {
     if (!formData.rideArc) newErrors.rideArc = 'Please select how your ride unfolded.';
     if (!formData.processGoal1.trim()) newErrors.processGoal1 = 'At least one process goal is required';
     setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      // Scroll to first error field so user sees what needs fixing (critical on mobile)
+      const firstErrorKey = Object.keys(newErrors)[0];
+      requestAnimationFrame(() => {
+        const el = document.querySelector(`[name="${firstErrorKey}"]`);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    }
     return Object.keys(newErrors).length === 0;
   }
 
