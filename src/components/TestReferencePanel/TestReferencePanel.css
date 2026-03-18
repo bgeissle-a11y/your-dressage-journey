@@ -1,0 +1,518 @@
+/* ============================================
+   Test Reference Panel
+   Shared sidebar/panel for Show Prep + Show Planner
+   ============================================ */
+
+/* ── PANEL CONTAINER ─────────────────────────── */
+.trp-panel {
+  background: white;
+  border-radius: 14px;
+  border: 1.5px solid var(--parchment-dark);
+  overflow: hidden;
+}
+
+.trp-panel.trp-sticky {
+  position: sticky;
+  top: 20px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--parchment-dark) transparent;
+}
+
+.trp-panel.trp-sticky::-webkit-scrollbar { width: 4px; }
+.trp-panel.trp-sticky::-webkit-scrollbar-thumb { background: var(--parchment-dark); border-radius: 2px; }
+
+/* ── HEADER ────────────────────────────────── */
+.trp-head {
+  padding: 16px 18px 12px;
+  border-bottom: 1.5px solid var(--parchment-dark);
+  background: linear-gradient(135deg, #f8efe4 0%, white 100%);
+  border-radius: 14px 14px 0 0;
+}
+
+.trp-eyebrow {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  margin-bottom: 4px;
+}
+
+.trp-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+.trp-sub {
+  font-size: 11px;
+  color: var(--ink-light);
+  margin-top: 3px;
+}
+
+/* ── PILL SWITCHER ──────────────────────────── */
+.trp-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 10px 18px 0;
+}
+
+.trp-pill {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 12px;
+  border: 1.5px solid var(--parchment-dark);
+  background: var(--parchment-off);
+  color: var(--ink-mid);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Work Sans', sans-serif;
+  white-space: nowrap;
+}
+
+.trp-pill:hover {
+  border-color: var(--gold-light);
+  color: var(--ink);
+}
+
+.trp-pill.active {
+  background: var(--rust);
+  border-color: var(--rust);
+  color: white;
+}
+
+/* ── FLAG BADGE ─────────────────────────────── */
+.trp-flag-badge {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(122, 48, 32, 0.08);
+  color: var(--tech-color);
+  border: 1px solid var(--tech-border);
+  margin: 6px 18px 0;
+}
+
+/* ── TABS ───────────────────────────────────── */
+.trp-tabs {
+  display: flex;
+  border-bottom: 1.5px solid var(--parchment-dark);
+  background: var(--parchment);
+  margin-top: 8px;
+}
+
+.trp-tab {
+  flex: 1;
+  padding: 9px 4px;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.35px;
+  text-transform: uppercase;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--ink-light);
+  transition: all 0.15s;
+  border-bottom: 2.5px solid transparent;
+  margin-bottom: -1.5px;
+  font-family: 'Work Sans', sans-serif;
+}
+
+.trp-tab:hover { color: var(--ink); }
+
+.trp-tab.active {
+  color: var(--tech-color);
+  border-bottom-color: var(--tech-color);
+  background: white;
+}
+
+/* ── TAB CONTENT ────────────────────────────── */
+.trp-tab-content {
+  display: none;
+  padding: 16px 18px 20px;
+}
+
+.trp-tab-content.active {
+  display: block;
+  animation: trpFadeUp 0.18s ease both;
+}
+
+@keyframes trpFadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── NO DATA PLACEHOLDER ────────────────────── */
+.trp-no-data {
+  padding: 28px 18px;
+  text-align: center;
+  color: var(--ink-light);
+}
+
+.trp-no-data-icon {
+  font-size: 28px;
+  margin-bottom: 10px;
+  opacity: 0.55;
+}
+
+.trp-no-data-msg {
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+/* ── OVERVIEW TAB ───────────────────────────── */
+.trp-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--parchment-dark);
+  border: 1.5px solid var(--parchment-dark);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.trp-meta-cell {
+  background: white;
+  padding: 9px 10px;
+  text-align: center;
+}
+
+.trp-meta-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.trp-meta-key {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  margin-top: 2px;
+}
+
+.trp-directives-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  margin-bottom: 10px;
+}
+
+.trp-directive {
+  font-size: 12px;
+  color: var(--ink-mid);
+  line-height: 1.5;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--parchment-mid);
+}
+
+.trp-directive:last-child { border-bottom: none; }
+.trp-directive strong { color: var(--ink); }
+
+.trp-new-callout {
+  margin-top: 14px;
+  padding: 10px 14px;
+  background: var(--mental-bg);
+  border-left: 3px solid var(--mental-color);
+  border-radius: 0 6px 6px 0;
+  font-size: 11.5px;
+  color: var(--mental-color);
+  line-height: 1.55;
+}
+
+.trp-new-callout strong {
+  color: var(--mental-color);
+}
+
+/* ── MOVEMENTS TAB ──────────────────────────── */
+.trp-mov-group {
+  margin-bottom: 14px;
+}
+
+.trp-mov-group-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 6px;
+}
+
+.trp-mov-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.trp-mov-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--ink-mid);
+}
+
+.trp-mov-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.trp-chip {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 10px;
+  background: var(--parchment);
+  border: 1.5px solid var(--parchment-dark);
+  color: var(--ink-mid);
+}
+
+.trp-chip.coeff {
+  background: var(--tech-bg);
+  border-color: var(--tech-border);
+  color: var(--tech-color);
+  font-weight: 600;
+}
+
+.trp-chip.coeff::after {
+  content: '×2';
+  font-size: 9px;
+  font-weight: 700;
+  margin-left: 3px;
+  opacity: 0.75;
+}
+
+.trp-chip.new-at {
+  background: var(--mental-bg);
+  border-color: var(--mental-border);
+  color: var(--mental-color);
+}
+
+.trp-mov-note {
+  font-size: 10.5px;
+  color: var(--ink-light);
+  margin-top: 10px;
+  line-height: 1.6;
+}
+
+/* ── COEFFICIENTS TAB ───────────────────────── */
+.trp-coeff-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 12px;
+}
+
+.trp-coeff-table th {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  padding: 5px 7px;
+  border-bottom: 2px solid var(--parchment-dark);
+  text-align: left;
+}
+
+.trp-coeff-table td {
+  font-size: 11px;
+  padding: 7px 7px;
+  border-bottom: 1px solid var(--parchment-mid);
+  vertical-align: top;
+  line-height: 1.4;
+  color: var(--ink-mid);
+}
+
+.trp-coeff-table tr:last-child td { border-bottom: none; }
+
+.trp-coeff-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(122, 48, 32, 0.10);
+  color: var(--tech-color);
+  border: 1px solid rgba(122, 48, 32, 0.2);
+  white-space: nowrap;
+}
+
+.trp-coeff-badge.collective {
+  background: rgba(46, 92, 130, 0.10);
+  color: var(--mental-color);
+  border-color: rgba(46, 92, 130, 0.22);
+}
+
+.trp-coeff-note {
+  font-size: 11px;
+  color: var(--ink-light);
+  font-style: italic;
+  margin-top: 4px;
+}
+
+/* ── FLAG FOR PREP TAB ──────────────────────── */
+.trp-flag-intro {
+  font-size: 11.5px;
+  color: var(--ink-light);
+  margin-bottom: 12px;
+  line-height: 1.55;
+  font-style: italic;
+}
+
+.trp-flag-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--parchment-mid);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.12s;
+}
+
+.trp-flag-row:last-child { border-bottom: none; }
+
+.trp-flag-row:hover {
+  background: var(--parchment-off);
+  margin: 0 -4px;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.trp-flag-check {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--parchment-dark);
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  transition: all 0.15s;
+  color: transparent;
+  background: white;
+}
+
+.trp-flag-row.flagged .trp-flag-check {
+  background: var(--tech-color);
+  border-color: var(--tech-color);
+  color: white;
+}
+
+.trp-flag-text {
+  font-size: 12px;
+  color: var(--ink-mid);
+  line-height: 1.4;
+}
+
+.trp-flag-row.flagged .trp-flag-text {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.trp-flag-note {
+  font-size: 10px;
+  color: var(--ink-light);
+  margin-top: 1px;
+}
+
+.trp-flag-coeff-marker {
+  font-size: 9px;
+  color: var(--tech-color);
+  font-weight: 700;
+  margin-left: 3px;
+}
+
+/* ── FLAG SUMMARY ───────────────────────────── */
+.trp-flag-summary {
+  background: rgba(122, 48, 32, 0.05);
+  border: 1px solid rgba(122, 48, 32, 0.18);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-top: 14px;
+}
+
+.trp-flag-summary-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--tech-color);
+  margin-bottom: 6px;
+}
+
+.trp-flag-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.trp-flag-chip {
+  font-size: 10.5px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--tech-bg);
+  border: 1px solid var(--tech-border);
+  color: var(--tech-color);
+}
+
+.trp-flag-chip .x2 {
+  font-size: 9px;
+  opacity: 0.75;
+  margin-left: 2px;
+}
+
+.trp-flag-summary-empty {
+  font-size: 11px;
+  color: var(--ink-light);
+  font-style: italic;
+}
+
+/* ── EMPTY STATE (no test selected) ─────────── */
+.trp-empty {
+  padding: 28px 18px;
+  text-align: center;
+  color: var(--ink-light);
+}
+
+.trp-empty-icon {
+  font-size: 28px;
+  margin-bottom: 10px;
+  opacity: 0.55;
+}
+
+.trp-empty-msg {
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.trp-empty-arrow {
+  font-size: 11px;
+  color: var(--gold);
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+/* ── PULSE ANIMATION (first activation) ─────── */
+@keyframes trpSidebarPulse {
+  0%, 100% { border-color: var(--parchment-dark); }
+  40% { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(184, 134, 42, 0.15); }
+}
+
+.trp-panel.just-activated {
+  animation: trpSidebarPulse 1.4s ease;
+}

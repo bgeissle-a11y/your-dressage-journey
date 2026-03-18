@@ -59,6 +59,7 @@ export default function AppLayout() {
         {/* Plan */}
         <span className="nav-group-label">Plan</span>
         <Link to="/show-prep/new" className={navClass('/show-prep')}>Show Prep</Link>
+        <Link to="/practice-card" className={navClass('/practice-card')}>Practice Card</Link>
         <div className="nav-sep" />
 
         {/* AI Coaching */}
@@ -78,6 +79,7 @@ export default function AppLayout() {
 
         {/* Learn */}
         <span className="nav-group-label">Learn</span>
+        <Link to="/learn/test-explorer" className={navClass('/learn')}>Test Explorer</Link>
         <a href="/arena-geometry-trainer.html" className="nav-btn">Arena Trainer</a>
         <div className="nav-sep" />
 

@@ -50,6 +50,9 @@ import TechnicalPhilosophicalList from './components/TechnicalPhilosophical/Tech
 import TechnicalPhilosophicalForm from './components/TechnicalPhilosophical/TechnicalPhilosophicalForm';
 
 import PracticeCard from './components/PracticeCard/PracticeCard';
+
+// Learn
+import TestExplorer from './components/TestExplorer/TestExplorer';
 import './App.css';
 
 // Initialize GA4 once on app load
@@ -139,6 +142,9 @@ function App() {
             <Route path="/technical-assessments" element={<TechnicalPhilosophicalList />} />
             <Route path="/technical-assessments/new" element={<TechnicalPhilosophicalForm />} />
             <Route path="/technical-assessments/:id/edit" element={<TechnicalPhilosophicalForm />} />
+
+            {/* Learn */}
+            <Route path="/learn/test-explorer" element={<TestExplorer />} />
           </Route>
 
           {/* Default Route */}
