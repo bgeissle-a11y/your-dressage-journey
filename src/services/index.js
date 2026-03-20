@@ -173,6 +173,20 @@ export {
   getWeekId
 } from './weeklyContextService';
 
+// Rider's Toolkit
+export {
+  createToolkitEntry,
+  getToolkitEntry,
+  getAllToolkitEntries,
+  updateToolkitEntry,
+  deleteToolkitEntry,
+  TOOLKIT_CATEGORIES,
+  TOOLKIT_STATUSES,
+  BODY_TAGS,
+  CATEGORY_LABELS,
+  STATUS_LABELS
+} from './riderToolkitService';
+
 // Horse health & soundness
 export {
   createHealthEntry,

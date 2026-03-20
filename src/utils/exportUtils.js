@@ -123,6 +123,10 @@ export const EXPORT_COLUMNS = {
     'showName', 'showDateStart', 'showDateEnd', 'showType', 'horseName',
     'currentLevel', 'testsSelected', 'goals', 'concerns', 'ridingFrequency',
     'coachAccess', 'status'
+  ],
+  riderToolkitEntries: [
+    'date', 'name', 'category', 'status', 'source', 'description',
+    'ridingConnection', 'bodyTags', 'followupNotes'
   ]
 };
 

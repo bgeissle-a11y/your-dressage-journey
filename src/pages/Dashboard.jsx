@@ -14,7 +14,8 @@ import {
   getAllJourneyEvents,
   getAllShowPreparations,
   getAllHealthEntries,
-  getAllLessonNotes
+  getAllLessonNotes,
+  getAllToolkitEntries
 } from '../services';
 import { getAdminStats } from '../services/aiService';
 import { exportToCSV, exportToJSON, EXPORT_COLUMNS } from '../utils/exportUtils';
@@ -41,6 +42,7 @@ const DM_ASSESS = [
   { icon: '\uD83C\uDFAF', label: 'Rider Self-Assessment', desc: 'Broad skills & confidence', to: '/rider-assessments/new' },
   { icon: '\u2696\uFE0F', label: 'Technical & Philosophical', desc: 'Movement-by-movement ratings', to: '/technical-assessments/new' },
   { icon: '\uD83C\uDF3F', label: 'Physical Self-Assessment', desc: 'Body awareness & balance', to: '/physical-assessments/new' },
+  { icon: '\uD83E\uDDF0', label: "Rider\u2019s Toolkit", desc: 'Off-horse discoveries & practices', to: '/toolkit/new' },
 ];
 const DM_REVIEW = [
   { icon: '\uD83D\uDCCB', label: 'All Debriefs', desc: 'Browse your ride history', to: '/debriefs' },
@@ -50,6 +52,7 @@ const DM_REVIEW = [
   { icon: '\uD83C\uDF3F', label: 'Health Log', desc: 'Full soundness records', to: '/horse-health' },
   { icon: '\uD83D\uDCC5', label: 'Journey Events', desc: 'Your timeline', to: '/events' },
   { icon: '\uD83C\uDFDF', label: 'Show Preparations', desc: 'Past show prep plans', to: '/show-prep' },
+  { icon: '\uD83E\uDDF0', label: 'Toolkit', desc: 'Your off-horse catalog', to: '/toolkit' },
 ];
 
 /* ── Sparkline SVG renderer ── */
@@ -189,14 +192,15 @@ export default function Dashboard() {
     if (!currentUser || exporting) return;
     setExporting(true);
     try {
-      const [debRes, refRes, obsRes, evtRes, prepRes, healthRes, lessonRes] = await Promise.all([
+      const [debRes, refRes, obsRes, evtRes, prepRes, healthRes, lessonRes, tkRes] = await Promise.all([
         getAllDebriefs(currentUser.uid),
         getAllReflections(currentUser.uid),
         getAllObservations(currentUser.uid),
         getAllJourneyEvents(currentUser.uid),
         getAllShowPreparations(currentUser.uid),
         getAllHealthEntries(currentUser.uid),
-        getAllLessonNotes(currentUser.uid)
+        getAllLessonNotes(currentUser.uid),
+        getAllToolkitEntries(currentUser.uid)
       ]);
       const exportFn = format === 'csv' ? exportToCSV : exportToJSON;
       const today = new Date().toISOString().split('T')[0];
@@ -207,6 +211,10 @@ export default function Dashboard() {
       if (prepRes.success && prepRes.data.length) exportFn(prepRes.data, `ydj-show-preps-${today}`, EXPORT_COLUMNS.showPreparations);
       if (healthRes.success && healthRes.data.length) exportFn(healthRes.data, `ydj-horse-health-${today}`, EXPORT_COLUMNS.horseHealthEntries);
       if (lessonRes.success && lessonRes.data.length) exportFn(lessonRes.data, `ydj-lesson-notes-${today}`, EXPORT_COLUMNS.lessonNotes);
+      if (tkRes.success && tkRes.data.length) {
+        const tkExport = tkRes.data.map(e => ({ ...e, bodyTags: Array.isArray(e.bodyTags) ? e.bodyTags.join('|') : e.bodyTags }));
+        exportFn(tkExport, `toolkit-${today}`, EXPORT_COLUMNS.riderToolkitEntries);
+      }
     } catch (err) {
       console.error('Export failed:', err);
     }

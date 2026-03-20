@@ -386,6 +386,38 @@ export default function TipsAndFaq() {
         </div>
       </div>
 
+      {/* Rider's Toolkit */}
+      <div className="tips-section" id="toolkit">
+        <h2>The Rider&#39;s Toolkit</h2>
+
+        <p className="tips-welcome-text">
+          The Rider&#39;s Toolkit is your personal catalog of off-horse discoveries — exercises, supplements, books, recovery practices, or anything else you&#39;ve encountered that might support your riding. It&#39;s not a to-do list and it&#39;s not a commitment. It&#39;s just a place to put things so you don&#39;t lose them.
+        </p>
+
+        <h3>What kinds of things belong in the Toolkit?</h3>
+        <p>Anything that might support your riding, even indirectly. A Pilates sequence that might help open your hips. A magnesium supplement your trainer mentioned. A book about rider biomechanics. A breathing technique from a yoga class. A stretch that helped your lower back. If you had the thought &#34;I want to remember this,&#34; it belongs here.</p>
+
+        <h3>How is this different from the Physical Self-Assessment?</h3>
+        <p>The Physical Self-Assessment captures what&#39;s currently true about your body — your asymmetries, your physical patterns, your areas of strength and limitation. The Toolkit captures <em>discoveries and intentions</em> — things you want to try, are trying, or have tried. They&#39;re complementary: your assessment tells you where you are, your Toolkit tracks what you&#39;re doing about it.</p>
+
+        <h3>What does each status mean?</h3>
+        <p>There are five statuses:</p>
+        <ul>
+          <li><strong>Want to try</strong> — You&#39;ve noted it but haven&#39;t started yet.</li>
+          <li><strong>Currently using</strong> — You&#39;re actively incorporating this into your routine.</li>
+          <li><strong>Tried it</strong> — You&#39;ve given it a go. Check your follow-up notes for what you found.</li>
+          <li><strong>On pause</strong> — You were using it and have stopped temporarily. You intend to return.</li>
+          <li><strong>Not for me</strong> — You&#39;ve tried it and it&#39;s not a fit. Keeping the record so you remember you already explored this.</li>
+        </ul>
+        <p>You can change the status at any time, either by editing the entry or using the quick &#34;Change status&#34; button on the card.</p>
+
+        <h3>Will my Toolkit entries show up in my AI coaching?</h3>
+        <p>Not yet at launch, but this is planned. The goal is for your Physical Guidance output to be able to reference things you&#39;ve cataloged in your Toolkit — for example, if you&#39;ve noted three entries tagged &#34;Hips&#34; with status &#34;Want to try,&#34; your coaching could prompt you to actually try one. For now, treat the Toolkit as a reference you manage yourself.</p>
+
+        <h3>How many entries can I have?</h3>
+        <p>No limit. Use categories and the filter bar to keep things organized as your Toolkit grows.</p>
+      </div>
+
       {/* Getting the Most Value */}
       <div className="tips-section" id="best-tips">
         <h2>Getting the Most Value</h2>

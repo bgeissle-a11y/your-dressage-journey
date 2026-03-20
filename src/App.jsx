@@ -51,6 +51,10 @@ import TechnicalPhilosophicalForm from './components/TechnicalPhilosophical/Tech
 
 import PracticeCard from './components/PracticeCard/PracticeCard';
 
+// Toolkit
+import ToolkitList from './components/RiderToolkit/ToolkitList';
+import ToolkitForm from './components/RiderToolkit/ToolkitForm';
+
 // Learn
 import TestExplorer from './components/TestExplorer/TestExplorer';
 import './App.css';
@@ -125,6 +129,11 @@ function App() {
 
             {/* Practice Card */}
             <Route path="/practice-card" element={<PracticeCard />} />
+
+            {/* Toolkit */}
+            <Route path="/toolkit" element={<ToolkitList />} />
+            <Route path="/toolkit/new" element={<ToolkitForm />} />
+            <Route path="/toolkit/:id/edit" element={<ToolkitForm />} />
 
             {/* Show Prep */}
             <Route path="/show-prep" element={<ShowPrepList />} />

@@ -232,6 +232,18 @@ export default function QuickStartMap() {
         </div>
       </div>
 
+      {/* Optional: Rider's Toolkit */}
+      <div className="qsm-opt-cluster" style={{ marginTop: '8px', marginBottom: '4px' }}>
+        <div className={`qsm-opt-card ${progress.hasToolkitEntries ? 'done' : ''}`}>
+          <div className="qsm-opt-title">
+            <span className={`qsm-opt-node ${progress.hasToolkitEntries ? 'done' : ''}`} />
+            Rider&#39;s Toolkit
+          </div>
+          <div className="qsm-opt-desc">Catalog off-horse discoveries — exercises, supplements, books, recovery practices. Your personal reference for things that might support your riding.</div>
+          <Link to="/toolkit/new" className="qsm-opt-link-sm" onClick={(e) => e.stopPropagation()}>→ Open Toolkit</Link>
+        </div>
+      </div>
+
       {/* CONNECTOR */}
       <div className="qsm-connector" style={{ marginTop: '8px' }} />
 

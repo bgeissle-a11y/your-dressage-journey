@@ -96,6 +96,12 @@ service cloud.firestore {
       allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
+    match /riderToolkitEntries/{docId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+
     // Analysis cache — written by Cloud Functions (admin SDK bypasses rules),
     // read-only by the authenticated user for weekly focus snapshots
     match /analysisCache/{docId} {

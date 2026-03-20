@@ -53,6 +53,7 @@ export default function AppLayout() {
         <Link to="/observations/new" className={navClass('/observations')}>Observation</Link>
         <Link to="/lesson-notes/new" className={navClass('/lesson-notes')}>Lesson</Link>
         <Link to="/horse-health/new" className={navClass('/horse-health')}>Health</Link>
+        <Link to="/toolkit/new" className={navClass('/toolkit')}>Toolkit</Link>
         <Link to="/events/new" className={navClass('/events')}>Event</Link>
         <div className="nav-sep" />
 
