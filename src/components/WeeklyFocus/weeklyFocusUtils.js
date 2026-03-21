@@ -32,6 +32,25 @@ export function getCurrentCycleWeek(cycleStartDate) {
  * Falls back to prompt-generated weeklyAssignments if cycle data unavailable.
  */
 export function deriveWeeklyAssignments(gptResult, cycleWeek) {
+  // New structure (March 2026+): top-level weeklyAssignments extracted by Hard Rule 2
+  if (gptResult?.weeklyAssignments?.length) {
+    return gptResult.weeklyAssignments;
+  }
+
+  // New structure fallback: derive from selectedPath.weeks
+  if (gptResult?.selectedPath?.weeks?.length) {
+    const weekData = gptResult.selectedPath.weeks.find(w => w.week === cycleWeek)
+      || gptResult.selectedPath.weeks[0];
+    const assignments = weekData?.assignments || [];
+    return assignments.length ? assignments.map(a => ({
+      title: a.title || '',
+      description: a.description || '',
+      when: a.when || '',
+      buildToward: a.trajectoryLink || gptResult.selectedPath.title || 'Mental performance',
+    })) : null;
+  }
+
+  // Legacy structure (pre-March 2026): paths array
   if (!gptResult?.paths) return null;
 
   const recommendedId = gptResult.recommendedPath;
@@ -41,12 +60,10 @@ export function deriveWeeklyAssignments(gptResult, cycleWeek) {
 
   if (!path || path._error) return null;
 
-  // Prefer prompt-generated weeklyAssignments
   if (path.weeklyAssignments?.length) {
     return path.weeklyAssignments;
   }
 
-  // Fallback: derive from existing 4-week drilldown structure
   if (path.weeks?.length) {
     const weekData = path.weeks.find(w => w.week === cycleWeek) || path.weeks[0];
     const practices = weekData?.practices || weekData?.exercises || [];

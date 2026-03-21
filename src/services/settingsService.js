@@ -6,7 +6,7 @@
  *   /riders/{userId}/settings/preferences
  *   /riders/{userId}/settings/notifications
  *   /riders/{userId}/settings/privacy
- *   /riders/{userId}/settings/coaches/{coachId}
+ *   /riders/{userId}/coaches/{coachId}
  *
  * Preferences/notifications/privacy are single documents (batch save).
  * Coaches are a subcollection with immediate per-mutation writes.
@@ -83,11 +83,11 @@ function settingsDocRef(userId, docName) {
 }
 
 function coachesCollectionRef(userId) {
-  return collection(db, 'riders', userId, 'settings', 'coaches');
+  return collection(db, 'riders', userId, 'coaches');
 }
 
 function coachDocRef(userId, coachId) {
-  return doc(db, 'riders', userId, 'settings', 'coaches', coachId);
+  return doc(db, 'riders', userId, 'coaches', coachId);
 }
 
 // ── Load all settings (Section 5) ──
