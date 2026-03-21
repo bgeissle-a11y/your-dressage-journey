@@ -96,9 +96,9 @@ async function setCache(uid, outputType, result, metadata) {
     userId: uid,
     outputType,
     generatedAt: new Date().toISOString(),
-    dataSnapshotHash,
-    tierLabel,
-    dataTier,
+    dataSnapshotHash: dataSnapshotHash || null,
+    tierLabel: tierLabel || null,
+    dataTier: dataTier !== undefined ? dataTier : null,
     result,
     isDeleted: false,
   };
