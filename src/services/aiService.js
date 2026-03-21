@@ -81,12 +81,25 @@ export async function getJourneyMap(options = {}) {
  * @param {boolean} [options.forceRefresh] - Skip cache
  * @param {boolean} [options.staleOk] - Return cached data instantly (even if stale)
  * @param {string} [options.layer] - "mental" (default) or "trajectory"
- * @returns {Promise<object>} { success, paths, recommendedPath, ... }
+ * @returns {Promise<object>} Mental: { success, selectedPath, weeklyAssignments, activeTrajectory, ... }
+ *                            Trajectory: { success, currentStateAnalysis, trajectoryPaths, activePath, ... }
  */
 export async function getGrandPrixThinking(options = {}) {
   const timeout = options.staleOk ? 30_000 : 300_000;
   const fn = httpsCallable(functions, 'getGrandPrixThinking', { timeout });
   const result = await fn(options);
+  return result.data;
+}
+
+/**
+ * Generate on-demand 4-week expansion for a GPT L1 Mental Performance path.
+ *
+ * @param {string} pathId - The selected path ID (e.g. "pre_ride")
+ * @returns {Promise<object>} { success, pathId, weeks: [...], ... }
+ */
+export async function getGPTExpanded(pathId) {
+  const fn = httpsCallable(functions, 'getGrandPrixThinking', { timeout: 300_000 });
+  const result = await fn({ action: 'expand', pathId });
   return result.data;
 }
 

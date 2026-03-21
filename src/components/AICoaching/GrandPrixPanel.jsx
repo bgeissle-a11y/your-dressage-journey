@@ -1,63 +1,97 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { getGrandPrixThinking, VOICE_META } from '../../services/aiService';
-import CollapsibleSection from './CollapsibleSection';
+import { getGrandPrixThinking, getGPTExpanded } from '../../services/aiService';
+import { useAuth } from '../../contexts/AuthContext';
+import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
+import { db } from '../../firebase-config';
 import ErrorDisplay from './ErrorDisplay';
 import ElapsedTimer from './ElapsedTimer';
 
-const PATH_COLORS = {
-  'pre-ride': '#6B8E5F',
-  'in-saddle': '#C67B5C',
-  'resilience': '#4A6274',
-  'steady-builder': '#6B8E5F',
-  'ambitious-competitor': '#C67B5C',
-  'curious-explorer': '#4A6274',
-};
-
-const PATH_ICONS = {
-  'pre-ride': '\ud83c\udf05',
-  'in-saddle': '\ud83c\udfc7',
-  'resilience': '\ud83d\udcaa',
-  'steady-builder': '\ud83c\udfe0',
-  'ambitious-competitor': '\ud83c\udfc6',
-  'curious-explorer': '\ud83e\udded',
-};
-
-const VOICE_LOOKUP = {};
-VOICE_META.forEach((v) => { VOICE_LOOKUP[v.name] = v; });
-VOICE_META.forEach((v) => { VOICE_LOOKUP[v.name.replace('The ', '')] = v; });
-
 /**
- * Grand Prix Thinking — two-layer tab display.
- * Mental Performance: 3-path accordion with 4-week drilldowns.
- * Training Trajectory: 4-call pipeline with state analysis, 3 paths, movement maps, narratives.
+ * Grand Prix Thinking — Redesigned March 2026
+ *
+ * Two-tab layout:
+ *   Mental Performance (Weekly): Single AI-selected path, Week 1 detail, on-demand 4-week expansion
+ *   Training Trajectory (Monthly): 3 trajectory cards with collapse/expand, Best Fit highlighted
+ *
+ * Architecture:
+ *   - L1 receives L2 activePath for trajectory alignment (Hard Rule 1)
+ *   - weeklyAssignments extracted server-side from Week 1 (Hard Rule 2)
  */
 export default function GrandPrixPanel({ generationStatus }) {
-  const [activeLayer, setActiveLayer] = useState('mental');
+  const { currentUser } = useAuth();
+  const [activeTab, setActiveTab] = useState('mental');
 
   // Mental layer state
   const [mentalData, setMentalData] = useState(null);
   const [mentalLoading, setMentalLoading] = useState(false);
   const [mentalError, setMentalError] = useState(null);
-  const [expandedPath, setExpandedPath] = useState(null);
-  const [expandedWeek, setExpandedWeek] = useState(null);
-  const initialExpandDone = useRef(false);
 
   // Trajectory layer state
   const [trajectoryData, setTrajectoryData] = useState(null);
   const [trajectoryLoading, setTrajectoryLoading] = useState(false);
   const [trajectoryError, setTrajectoryError] = useState(null);
+  const trajectoryLoaded = useRef(false);
 
+  // Expansion state
+  const [expandedPlan, setExpandedPlan] = useState(null);
+  const [expandLoading, setExpandLoading] = useState(false);
+  const [expandOpen, setExpandOpen] = useState(false);
+  const [activeWeek, setActiveWeek] = useState(1);
+
+  // Trajectory card expansion
+  const [openTrajCard, setOpenTrajCard] = useState(null); // Best Fit opens by default
+
+  // Assignment checkbox state
+  const [checkedAssignments, setCheckedAssignments] = useState({});
+
+  // General state
   const [insufficientData, setInsufficientData] = useState(null);
-
-  const [mentalRefreshing, setMentalRefreshing] = useState(false);
-  const [trajectoryRefreshing, setTrajectoryRefreshing] = useState(false);
-  const [loadStartedAt, setLoadStartedAt] = useState(null);
   const [mentalStale, setMentalStale] = useState(false);
   const [trajectoryStale, setTrajectoryStale] = useState(false);
+  const [mentalRefreshing, setMentalRefreshing] = useState(false);
+  const [loadStartedAt, setLoadStartedAt] = useState(null);
+
+  // Rider display info
+  const [riderInfo, setRiderInfo] = useState({ name: '', horse: '', level: '' });
+
+  // Fetch rider display info for hero
+  useEffect(() => {
+    if (!currentUser) return;
+    (async () => {
+      try {
+        const [riderSnap, horsesSnap] = await Promise.all([
+          getDoc(doc(db, 'riderProfiles', currentUser.uid)),
+          getDoc(doc(db, 'users', currentUser.uid)),
+        ]);
+        const riderData = riderSnap.data();
+        const displayName = riderData?.firstName || currentUser.displayName || '';
+        const horseName = riderData?.primaryHorseName || '';
+        const level = riderData?.currentLevel || '';
+        setRiderInfo({ name: displayName, horse: horseName, level });
+      } catch {
+        // Silently fail — hero will show without rider info
+      }
+    })();
+  }, [currentUser]);
+
+  // Load saved checkbox state
+  useEffect(() => {
+    if (!currentUser || !mentalData?.selectedPath?.id) return;
+    (async () => {
+      try {
+        const snap = await getDoc(doc(db, 'users', currentUser.uid, 'gptProgress', 'assignments'));
+        if (snap.exists()) {
+          setCheckedAssignments(snap.data()?.checked || {});
+        }
+      } catch {
+        // Silently fail
+      }
+    })();
+  }, [currentUser, mentalData?.selectedPath?.id]);
 
   // Fetch mental layer
   const fetchMental = useCallback(async ({ forceRefresh = false, staleOk = false } = {}) => {
-    if ((forceRefresh || (mentalData && !staleOk)) && mentalData) {
+    if (forceRefresh && mentalData) {
       setMentalRefreshing(true);
     } else if (!staleOk) {
       setMentalLoading(true);
@@ -75,38 +109,21 @@ export default function GrandPrixPanel({ generationStatus }) {
         if (result.error === 'insufficient_data') {
           setInsufficientData(result);
         } else if (!staleOk) {
-          setMentalError({ message: 'Failed to generate your Grand Prix Thinking dashboard.' });
+          setMentalError({ message: 'Failed to generate your Mental Performance output.' });
         }
         return;
       }
 
       setMentalData(result);
       setMentalStale(!!result.stale);
-      if (result.recommendedPath && !initialExpandDone.current) {
-        setExpandedPath(result.recommendedPath);
-        initialExpandDone.current = true;
-      }
 
-      // If stale data returned from fast path, trigger background refresh
-      if (result.stale && staleOk) {
-        fetchMental({ forceRefresh: false });
-      }
+      // Reset expansion state on new data
+      setExpandedPlan(null);
+      setExpandOpen(false);
+      setActiveWeek(1);
     } catch (err) {
-      if (staleOk) {
-        fetchMental({ forceRefresh: false });
-        return;
-      }
-      console.error('Grand Prix Thinking error:', err);
-      const details = err?.details || err?.customData || {};
-      const parsed = {
-        category: details.category || 'unknown',
-        retryable: details.retryable !== false,
-        message: err?.message || 'An error occurred.',
-      };
-      if (mentalData) {
-        setMentalError({ ...parsed, message: 'Could not refresh. Showing previous results.' });
-      } else {
-        setMentalError(parsed);
+      if (!staleOk) {
+        setMentalError({ message: err.message || 'Something went wrong.' });
       }
     } finally {
       setMentalLoading(false);
@@ -114,15 +131,10 @@ export default function GrandPrixPanel({ generationStatus }) {
     }
   }, [mentalData]);
 
-  // Fetch trajectory layer (lazy — only on first tab switch)
+  // Fetch trajectory layer
   const fetchTrajectory = useCallback(async ({ forceRefresh = false, staleOk = false } = {}) => {
-    if ((forceRefresh || (trajectoryData && !staleOk)) && trajectoryData) {
-      setTrajectoryRefreshing(true);
-    } else if (!staleOk) {
-      setTrajectoryLoading(true);
-      setLoadStartedAt(Date.now());
-    }
     if (!staleOk) {
+      setTrajectoryLoading(true);
       setTrajectoryError(null);
     }
 
@@ -130,10 +142,8 @@ export default function GrandPrixPanel({ generationStatus }) {
       const result = await getGrandPrixThinking({ forceRefresh, staleOk, layer: 'trajectory' });
 
       if (!result.success) {
-        if (result.error === 'insufficient_data') {
-          setInsufficientData(result);
-        } else if (!staleOk) {
-          setTrajectoryError({ message: 'Failed to generate training trajectory paths.' });
+        if (!staleOk) {
+          setTrajectoryError({ message: 'Failed to generate Training Trajectory.' });
         }
         return;
       }
@@ -141,785 +151,513 @@ export default function GrandPrixPanel({ generationStatus }) {
       setTrajectoryData(result);
       setTrajectoryStale(!!result.stale);
 
-      if (result.stale && staleOk) {
-        fetchTrajectory({ forceRefresh: false });
+      // Open Best Fit card by default
+      const activePath = result.activePath;
+      if (activePath) {
+        setOpenTrajCard(activePath);
       }
     } catch (err) {
-      if (staleOk) {
-        fetchTrajectory({ forceRefresh: false });
-        return;
-      }
-      console.error('Training trajectory error:', err);
-      const details = err?.details || err?.customData || {};
-      const parsed = {
-        category: details.category || 'unknown',
-        retryable: details.retryable !== false,
-        message: err?.message || 'An error occurred.',
-      };
-      if (trajectoryData) {
-        setTrajectoryError({ ...parsed, message: 'Could not refresh. Showing previous results.' });
-      } else {
-        setTrajectoryError(parsed);
+      if (!staleOk) {
+        setTrajectoryError({ message: err.message || 'Something went wrong.' });
       }
     } finally {
       setTrajectoryLoading(false);
-      setTrajectoryRefreshing(false);
     }
-  }, [trajectoryData]);
+  }, []);
 
-  // Phase 1: Fast cache fetch on mount
+  // Initial load — mental (staleOk first, then full)
   useEffect(() => {
-    fetchMental({ staleOk: true });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    fetchMental({ staleOk: true }).then(() => fetchMental());
+  }, []);
 
-  // Load trajectory on first tab switch (with staleOk fast path)
+  // Lazy-load trajectory on first tab switch
   useEffect(() => {
-    if (activeLayer === 'trajectory' && !trajectoryData && !trajectoryLoading) {
-      fetchTrajectory({ staleOk: true });
+    if (activeTab === 'trajectory' && !trajectoryLoaded.current) {
+      trajectoryLoaded.current = true;
+      fetchTrajectory({ staleOk: true }).then(() => fetchTrajectory());
     }
-  }, [activeLayer, trajectoryData, trajectoryLoading, fetchTrajectory]);
+  }, [activeTab]);
 
-  // Auto-refresh when background generation completes
+  // Auto-refresh on generation complete
   useEffect(() => {
     if (generationStatus?.justCompleted) {
-      if (mentalData) fetchMental();
-      if (trajectoryData) fetchTrajectory();
+      fetchMental({ forceRefresh: true });
+      if (trajectoryLoaded.current) {
+        fetchTrajectory({ forceRefresh: true });
+      }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [generationStatus?.justCompleted]);
 
+  // Handle 4-week expansion
+  const handleExpand = async () => {
+    if (expandOpen) {
+      setExpandOpen(false);
+      return;
+    }
+
+    setExpandOpen(true);
+
+    if (expandedPlan) return; // Already loaded
+
+    const pathId = mentalData?.selectedPath?.id;
+    if (!pathId) return;
+
+    setExpandLoading(true);
+    try {
+      const result = await getGPTExpanded(pathId);
+      if (result.success) {
+        setExpandedPlan(result);
+      }
+    } catch (err) {
+      console.error('[GPT Expand]', err);
+    } finally {
+      setExpandLoading(false);
+    }
+  };
+
+  // Toggle assignment checkbox
+  const toggleAssignment = async (index) => {
+    const key = `${mentalData?.selectedPath?.id}_w1_${index}`;
+    const newChecked = { ...checkedAssignments, [key]: !checkedAssignments[key] };
+    setCheckedAssignments(newChecked);
+
+    // Persist to Firestore
+    if (currentUser) {
+      try {
+        const ref = doc(db, 'users', currentUser.uid, 'gptProgress', 'assignments');
+        await updateDoc(ref, { checked: newChecked }).catch(() => {
+          // Document may not exist yet — create it
+          setDoc(ref, { checked: newChecked });
+        });
+      } catch {
+        // Silently fail
+      }
+    }
+  };
+
+  // Toggle trajectory card
+  const toggleTrajCard = (cardId) => {
+    setOpenTrajCard(openTrajCard === cardId ? null : cardId);
+  };
+
+  // Format date for display
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+  };
+
+  // ─── RENDER ────────────────────────────────────────────────
+
+  // Insufficient data state
   if (insufficientData) {
     return (
-      <div className="panel-insufficient">
-        <div className="panel-insufficient__icon">
-          <span role="img" aria-label="brain">&#x1F9E0;</span>
-        </div>
-        <h3>Preparing Your Mental Performance Dashboard</h3>
-        <p>{insufficientData.message}</p>
-        <div className="panel-insufficient__checklist">
-          <p>To unlock Grand Prix Thinking, you need:</p>
-          <ul>
-            <li>A completed rider profile</li>
-            <li>At least one horse profile</li>
-            <li>At least 3 post-ride debriefs</li>
-            <li>A rider self-assessment (for best results)</li>
-          </ul>
+      <div className="gpt-redesign">
+        {renderHero()}
+        <div className="gpt-insufficient">
+          <h3>Almost there!</h3>
+          <p>{insufficientData.message}</p>
+          <div className="gpt-insufficient__checklist">
+            <div className="gpt-insufficient__item">Rider profile completed</div>
+            <div className="gpt-insufficient__item">At least one horse added</div>
+            <div className="gpt-insufficient__item">3+ post-ride debriefs submitted</div>
+          </div>
         </div>
       </div>
     );
   }
 
-  const isLoading = activeLayer === 'mental' ? mentalLoading : trajectoryLoading;
-  const currentData = activeLayer === 'mental' ? mentalData : trajectoryData;
+  function renderHero() {
+    const heroSub = [riderInfo.name, riderInfo.horse, riderInfo.level]
+      .filter(Boolean).join(' · ');
 
-  if (isLoading && !currentData) {
     return (
-      <div className="gpt-panel gpt-panel--loading">
-        <div className="gpt-panel__header">
-          <h2>Grand Prix Thinking</h2>
-          <p>{activeLayer === 'mental'
-            ? 'Building your personalized mental performance paths...'
-            : 'Mapping your long-term training trajectory...'
-          }</p>
-        </div>
-        <div className="panel-loading-spinner">
-          <div className="spinner" />
-          <p>{activeLayer === 'mental'
-            ? 'Creating your 3-path dashboard with 4 weeks of personalized practices...'
-            : 'Analyzing your current level, mapping movement progressions, and generating three unique trajectory paths...'
-          }</p>
-          <ElapsedTimer startedAt={loadStartedAt} />
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="gpt-panel">
-      <div className="gpt-panel__header">
-        <div>
-          <h2>Grand Prix Thinking</h2>
-          <p>Your personalized strategic performance system</p>
-        </div>
-        <div className="gpt-panel__actions">
-          {currentData?.generatedAt && (
-            <span className={`panel-timestamp${(activeLayer === 'mental' ? mentalStale : trajectoryStale) ? ' panel-timestamp--stale' : ''}`}>
-              {(activeLayer === 'mental' ? mentalRefreshing : trajectoryRefreshing) && (activeLayer === 'mental' ? mentalStale : trajectoryStale) ? 'Updating... \u00B7 ' : ''}
-              {(activeLayer === 'mental' ? mentalStale : trajectoryStale) && !(activeLayer === 'mental' ? mentalRefreshing : trajectoryRefreshing) ? 'Updated ' : ''}
-              {new Date(currentData.generatedAt).toLocaleDateString('en-US', {
-                month: 'short', day: 'numeric', year: 'numeric'
-              })}
-            </span>
-          )}
+      <div className="gpt-hero">
+        <div className="gpt-hero__eyebrow">Your Dressage Journey</div>
+        <div className="gpt-hero__title">Grand Prix Thinking</div>
+        {heroSub && (
+          <div className="gpt-hero__sub">
+            {riderInfo.name}{riderInfo.horse && <> · <strong>{riderInfo.horse}</strong></>}{riderInfo.level && <> · {riderInfo.level}</>}
+          </div>
+        )}
+        <div className="gpt-tab-row">
           <button
-            className="btn-refresh"
-            onClick={() => activeLayer === 'mental' ? fetchMental({ forceRefresh: true }) : fetchTrajectory({ forceRefresh: true })}
-            disabled={isLoading || mentalRefreshing || trajectoryRefreshing}
+            className={`gpt-tab-chip ${activeTab === 'mental' ? 'active' : ''}`}
+            onClick={() => setActiveTab('mental')}
           >
-            {isLoading || mentalRefreshing || trajectoryRefreshing ? 'Regenerating...' : 'Regenerate'}
+            🧠 Mental Performance
+            <span className="gpt-chip-badge">Weekly</span>
+          </button>
+          <button
+            className={`gpt-tab-chip ${activeTab === 'trajectory' ? 'active' : ''}`}
+            onClick={() => setActiveTab('trajectory')}
+          >
+            🗺 Training Trajectory
+            <span className="gpt-chip-badge">Monthly</span>
           </button>
         </div>
       </div>
+    );
+  }
 
-      {/* Layer Tabs */}
-      <div className="gpt-layer-tabs">
-        <button
-          className={`gpt-layer-tab ${activeLayer === 'mental' ? 'gpt-layer-tab--active' : ''}`}
-          onClick={() => setActiveLayer('mental')}
-        >
-          <span className="gpt-layer-tab__icon">&#x1F3AF;</span>
-          Mental Performance
-        </button>
-        <button
-          className={`gpt-layer-tab ${activeLayer === 'trajectory' ? 'gpt-layer-tab--active' : ''}`}
-          onClick={() => setActiveLayer('trajectory')}
-        >
-          <span className="gpt-layer-tab__icon">&#x1F4C8;</span>
-          Your Long-Term Path
-        </button>
-      </div>
-
-      {/* Refreshing banner */}
-      {(activeLayer === 'mental' ? mentalRefreshing : trajectoryRefreshing) && (
-        <div className="panel-refreshing">
-          <div className="spinner spinner--small" />
-          <span>Refreshing with your latest data...</span>
-        </div>
-      )}
-
-      {/* Error */}
-      {(() => {
-        const err = activeLayer === 'mental' ? mentalError : trajectoryError;
-        const isRefreshing = activeLayer === 'mental' ? mentalRefreshing : trajectoryRefreshing;
-        if (!err || isRefreshing) return null;
-        return (
-          <ErrorDisplay
-            message={err.message}
-            category={err.category}
-            retryable={err.retryable !== false}
-            onRetry={() => activeLayer === 'mental' ? fetchMental({ forceRefresh: true }) : fetchTrajectory({ forceRefresh: true })}
-            retrying={isLoading}
-          />
-        );
-      })()}
-
-      {/* Staleness banner */}
-      {(activeLayer === 'mental' ? mentalStale : trajectoryStale) &&
-        !(activeLayer === 'mental' ? mentalRefreshing : trajectoryRefreshing) && (
-        <div className="gpt-staleness-banner">
-          Your dashboard reflects your data as of {new Date(currentData.generatedAt).toLocaleDateString()}.
-          {' '}Click "Regenerate" to update with your latest rides and reflections.
-        </div>
-      )}
-
-      {/* Mental Performance Layer */}
-      {activeLayer === 'mental' && mentalData && (
-        <MentalPaths
-          paths={mentalData.paths}
-          expandedPath={expandedPath}
-          setExpandedPath={setExpandedPath}
-          expandedWeek={expandedWeek}
-          setExpandedWeek={setExpandedWeek}
-          crossRef={buildMentalCrossRef(trajectoryData)}
-        />
-      )}
-
-      {/* Training Trajectory Layer */}
-      {activeLayer === 'trajectory' && trajectoryData && (
-        <TrajectoryPaths data={trajectoryData} mentalCrossRef={buildTrajectoryCrossRef(mentalData)} />
-      )}
-
-      {/* Loading indicator for lazy-loaded trajectory */}
-      {activeLayer === 'trajectory' && trajectoryLoading && !trajectoryData && (
-        <div className="panel-loading-spinner">
+  function renderMentalTab() {
+    if (mentalLoading && !mentalData) {
+      return (
+        <div className="gpt-loading">
           <div className="spinner" />
-          <p>Generating your training trajectory projections...</p>
+          <p>Generating your Mental Performance analysis...</p>
+          {loadStartedAt && <ElapsedTimer startedAt={loadStartedAt} />}
         </div>
-      )}
+      );
+    }
 
-      {mentalData?.personalizationNotes && activeLayer === 'mental' && (
-        <p className="gpt-panel__notes">{mentalData.personalizationNotes}</p>
-      )}
-    </div>
-  );
-}
+    if (mentalError) {
+      return <ErrorDisplay error={mentalError} onRetry={() => fetchMental({ forceRefresh: true })} />;
+    }
 
-// ─── Cross-Layer Reference Helpers ──────────────────────────────────
+    if (!mentalData?.selectedPath) return null;
 
-/**
- * Extract per-path cross-layer callouts from trajectory data
- * for display inside mental performance path cards.
- */
-function buildMentalCrossRef(trajectoryData) {
-  if (!trajectoryData?.currentStateAnalysis) return null;
+    const sp = mentalData.selectedPath;
+    const week1 = sp.weeks?.[0];
+    const assignments = week1?.assignments || [];
 
-  const { currentStateAnalysis, movementMaps, pathNarratives } = trajectoryData;
-  const recommended = pathNarratives?.recommended_path;
-  const nextTransition = currentStateAnalysis.critical_transitions_ahead?.[0];
-  const topMovement = movementMaps?.movement_maps?.[0];
+    return (
+      <div className="gpt-tab-panel gpt-fade-up">
+        {/* Generation meta bar */}
+        <div className="gpt-gen-meta">
+          <span className="gpt-gen-dot gpt-gen-dot--green" />
+          <span className="gpt-gen-fresh">
+            {mentalStale ? 'Update available' : 'Current'} — generated {formatDate(mentalData.generatedAt)}
+          </span>
+          <span className="gpt-gen-divider">·</span>
+          <span>Built from {mentalData.dataSnapshot?.debriefCount || 0} debriefs &amp; {mentalData.dataSnapshot?.reflectionCount || 0} reflections</span>
+          {mentalData.regenerateAfter && (
+            <>
+              <span className="gpt-gen-divider">·</span>
+              <span>Next refresh {formatDate(mentalData.regenerateAfter)}</span>
+            </>
+          )}
+          {mentalRefreshing && <span className="gpt-gen-refreshing">Refreshing...</span>}
+        </div>
 
-  return {
-    'pre-ride': nextTransition
-      ? `Your body scan work supports your path toward ${nextTransition.transition}. ${nextTransition.key_challenge} \u2014 addressing physical patterns now builds the foundation.`
-      : null,
-    'in-saddle': topMovement
-      ? `Your focus skills are training the self-regulation you\u2019ll need for ${topMovement.gp_form}. Your current ${topMovement.current} work is building toward this.`
-      : null,
-    'resilience': recommended
-      ? `Your growth mindset practice supports your ${recommended.path_name} trajectory. ${(recommended.reason || '').split('.')[0]}.`
-      : null,
-  };
-}
+        {/* Staleness banner */}
+        {mentalStale && (
+          <div className="gpt-stale-banner" onClick={() => fetchMental({ forceRefresh: true })}>
+            New data available — tap to update with your latest debriefs
+          </div>
+        )}
 
-/**
- * Extract a single cross-layer callout from mental data
- * for display inside trajectory path cards.
- */
-function buildTrajectoryCrossRef(mentalData) {
-  if (!mentalData?.paths) return null;
+        {/* Section label */}
+        <div className="gpt-section-label-row">
+          <span className="gpt-section-pill gpt-pill-mental">
+            <span className="gpt-pill-dot gpt-dot-mental" />
+            Mental Performance
+          </span>
+          <span className="gpt-section-note">AI-selected path · Week 1 of 4</span>
+        </div>
 
-  const recommended = mentalData.paths.find(p => p.recommended);
-  if (!recommended) return null;
+        {/* AI Path Selection Card */}
+        <div className="gpt-ai-selection-card">
+          <div className="gpt-ai-selection-header">
+            <div className="gpt-ai-icon">🎯</div>
+            <div className="gpt-ai-selection-title">Your path this week: {sp.title}</div>
+            <span className="gpt-ai-selection-tag">Why This</span>
+          </div>
+          <div className="gpt-ai-selection-body">
+            <div className="gpt-ai-why-label">Pattern from your data</div>
+            <div className="gpt-ai-why-text">
+              {sp.aiReasoning?.dataEvidence && (
+                <span dangerouslySetInnerHTML={{
+                  __html: sp.aiReasoning.dataEvidence.replace(
+                    /(\d+[\.\d]*[-–]\w+\s+\w+\s+\w+)/g, '<strong>$1</strong>'
+                  )
+                }} />
+              )}
+              {!sp.aiReasoning?.dataEvidence && sp.aiReasoning?.patternCited}
+            </div>
+            {sp.otherPaths?.length > 0 && (
+              <div className="gpt-other-paths-row">
+                <span className="gpt-other-path-label">Other paths available:</span>
+                {sp.otherPaths.map((op) => (
+                  <button key={op.id} className="gpt-other-path-chip">
+                    {op.icon} {op.title}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
 
-  return {
-    recommendedMentalPath: recommended.title,
-    snippet: `Your Mental Performance dashboard recommends the ${recommended.title} path: ${recommended.why || recommended.description || ''}`,
-  };
-}
+        {/* The Path Card */}
+        <div className="gpt-path-card">
+          <div className="gpt-path-header">
+            <div className="gpt-path-icon">{sp.icon || '🌅'}</div>
+            <div className="gpt-path-header-text">
+              <div className="gpt-path-title">{sp.title}</div>
+              <div className="gpt-path-subtitle">{sp.subtitle}</div>
+            </div>
+            <span className="gpt-path-week-badge">Week 1</span>
+          </div>
 
-/**
- * Mental Performance paths — 3-path accordion with 4-week drilldowns.
- */
-function MentalPaths({ paths, expandedPath, setExpandedPath, expandedWeek, setExpandedWeek, crossRef }) {
-  return (
-    <div className="gpt-paths">
-      {(paths || []).map((path) => {
-        const isExpanded = expandedPath === path.id;
-        const color = PATH_COLORS[path.id] || '#8B7355';
-        const icon = PATH_ICONS[path.id] || '\u2728';
+          <div className="gpt-week-body">
+            {/* Week title row */}
+            <div className="gpt-week-title-row">
+              <span className="gpt-week-title">{week1?.title || 'Week 1'}</span>
+              {week1?.focus && <span className="gpt-week-focus-tag">{week1.focus}</span>}
+            </div>
 
-        // Handle failed path (from Promise.allSettled partial results)
-        if (path._error) {
-          return (
-            <div
-              key={path.id}
-              className="gpt-path-card gpt-path-card--error"
-              style={{ borderLeftColor: color, opacity: 0.7 }}
-            >
-              <div className="gpt-path-card__header">
-                <div className="gpt-path-card__title-row">
-                  <span className="gpt-path-card__icon">{icon}</span>
-                  <div>
-                    <h3>{path.id.replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase())}</h3>
-                    <p className="gpt-path-card__subtitle">{path._errorMessage}</p>
+            {/* Assignments */}
+            <div className="gpt-assignments-label">This Week's Assignments</div>
+            <div className="gpt-assignment-list">
+              {assignments.map((a, i) => {
+                const key = `${sp.id}_w1_${i}`;
+                const isChecked = !!checkedAssignments[key];
+                return (
+                  <div
+                    key={i}
+                    className={`gpt-assignment-item ${isChecked ? 'checked' : ''}`}
+                    onClick={() => toggleAssignment(i)}
+                  >
+                    <div className="gpt-a-checkbox">{isChecked ? '✓' : ''}</div>
+                    <div className="gpt-assignment-text">
+                      <strong>{a.title}.</strong> {a.description}
+                      {a.example && <em> {a.example}</em>}
+                    </div>
+                    <span className="gpt-assignment-when">{a.when}</span>
                   </div>
-                </div>
-              </div>
+                );
+              })}
             </div>
-          );
-        }
 
-        return (
-          <div
-            key={path.id}
-            className={`gpt-path-card ${isExpanded ? 'gpt-path-card--expanded' : ''}`}
-            style={{ borderLeftColor: color }}
-          >
-            <div
-              className="gpt-path-card__header"
-              onClick={() => setExpandedPath(isExpanded ? null : path.id)}
-            >
-              <div className="gpt-path-card__title-row">
-                <span className="gpt-path-card__icon">{icon}</span>
+            {/* Success metric */}
+            {week1?.successMetric && (
+              <div className="gpt-success-metric">
+                <span className="gpt-success-icon">✓</span>
                 <div>
-                  <h3>{path.title}</h3>
-                  <p className="gpt-path-card__subtitle">{path.subtitle}</p>
+                  <div className="gpt-success-label">This week looks like success when…</div>
+                  <div className="gpt-success-text">{week1.successMetric}</div>
                 </div>
-                {path.recommended && (
-                  <span className="gpt-path-card__recommended">Recommended</span>
-                )}
               </div>
-              <span className={`gpt-path-card__chevron ${isExpanded ? 'open' : ''}`}>&#9662;</span>
-            </div>
+            )}
 
-            {isExpanded && (
-              <div className="gpt-path-card__body">
-                <p className="gpt-path-card__description">{path.description}</p>
-                {path.why && (
-                  <p className="gpt-path-card__why"><strong>Why this path for you:</strong> {path.why}</p>
+            {/* Expand button */}
+            <button
+              className={`gpt-expand-btn ${expandOpen ? 'open' : ''}`}
+              onClick={handleExpand}
+            >
+              <span>{expandOpen ? 'Collapse 4-week plan' : 'View full 4-week plan'}</span>
+              <span className="gpt-expand-arrow">▼</span>
+            </button>
+
+            {/* 4-week plan (expanded) */}
+            {expandOpen && (
+              <div className="gpt-four-week-plan open">
+                {expandLoading && !expandedPlan && (
+                  <div className="gpt-loading gpt-loading--inline">
+                    <div className="spinner spinner--small" />
+                    <span>Generating weeks 2-4...</span>
+                  </div>
                 )}
 
-                {path.weeks && (
-                  <div className="gpt-weeks">
-                    {path.weeks.map((week) => {
-                      const weekKey = `${path.id}-${week.week}`;
-                      const isWeekOpen = expandedWeek === weekKey;
+                {expandedPlan?.weeks && (
+                  <>
+                    <div className="gpt-week-nav">
+                      {[1, 2, 3, 4].map((n) => (
+                        <button
+                          key={n}
+                          className={`gpt-wk-chip ${activeWeek === n ? 'active' : ''}`}
+                          onClick={() => setActiveWeek(n)}
+                        >
+                          Week {n}
+                        </button>
+                      ))}
+                    </div>
 
+                    {expandedPlan.weeks.map((week, idx) => {
+                      const weekNum = week.number || idx + 1;
+                      if (activeWeek !== weekNum) return null;
                       return (
-                        <div key={weekKey} className={`gpt-week ${isWeekOpen ? 'gpt-week--open' : ''}`}>
-                          <div
-                            className="gpt-week__header"
-                            onClick={() => setExpandedWeek(isWeekOpen ? null : weekKey)}
-                          >
-                            <h4>Week {week.week}: {week.theme}</h4>
-                            <span className={`gpt-week__chevron ${isWeekOpen ? 'open' : ''}`}>&#9662;</span>
+                        <div key={weekNum} className="gpt-week-panel active">
+                          <div className="gpt-week-panel-title">
+                            Week {weekNum}: {week.title}
                           </div>
-
-                          {isWeekOpen && (
-                            <div className="gpt-week__body">
-                              {week.daily && week.daily.length > 0 && (
-                                <div className="gpt-week__section">
-                                  <h5>Daily Practices</h5>
-                                  <ul>
-                                    {week.daily.map((item, i) => <li key={i}>{item}</li>)}
-                                  </ul>
-                                </div>
-                              )}
-                              {week.practices && week.practices.length > 0 && (
-                                <div className="gpt-week__section">
-                                  <h5>Specific Practices</h5>
-                                  <ul>
-                                    {week.practices.map((item, i) => {
-                                      const text = typeof item === 'string' ? item : item.text;
-                                      const cp = typeof item === 'object' ? item.coach_perspective : null;
-                                      const voiceMeta = cp ? (VOICE_LOOKUP[cp.voice] || null) : null;
-
-                                      return (
-                                        <li key={i}>
-                                          {text}
-                                          {cp && cp.note && (
-                                            <div
-                                              className="gpt-coach-perspective"
-                                              style={voiceMeta ? { borderLeftColor: voiceMeta.color } : undefined}
-                                            >
-                                              <span className="gpt-coach-perspective__voice">
-                                                {voiceMeta ? voiceMeta.icon : ''} {cp.voice}:
-                                              </span>{' '}
-                                              <span className="gpt-coach-perspective__note">{cp.note}</span>
-                                            </div>
-                                          )}
-                                        </li>
-                                      );
-                                    })}
-                                  </ul>
-                                </div>
-                              )}
-                              {week.check_in && (
-                                <div className="gpt-week__section">
-                                  <h5>End-of-Week Check-In</h5>
-                                  <p className="gpt-week__checkin">{week.check_in}</p>
-                                </div>
-                              )}
-                              {week.success && (
-                                <div className="gpt-week__section">
-                                  <h5>Success Looks Like</h5>
-                                  <p className="gpt-week__success">{week.success}</p>
-                                </div>
-                              )}
+                          <div className="gpt-week-panel-focus"><em>{week.focus}</em></div>
+                          {(week.assignments || []).map((a, j) => (
+                            <div key={j} className="gpt-mini-practice">
+                              <div className="gpt-mini-practice-name">{a.title}</div>
+                              <div className="gpt-mini-practice-detail">{a.description}</div>
+                            </div>
+                          ))}
+                          {week.checkIn && (
+                            <div className="gpt-check-in-box">
+                              <div className="gpt-check-in-label">End-of-week check-in</div>
+                              {(Array.isArray(week.checkIn) ? week.checkIn : [week.checkIn]).map((q, k) => (
+                                <div key={k} className="gpt-check-in-q">{q}</div>
+                              ))}
                             </div>
                           )}
                         </div>
                       );
                     })}
-                  </div>
+                  </>
                 )}
 
-                {crossRef?.[path.id] && (
-                  <div className="gpt-cross-layer-callout">
-                    <span className="gpt-cross-layer-callout__icon">&#x1F517;</span>
-                    <span className="gpt-cross-layer-callout__label">Long-Term Path Connection:</span>
-                    <span className="gpt-cross-layer-callout__text">{crossRef[path.id]}</span>
+                {/* Show week previews if no expanded plan yet */}
+                {!expandedPlan && !expandLoading && sp.weekPreviews?.length > 0 && (
+                  <div className="gpt-week-previews">
+                    {sp.weekPreviews.map((wp) => (
+                      <div key={wp.number} className="gpt-week-preview-item">
+                        <strong>Week {wp.number}:</strong> {wp.title}
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
             )}
           </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ─── Training Trajectory V2 ────────────────────────────────────────
-
-/**
- * Training Trajectory — 4-call pipeline results displayed as:
- * CurrentStateSummary → 3 TrajectoryPathCards → MovementConnectionMap → RecommendedPathBanner
- */
-function TrajectoryPaths({ data, mentalCrossRef }) {
-  const [activePathIndex, setActivePathIndex] = useState(null);
-
-  // V1 backward compatibility: old format has data.paths array directly
-  const isV2 = Boolean(data?.trajectoryPaths);
-
-  // Auto-expand recommended path for V2
-  useEffect(() => {
-    if (isV2 && data?.pathNarratives?.recommended_path) {
-      const idx = (data.trajectoryPaths.paths || []).findIndex(
-        p => p.name === data.pathNarratives.recommended_path.path_name
-      );
-      if (idx >= 0) setActivePathIndex(idx);
-    }
-  }, [data, isV2]);
-
-  // V1 fallback: show old-format data with regenerate prompt
-  if (!isV2) {
-    return (
-      <div className="trajectory-v2">
-        <div className="trajectory-v2__upgrade-banner">
-          <p>A new, more detailed trajectory analysis is available with year-by-year roadmaps,
-            movement progression maps, and personalized path narratives.</p>
-          <p>Click <strong>Regenerate</strong> above to generate your updated Training Trajectory.</p>
-        </div>
-        {/* Render old-format paths as simple cards */}
-        <div className="trajectory-paths">
-          {(data?.paths || []).map((path, idx) => (
-            <CollapsibleSection key={path.id || idx} title={path.title} defaultOpen={idx === 0} className="trajectory-card">
-              {path.current_position && <p>{path.current_position}</p>}
-              {path.timeline_projection && <p><strong>Timeline:</strong> {path.timeline_projection}</p>}
-            </CollapsibleSection>
-          ))}
         </div>
       </div>
     );
   }
 
-  const { currentStateAnalysis, trajectoryPaths, movementMaps, pathNarratives } = data;
-  const paths = trajectoryPaths?.paths || [];
-  const narratives = pathNarratives?.path_narratives || [];
-  const recommended = pathNarratives?.recommended_path;
-
-  return (
-    <div className="trajectory-v2">
-      {/* Current State Summary */}
-      <CurrentStateSummary analysis={currentStateAnalysis} />
-
-      {/* Three Path Cards */}
-      <div className="trajectory-v2__paths">
-        {paths.map((path, idx) => {
-          const narrative = narratives.find(n => n.path_name === path.name);
-          const isRecommended = recommended?.path_name === path.name;
-          return (
-            <TrajectoryPathCard
-              key={path.name}
-              path={path}
-              narrative={narrative}
-              isRecommended={isRecommended}
-              isExpanded={activePathIndex === idx}
-              onToggle={() => setActivePathIndex(activePathIndex === idx ? null : idx)}
-              mentalCrossRef={mentalCrossRef}
-            />
-          );
-        })}
-      </div>
-
-      {/* Movement Connection Map */}
-      {movementMaps && <MovementConnectionMap maps={movementMaps} />}
-
-      {/* Recommended Path Banner */}
-      {recommended && <RecommendedPathBanner recommendation={recommended} />}
-    </div>
-  );
-}
-
-function CurrentStateSummary({ analysis }) {
-  if (!analysis) return null;
-
-  return (
-    <div className="trajectory-v2__state-summary">
-      <h3>Your Current Position</h3>
-
-      <div className="trajectory-v2__level-badges">
-        {analysis.current_level?.confirmed_competition_level && (
-          <span className="trajectory-v2__level-badge trajectory-v2__level-badge--competition">
-            Competition: {analysis.current_level.confirmed_competition_level}
-          </span>
-        )}
-        {analysis.current_level?.training_level && (
-          <span className="trajectory-v2__level-badge trajectory-v2__level-badge--training">
-            Training: {analysis.current_level.training_level}
-          </span>
-        )}
-      </div>
-
-      {analysis.trajectory && (
-        <p className="trajectory-v2__summary-text">{analysis.trajectory}</p>
-      )}
-
-      {analysis.horse_factors?.partnership_assessment && (
-        <p className="trajectory-v2__summary-text">
-          <strong>{analysis.horse_factors.primary_horse}:</strong> {analysis.horse_factors.partnership_assessment}
-        </p>
-      )}
-
-      {analysis.timeline_reality_check && (
-        <div className="trajectory-v2__reality-check">
-          <strong>Timeline Reality Check:</strong> {analysis.timeline_reality_check}
+  function renderTrajectoryTab() {
+    if (trajectoryLoading && !trajectoryData) {
+      return (
+        <div className="gpt-loading">
+          <div className="spinner" />
+          <p>Loading Training Trajectory...</p>
         </div>
-      )}
+      );
+    }
 
-      {analysis.critical_transitions_ahead?.length > 0 && (
-        <div className="trajectory-v2__transitions">
-          <h4>Critical Transitions Ahead</h4>
-          {analysis.critical_transitions_ahead.map((t, i) => (
-            <div key={i} className="trajectory-v2__transition-item">
-              <span className="trajectory-v2__transition-label">{t.transition}</span>
-              <span>{t.key_challenge} ({t.estimated_timeline})</span>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
+    if (trajectoryError) {
+      return <ErrorDisplay error={trajectoryError} onRetry={() => fetchTrajectory({ forceRefresh: true })} />;
+    }
 
-function TrajectoryPathCard({ path, narrative, isRecommended, isExpanded, onToggle, mentalCrossRef }) {
-  const [activeTab, setActiveTab] = useState('overview');
-  const pathKey = path.name.toLowerCase().replace(/\s+/g, '-');
-  const color = PATH_COLORS[pathKey] || '#8B7355';
-  const icon = PATH_ICONS[pathKey] || '\u2728';
+    if (!trajectoryData) return null;
 
-  return (
-    <div
-      className={`trajectory-v2-card ${isExpanded ? 'trajectory-v2-card--expanded' : ''}`}
-      style={{ borderLeftColor: color }}
-    >
-      <div className="trajectory-v2-card__header" onClick={onToggle}>
-        <span className="trajectory-v2-card__icon">{icon}</span>
-        <div className="trajectory-v2-card__titles">
-          <h3>{path.name}</h3>
-          {path.subtitle && <p className="trajectory-v2-card__philosophy">{path.subtitle}</p>}
-        </div>
-        {isRecommended && <span className="gpt-path-card__recommended">Recommended</span>}
-        <span className={`gpt-path-card__chevron ${isExpanded ? 'open' : ''}`}>&#9662;</span>
-      </div>
+    const paths = trajectoryData.trajectoryPaths?.paths || [];
+    const narratives = trajectoryData.pathNarratives?.path_narratives || [];
+    const activePath = trajectoryData.activePath;
 
-      {isExpanded && (
-        <div className="trajectory-v2-card__body">
-          {/* Philosophy */}
-          {path.philosophy && (
-            <p className="trajectory-v2-card__narrative">{path.philosophy}</p>
-          )}
+    // Map trajectory cards
+    const TRAJ_CARDS = [
+      { id: 'ambitious_competitor', name: 'Ambitious Competitor', icon: '🏆', iconClass: 'gpt-icon-gold', subtitle: 'Goal-driven. PSG debut with a score you\'re proud of.' },
+      { id: 'steady_builder', name: 'Steady Builder', icon: '🧱', iconClass: 'gpt-icon-sky', subtitle: 'Mastery-first. No rush, no gaps in the foundation.' },
+      { id: 'curious_explorer', name: 'Curious Explorer', icon: '🌿', iconClass: 'gpt-icon-forest', subtitle: 'Joy-centered. Breadth over timeline. Partnership first.' },
+    ];
 
-          {/* Narrative + First Step */}
-          {narrative && (
-            <div className="trajectory-v2-card__narrative-section">
-              <p>{narrative.narrative}</p>
-              {narrative.first_step && (
-                <div className="trajectory-v2-card__first-step">
-                  <strong>Start this week:</strong> {narrative.first_step}
-                </div>
-              )}
-            </div>
-          )}
-
-          {mentalCrossRef && (
-            <div className="gpt-cross-layer-callout">
-              <span className="gpt-cross-layer-callout__icon">&#x1F3AF;</span>
-              <span className="gpt-cross-layer-callout__label">Mental Performance Connection:</span>
-              <span className="gpt-cross-layer-callout__text">{mentalCrossRef.snippet}</span>
-            </div>
-          )}
-
-          {/* Sub-tabs */}
-          <div className="trajectory-v2-card__tabs">
-            <button className={activeTab === 'overview' ? 'active' : ''} onClick={() => setActiveTab('overview')}>Overview</button>
-            <button className={activeTab === 'roadmap' ? 'active' : ''} onClick={() => setActiveTab('roadmap')}>Year-by-Year</button>
-            <button className={activeTab === 'movements' ? 'active' : ''} onClick={() => setActiveTab('movements')}>Movements</button>
-            <button className={activeTab === 'tests' ? 'active' : ''} onClick={() => setActiveTab('tests')}>Target Tests</button>
+    return (
+      <div className="gpt-tab-panel gpt-fade-up">
+        {/* Monthly notice */}
+        <div className="gpt-monthly-notice">
+          <span className="gpt-monthly-notice-icon">🗓</span>
+          <div>
+            <strong>Updated monthly.</strong> Training Trajectory looks further out than your weekly mental performance work — it updates when your data changes significantly, you add a new horse, or 30 days have passed.
+            {trajectoryData.generatedAt && <em> Last generated: {formatDate(trajectoryData.generatedAt)}.</em>}
           </div>
+        </div>
 
-          {activeTab === 'overview' && <PathOverviewTab path={path} narrative={narrative} />}
-          {activeTab === 'roadmap' && <PathRoadmapTab path={path} />}
-          {activeTab === 'movements' && <PathMovementsTab path={path} />}
-          {activeTab === 'tests' && <PathTestsTab path={path} />}
+        {/* Staleness banner */}
+        {trajectoryStale && (
+          <div className="gpt-stale-banner" onClick={() => fetchTrajectory({ forceRefresh: true })}>
+            Updated trajectory available — tap to refresh
+          </div>
+        )}
 
-          {/* Coach Perspectives */}
-          {path.coach_perspectives?.length > 0 && (
-            <div className="trajectory-v2-card__coaches">
-              {path.coach_perspectives.map((cp, i) => {
-                const voiceMeta = VOICE_LOOKUP[cp.voice] || null;
-                return (
-                  <div key={i} className="gpt-coach-perspective" style={voiceMeta ? { borderLeftColor: voiceMeta.color } : undefined}>
-                    <span className="gpt-coach-perspective__voice">{voiceMeta?.icon} {cp.voice}:</span>{' '}
-                    <span className="gpt-coach-perspective__note">{cp.note}</span>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+        {/* Section label */}
+        <div className="gpt-section-label-row">
+          <span className="gpt-section-pill gpt-pill-gold">
+            <span className="gpt-pill-dot gpt-dot-gold" />
+            Training Trajectory
+          </span>
+          <span className="gpt-section-note">3 paths · choose your direction</span>
         </div>
-      )}
-    </div>
-  );
-}
 
-function PathOverviewTab({ path, narrative }) {
-  return (
-    <div className="trajectory-v2__tab-content">
-      {path.strengths_leveraged?.length > 0 && (
-        <div className="trajectory-v2__overview-section">
-          <h5>Strengths This Path Builds On</h5>
-          <ul>{path.strengths_leveraged.map((s, i) => <li key={i}>{s}</li>)}</ul>
-        </div>
-      )}
-      {path.risks?.length > 0 && (
-        <div className="trajectory-v2__overview-section">
-          <h5>Risks to Watch</h5>
-          <ul>{path.risks.map((r, i) => <li key={i}>{r}</li>)}</ul>
-        </div>
-      )}
-      {narrative?.your_strengths_here?.length > 0 && (
-        <div className="trajectory-v2__overview-section">
-          <h5>Your Strengths Here</h5>
-          <ul>{narrative.your_strengths_here.map((s, i) => <li key={i}>{s}</li>)}</ul>
-        </div>
-      )}
-      {narrative?.watch_out_for?.length > 0 && (
-        <div className="trajectory-v2__overview-section">
-          <h5>Watch Out For</h5>
-          <ul>{narrative.watch_out_for.map((w, i) => <li key={i}>{w}</li>)}</ul>
-        </div>
-      )}
-      {narrative?.voice_perspectives?.length > 0 && (
-        <div className="trajectory-v2__overview-section">
-          <h5>Coach Endorsements</h5>
-          {narrative.voice_perspectives.map((vp, i) => {
-            const voiceMeta = VOICE_LOOKUP[vp.voice] || null;
+        {/* Trajectory cards */}
+        <div className="gpt-trajectory-grid">
+          {TRAJ_CARDS.map((card) => {
+            const isBestFit = activePath === card.id;
+            const isOpen = openTrajCard === card.id;
+            const pathData = paths.find((p) =>
+              p.name?.toLowerCase().replace(/\s+/g, '_') === card.id
+              || p.name === card.name
+            );
+            const narrative = narratives.find((n) =>
+              n.path_name?.toLowerCase().replace(/\s+/g, '_') === card.id
+              || n.path_name === card.name
+            );
+
             return (
-              <div key={i} className="gpt-coach-perspective" style={voiceMeta ? { borderLeftColor: voiceMeta.color } : undefined}>
-                <span className="gpt-coach-perspective__voice">{voiceMeta?.icon} {vp.voice}:</span>{' '}
-                <span className="gpt-coach-perspective__note">{vp.endorsement}</span>
+              <div key={card.id} className={`gpt-traj-card ${isBestFit ? 'primary' : ''}`}>
+                <div className="gpt-traj-header" onClick={() => toggleTrajCard(card.id)}>
+                  <div className={`gpt-traj-icon ${card.iconClass}`}>{card.icon}</div>
+                  <div className="gpt-traj-header-text">
+                    <div className="gpt-traj-title">{card.name}</div>
+                    <div className="gpt-traj-subtitle">
+                      {pathData?.subtitle || card.subtitle}
+                    </div>
+                  </div>
+                  {isBestFit && <span className="gpt-primary-badge">Best Fit</span>}
+                  <button className={`gpt-collapse-icon ${isOpen ? 'open' : ''}`}>▼</button>
+                </div>
+
+                {isOpen && (
+                  <div className="gpt-traj-body open">
+                    {/* Stats row */}
+                    <div className="gpt-traj-row">
+                      <div className="gpt-traj-stat">
+                        <div className="gpt-traj-stat-label">Where you are now</div>
+                        <div className="gpt-traj-stat-value">
+                          {pathData?.philosophy || trajectoryData.currentStateAnalysis?.trajectory || ''}
+                        </div>
+                      </div>
+                      <div className="gpt-traj-stat">
+                        <div className="gpt-traj-stat-label">What this path prioritizes</div>
+                        <div className="gpt-traj-stat-value">
+                          {pathData?.year1?.focus || ''}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Milestones */}
+                    {pathData?.year1?.milestones?.length > 0 && (
+                      <>
+                        <div className="gpt-milestones-label">3–6 Month Milestones</div>
+                        <div className="gpt-milestone-list">
+                          {pathData.year1.milestones.map((m, i) => (
+                            <div key={i} className="gpt-milestone-item">
+                              <div className={`gpt-milestone-dot ${card.id === 'steady_builder' ? 'sky' : card.id === 'curious_explorer' ? 'forest' : ''}`} />
+                              <span>{m}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+
+                    {/* Narrative / timeline projection */}
+                    {narrative?.narrative && (
+                      <div className="gpt-traj-timeline">
+                        <strong>Trajectory projection:</strong> {narrative.narrative.substring(0, 300)}
+                        {narrative.narrative.length > 300 ? '...' : ''}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}
         </div>
-      )}
-    </div>
-  );
-}
-
-function PathRoadmapTab({ path }) {
-  const years = [
-    { key: 'year1', label: 'Year 1', data: path.year1 },
-    { key: 'year2', label: 'Year 2', data: path.year2 },
-    { key: 'year3_5', label: 'Years 3-5', data: path.year3_5 },
-  ].filter(y => y.data);
+      </div>
+    );
+  }
 
   return (
-    <div className="trajectory-v2__roadmap">
-      {years.map((year) => (
-        <div key={year.key} className="trajectory-v2__year">
-          <div className="trajectory-v2__year-marker">{year.key === 'year3_5' ? '3+' : year.key.replace('year', '')}</div>
-          <h5>{year.label}: {year.data.focus}</h5>
-          <p className="trajectory-v2__year-focus">{year.data.training_emphasis}</p>
-          {year.data.milestones?.length > 0 && (
-            <ul className="trajectory-v2__year-milestones">
-              {year.data.milestones.map((m, i) => <li key={i}>{m}</li>)}
-            </ul>
-          )}
-          {year.data.tests_to_target?.length > 0 && (
-            <div className="trajectory-v2__year-tests">
-              <span className="trajectory-v2__year-tests-label">Target tests:</span>{' '}
-              {year.data.tests_to_target.join(', ')}
-            </div>
-          )}
-          {year.data.vision && (
-            <p className="trajectory-v2__year-vision"><em>{year.data.vision}</em></p>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
+    <div className="gpt-redesign">
+      {renderHero()}
 
-function PathMovementsTab({ path }) {
-  const movements = path.movements_progression || [];
-  if (movements.length === 0) return <p className="trajectory-v2__empty">No movement progression data for this path.</p>;
-
-  return (
-    <div className="trajectory-v2__movement-list">
-      {movements.map((m, i) => (
-        <div key={i} className="trajectory-v2__movement-item">
-          <div className="trajectory-v2__movement-name">{m.movement}</div>
-          <div className="trajectory-v2__movement-detail">
-            <strong>Introduce at:</strong> {m.introduce_at}
-          </div>
-          {m.prerequisites && (
-            <div className="trajectory-v2__movement-detail">
-              <strong>Prerequisites:</strong> {m.prerequisites}
-            </div>
-          )}
-          {m.progression_notes && (
-            <div className="trajectory-v2__movement-detail">{m.progression_notes}</div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function PathTestsTab({ path }) {
-  const tests = path.tests_to_target || [];
-  if (tests.length === 0) return <p className="trajectory-v2__empty">No specific test targets for this path.</p>;
-
-  return (
-    <div className="trajectory-v2__test-list">
-      {tests.map((t, i) => (
-        <div key={i} className="trajectory-v2__test-item">
-          <span className="trajectory-v2__test-timeframe">{t.target_timeframe}</span>
-          <div>
-            <div className="trajectory-v2__test-name">{t.test_name}</div>
-            {t.readiness_indicators && (
-              <div className="trajectory-v2__test-readiness">{t.readiness_indicators}</div>
-            )}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function MovementConnectionMap({ maps }) {
-  const movementMaps = maps?.movement_maps || [];
-  if (movementMaps.length === 0) return null;
-
-  return (
-    <div className="trajectory-v2__movement-map">
-      <h3>Your Work Today → Grand Prix</h3>
-      {maps.overall_connection_narrative && (
-        <p className="trajectory-v2__movement-map-intro">{maps.overall_connection_narrative}</p>
-      )}
-      {movementMaps.map((m, i) => (
-        <div key={i} className="trajectory-v2__map-chain">
-          <div className="trajectory-v2__map-chain-header">
-            <span className="trajectory-v2__map-current">{m.current}</span>
-            <span className="trajectory-v2__map-arrow">→</span>
-            <span className="trajectory-v2__map-gp">{m.gp_form}</span>
-          </div>
-          {m.progression_steps?.length > 0 && (
-            <div className="trajectory-v2__map-steps">
-              {m.progression_steps.map((step, j) => (
-                <span key={j} className="trajectory-v2__map-step">
-                  {step.level}: {step.form}
-                </span>
-              ))}
-            </div>
-          )}
-          {m.current_relevance && (
-            <p className="trajectory-v2__map-relevance">{m.current_relevance}</p>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function RecommendedPathBanner({ recommendation }) {
-  return (
-    <div className="trajectory-v2__recommendation">
-      <h3>Our Recommendation: {recommendation.path_name}</h3>
-      <p>{recommendation.reason}</p>
+      {activeTab === 'mental' && renderMentalTab()}
+      {activeTab === 'trajectory' && renderTrajectoryTab()}
     </div>
   );
 }

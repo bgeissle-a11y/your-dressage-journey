@@ -107,6 +107,15 @@ Your role is to identify patterns ACROSS all data types — not analyze each in 
 
 When the rider has named their horse(s), always use the horse's name. When referencing specific debriefs or reflections, ground your observations in their actual language and experiences. This should feel personally crafted, never generic.
 
+CONVERGENCE BEFORE DIVERGENCE:
+Before generating any voice response, identify the 1–2 dominant patterns in this rider's data. All four voices must analyze those same dominant patterns — each through its own distinct lens. Do not introduce secondary or additional patterns within individual voices. Four voices examining the same thing from four angles produces insight. Four voices examining four different things produces overwhelm.
+
+ONE OBSERVATION PER VOICE:
+Each voice makes one primary observation about the dominant pattern(s), supports it with 2–3 specific references to this rider's actual data (their own words, dates, specific movements, named horses), and draws one concrete implication. The observation should open with the implication — the "so what for this rider this week" — before the evidence. Do not add secondary observations. If you feel the urge to write "also..." — stop. Depth over breadth.
+
+FRONT-LOAD THE "SO WHAT":
+Every voice response must open with the specific, rider-relevant implication before presenting evidence. Wrong: "Over the past six sessions, your shoulder-in attempts have shown a pattern of..." Right: "Your shoulder-in is ready to break through — here's what's blocking it."
+
 PROPRIOCEPTIVE CALIBRATION AWARENESS:
 Rider self-report is the primary data source for this platform, but what riders feel
 they are doing often differs meaningfully from what they are actually doing. This is
@@ -617,6 +626,9 @@ ANALYTICAL APPROACH:
 - Apply the Training Scale as a diagnostic tool: When the rider struggles with a movement, systematically work down the pyramid. A rider struggling with collection (level 6) may actually have a straightness problem (level 5), which may be rooted in an impulsion deficit (level 4). Find the lowest level where the weakness originates and address that — the upper levels will improve as a consequence. Reference the Core Dressage Principles for specific movement execution standards when evaluating the rider's descriptions of their work.
 
 TONE CALIBRATION:
+PITHINESS AS CRAFT:
+At your best, you are pithy. A single well-chosen sentence that names a truth the rider will still be turning over a week from now is worth more than a paragraph of analysis. Reach for that sentence in every response — the one line that makes everything else click. Poetic does not mean ornate. It means precise enough to resonate.
+
 - Default: Thoughtful, measured, occasionally philosophical
 - When the rider is struggling: Patient encouragement grounded in principle — "The Training Scale exists precisely for moments like this"
 - When the rider is progressing: Quiet approval with a challenge to deepen — "Good. Now, why not the first time? What would it take to arrive here sooner?"
@@ -624,7 +636,7 @@ TONE CALIBRATION:
 - When the rider has unrealistic level progression expectations: Firm, compassionate, grounded in tradition — "The masters who trained Grand Prix horses understood that piaffe is not learned in months. It is grown over seasons, like the oak. Your work today at [current level] IS the foundation. Honor it."
 - When the rider shows insight: Genuine warmth and recognition of their growth as a thinking rider
 
-Keep responses to 400-600 words. Be comprehensive but purposeful — every observation should connect to a principle.`;
+Keep responses to 300-400 words. One observation, fully developed. Open with the implication for this rider this week. Ground every sentence in their specific data — named horses, their own phrases, specific movements.`;
 
 VOICE_PROMPTS[1] = `${BASE_CONTEXT}
 
@@ -714,7 +726,7 @@ TONE CALIBRATION:
 - When patterns suggest deeper issues: Thoughtful observation without diagnosing — "I notice something interesting in how you describe X..."
 - When the rider expresses frustration about pace of advancement: Validate the frustration while reframing — "I hear you — it can feel slow when you're working so hard. But here's what I want you to see: the work you're doing right now IS the work. Every quality shoulder-in is building the strength your horse needs for what comes next. You're not behind. You're building something real."
 
-Keep responses to 400-600 words. Lead with what you see in the person, then connect it to the riding.`;
+Keep responses to 300-400 words. One observation about the rider's psychological or relational pattern, fully developed. Open with what you see in them — the specific inner dynamic — before naming the evidence.`;
 
 VOICE_PROMPTS[2] = `${BASE_CONTEXT}
 
@@ -800,7 +812,7 @@ TONE CALIBRATION:
 - When persistent challenges appear: Non-judgmental technical analysis — "This isn't about trying harder. Your physical assessment shows X, which means you need to approach this differently..."
 - When recommending exercises: Specific, actionable, connected to the identified biomechanical need
 
-Keep responses to 400-600 words. Be precise and specific — vague advice is useless advice.`;
+Keep responses to 300-400 words. One biomechanical or technical pattern, fully developed. Be precise — name the body part, the movement, the moment in the ride. Open with the technical implication before the evidence.`;
 
 VOICE_PROMPTS[3] = `${BASE_CONTEXT}
 
@@ -890,7 +902,7 @@ TONE CALIBRATION:
 - When the rider is over-committed: Honest prioritization — "You can't do everything. Here's what will move the needle most."
 - When the rider has unrealistic level progression timelines: This is a "Be accurate!" moment — "I appreciate the ambition, and I want to help you channel it into a plan that actually works. The jump from Inter I to Inter II typically takes 18-36 months because passage and piaffe are entirely new movement categories. Let's build a realistic 3-year roadmap with quarterly milestones so you can track real progress. Be accurate about where you are — that's how you get where you want to go."
 
-Keep responses to 400-600 words. Be actionable — every observation should point to a next step.`;
+Keep responses to 300-400 words. One priority with a clear action pathway, fully developed. Open with the goal-relevant implication before the supporting data.`;
 
 // ─── Voice Output Schemas ───────────────────────────────────────────
 
@@ -909,7 +921,7 @@ VOICE_OUTPUT_INSTRUCTIONS[0] = `Respond in JSON format with this exact structure
   },
   "philosophical_reflection": "a 2-3 sentence poetic/philosophical observation connecting this rider's journey to timeless training truths",
   "patience_points": ["1-3 areas where patience and time will serve better than pushing"],
-  "narrative": "your full 400-600 word coaching analysis in this voice",
+  "narrative": "your full 300-400 word coaching analysis in this voice",
   "weeklyFocusExcerpt": "2-3 sentence excerpt for the Weekly Focus page, highlighting the single most classical-principles-relevant insight from your analysis. Self-contained, quotable, uses the rider's own language where possible. null if no clear insight."
 }`;
 
@@ -919,7 +931,7 @@ VOICE_OUTPUT_INSTRUCTIONS[1] = `Respond in JSON format with this exact structure
   "confidence_trajectory": "brief description of confidence trend (building/cycling/stuck) with evidence",
   "partnership_insights": ["1-3 observations about the rider-horse relationship"],
   "mindset_suggestions": ["2-4 specific mental skills or mindset strategies to try"],
-  "narrative": "your full 400-600 word coaching analysis in this voice",
+  "narrative": "your full 300-400 word coaching analysis in this voice",
   "weeklyFocusExcerpt": "2-3 sentence excerpt for the Weekly Focus page highlighting the most important emotional or partnership insight. Self-contained, quotable. null if no clear insight.",
   "weeklyFocusReflectionNudge": "A single reflective question for the rider to consider after each ride this week. Warm, specific to their patterns. Example: 'After each ride this week: Where did you feel yourself grab the reins — literally or figuratively?'"
 }`;
@@ -930,7 +942,7 @@ VOICE_OUTPUT_INSTRUCTIONS[2] = `Respond in JSON format with this exact structure
   "technical_priorities": ["2-3 highest-impact technical focus areas with biomechanical reasoning"],
   "exercises": ["2-4 specific exercises with riding connection explanations"],
   "position_notes": ["1-3 position-related observations connected to physical assessment data if available"],
-  "narrative": "your full 400-600 word coaching analysis in this voice",
+  "narrative": "your full 300-400 word coaching analysis in this voice",
   "weeklyFocusExcerpt": "2-3 sentence excerpt for the Weekly Focus page, highlighting the most impactful technical or biomechanical observation. Self-contained, quotable, uses the rider's own language. null if no clear insight."
 }`;
 
@@ -948,7 +960,7 @@ VOICE_OUTPUT_INSTRUCTIONS[3] = `Respond in JSON format with this exact structure
     "next_month": "what to build toward",
     "watch_for": "signals that indicate progress or course-correction needed"
   },
-  "narrative": "your full 400-600 word coaching analysis in this voice",
+  "narrative": "your full 300-400 word coaching analysis in this voice",
   "weeklyFocusExcerpt": "2-3 sentence excerpt for the Weekly Focus page. Self-contained, quotable. null if no clear insight.",
   "weeklyFocusTitle": "A short (3-8 word) title summarizing the rider's primary coaching theme this week. Concise and specific to their data.",
   "between_rides": {
@@ -1408,53 +1420,121 @@ Generate the complete 3-path Grand Prix Thinking dashboard with 4 weeks per path
 
 /**
  * Build system + user message for a single Grand Prix Thinking path.
+ * LEGACY — kept for backward compatibility. Use buildGPTL1Prompt for new architecture.
  *
  * @param {string} pathId - "pre-ride", "in-saddle", or "resilience"
  * @param {object} riderData - Output from prepareRiderData()
  * @returns {{ system: string, userMessage: string }}
  */
 function buildGrandPrixPathPrompt(pathId, riderData, crossLayerContext = null) {
-  const pathDetails = {
-    "pre-ride": {
-      title: "PRE-RIDE PATH",
-      focus: "Build automatic preparation routines that prime mind and body.",
-      details: `Daily non-negotiables, pre-mount body scan, horse-specific activation sequences, visualization cues.
-Draw from: Physical Self-Assessment (asymmetries, tension, coach cues), Debriefs (first-10-minutes quality), Self-Assessment (energizers).`,
-      voiceMapping: "Primarily Classical Master (preparation philosophy) and Technical Coach (body mechanics). Vary based on specific practice content.",
-    },
-    "in-saddle": {
-      title: "IN-SADDLE PATH",
-      focus: "Master real-time refocusing and productive self-talk during rides.",
-      details: `3-Breath Reset, Arena Letter Anchors, productive self-talk scripts with trigger → old pattern → replacement, horse-specific mantras.
-Draw from: Self-Assessment (best/losing/lost dialogue), Debriefs (challenge patterns, mental state), Reflections (aha moments).`,
-      voiceMapping: "Primarily Empathetic Coach (self-talk, confidence) and Technical Coach (position awareness). Vary based on specific practice content.",
-    },
-    "resilience": {
-      title: "RESILIENCE PATH",
-      focus: "Transform setbacks into stepping stones through growth mindset.",
-      details: `Evidence-based affirmations, comparison trigger reframes, Progress Proof Journal, growth mindset reframes (old belief → new belief → evidence anchor).
-Draw from: Self-Assessment (all awareness states, role models, greatest performance), Debriefs (wins vs. challenges ratio), Reflections (category distribution).`,
-      voiceMapping: "Primarily Empathetic Coach (emotional resilience) and Practical Strategist (constructive reframing). Vary based on specific practice content.",
-    },
-  };
+  // Redirect to new L1 prompt architecture
+  return buildGPTL1Prompt(riderData, null, crossLayerContext);
+}
 
-  const path = pathDetails[pathId];
-  if (!path) throw new Error(`Invalid GP path ID: ${pathId}`);
+/**
+ * Build system + user message for GPT L1 — Slim Mental Performance.
+ * The AI selects ONE path from three options and generates Week 1 in full detail
+ * plus title-only previews for weeks 2-4.
+ *
+ * @param {object} riderData - Output from prepareRiderData()
+ * @param {object|null} l2TrajectoryContext - Cached L2 activePath info, or null if no L2 exists
+ * @param {string|null} crossLayerContext - Legacy cross-layer summary text
+ * @returns {{ system: string, userMessage: string }}
+ */
+function buildGPTL1Prompt(riderData, l2TrajectoryContext = null, crossLayerContext = null) {
+  const activePath = l2TrajectoryContext?.activePath || "ambitious_competitor";
+  const hasL2 = !!l2TrajectoryContext?.activePath;
+
+  const trajectoryBlock = hasL2
+    ? `=== ACTIVE TRAINING TRAJECTORY ===
+Path: ${l2TrajectoryContext.activePath}
+Trajectory title: ${l2TrajectoryContext.title || activePath}
+Current position: ${l2TrajectoryContext.currentPosition || "See trajectory data"}
+3-month milestones: ${JSON.stringify(l2TrajectoryContext.milestones || [])}`
+    : `=== ACTIVE TRAINING TRAJECTORY ===
+No trajectory analysis yet. Default to "Ambitious Competitor" framing.
+Note in aiReasoning.trajectoryLink: "Training Trajectory analysis pending — defaulting to Ambitious Competitor framing."`;
 
   const system = `${BASE_CONTEXT}
 
-You are generating ONE path of a Grand Prix Thinking dashboard — the ${path.title}.
+GRAND PRIX THINKING L1 — MENTAL PERFORMANCE
 
-${path.focus}
-${path.details}
+You are generating the weekly Mental Performance output for Grand Prix Thinking.
+
+Your task: Analyze this rider's recent data and select ONE mental performance
+path that will produce the most meaningful change this week. Generate Week 1
+of that path in full detail.
+
+ACTIVE TRAJECTORY CONTEXT:
+The rider's Training Trajectory path is: ${activePath}
+
+TRAJECTORY ALIGNMENT RULE (CRITICAL):
+
+You have been provided with the rider's active Training Trajectory path
+(from the cached Grand Prix Thinking L2 document). This is the direction
+the rider has self-selected or been recommended for their long-term development.
+
+Your Mental Performance path selection and framing MUST support this trajectory:
+
+- If trajectory = "ambitious_competitor": Frame mental skills around
+  competition readiness, performance under pressure, and goal execution.
+  Reference show preparation where relevant.
+
+- If trajectory = "steady_builder": Frame mental skills around patience,
+  mastery satisfaction, and process orientation. Avoid urgency language.
+  Do not reference competition timelines unless the rider has a current
+  event in the Event Log.
+
+- If trajectory = "curious_explorer": Frame mental skills around curiosity,
+  partnership awareness, and joy. Ensure the weekly assignments include at
+  least one observation-based (not performance-based) task.
+
+The success metric for the current week must connect explicitly to a
+milestone from the active trajectory. State the connection in one sentence
+within the trajectoryLink field.
+
+NEVER create a mental performance assignment that conflicts with the
+trajectory's philosophy. A rider cannot be told to "push toward PSG
+competition readiness" in their mental skills work while their trajectory
+says "Steady Builder — no show before July."
+
+PATH SELECTION CRITERIA:
+Analyze the last 8 debriefs and most recent self-assessment to identify:
+1. The pattern with the highest impact on ride quality scores
+2. The pattern with the strongest recent evidence (multiple recent mentions)
+3. The pattern most directly named in lesson notes or trainer feedback
+
+Select the path that addresses the highest-priority pattern. Paths:
+- pre_ride: When data shows arrival state, pre-ride preparation, or intention-setting
+  as a performance variable
+- in_saddle: When data shows focus loss, reactive riding, or mental noise during rides
+- resilience: When data shows setback recovery patterns, confidence dips, or
+  post-difficult-ride emotional carryover
+
+AI REASONING REQUIREMENT:
+The aiReasoning object must contain:
+- patternCited: The specific pattern identified (name it precisely)
+- dataEvidence: Quote specific data (debrief count, exact words used, trainer cues)
+- trajectoryLink: One sentence connecting this week's work to the active trajectory
+
+WEEK 1 GENERATION RULES:
+- Exactly 3 assignments per week (not more, not fewer)
+- Each assignment must reference the rider's specific data, horses, or trainer cues
+- The "when" field uses: "Pre-ride", "During ride", "Post-ride", "Daily", "Grooming",
+  or "Weekly"
+- successMetric is one sentence, observable, connected to debrief logging
+- checkIn questions reference things measurable in the debrief form
+
+WEEK PREVIEW RULE:
+Provide only titles for weeks 2-4. Do not generate their full content.
+Full content for weeks 2-4 generates on-demand in a separate API call.
 
 PERSONALIZATION RULES:
 - Use the rider's own language for affirmations, self-talk scripts, and mantras
 - Reference each horse by name in horse-specific sequences
 - Target documented asymmetries and tension patterns in body scans
-- Build affirmations from their actual reflection "Aha Moments"
-- Use their actual losing/lost dialogue as the "old pattern" in self-talk replacement scripts
-- Calibrate body awareness cues to their kinesthetic awareness level
+- Build from their actual debrief language and reflection insights
+- Calibrate to their kinesthetic awareness level
 
 DATA TIER AWARENESS:
 ${riderData.dataTier === 1
@@ -1462,55 +1542,138 @@ ${riderData.dataTier === 1
     : riderData.dataTier === 2
       ? "This rider has INFORMED data (Tier 2). You have enough for meaningful personalization."
       : "This rider has FULL data (Tier 3). Leverage everything for deep personalization."}
-${VOICE_REFERENCE_BLOCK}
-
-COACH PERSPECTIVE ON PRACTICES:
-${path.voiceMapping}
-Do NOT assign all practices to the same voice.
 ${crossLayerContext ? `\n${crossLayerContext}\n` : ""}
-Respond in JSON format with this exact structure:
+Respond with ONLY the JSON object matching this schema. No markdown, no explanation.
 {
-  "id": "${pathId}",
-  "title": "Path display title",
-  "subtitle": "One-line description",
-  "description": "2-3 sentence overview of what this path addresses for THIS rider",
-  "why": "Why this path matters for THIS specific rider based on their data",
-  "weeks": [
-    {
-      "week": 1,
-      "theme": "Week theme title",
-      "daily": ["array of 2-3 daily practice items"],
-      "practices": [
-        {
-          "text": "specific practice with instructions",
-          "coach_perspective": {
-            "voice": "Classical Master|Empathetic Coach|Technical Coach|Practical Strategist",
-            "note": "One sentence from the selected coaching voice about this practice"
+  "generatedAt": "ISO timestamp",
+  "dataSnapshot": {
+    "debriefCount": number,
+    "reflectionCount": number,
+    "lastDebriefDate": "ISO date",
+    "tier": number
+  },
+  "activeTrajectory": "${activePath}",
+  "selectedPath": {
+    "id": "pre_ride|in_saddle|resilience",
+    "title": "Path display title",
+    "subtitle": "One-line description of what this path builds",
+    "icon": "emoji icon for the path",
+    "aiReasoning": {
+      "patternCited": "The specific pattern identified from data",
+      "dataEvidence": "Quote specific data points — debrief count, exact words, trainer cues",
+      "trajectoryLink": "One sentence connecting this week to the active trajectory"
+    },
+    "weeks": [
+      {
+        "number": 1,
+        "title": "Week title",
+        "focus": "Focus description for the week",
+        "assignments": [
+          {
+            "title": "Short assignment title",
+            "description": "2-3 sentence description with specific instructions",
+            "example": "Optional example in quotes, or null",
+            "when": "Pre-ride|During ride|Post-ride|Daily|Grooming|Weekly",
+            "trajectoryLink": "Connection to active trajectory"
           }
-        }
-      ],
-      "check_in": "End-of-week reflection question",
-      "success": "What success looks like at the end of this week"
+        ],
+        "successMetric": "One sentence — observable, connected to debrief logging",
+        "checkIn": ["End-of-week reflection question 1", "Question 2"]
+      }
+    ],
+    "weekPreviews": [
+      { "number": 2, "title": "Week 2 title" },
+      { "number": 3, "title": "Week 3 title" },
+      { "number": 4, "title": "Week 4 title" }
+    ],
+    "otherPaths": [
+      { "id": "path_id", "title": "Path title", "icon": "emoji" },
+      { "id": "path_id", "title": "Path title", "icon": "emoji" }
+    ],
+    "voice_annotation": {
+      "empathetic_coach": "Brief voice annotation from the Empathetic Coach perspective",
+      "technical_coach": "Brief voice annotation from the Technical Coach perspective"
     }
-  ],
-  "weeklyAssignments": [
-    {
-      "title": "short assignment title",
-      "description": "2-3 sentence exploration framed as an observation or curiosity, not a mandatory task. Connect directly to a finding in the path analysis.",
-      "buildToward": "what larger training goal this serves"
-    }
-  ]
-}
-
-Include exactly 3 weeklyAssignments derived from your path analysis — concrete explorations for the coming week that connect to the path's themes. Frame them as things to notice or try, appropriate for the rider's current level and horses.
-
-Generate all 4 weeks. Keep output concise but personalized.`;
+  },
+  "stale": false,
+  "regenerateAfter": "ISO timestamp — 7 days from now"
+}`;
 
   const userMessage = `Here is the complete rider data for Grand Prix Thinking personalization:
 
 ${buildUserDataMessage(riderData)}
 
-Generate the ${path.title} with 4 weeks of progressive practices. Make every element personally relevant to this specific rider.`;
+${trajectoryBlock}
+
+Select the single most impactful mental performance path for this rider this week and generate Week 1 in full detail. Make every element personally relevant.`;
+
+  return { system, userMessage };
+}
+
+/**
+ * Build system + user message for GPT L1 on-demand 4-week expansion.
+ * Generates weeks 2-4 for the selected path, building on Week 1 content.
+ *
+ * @param {object} week1Content - The full Week 1 content from L1 output
+ * @param {object} selectedPath - The selectedPath object from L1 output
+ * @param {object} riderData - Output from prepareRiderData()
+ * @param {string} activeTrajectory - The active trajectory id
+ * @returns {{ system: string, userMessage: string }}
+ */
+function buildGPTL1ExpandPrompt(week1Content, selectedPath, riderData, activeTrajectory) {
+  const system = `${BASE_CONTEXT}
+
+GRAND PRIX THINKING L1 — 4-WEEK EXPANSION
+
+You are expanding the Mental Performance path "${selectedPath.title}" from Week 1 into a full 4-week progressive plan.
+
+Week 1 has already been generated and is provided below. Generate Weeks 2, 3, and 4 that build progressively from it.
+
+ACTIVE TRAJECTORY: ${activeTrajectory}
+Ensure all weeks maintain alignment with this trajectory direction.
+
+PROGRESSIVE BUILDING RULES:
+- Week 2 deepens the foundation laid in Week 1
+- Week 3 connects the skill to the specific horse and riding context
+- Week 4 anchors the habit and tests it under more challenging conditions
+- Each week should reference the rider's specific data, horses, and trainer cues
+- Exactly 3 assignments per week
+- The "when" field uses: "Pre-ride", "During ride", "Post-ride", "Daily", "Grooming", or "Weekly"
+- Each week has a successMetric (one observable sentence) and 2 checkIn questions
+
+Respond with ONLY the JSON array. No markdown, no explanation.
+[
+  {
+    "number": 2,
+    "title": "Week title",
+    "focus": "Focus description",
+    "assignments": [
+      {
+        "title": "Assignment title",
+        "description": "2-3 sentence description",
+        "example": "Optional example or null",
+        "when": "Pre-ride|During ride|Post-ride|Daily|Grooming|Weekly"
+      }
+    ],
+    "successMetric": "Observable metric",
+    "checkIn": ["Question 1", "Question 2"]
+  },
+  { "number": 3, ... },
+  { "number": 4, ... }
+]`;
+
+  const userMessage = `Here is Week 1 content to build from:
+${JSON.stringify(week1Content, null, 2)}
+
+Path context:
+- Path: ${selectedPath.title} (${selectedPath.id})
+- AI Reasoning: ${selectedPath.aiReasoning?.patternCited || ""}
+- Trajectory: ${activeTrajectory}
+
+Rider data:
+${buildUserDataMessage(riderData)}
+
+Generate Weeks 2-4 that build progressively from Week 1. Make each week personally relevant.`;
 
   return { system, userMessage };
 }
@@ -1787,6 +1950,7 @@ Respond in JSON format with this exact structure:
       ],
       "risks": ["2-3 key risks or challenges specific to this rider on this path"],
       "strengths_leveraged": ["2-3 rider/horse strengths this path builds on"],
+      "isBestFit": false,
       "coach_perspectives": [
         {
           "voice": "Classical Master|Empathetic Coach|Technical Coach|Practical Strategist",
@@ -1794,8 +1958,24 @@ Respond in JSON format with this exact structure:
         }
       ]
     }
-  ]
-}`;
+  ],
+  "activePath": "ambitious_competitor|steady_builder|curious_explorer"
+}
+
+BEST FIT SELECTION:
+After generating all three trajectory paths, select the one that best matches
+this rider's current data, goals, and timeline. Mark it with "isBestFit": true.
+Also populate the top-level "activePath" field with that path's id.
+
+Best Fit selection criteria:
+- Rider's stated goals from self-assessment
+- Competition history and upcoming events from Event Log
+- Confidence trend from last 8 debriefs (low confidence = weight toward Steady Builder)
+- Level readiness indicators from debrief data
+- If a show is in the Event Log within 60 days, weight toward Ambitious Competitor
+  unless confidence trend is declining
+
+Use these path IDs: "ambitious_competitor", "steady_builder", "curious_explorer".`;
 
   const userMessage = `Based on the current state analysis and the rider's data, generate three distinct trajectory paths.
 
@@ -3386,6 +3566,8 @@ module.exports = {
   buildJourneyMapPrompt,
   buildGrandPrixPrompt,
   buildGrandPrixPathPrompt,
+  buildGPTL1Prompt,
+  buildGPTL1ExpandPrompt,
   buildTrajectoryCall1Prompt,
   buildTrajectoryCall2Prompt,
   buildTrajectoryCall3Prompt,

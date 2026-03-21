@@ -1,22 +1,19 @@
 /**
- * Grand Prix Thinking API
+ * Grand Prix Thinking API — Redesigned March 2026
  *
- * Supports two layers:
- *   Mental Performance (default): 3-path immediate optimization dashboard
- *   Training Trajectory: 4-call pipeline (Opus + Sonnet) with test DB integration
+ * Two-output architecture:
+ *   L1 (Mental Performance): Weekly cycle. AI selects ONE path, generates
+ *     Week 1 in full detail, with on-demand 4-week expansion. Uses Sonnet.
+ *   L2 (Training Trajectory): Monthly cycle. 4-call pipeline (Opus + Sonnet)
+ *     with activePath (Best Fit) for cross-layer coherence.
  *
- * Mental Performance paths (pre-ride, in-saddle, resilience) each have
- * a progressive 4-week implementation plan with personalized practices.
+ * Hard Rule 1: L1 receives cached L2 activePath before generating.
+ * Hard Rule 2: weeklyAssignments extracted server-side from Week 1 assignments.
  *
- * Training Trajectory uses a 4-call pipeline:
- *   L2-1: Current State Analysis (Opus)
- *   L2-2: Three Trajectories — Steady Builder / Ambitious Competitor / Curious Explorer (Opus)
- *   L2-3: Movement Connection Mapping (Sonnet)  [parallel with L2-2]
- *   L2-4: Path Narratives (Sonnet)  [depends on L2-1, L2-2, L2-3]
- *
- * Input:  { forceRefresh?: boolean, layer?: "mental"|"trajectory" }
- * Output: Mental → { paths, recommendedPath?, tier, dataTier, generatedAt, dataSnapshot }
- *         Trajectory → { currentStateAnalysis, trajectoryPaths, movementMaps, pathNarratives, ... }
+ * Input:  { forceRefresh?, layer?: "mental"|"trajectory", action?: "expand", pathId? }
+ * Output: Mental → { selectedPath, weeklyAssignments, activeTrajectory, ... }
+ *         Trajectory → { currentStateAnalysis, trajectoryPaths, movementMaps, pathNarratives, activePath, ... }
+ *         Expand → { weeks: [...], pathId, ... }
  */
 
 const { validateAuth } = require("../lib/auth");
@@ -24,7 +21,8 @@ const { wrapError } = require("../lib/errors");
 const { prepareRiderData } = require("../lib/prepareRiderData");
 const { callClaude } = require("../lib/claudeCall");
 const {
-  buildGrandPrixPathPrompt,
+  buildGPTL1Prompt,
+  buildGPTL1ExpandPrompt,
   buildTrajectoryCall1Prompt,
   buildTrajectoryCall2Prompt,
   buildTrajectoryCall3Prompt,
@@ -36,42 +34,11 @@ const { getStatus: getGenStatus } = require("../lib/generationStatus");
 
 const OUTPUT_TYPE_MENTAL = "grandPrixThinking";
 const OUTPUT_TYPE_TRAJECTORY = "grandPrixTrajectory";
-const MENTAL_PATH_IDS = ["pre-ride", "in-saddle", "resilience"];
+const OUTPUT_TYPE_EXPANDED = "grandPrixExpanded";
 const OPUS_MODEL = "claude-opus-4-6";
 
 /**
- * Post-validate a single mental path result against source data.
- */
-function validateMentalPath(pathResult, riderData) {
-  if (!MENTAL_PATH_IDS.includes(pathResult.id)) {
-    console.warn(`[gpt-validate] Unexpected mental path ID: ${pathResult.id}`);
-  }
-
-  // Validate weeks structure
-  if (pathResult.weeks && Array.isArray(pathResult.weeks)) {
-    for (const week of pathResult.weeks) {
-      if (typeof week.week !== "number" || week.week < 1 || week.week > 4) {
-        console.warn(`[gpt-validate] Invalid week number: ${week.week}`);
-      }
-    }
-  }
-
-  // Log horse name usage
-  const validHorseNames = new Set(
-    (riderData.horseSummaries || []).map((h) => h.name?.toLowerCase()).filter(Boolean)
-  );
-  const resultStr = JSON.stringify(pathResult).toLowerCase();
-  for (const name of validHorseNames) {
-    if (resultStr.includes(name)) {
-      console.log(`[gpt-validate] Found valid horse name in ${pathResult.id}: ${name}`);
-    }
-  }
-
-  return pathResult;
-}
-
-/**
- * Log horse name presence in trajectory results for validation.
+ * Log horse name presence in results for validation.
  */
 function logHorseNameUsage(label, result, riderData) {
   const validHorseNames = new Set(
@@ -88,35 +55,24 @@ function logHorseNameUsage(label, result, riderData) {
 /**
  * Build a condensed cross-layer summary for prompt injection.
  * Returns null if no cached result exists or essential data is missing.
- *
- * @param {object|null} cachedDoc - Raw cache document from getCache()
- * @param {string} direction - "mental-for-trajectory" | "trajectory-for-mental"
- * @returns {string|null} Formatted text block (~300-500 tokens) or null
  */
 function buildCrossLayerSummary(cachedDoc, direction) {
   if (!cachedDoc?.result) return null;
 
   if (direction === "mental-for-trajectory") {
-    const { paths, recommendedPath } = cachedDoc.result;
-    if (!paths?.length) return null;
-
-    const pathSummaries = paths
-      .map((p) => `- ${p.title} (${p.id}): ${p.description || p.subtitle || ""}`)
-      .join("\n");
-    const recommended = paths.find((p) => p.id === recommendedPath);
-    const whyText = recommended?.why || "";
+    const { selectedPath } = cachedDoc.result;
+    if (!selectedPath) return null;
 
     return `CROSS-LAYER CONTEXT — MENTAL PERFORMANCE INSIGHTS:
-The rider has a Mental Performance dashboard. Key findings:
-- Recommended starting path: ${recommendedPath || "none determined"}
-${pathSummaries}
-- Why the recommended path matters: ${whyText}
+The rider has a Mental Performance path selected: ${selectedPath.title} (${selectedPath.id})
+- Pattern cited: ${selectedPath.aiReasoning?.patternCited || "none"}
+- Trajectory link: ${selectedPath.aiReasoning?.trajectoryLink || "none"}
 
-When generating trajectory content, reference how long-term training goals connect to the rider's mental performance work. If the rider is working on self-regulation (In-Saddle), note how that skill serves specific movements in their trajectory. If working on Pre-Ride preparation, connect body scan targets to movements at their next level. If working on Resilience, anchor growth mindset in their trajectory vision.`;
+When generating trajectory content, reference how long-term training goals connect to the rider's mental performance work.`;
   }
 
   if (direction === "trajectory-for-mental") {
-    const { currentStateAnalysis, pathNarratives, movementMaps } = cachedDoc.result;
+    const { currentStateAnalysis, pathNarratives, movementMaps, activePath } = cachedDoc.result;
     if (!currentStateAnalysis) return null;
 
     const level = currentStateAnalysis.current_level;
@@ -133,56 +89,66 @@ When generating trajectory content, reference how long-term training goals conne
 
     return `CROSS-LAYER CONTEXT — TRAINING TRAJECTORY INSIGHTS:
 The rider has a Training Trajectory analysis. Key findings:
+- Active trajectory: ${activePath || recommended?.path_name || "not yet determined"}
 - Current confirmed level: ${level?.confirmed_competition_level || "unknown"} | Training level: ${level?.training_level || "unknown"}
-- Recommended trajectory: ${recommended?.path_name || "not yet determined"}
 - Next transitions: ${transitions || "none identified"}
 - Key movement progressions: ${topMaps || "none mapped yet"}
 - Primary gap: ${topGap?.area || "none identified"} — ${topGap?.impact_on_advancement || ""}
 
-When generating mental performance practices, connect them to the rider's long-term training goals. Body scan targets should address physical patterns relevant to their next level transition. Self-talk scripts should reference specific movements they are progressing toward. Resilience reframes should anchor in their trajectory vision.`;
+When generating mental performance practices, connect them to the rider's long-term training goals.`;
   }
 
   return null;
 }
 
 /**
- * Determine the recommended starting path for mental performance layer.
+ * Extract L2 trajectory context for L1 prompt injection (Hard Rule 1).
+ * Returns structured context object or null.
  */
-function determineRecommendedPath(paths, riderData) {
-  const aiRecommended = paths.find((p) => p.recommended === true);
-  if (aiRecommended) return aiRecommended.id;
+function extractL2TrajectoryContext(cachedTrajectoryDoc) {
+  if (!cachedTrajectoryDoc?.result) return null;
 
-  const mental = riderData.mentalPatterns || {};
-  const selfAssess = riderData.selfAssessments || {};
+  const { trajectoryPaths, activePath, pathNarratives } = cachedTrajectoryDoc.result;
 
-  if (selfAssess.lostDialogue || mental.selfPerceptionAlignment === "underselling") {
-    return "resilience";
-  }
+  // Find the active path from trajectory data
+  const activePathId = activePath
+    || pathNarratives?.recommended_path?.path_name?.toLowerCase().replace(/\s+/g, "_")
+    || null;
 
-  const rideHistory = riderData.rideHistory || {};
-  if (rideHistory.trends?.quality === "declining" || rideHistory.ridingStreak < 2) {
-    return "pre-ride";
-  }
+  if (!activePathId) return null;
 
-  if (mental.bestConditions?.mentalState === "frustrated" ||
-      rideHistory.distributions?.mentalState?.frustrated > 0.2) {
-    return "in-saddle";
-  }
+  // Find the path details
+  const pathIdMap = {
+    "ambitious_competitor": "Ambitious Competitor",
+    "steady_builder": "Steady Builder",
+    "curious_explorer": "Curious Explorer",
+  };
+  const pathName = pathIdMap[activePathId] || activePathId;
+  const pathData = trajectoryPaths?.paths?.find(
+    (p) => p.name === pathName || p.name?.toLowerCase().replace(/\s+/g, "_") === activePathId
+  );
 
-  return "pre-ride";
+  return {
+    activePath: activePathId,
+    title: pathName,
+    currentPosition: pathData?.philosophy || "",
+    milestones: pathData?.year1?.milestones || [],
+  };
 }
 
 /**
- * Generate mental performance layer (3 paths with 4-week drilldowns).
+ * Generate mental performance layer — Slim L1 architecture.
+ * Single API call: AI selects ONE path, generates Week 1 only.
+ * weeklyAssignments extracted server-side from Week 1 assignments (Hard Rule 2).
  */
 async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerContext) {
   const hash = riderData.dataSnapshot?.hash;
 
-  // Check cache
+  // Check cache (7-day cycle)
   if (!forceRefresh) {
     const cached = await getCache(uid, OUTPUT_TYPE_MENTAL, {
       currentHash: hash,
-      maxAgeDays: 30,
+      maxAgeDays: 7,
     });
     if (cached) {
       return {
@@ -196,7 +162,7 @@ async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerConte
       };
     }
 
-    // Stale-while-revalidate: return stale cache if available
+    // Stale-while-revalidate
     const staleCache = await getStaleCache(uid, OUTPUT_TYPE_MENTAL, {
       currentHash: hash,
       maxAgeDays: 30,
@@ -217,80 +183,125 @@ async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerConte
     }
   }
 
-  // Generate all 3 paths in parallel — use allSettled for partial results
-  const settled = await Promise.allSettled(
-    MENTAL_PATH_IDS.map(async (pathId) => {
-      const { system, userMessage } = buildGrandPrixPathPrompt(pathId, riderData, crossLayerContext);
-      const pathData = await callClaude({
-        system,
-        userMessage,
-        jsonMode: true,
-        maxTokens: 8192,
-        context: `grand-prix-${pathId}`,
-      });
-      return validateMentalPath(pathData, riderData);
-    })
+  // Hard Rule 1: Read cached L2 for activePath context
+  const cachedL2 = await getCache(uid, OUTPUT_TYPE_TRAJECTORY, { maxAgeDays: 9999 });
+  const l2TrajectoryContext = extractL2TrajectoryContext(cachedL2);
+  if (l2TrajectoryContext) {
+    console.log(`[gpt-l1] Active trajectory from L2: ${l2TrajectoryContext.activePath}`);
+  } else {
+    console.log("[gpt-l1] No L2 trajectory found — defaulting to ambitious_competitor");
+  }
+
+  // Single Claude call (Sonnet) for path selection + Week 1
+  console.log("[gpt-l1] Generating slim L1 Mental Performance (Sonnet)");
+  const { system, userMessage } = buildGPTL1Prompt(riderData, l2TrajectoryContext, crossLayerContext);
+  const l1Output = await callClaude({
+    system,
+    userMessage,
+    jsonMode: true,
+    maxTokens: 8192,
+    context: "grand-prix-l1-mental",
+  });
+
+  logHorseNameUsage("L1", l1Output, riderData);
+
+  // Hard Rule 2: Extract weeklyAssignments from selectedPath.weeks[0].assignments
+  const currentWeekAssignments = l1Output.selectedPath?.weeks?.[0]?.assignments || [];
+  l1Output.weeklyAssignments = currentWeekAssignments.map((item) => ({
+    title: item.title,
+    description: item.description,
+    when: item.when,
+    buildToward: item.trajectoryLink || "",
+  }));
+
+  // Ensure stale/regenerateAfter fields
+  l1Output.stale = false;
+  l1Output.regenerateAfter = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+
+  // Cache the result
+  await setCache(uid, OUTPUT_TYPE_MENTAL, l1Output, {
+    dataSnapshotHash: hash,
+    tierLabel: riderData.tier?.label || "unknown",
+    dataTier: riderData.dataTier,
+  });
+
+  return {
+    success: true,
+    ...l1Output,
+    fromCache: false,
+    tier: riderData.tier,
+    dataTier: riderData.dataTier,
+    dataSnapshot: riderData.dataSnapshot,
+    generatedAt: l1Output.generatedAt || new Date().toISOString(),
+  };
+}
+
+/**
+ * Generate on-demand 4-week expansion for a selected path.
+ * Generates Weeks 2-4, caches result.
+ */
+async function generateExpandedPlan(uid, riderData, pathId) {
+  // Check for cached expansion
+  const expandCacheKey = `${OUTPUT_TYPE_EXPANDED}_${pathId}`;
+  const cached = await getCache(uid, expandCacheKey, { maxAgeDays: 7 });
+  if (cached) {
+    return {
+      success: true,
+      ...cached.result,
+      fromCache: true,
+    };
+  }
+
+  // Get the current L1 output for Week 1 content
+  const cachedL1 = await getCache(uid, OUTPUT_TYPE_MENTAL, { maxAgeDays: 30 });
+  if (!cachedL1?.result?.selectedPath) {
+    throw new Error("No L1 Mental Performance output found. Generate L1 first.");
+  }
+
+  const selectedPath = cachedL1.result.selectedPath;
+  const week1Content = selectedPath.weeks?.[0];
+  const activeTrajectory = cachedL1.result.activeTrajectory || "ambitious_competitor";
+
+  if (!week1Content) {
+    throw new Error("Week 1 content not found in L1 output.");
+  }
+
+  console.log(`[gpt-l1-expand] Generating weeks 2-4 for path: ${pathId}`);
+  const { system, userMessage } = buildGPTL1ExpandPrompt(
+    week1Content, selectedPath, riderData, activeTrajectory
   );
 
-  const pathResults = [];
-  const failedPaths = [];
-  for (let i = 0; i < settled.length; i++) {
-    if (settled[i].status === "fulfilled") {
-      pathResults.push(settled[i].value);
-    } else {
-      failedPaths.push(MENTAL_PATH_IDS[i]);
-      pathResults.push({
-        id: MENTAL_PATH_IDS[i],
-        _error: true,
-        _errorMessage: "This path encountered a temporary issue. Try refreshing.",
-      });
-      console.error(`[gpt] Mental path ${MENTAL_PATH_IDS[i]} failed:`, settled[i].reason?.message || settled[i].reason);
-    }
-  }
-
-  // If ALL paths failed, throw so the client gets an error
-  if (failedPaths.length === MENTAL_PATH_IDS.length) {
-    throw settled[0].reason || new Error("All mental performance paths failed to generate.");
-  }
-
-  const successfulPaths = pathResults.filter((p) => !p._error);
-  const recommendedPath = determineRecommendedPath(successfulPaths, riderData);
-  for (const path of pathResults) {
-    if (!path._error) {
-      path.recommended = path.id === recommendedPath;
-    }
-  }
+  const expandedWeeks = await callClaude({
+    system,
+    userMessage,
+    jsonMode: true,
+    maxTokens: 8192,
+    context: "grand-prix-l1-expand",
+  });
 
   const result = {
-    paths: pathResults,
-    recommendedPath,
-    personalizationNotes: "",
-    cycleStartDate: new Date().toISOString(),
-    ...(failedPaths.length > 0 && { partialResults: true, failedPaths }),
+    pathId,
+    generatedAt: new Date().toISOString(),
+    weeks: [week1Content, ...(Array.isArray(expandedWeeks) ? expandedWeeks : [])],
+    expiresAfter: cachedL1.result.regenerateAfter || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
   };
 
-  // Only cache if all paths succeeded (don't cache partial results)
-  if (failedPaths.length === 0) {
-    await setCache(uid, OUTPUT_TYPE_MENTAL, result, {
-      dataSnapshotHash: hash,
-      tierLabel: riderData.tier?.label || "unknown",
-      dataTier: riderData.dataTier,
-    });
-  }
+  // Cache the expansion
+  await setCache(uid, expandCacheKey, result, {
+    tierLabel: riderData.tier?.label || "unknown",
+    dataTier: riderData.dataTier,
+  });
 
   return {
     success: true,
     ...result,
     fromCache: false,
-    tier: riderData.tier,
-    dataTier: riderData.dataTier,
-    dataSnapshot: riderData.dataSnapshot,
-    generatedAt: new Date().toISOString(),
   };
 }
 
 /**
  * Generate training trajectory layer using 4-call pipeline.
+ * Now includes activePath extraction for L1 cross-layer coherence.
  *
  * Call graph:
  *   L2-1 (Opus) → [L2-2 (Opus) || L2-3 (Sonnet)] → L2-4 (Sonnet)
@@ -298,7 +309,7 @@ async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerConte
 async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerContext) {
   const hash = riderData.dataSnapshot?.hash;
 
-  // Check cache
+  // Check cache (30-day monthly cycle)
   if (!forceRefresh) {
     const cached = await getCache(uid, OUTPUT_TYPE_TRAJECTORY, {
       currentHash: hash,
@@ -316,10 +327,10 @@ async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerC
       };
     }
 
-    // Stale-while-revalidate: return stale cache if available
+    // Stale-while-revalidate
     const staleCache = await getStaleCache(uid, OUTPUT_TYPE_TRAJECTORY, {
       currentHash: hash,
-      maxAgeDays: 30,
+      maxAgeDays: 60,
     });
     if (staleCache?._stale) {
       const genStatus = await getGenStatus(uid);
@@ -379,14 +390,14 @@ async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerC
     }),
   ]);
 
-  // L2-2 (trajectory paths) is critical — if it fails, the whole layer fails
+  // L2-2 is critical
   if (settled[0].status === "rejected") {
     throw settled[0].reason || new Error("Failed to generate trajectory paths (L2-2).");
   }
   const trajectoryPaths = settled[0].value;
   logHorseNameUsage("L2-2", trajectoryPaths, riderData);
 
-  // L2-3 (movement maps) is non-critical — use fallback if it fails
+  // L2-3 is non-critical
   let movementMaps;
   let movementMapsError = false;
   if (settled[1].status === "fulfilled") {
@@ -401,7 +412,7 @@ async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerC
     };
   }
 
-  // --- L2-4: Path Narratives (Sonnet, depends on all 3 prior) ---
+  // --- L2-4: Path Narratives (Sonnet) ---
   console.log("[trajectory] Starting L2-4: Path Narratives (Sonnet)");
   const { system: sys4, userMessage: msg4 } = buildTrajectoryCall4Prompt(
     riderData, currentStateAnalysis, trajectoryPaths, movementMaps, crossLayerContext
@@ -415,16 +426,23 @@ async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerC
   });
   logHorseNameUsage("L2-4", pathNarratives, riderData);
 
+  // Extract activePath from L2-2 output (Best Fit)
+  const activePath = trajectoryPaths.activePath
+    || extractActivePathFromPaths(trajectoryPaths.paths)
+    || "ambitious_competitor";
+  console.log(`[trajectory] Active path (Best Fit): ${activePath}`);
+
   // Assemble combined result
   const result = {
     currentStateAnalysis,
     trajectoryPaths,
     movementMaps,
     pathNarratives,
+    activePath,
     ...(movementMapsError && { partialResults: true, failedComponents: ["movementMaps"] }),
   };
 
-  // Only cache if all calls succeeded (don't cache partial results)
+  // Cache (only if all calls succeeded)
   if (!movementMapsError) {
     await setCache(uid, OUTPUT_TYPE_TRAJECTORY, result, {
       dataSnapshotHash: hash,
@@ -445,18 +463,53 @@ async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerC
 }
 
 /**
+ * Extract activePath from L2-2 paths array when activePath field is missing.
+ * Falls back to recommended_path from L2-4 narratives or heuristic.
+ */
+function extractActivePathFromPaths(paths) {
+  if (!paths?.length) return null;
+
+  // Check for isBestFit flag
+  const bestFit = paths.find((p) => p.isBestFit === true);
+  if (bestFit) {
+    return bestFit.name?.toLowerCase().replace(/\s+/g, "_") || null;
+  }
+
+  // Default to Ambitious Competitor if present
+  const ambitious = paths.find((p) => p.name?.includes("Ambitious"));
+  if (ambitious) return "ambitious_competitor";
+
+  return null;
+}
+
+/**
  * Cloud Function handler for Grand Prix Thinking.
  */
 async function handler(request) {
   try {
     const uid = validateAuth(request);
-    const { forceRefresh = false, layer = "mental", staleOk = false } = request.data || {};
+    const {
+      forceRefresh = false,
+      layer = "mental",
+      staleOk = false,
+      action = null,
+      pathId = null,
+    } = request.data || {};
 
-    // Fast path: return cached data immediately without preparing rider data.
-    // Used by frontend two-phase load to show results instantly on mount.
+    // Handle on-demand 4-week expansion
+    if (action === "expand") {
+      if (!pathId) {
+        throw new Error("pathId is required for expand action.");
+      }
+      const riderData = await prepareRiderData(uid, "grandPrixMental");
+      return await generateExpandedPlan(uid, riderData, pathId);
+    }
+
+    // Fast path: return cached data immediately
     if (staleOk && !forceRefresh) {
       const cacheType = layer === "trajectory" ? OUTPUT_TYPE_TRAJECTORY : OUTPUT_TYPE_MENTAL;
-      const cached = await getStaleCache(uid, cacheType, { maxAgeDays: 30 });
+      const maxAge = layer === "trajectory" ? 60 : 30;
+      const cached = await getStaleCache(uid, cacheType, { maxAgeDays: maxAge });
       if (cached) {
         return {
           success: true,
@@ -492,7 +545,7 @@ async function handler(request) {
       };
     }
 
-    // Build condensed cross-layer summary (null if no cache exists)
+    // Build condensed cross-layer summary
     const crossLayerContext = buildCrossLayerSummary(
       crossLayerCache,
       layer === "trajectory" ? "mental-for-trajectory" : "trajectory-for-mental"
