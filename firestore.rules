@@ -102,6 +102,16 @@ service cloud.firestore {
       allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
+    // Rider settings (preferences, notifications, privacy)
+    match /riders/{userId}/settings/{document} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Rider settings — coaches subcollection
+    match /riders/{userId}/settings/coaches/{coachId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
     // Analysis cache — written by Cloud Functions (admin SDK bypasses rules),
     // read-only by the authenticated user for weekly focus snapshots
     match /analysisCache/{docId} {

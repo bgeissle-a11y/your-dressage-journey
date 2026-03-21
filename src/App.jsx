@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { AuthProvider } from './contexts/AuthContext';
+import { SettingsProvider } from './contexts/SettingsContext';
 import PrivateRoute from './components/Auth/PrivateRoute';
 import AppLayout from './components/Layout/AppLayout';
 import { initGA4, trackPageView } from './analytics';
@@ -55,6 +56,9 @@ import PracticeCard from './components/PracticeCard/PracticeCard';
 import ToolkitList from './components/RiderToolkit/ToolkitList';
 import ToolkitForm from './components/RiderToolkit/ToolkitForm';
 
+// Settings
+import Settings from './components/Settings/Settings';
+
 // Learn
 import TestExplorer from './components/TestExplorer/TestExplorer';
 import './App.css';
@@ -76,6 +80,7 @@ function App() {
     <Router>
       <RouteTracker />
       <AuthProvider>
+        <SettingsProvider>
         <Routes>
           {/* Public Routes */}
           <Route path="/signup" element={<SignUp />} />
@@ -152,6 +157,9 @@ function App() {
             <Route path="/technical-assessments/new" element={<TechnicalPhilosophicalForm />} />
             <Route path="/technical-assessments/:id/edit" element={<TechnicalPhilosophicalForm />} />
 
+            {/* Settings */}
+            <Route path="/settings" element={<Settings />} />
+
             {/* Learn */}
             <Route path="/learn/test-explorer" element={<TestExplorer />} />
           </Route>
@@ -160,6 +168,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="*" element={<Home />} />
         </Routes>
+        </SettingsProvider>
       </AuthProvider>
     </Router>
   );

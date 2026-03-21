@@ -84,7 +84,8 @@ export default function AppLayout() {
         <a href="/arena-geometry-trainer.html" className="nav-btn">Arena Trainer</a>
         <div className="nav-sep" />
 
-        {/* User / Sign Out */}
+        {/* Settings + User / Sign Out */}
+        <Link to="/settings" className={navClass('/settings')}>&#9881; Settings</Link>
         <span className="nav-user-name">{currentUser?.displayName || 'Rider'}</span>
         <button className="nav-btn nav-signout" onClick={handleLogout}>Sign Out</button>
       </nav>

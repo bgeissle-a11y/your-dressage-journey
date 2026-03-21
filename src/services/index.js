@@ -187,6 +187,17 @@ export {
   STATUS_LABELS
 } from './riderToolkitService';
 
+// Settings (preferences, notifications, privacy, coaches)
+export {
+  loadAllSettings,
+  saveSettings,
+  addCoach,
+  toggleCoachSharing,
+  removeCoach,
+  loadPreferences,
+  SETTINGS_DEFAULTS
+} from './settingsService';
+
 // Horse health & soundness
 export {
   createHealthEntry,
