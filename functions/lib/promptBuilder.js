@@ -2854,14 +2854,15 @@ SHOW TIMELINE:
 - Constraints: ${eventPrepPlan.constraints || "none noted"}
 
 PLAN STRUCTURE RULES:
-1. Each week gets a primary focus, specific exercises, and a mental prep element
+1. Create a week-by-week countdown plan. Each week has THREE sections: Mental/Emotional, Technical, Physical/Kinesthetic — exactly 2 items per section.
 2. The first 1-2 weeks should address the highest-priority gaps from the readiness analysis
 3. The final week should be a confidence-building taper (no new material)
-4. Include logistics preparation in the final 2 weeks
-5. If weeks until event < 4: compress judiciously but never skip warm-up planning
-6. If weeks until event > 12: group into monthly phases rather than weekly
-7. Each exercise must reference a specific test movement it prepares for
-8. Mental prep should address specific concerns from the rider's event prep plan
+4. If weeks until event < 4: compress judiciously but keep all 3 sections per week
+5. If weeks until event > 12: cap at 8 weeks, starting the countdown from 8 weeks out
+6. Each technical item must reference a specific test movement it prepares for
+7. Mental items should address specific concerns from the rider's event prep plan
+8. Physical items address the rider's body patterns and what the body needs at this countdown stage
+9. Every item must be calibrated to the countdown phase (early = build foundation, mid = refine, late = trust the training)
 
 GUARDRAIL RULES:
 - NEVER suggest introducing entirely new movements in the final 3 weeks before the event
@@ -2938,33 +2939,32 @@ NOTE: Quality freestyle typically takes 2-4 months. If <6 weeks remain without s
 ${VOICE_REFERENCE_BLOCK}
 Include voice snippets from all 4 coaching voices at key plan milestones. The rider's preferred voice is ${preferredVoice}.
 
+ITEM FORMAT: Each item in the mental, technical, and physical arrays must follow this structure:
+- "title": 5 words maximum — a scannable headline
+- "body": 2-3 sentences grounded in THIS rider's actual data and patterns. Reference specific debrief/reflection data, named movements, named horse behaviors. Never generic.
+- "cue": ONE crisp action directive for this specific week — what to DO, not what to think about
+
 Respond in JSON format:
 {
   "plan_summary": "string — 3-5 sentence overview of the preparation approach",
   "total_weeks": number,
-  "plan_type": "weekly|monthly|compressed",
   "weeks": [{
     "week_number": number,
-    "dates": "string — approximate date range",
-    "primary_focus": "string",
-    "training_sessions": [{
-      "session_type": "flatwork|movements|mental|logistics",
-      "description": "string",
-      "exercises": [{
-        "name": "string",
-        "purpose": "string",
-        "test_movement_reference": "string — which test movement this prepares",
-        "duration_minutes": number,
-        "tips": "string"
-      }],
-      "coach_snippet": { "voice": "string", "note": "string" }
-    }],
-    "mental_prep": {
-      "focus": "string",
-      "practice": "string — specific mental exercise or visualization",
-      "addresses_concern": "string|null — which concern from the event prep plan this addresses"
-    },
-    "week_goals": ["string"],
+    "dates": "YYYY-MM-DD to YYYY-MM-DD",
+    "theme": "string — 1-2 word phase label (e.g., Foundation, Build, Refine, Sharpen, Peak Prep, Show Week)",
+    "primary_focus": "string — sentence describing this week's focus",
+    "mental": [
+      { "title": "string", "body": "string", "cue": "string" },
+      { "title": "string", "body": "string", "cue": "string" }
+    ],
+    "technical": [
+      { "title": "string", "body": "string", "cue": "string" },
+      { "title": "string", "body": "string", "cue": "string" }
+    ],
+    "physical": [
+      { "title": "string", "body": "string", "cue": "string" },
+      { "title": "string", "body": "string", "cue": "string" }
+    ],
     "readiness_checkpoint": "string — what should feel solid by end of this week"
   }],
   "warm_up_plan": {

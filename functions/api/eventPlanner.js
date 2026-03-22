@@ -24,7 +24,7 @@ const { wrapError } = require("../lib/errors");
 const { prepareRiderData } = require("../lib/prepareRiderData");
 const { callClaude } = require("../lib/claudeCall");
 const { buildEventPlannerPrompt } = require("../lib/promptBuilder");
-const { buildDetailedTestContext } = require("../lib/testDatabase");
+const { buildDetailedTestContext, inferLevelFromTests } = require("../lib/testDatabase");
 const { getCache, setCache, getStaleCache } = require("../lib/cacheManager");
 const { db } = require("../lib/firebase");
 
@@ -139,15 +139,21 @@ async function handler(request) {
     // Common setup
     const isShowPrep = Boolean(showPrepPlanId);
     const cacheKey = `${isShowPrep ? "showPlanner" : "eventPlanner"}_${planId}`;
-    // Resolve target level — show preps store level in both flat and nested fields
-    const targetLevel = isShowPrep
-      ? (eventPrepPlan.currentLevel || eventPrepPlan.horse?.currentLevel || "Training")
-      : (() => {
-          const primaryHorse = (eventPrepPlan.horses && eventPrepPlan.horses[0]) || {};
-          return primaryHorse.targetLevel || primaryHorse.currentLevel ||
-            eventPrepPlan.targetLevel || eventPrepPlan.currentLevel || "Training";
-        })();
-    console.log(`[eventPlanner] Resolved targetLevel: "${targetLevel}" (isShowPrep: ${isShowPrep}, flat: "${eventPrepPlan.currentLevel || ""}", nested: "${eventPrepPlan.horse?.currentLevel || ""}")`);
+    // Resolve target level
+    // For show preps: selected tests are the definitive source (chosen from test database dropdown)
+    // For legacy event preps: use horse/plan level fields
+    let targetLevel;
+    if (isShowPrep) {
+      const testsSelected = eventPrepPlan.testsSelected || eventPrepPlan.tests?.selected || [];
+      const fromTests = inferLevelFromTests(testsSelected);
+      targetLevel = fromTests || eventPrepPlan.currentLevel || eventPrepPlan.horse?.currentLevel || "Training";
+      console.log(`[eventPlanner] Show prep level: "${targetLevel}" (from tests: "${fromTests || "none"}", testsSelected: [${testsSelected.join(", ")}])`);
+    } else {
+      const primaryHorse = (eventPrepPlan.horses && eventPrepPlan.horses[0]) || {};
+      targetLevel = primaryHorse.targetLevel || primaryHorse.currentLevel ||
+        eventPrepPlan.targetLevel || eventPrepPlan.currentLevel || "Training";
+      console.log(`[eventPlanner] Event prep level: "${targetLevel}"`);
+    }
     const detailedTestContext = buildDetailedTestContext(targetLevel);
 
     // --- STEP 1: Test Requirements Assembly ---

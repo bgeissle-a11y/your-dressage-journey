@@ -267,16 +267,39 @@ export function deriveShowWeekContent(showPlanResult, currentWeekStart) {
     return null;
   }
 
+  // Support both v2 (3-section) and v1 (training_sessions) formats
+  const hasV2Sections = matchedWeek.mental || matchedWeek.technical || matchedWeek.physical;
+
+  let weekGoals, trainingHighlights, mentalPrepFocus;
+  if (hasV2Sections) {
+    // v2: derive goals from section titles, highlights from first item of each section
+    weekGoals = [
+      ...(matchedWeek.mental || []),
+      ...(matchedWeek.technical || []),
+      ...(matchedWeek.physical || []),
+    ].map(item => item.title).filter(Boolean);
+    trainingHighlights = ['technical', 'mental', 'physical']
+      .map(key => (matchedWeek[key] || [])[0])
+      .filter(Boolean)
+      .map(item => ({ type: key === 'mental' ? 'mental' : key === 'physical' ? 'physical' : 'movements', description: item.body || item.title }));
+    mentalPrepFocus = (matchedWeek.mental || [])[0]?.cue || null;
+  } else {
+    // v1: legacy training_sessions format
+    weekGoals = matchedWeek.week_goals || [];
+    trainingHighlights = (matchedWeek.training_sessions || [])
+      .slice(0, 3)
+      .map(s => ({ type: s.session_type, description: s.description }));
+    mentalPrepFocus = matchedWeek.mental_prep?.focus || null;
+  }
+
   return {
     state: 'active_week',
     weekNumber: matchedWeek.week_number,
     totalWeeks: plan.total_weeks,
     primaryFocus: matchedWeek.primary_focus,
-    weekGoals: matchedWeek.week_goals || [],
-    trainingHighlights: (matchedWeek.training_sessions || [])
-      .slice(0, 3)
-      .map(s => ({ type: s.session_type, description: s.description })),
-    mentalPrepFocus: matchedWeek.mental_prep?.focus || null,
+    weekGoals,
+    trainingHighlights,
+    mentalPrepFocus,
     readinessCheckpoint: matchedWeek.readiness_checkpoint || null,
   };
 }

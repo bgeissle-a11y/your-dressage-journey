@@ -541,9 +541,27 @@ function buildTestDatabaseContext(currentLevel) {
   return lines.join("\n");
 }
 
+/**
+ * Infer level from selected test IDs when currentLevel is missing.
+ * Returns the highest level among selected tests, or null if none recognized.
+ *
+ * @param {string[]} testsSelected - Array of test IDs (e.g., ["psg"])
+ * @returns {string|null} Level string (e.g., "Prix St. Georges") or null
+ */
+function inferLevelFromTests(testsSelected) {
+  if (!Array.isArray(testsSelected) || testsSelected.length === 0) return null;
+  let maxLevel = -1;
+  for (const testId of testsSelected) {
+    const num = parseLevelToNumber(testId.replace(/_\d+$/, ""));
+    if (num > maxLevel) maxLevel = num;
+  }
+  return maxLevel > 0 ? getLevelName(maxLevel) : null;
+}
+
 module.exports = {
   parseLevelToNumber,
   buildTestDatabaseContext,
   buildDetailedTestContext,
   getLevelName,
+  inferLevelFromTests,
 };

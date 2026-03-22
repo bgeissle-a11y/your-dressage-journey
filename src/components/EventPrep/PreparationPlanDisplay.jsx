@@ -1,114 +1,176 @@
 import { useState } from 'react';
 import CollapsibleSection from '../AICoaching/CollapsibleSection';
-import { CoachSnippet } from './eventPlannerShared.jsx';
+
+const SECTION_CFG = {
+  mental: {
+    key: 'mental',
+    label: 'Mental / Emotional',
+    icon: '\u{1F9E0}',
+    colorVar: '--mental-color',
+    bgVar: '--mental-bg',
+    borderVar: '--mental-border',
+  },
+  technical: {
+    key: 'technical',
+    label: 'Technical',
+    icon: '\u{1F3C7}',
+    colorVar: '--tech-color',
+    bgVar: '--tech-bg',
+    borderVar: '--tech-border',
+  },
+  physical: {
+    key: 'physical',
+    label: 'Physical / Kinesthetic',
+    icon: '\u{1F33F}',
+    colorVar: '--body-color',
+    bgVar: '--body-bg',
+    borderVar: '--body-border',
+  },
+};
 
 /**
- * Renders the week-by-week preparation plan with exercises.
- * Each week is a collapsible card with training sessions, mental prep, and checkpoints.
+ * Renders the week-by-week preparation plan with 3 sections per week:
+ * Mental, Technical, Physical — each with title/body/cue items.
  */
 export default function PreparationPlanDisplay({ data }) {
+  const [activeWeek, setActiveWeek] = useState(data.weeks?.[0]?.week_number || 1);
+  const totalWeeks = data.total_weeks || data.weeks?.length || 0;
+  const week = data.weeks?.find(w => w.week_number === activeWeek) || data.weeks?.[0];
+
   return (
     <CollapsibleSection
-      title={`Preparation Plan \u2014 ${data.total_weeks || ''} Weeks`}
+      title={`Preparation Plan \u2014 ${totalWeeks} Weeks`}
       icon="&#x1F4C5;"
+      defaultOpen
     >
-      <div className="ep-prep-plan">
+      <div className="sp-plan">
         {/* Summary */}
         {data.plan_summary && (
-          <div className="ep-prep-plan__summary">
+          <div className="sp-plan-summary">
             <p>{data.plan_summary}</p>
           </div>
         )}
 
-        {/* Weeks */}
-        {data.weeks && data.weeks.length > 0 && (
-          <div className="ep-weeks">
-            {data.weeks.map((week) => (
-              <WeekCard key={week.week_number} week={week} />
+        {/* Week chips */}
+        {data.weeks && data.weeks.length > 1 && (
+          <div className="sp-week-chips">
+            {data.weeks.map(w => (
+              <button
+                key={w.week_number}
+                className={`sp-week-chip${w.week_number === activeWeek ? ' active' : ''}`}
+                onClick={() => setActiveWeek(w.week_number)}
+              >
+                {w.week_number === 1 ? 'Show Wk' : `Wk ${w.week_number}`}
+              </button>
             ))}
           </div>
         )}
+
+        {/* Active week content */}
+        {week && <WeekContent week={week} totalWeeks={totalWeeks} />}
       </div>
     </CollapsibleSection>
   );
 }
 
-
-function WeekCard({ week }) {
-  const [expanded, setExpanded] = useState(false);
+function WeekContent({ week, totalWeeks }) {
+  const progress = totalWeeks > 0 ? Math.round(((totalWeeks - week.week_number + 1) / totalWeeks) * 100) : 0;
 
   return (
-    <div className="ep-week-card">
-      <div className="ep-week-card__header" onClick={() => setExpanded(!expanded)}>
-        <div className="ep-week-card__title">
-          <span className="ep-week-card__number">Week {week.week_number}</span>
-          <span className="ep-week-card__dates">{week.dates}</span>
+    <div className="sp-week">
+      <div className="sp-week-header">
+        <div>
+          <div className="sp-week-heading">
+            {week.week_number === 1 ? 'Show Week' : `Week ${week.week_number}`}
+            {week.theme && <span className="sp-week-theme"> \u00b7 {week.theme}</span>}
+          </div>
+          {week.primary_focus && (
+            <div className="sp-week-focus">{week.primary_focus}</div>
+          )}
         </div>
-        <div className="ep-week-card__focus">{week.primary_focus}</div>
-        <span className={`collapsible-header__chevron ${expanded ? 'collapsible-header__chevron--open' : ''}`}>
-          &#9662;
-        </span>
+        <div className="sp-week-progress">
+          <div className="sp-week-progress-label">Prep Progress</div>
+          <div className="sp-week-progress-bar">
+            <div className="sp-week-progress-fill" style={{ width: `${progress}%` }} />
+          </div>
+        </div>
       </div>
 
-      {expanded && (
-        <div className="ep-week-card__body">
-          {/* Training Sessions */}
-          {week.training_sessions && week.training_sessions.map((session, si) => (
-            <div key={si} className="ep-session">
-              <div className="ep-session__type-badge">{session.session_type}</div>
-              <p className="ep-session__description">{session.description}</p>
+      <div className="sp-sections">
+        {['mental', 'technical', 'physical'].map(key => {
+          const items = week[key] || [];
+          if (items.length === 0) return null;
+          return <SectionBlock key={key} sectionKey={key} items={items} />;
+        })}
+      </div>
 
-              {session.exercises && session.exercises.map((ex, ei) => (
-                <div key={ei} className="ep-exercise">
-                  <div className="ep-exercise__header">
-                    <strong>{ex.name}</strong>
-                    {ex.duration_minutes && (
-                      <span className="ep-exercise__duration">{ex.duration_minutes} min</span>
-                    )}
-                  </div>
-                  <p className="ep-exercise__purpose">{ex.purpose}</p>
-                  {ex.test_movement_reference && (
-                    <p className="ep-exercise__ref">Test reference: {ex.test_movement_reference}</p>
-                  )}
-                  {ex.tips && <p className="ep-exercise__tips">{ex.tips}</p>}
-                </div>
-              ))}
+      {week.readiness_checkpoint && (
+        <div className="sp-checkpoint">
+          <div className="sp-checkpoint-label">End-of-Week Check</div>
+          <p>{week.readiness_checkpoint}</p>
+        </div>
+      )}
+    </div>
+  );
+}
 
-              {session.coach_snippet && (
-                <CoachSnippet snippet={session.coach_snippet} />
-              )}
-            </div>
+function SectionBlock({ sectionKey, items }) {
+  const cfg = SECTION_CFG[sectionKey];
+  const [collapsed, setCollapsed] = useState(false);
+
+  return (
+    <div className="sp-section-block">
+      <div
+        className="sp-section-header"
+        onClick={() => setCollapsed(!collapsed)}
+        role="button"
+        tabIndex={0}
+      >
+        <span className="sp-section-dot" style={{ background: `var(${cfg.colorVar})` }} />
+        <span className="sp-section-label" style={{ color: `var(${cfg.colorVar})` }}>
+          {cfg.label}
+        </span>
+        <span className="sp-section-count">{items.length} items</span>
+        <span className="sp-section-chevron">{collapsed ? '\u25B6' : '\u25BC'}</span>
+      </div>
+      {!collapsed && (
+        <div className="sp-section-items">
+          {items.map((item, i) => (
+            <ItemCard key={i} item={item} cfg={cfg} />
           ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
-          {/* Mental Prep */}
-          {week.mental_prep && (
-            <div className="ep-mental-prep">
-              <h5>Mental Preparation</h5>
-              <p><strong>Focus:</strong> {week.mental_prep.focus}</p>
-              <p>{week.mental_prep.practice}</p>
-              {week.mental_prep.addresses_concern && (
-                <p className="ep-mental-prep__concern">{week.mental_prep.addresses_concern}</p>
-              )}
-            </div>
-          )}
+function ItemCard({ item, cfg }) {
+  const [expanded, setExpanded] = useState(true);
 
-          {/* Week Goals */}
-          {week.week_goals && week.week_goals.length > 0 && (
-            <div className="ep-week-goals">
-              <h5>Week Goals</h5>
-              <ul>
-                {week.week_goals.map((g, i) => <li key={i}>{g}</li>)}
-              </ul>
-            </div>
-          )}
-
-          {/* Readiness Checkpoint */}
-          {week.readiness_checkpoint && (
-            <div className="ep-checkpoint">
-              <h5>Readiness Checkpoint</h5>
-              <p>{week.readiness_checkpoint}</p>
-            </div>
-          )}
+  return (
+    <div className="sp-item-card">
+      <div className="sp-item-header" onClick={() => setExpanded(!expanded)}>
+        <div className="sp-item-icon" style={{ background: `var(${cfg.bgVar})` }}>
+          {cfg.icon}
+        </div>
+        <div className="sp-item-title-block">
+          <div className="sp-item-label" style={{ color: `var(${cfg.colorVar})` }}>
+            {cfg.label}
+          </div>
+          <div className="sp-item-title">{item.title}</div>
+        </div>
+        <span className="sp-item-chevron">{expanded ? '\u25BC' : '\u25B6'}</span>
+      </div>
+      {expanded && (
+        <div className="sp-item-body">
+          <p className="sp-item-text">{item.body}</p>
+          <div className="sp-item-cue" style={{
+            background: `var(${cfg.bgVar})`,
+            borderLeft: `3px solid var(${cfg.colorVar})`
+          }}>
+            <span className="sp-item-cue-icon">\u2192</span>
+            <span>{item.cue}</span>
+          </div>
         </div>
       )}
     </div>
