@@ -303,6 +303,16 @@
   color: #3A5C3A;
 }
 
+/* ── Orientation ── */
+.cb-orientation {
+  font-size: 11px;
+  color: var(--cb-ink-muted);
+  font-style: italic;
+  line-height: 1.55;
+  margin-bottom: 14px;
+  padding: 0 2px;
+}
+
 /* ── Card ── */
 .cb-card {
   background: var(--cb-parchment);

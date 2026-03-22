@@ -83,6 +83,10 @@ export function buildPlainTextBrief(briefData) {
   lines.push('Weekly Rider Brief — Coach Copy');
   lines.push(hr);
   lines.push('');
+  lines.push('This brief gives you a weekly view of what your student is observing');
+  lines.push('between lessons — not a replacement for your coaching, but context');
+  lines.push('that\'s yours to use however it\'s useful.');
+  lines.push('');
 
   // Identity
   lines.push(`Rider: ${briefData.riderName}`);

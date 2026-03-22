@@ -60,6 +60,8 @@ export default function CoachBriefPreview({ briefData }) {
         </div>
       )}
 
+      <p className="cb-orientation">This brief gives you a weekly view of what your student is observing between lessons — not a replacement for your coaching, but context that's yours to use however it's useful.</p>
+
       <div className="cb-card">
         {/* Identity Bar */}
         <div className="cb-identity-bar">
