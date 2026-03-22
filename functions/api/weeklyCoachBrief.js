@@ -59,21 +59,30 @@ function daysAgo(n) {
   return d;
 }
 
-function truncate(str, maxLen = 120) {
+/**
+ * Truncate at a sentence boundary (period, ! or ?) within maxLen.
+ * Prefers a complete sentence over hard character truncation.
+ */
+function truncateAtSentence(str, maxLen = 120) {
   if (!str || str.length <= maxLen) return str;
-  const cut = str.lastIndexOf(".", maxLen);
-  return str.slice(0, cut > 0 ? cut + 1 : maxLen) + (cut <= 0 ? "..." : "");
+  // Find the last sentence-ending punctuation within maxLen
+  const sub = str.slice(0, maxLen);
+  const lastPeriod = Math.max(sub.lastIndexOf("."), sub.lastIndexOf("!"), sub.lastIndexOf("?"));
+  if (lastPeriod > 20) {
+    return str.slice(0, lastPeriod + 1);
+  }
+  // No good sentence boundary — hard truncate with ellipsis
+  return str.slice(0, maxLen).trimEnd() + "\u2026";
 }
 
 function firstSentence(str) {
   if (!str) return null;
   const match = str.match(/^[^.!?]+[.!?]/);
-  return match ? match[0].trim() : truncate(str, 150);
+  return match ? match[0].trim() : truncateAtSentence(str, 150);
 }
 
 function weekOfLabel() {
   const now = new Date();
-  // Find Monday of current week
   const day = now.getDay();
   const diff = day === 0 ? -6 : 1 - day;
   const monday = new Date(now);
@@ -93,6 +102,97 @@ function weekId() {
   const monday = new Date(now);
   monday.setDate(now.getDate() + diff);
   return monday.toISOString().slice(0, 10);
+}
+
+// ── Debrief relevance filtering (§2.4) ──
+//
+// Scores debrief AHA/obstacle entries for coach-readability.
+// The coach was not present at the ride — entries must give enough
+// context to act on or connect to something the coach knows.
+
+// Dressage movement keywords for relevance detection
+const MOVEMENT_KEYWORDS = [
+  "half-halt", "half halt", "half-pass", "half pass", "shoulder-in",
+  "haunches-in", "travers", "renvers", "leg yield", "leg-yield",
+  "pirouette", "piaffe", "passage", "flying change", "simple change",
+  "counter-canter", "counter canter", "medium trot", "extended trot",
+  "collected", "volte", "turn on the haunches", "rein-back", "rein back",
+  "walk-canter", "canter-walk", "trot-canter", "canter-trot",
+  "transition", "lateral", "bend", "straightness", "impulsion",
+  "contact", "connection", "throughness", "suppleness", "rhythm",
+  "tempo", "balance", "seat", "aids", "half-halt", "diagonal",
+];
+
+function scoreDebriefEntry(text) {
+  if (!text) return -1;
+  const trimmed = text.trim();
+
+  // Exclude: too short or vague
+  if (trimmed.length < 15) return -1;
+
+  // Exclude: purely emotional without observable content
+  const vaguePatterns = [
+    /^(good|bad|hard|ok|fine|meh|ugh|yay|nice|great)\b/i,
+    /^(felt|feeling) (frustrated|happy|sad|good|bad|ok|great|tired)/i,
+    /^(that didn'?t work|better today|hard ride|something felt off)\.?$/i,
+    /^(not great|pretty good|went well)\.?$/i,
+  ];
+  for (const pat of vaguePatterns) {
+    if (pat.test(trimmed)) return -1;
+  }
+
+  let score = 0;
+
+  // High priority: references a lesson, instructor, or correction
+  if (/lesson|instructor|trainer|coach|clinic/i.test(trimmed)) score += 3;
+
+  // High priority: references a specific movement by name
+  const lowerText = trimmed.toLowerCase();
+  for (const kw of MOVEMENT_KEYWORDS) {
+    if (lowerText.includes(kw)) { score += 3; break; }
+  }
+
+  // High priority: cause-and-effect pattern
+  if (/when (i|she|he)\b/i.test(trimmed) && /(then|started|stopped|changed|improved|got|became)/i.test(trimmed)) {
+    score += 2;
+  }
+
+  // Medium priority: references horse by name (non-trivial observation)
+  if (trimmed.length >= 40) score += 1;
+
+  // Medium priority: specific enough (longer entries tend to have more detail)
+  if (trimmed.length >= 60) score += 1;
+
+  // Penalty: would lose key detail if truncated to 120 chars
+  // If the entry is >120 chars and truncating removes everything after the first period,
+  // check if the truncated version still has a movement keyword or cause-effect
+  if (trimmed.length > 120) {
+    const truncated = truncateAtSentence(trimmed, 120);
+    const truncLower = truncated.toLowerCase();
+    const hasKeyword = MOVEMENT_KEYWORDS.some((kw) => truncLower.includes(kw));
+    const hasCauseEffect = /when (i|she|he)\b/i.test(truncated);
+    if (!hasKeyword && !hasCauseEffect && score >= 3) {
+      // Truncation would remove the specific detail — skip this entry
+      return -1;
+    }
+  }
+
+  return score;
+}
+
+/**
+ * Filter and select top debrief entries for AHA or obstacle sections.
+ * Returns up to `max` entries, scored by relevance.
+ * Returns empty array if no entries score above the exclude threshold.
+ */
+function selectRelevantEntries(entries, max = 2) {
+  const scored = entries
+    .map((text) => ({ text, score: scoreDebriefEntry(text) }))
+    .filter((e) => e.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, max);
+
+  return scored.map((e) => truncateAtSentence(e.text, 120));
 }
 
 // ── Fetch helpers ──
@@ -134,24 +234,22 @@ async function handler(request) {
       riderProfiles,
       horseProfiles,
       allDebriefs,
-      recentReflections,
       recentLessonNotes,
       showPreps,
       journeyEvents,
       riderAssessments,
       gptTrajectorySnap,
-      coachingCache,
+      coachingInsightsSnap,
     ] = await Promise.all([
       fetchCollection("riderProfiles", uid),
       fetchCollection("horseProfiles", uid),
       fetchCollection("debriefs", uid),
-      fetchCollection("reflections", uid),
       fetchCollection("lessonNotes", uid),
       fetchCollection("showPreparations", uid),
       fetchCollection("journeyEvents", uid),
       fetchCollection("riderAssessments", uid),
       db.collection("analysisCache").doc(`${uid}_grandPrixTrajectory`).get(),
-      db.collection("analysisCache").doc(`${uid}_coaching_0`).get(),
+      db.collection("analysisCache").doc(`${uid}_coaching_insights`).get(),
     ]);
 
     // 3. Process each data source
@@ -176,13 +274,11 @@ async function handler(request) {
 
     const ridesLast30 = sortedDebriefs.filter((d) => d._date >= thirtyDaysAgo).length;
 
-    // -- Check activity: skip if no entries in 14 days
+    // -- Check activity
     const fourteenDaysAgo = daysAgo(14);
     const hasRecentActivity = sortedDebriefs.some((d) => d._date >= fourteenDaysAgo);
-    // Note: we still generate even without recent activity for manual sends,
-    // but flag it so the brief can show a note
 
-    // -- GPT Trajectory (L2 cached)
+    // -- GPT Trajectory (L2 cached) — §2.3
     let activePath = null;
     let activePathLabel = null;
     let activePathClass = null;
@@ -192,23 +288,46 @@ async function handler(request) {
       const gptData = gptTrajectorySnap.data();
       const result = gptData.result || {};
 
+      // Primary: activePath top-level field (post-redesign)
       activePath = result.activePath || null;
+
+      // Fallback: if activePath is absent, find path where isBestFit === true
+      if (!activePath && result.trajectoryPaths?.paths) {
+        const bestFit = result.trajectoryPaths.paths.find((p) => p.isBestFit);
+        if (bestFit) {
+          // Map path name back to key
+          const nameMap = {
+            "Ambitious Competitor": "ambitious_competitor",
+            "Steady Builder": "steady_builder",
+            "Curious Explorer": "curious_explorer",
+          };
+          activePath = nameMap[bestFit.name] || null;
+        }
+      }
+
       activePathLabel = PATH_LABELS[activePath] || null;
       activePathClass = PATH_CSS_CLASS[activePath] || null;
 
-      // Extract trajectory snippet (first sentence of the recommended path narrative)
-      if (result.pathNarratives?.recommended_path) {
-        const recPath = result.pathNarratives.recommended_path;
-        const narrativeText =
-          recPath.trajectory_summary ||
-          recPath.summary ||
-          recPath.narrative ||
-          "";
-        trajectorySnippet = firstSentence(narrativeText);
+      // Extract trajectory snippet — first sentence of the path narrative
+      // Primary: pathNarratives.recommended_path.narrative
+      if (result.pathNarratives?.recommended_path?.narrative) {
+        trajectorySnippet = firstSentence(result.pathNarratives.recommended_path.narrative);
+      }
+
+      // Fallback: philosophy of the active path
+      if (!trajectorySnippet && activePath && result.trajectoryPaths?.paths) {
+        const matchedPath = result.trajectoryPaths.paths.find((p) => p.isBestFit) ||
+          result.trajectoryPaths.paths.find((p) =>
+            (p.name || "").toLowerCase().replace(/\s+/g, "_") ===
+            activePath
+          );
+        if (matchedPath?.philosophy) {
+          trajectorySnippet = firstSentence(matchedPath.philosophy);
+        }
       }
     }
 
-    // -- Growth edge: most recent riderAssessment growthAreas[0], fallback debrief challenges
+    // -- Growth edge (§2.2): most recent riderAssessment growthAreas[0], fallback debrief challenges
     let growthEdge = null;
     if (riderAssessments.length > 0) {
       const sorted = [...riderAssessments].sort(
@@ -220,52 +339,73 @@ async function handler(request) {
       }
     }
     if (!growthEdge && sortedDebriefs.length > 0) {
-      // Fallback: most recent debrief challenge
       const withChallenge = sortedDebriefs.find((d) => d.challenges?.trim());
       if (withChallenge) {
-        growthEdge = truncate(withChallenge.challenges, 200);
+        growthEdge = truncateAtSentence(withChallenge.challenges, 200);
       }
     }
 
-    // -- AI Coach Insight (cached multi-voice coaching)
+    // -- AI Coach Insight (§2.1) — extract from cached multi-voice coaching
+    //
+    // Actual cache structure (from coaching.js):
+    //   coaching_insights cache contains quickInsights with:
+    //     priority_this_week, celebration, top_patterns[], practiceCard
+    //   coaching_0..3 caches contain per-voice results with:
+    //     narrative (300-400 words), weeklyFocusExcerpt (2-3 sentences), _meta
+    //
+    // There is no "dominant voice" concept — all 4 voices generate in parallel.
+    // For the brief we use quickInsights.priority_this_week as the most concise
+    // coaching-relevant snippet. If absent, fall back to voice 0's weeklyFocusExcerpt.
     let aiCoachInsight = null;
-    if (coachingCache.exists) {
-      const cacheData = coachingCache.data();
-      const generatedAt = cacheData.generatedAt
-        ? new Date(cacheData.generatedAt)
-        : null;
 
-      // Only use if < 30 days old
+    if (coachingInsightsSnap.exists) {
+      const insightsData = coachingInsightsSnap.data();
+      const generatedAt = insightsData.generatedAt
+        ? new Date(insightsData.generatedAt)
+        : null;
       const isStale =
         generatedAt && Date.now() - generatedAt.getTime() > 30 * 24 * 60 * 60 * 1000;
 
-      if (!isStale && cacheData.result) {
-        const voiceResult = cacheData.result;
-        // Extract a summary snippet from the coaching output
-        const snippet =
-          voiceResult.topInsight ||
-          voiceResult.keyObservation ||
-          voiceResult.summary ||
-          voiceResult.mainInsight ||
-          null;
-
-        // Voice names by index
-        const voiceNames = [
-          "The Classical Master",
-          "The Empathetic Coach",
-          "The Technical Coach",
-          "The Practical Strategist",
-        ];
-        const voiceIndex = cacheData.voiceIndex ?? 0;
-        const voiceName = voiceNames[voiceIndex];
+      if (!isStale && insightsData.result) {
+        const qi = insightsData.result;
+        const snippet = qi.priority_this_week || null;
 
         if (snippet) {
           aiCoachInsight = {
-            voiceName,
-            voiceIndex,
-            snippet: truncate(snippet, 300),
-            rationale: voiceResult.selectionRationale || voiceResult.rationale || null,
+            voiceName: "Combined Coaching Insight",
+            voiceIndex: null,
+            snippet: truncateAtSentence(snippet, 300),
+            rationale: qi.celebration || null,
           };
+        }
+      }
+    }
+
+    // Fallback: try individual voice cache (voice 0 — Classical Master)
+    if (!aiCoachInsight) {
+      const voice0Snap = await db.collection("analysisCache").doc(`${uid}_coaching_0`).get();
+      if (voice0Snap.exists) {
+        const v0Data = voice0Snap.data();
+        const generatedAt = v0Data.generatedAt ? new Date(v0Data.generatedAt) : null;
+        const isStale =
+          generatedAt && Date.now() - generatedAt.getTime() > 30 * 24 * 60 * 60 * 1000;
+
+        if (!isStale && v0Data.result) {
+          const voiceResult = v0Data.result;
+          const snippet =
+            voiceResult.weeklyFocusExcerpt ||
+            voiceResult.philosophical_reflection ||
+            null;
+          const meta = voiceResult._meta || {};
+
+          if (snippet) {
+            aiCoachInsight = {
+              voiceName: meta.name || "The Classical Master",
+              voiceIndex: meta.index ?? 0,
+              snippet: truncateAtSentence(snippet, 300),
+              rationale: meta.perspective || null,
+            };
+          }
         }
       }
     }
@@ -290,23 +430,14 @@ async function handler(request) {
       }
     }
 
-    // -- AHA moments (30 days)
-    const ahas = recentReflections
-      .filter((r) => {
-        const d = new Date(toISODate(r.createdAt) || 0);
-        return r.category === "aha" && d >= thirtyDaysAgo;
-      })
-      .sort((a, b) => new Date(toISODate(b.createdAt) || 0) - new Date(toISODate(a.createdAt) || 0))
-      .map((r) => truncate(r.mainReflection, 120));
+    // -- AHA moments (30 days) — from post-ride debriefs with relevance filter (§2.4)
+    const recentDebriefs = sortedDebriefs.filter((d) => d._date >= thirtyDaysAgo);
+    const ahaRaw = recentDebriefs.map((d) => d.ahaRealization).filter(Boolean);
+    const ahas = selectRelevantEntries(ahaRaw, 2);
 
-    // -- Obstacles (30 days)
-    const obstacles = recentReflections
-      .filter((r) => {
-        const d = new Date(toISODate(r.createdAt) || 0);
-        return r.category === "obstacle" && d >= thirtyDaysAgo;
-      })
-      .sort((a, b) => new Date(toISODate(b.createdAt) || 0) - new Date(toISODate(a.createdAt) || 0))
-      .map((r) => truncate(r.mainReflection, 120));
+    // -- Obstacles (30 days) — from post-ride debriefs with relevance filter (§2.4)
+    const obstacleRaw = recentDebriefs.map((d) => d.challenges).filter(Boolean);
+    const obstacles = selectRelevantEntries(obstacleRaw, 2);
 
     // -- Show prep: flagged concerns + show details
     let showPrepData = null;
@@ -386,10 +517,10 @@ async function handler(request) {
       // Show prep
       showPrepData,
 
-      // Lessons & reflections
+      // Lessons & debrief insights
       lessonTakeaways: lessonTakeaways.slice(0, 5),
-      ahas: ahas.slice(0, 3),
-      obstacles: obstacles.slice(0, 3),
+      ahas,
+      obstacles,
 
       // Upcoming event
       upcomingEvent,
