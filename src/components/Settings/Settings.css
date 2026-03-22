@@ -361,6 +361,24 @@
 }
 .coach-remove-btn:hover { color: var(--s-danger); }
 
+.coach-brief-link-row {
+  padding-top: 10px;
+  border-top: 1px solid var(--s-rule);
+  margin-top: 10px;
+}
+.coach-brief-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8em;
+  font-weight: 600;
+  color: var(--s-gold);
+  text-decoration: none;
+  letter-spacing: 0.03em;
+  transition: color var(--s-transition);
+}
+.coach-brief-link:hover { color: var(--s-gold-light); }
+
 /* ── Add coach form ── */
 .add-coach-form {
   margin-top: 16px;

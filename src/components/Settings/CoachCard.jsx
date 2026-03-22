@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   toggleCoachSharing,
   removeCoach as removeCoachFromFirestore,
@@ -91,6 +92,13 @@ export default function CoachCard({ coach, userId, showToast, onRemoved, onUpdat
           <span className="settings-toggle-slider" />
         </label>
       </div>
+      {coach.sharingEnabled && (
+        <div className="coach-brief-link-row">
+          <Link to="/coach-brief" className="coach-brief-link">
+            View & Send Weekly Brief {'\u2192'}
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

@@ -33,6 +33,7 @@ const firstGlimpse = require("./api/firstGlimpse");
 const waitlist = require("./api/waitlist");
 const adminStats = require("./api/adminStats");
 const arenaCoaching = require("./api/arenaCoaching");
+const weeklyCoachBrief = require("./api/weeklyCoachBrief");
 
 // Secrets — declared once, referenced by all AI functions
 const anthropicKey = defineSecret("ANTHROPIC_API_KEY");
@@ -119,6 +120,13 @@ exports.getPhysicalGuidance = onCall(
 exports.arenaCoaching = onRequest(
   { secrets: [anthropicKey], timeoutSeconds: 30, memory: "256MiB" },
   arenaCoaching.handler
+);
+
+// --- Weekly Coach Brief (no AI call — data assembly only) ---
+// Input: none (uses authenticated user's data)
+exports.generateWeeklyCoachBrief = onCall(
+  { timeoutSeconds: 30, memory: "256MiB" },
+  weeklyCoachBrief.handler
 );
 
 // --- Cache Warming ---

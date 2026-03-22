@@ -59,6 +59,9 @@ import ToolkitForm from './components/RiderToolkit/ToolkitForm';
 // Settings
 import Settings from './components/Settings/Settings';
 
+// Coach Brief
+import CoachBriefPage from './components/CoachBrief/CoachBriefPage';
+
 // Learn
 import TestExplorer from './components/TestExplorer/TestExplorer';
 import './App.css';
@@ -159,6 +162,9 @@ function App() {
 
             {/* Settings */}
             <Route path="/settings" element={<Settings />} />
+
+            {/* Coach Brief */}
+            <Route path="/coach-brief" element={<CoachBriefPage />} />
 
             {/* Learn */}
             <Route path="/learn/test-explorer" element={<TestExplorer />} />
