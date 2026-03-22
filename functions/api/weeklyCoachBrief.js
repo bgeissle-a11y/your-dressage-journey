@@ -30,6 +30,27 @@ const COMP_LEVEL_LABELS = {
   "grand-prix": "Grand Prix",
 };
 
+// ── Show-prep concerns normalizer ──
+
+function extractCoachBriefConcerns(concerns) {
+  if (Array.isArray(concerns)) return concerns.filter(Boolean);
+  if (concerns && typeof concerns === "object") {
+    const items = [];
+    if (Array.isArray(concerns.flaggedByTest)) {
+      concerns.flaggedByTest.forEach((entry) => {
+        (entry.flaggedItems || []).forEach((item) => {
+          items.push(item.text || item.id);
+        });
+      });
+    }
+    if (Array.isArray(concerns.additionalConcerns)) {
+      items.push(...concerns.additionalConcerns);
+    }
+    return items.filter(Boolean);
+  }
+  return [];
+}
+
 // ── Rider-type chip labels ──
 
 const PATH_LABELS = {
@@ -455,7 +476,7 @@ async function handler(request) {
           showName: latest.showName || null,
           showDateStart: latest.showDateStart,
           daysOut,
-          concerns: (latest.concerns || []).filter(Boolean),
+          concerns: extractCoachBriefConcerns(latest.concerns),
           testsSelected: latest.testsSelected || [],
           currentLevel: latest.currentLevel || null,
         };

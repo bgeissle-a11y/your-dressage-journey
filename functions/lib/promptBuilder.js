@@ -2450,6 +2450,26 @@ function condenseEPPriorResults(priorResults) {
  * @param {object} priorResults - { testRequirements?, readinessAnalysis?, preparationPlan? }
  * @returns {{ system: string, userMessage: string }}
  */
+function extractConcernsArray(concerns) {
+  if (Array.isArray(concerns)) return concerns;
+  if (concerns && typeof concerns === "object") {
+    const items = [];
+    // Flatten flaggedByTest entries into text descriptions
+    if (Array.isArray(concerns.flaggedByTest)) {
+      concerns.flaggedByTest.forEach(entry => {
+        (entry.flaggedItems || []).forEach(item => {
+          items.push(`[Flagged movement${entry.testId ? ` - ${entry.testId}` : ""}] ${item.text || item.id}${item.coeff ? " (coefficient)" : ""}`);
+        });
+      });
+    }
+    if (Array.isArray(concerns.additionalConcerns)) {
+      items.push(...concerns.additionalConcerns);
+    }
+    return items;
+  }
+  return [];
+}
+
 function buildEventPlannerPrompt(callIndex, riderData, eventPrepPlan, detailedTestContext, priorResults) {
   let system, userMessage;
 
@@ -2471,7 +2491,7 @@ function buildEventPlannerPrompt(callIndex, riderData, eventPrepPlan, detailedTe
         challenges: eventPrepPlan.currentChallenges || "",
         progress: eventPrepPlan.recentProgress || "",
         goals: eventPrepPlan.goals || [],
-        concerns: eventPrepPlan.concerns || []
+        concerns: extractConcernsArray(eventPrepPlan.concerns)
       }]
     : (eventPrepPlan.horses && eventPrepPlan.horses.length > 0)
       ? eventPrepPlan.horses
@@ -2483,7 +2503,7 @@ function buildEventPlannerPrompt(callIndex, riderData, eventPrepPlan, detailedTe
           challenges: eventPrepPlan.currentChallenges || "",
           progress: eventPrepPlan.recentProgress || "",
           goals: eventPrepPlan.goals || [],
-          concerns: eventPrepPlan.concerns || []
+          concerns: extractConcernsArray(eventPrepPlan.concerns)
         }];
   const primaryHorse = horses[0];
   const horseName = primaryHorse.horseName || "the horse";
