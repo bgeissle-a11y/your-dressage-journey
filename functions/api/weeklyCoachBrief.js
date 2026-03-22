@@ -478,7 +478,7 @@ async function handler(request) {
           daysOut,
           concerns: extractCoachBriefConcerns(latest.concerns),
           testsSelected: latest.testsSelected || [],
-          currentLevel: latest.currentLevel || null,
+          currentLevel: latest.currentLevel || latest.horse?.currentLevel || null,
         };
       }
     }

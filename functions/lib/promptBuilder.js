@@ -2484,10 +2484,10 @@ function buildEventPlannerPrompt(callIndex, riderData, eventPrepPlan, detailedTe
   // Normalize to a single-horse block for show preps, or multi-horse for legacy
   const horses = isShowPrep
     ? [{
-        horseName: eventPrepPlan.horseName || riderData.horseSummaries?.[0]?.name || "the horse",
-        currentLevel: eventPrepPlan.currentLevel || "",
-        targetLevel: eventPrepPlan.currentLevel || "",
-        experience: eventPrepPlan.showExperience || "",
+        horseName: eventPrepPlan.horseName || eventPrepPlan.horse?.name || riderData.horseSummaries?.[0]?.name || "the horse",
+        currentLevel: eventPrepPlan.currentLevel || eventPrepPlan.horse?.currentLevel || "",
+        targetLevel: eventPrepPlan.currentLevel || eventPrepPlan.horse?.currentLevel || "",
+        experience: eventPrepPlan.showExperience || eventPrepPlan.horse?.showExperience || "",
         challenges: eventPrepPlan.currentChallenges || "",
         progress: eventPrepPlan.recentProgress || "",
         goals: eventPrepPlan.goals || [],

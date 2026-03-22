@@ -139,11 +139,15 @@ async function handler(request) {
     // Common setup
     const isShowPrep = Boolean(showPrepPlanId);
     const cacheKey = `${isShowPrep ? "showPlanner" : "eventPlanner"}_${planId}`;
-    // Support show prep (single horse), multi-horse (v2), and single-horse (v1) formats
-    const primaryHorse = (eventPrepPlan.horses && eventPrepPlan.horses[0]) || {};
-    const targetLevel =
-      primaryHorse.targetLevel || primaryHorse.currentLevel ||
-      eventPrepPlan.targetLevel || eventPrepPlan.currentLevel || "Training";
+    // Resolve target level — show preps store level in both flat and nested fields
+    const targetLevel = isShowPrep
+      ? (eventPrepPlan.currentLevel || eventPrepPlan.horse?.currentLevel || "Training")
+      : (() => {
+          const primaryHorse = (eventPrepPlan.horses && eventPrepPlan.horses[0]) || {};
+          return primaryHorse.targetLevel || primaryHorse.currentLevel ||
+            eventPrepPlan.targetLevel || eventPrepPlan.currentLevel || "Training";
+        })();
+    console.log(`[eventPlanner] Resolved targetLevel: "${targetLevel}" (isShowPrep: ${isShowPrep}, flat: "${eventPrepPlan.currentLevel || ""}", nested: "${eventPrepPlan.horse?.currentLevel || ""}")`);
     const detailedTestContext = buildDetailedTestContext(targetLevel);
 
     // --- STEP 1: Test Requirements Assembly ---
