@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import useCacheWarmth from '../../hooks/useCacheWarmth';
@@ -121,6 +121,21 @@ export default function AppLayout() {
   const location = useLocation();
   const navRef = useRef(null);
 
+  // Theme toggle
+  const [theme, setTheme] = useState(() => {
+    const saved = localStorage.getItem('ydj-theme');
+    return saved || 'light';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('ydj-theme', theme);
+  }, [theme]);
+
+  function toggleTheme() {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  }
+
   // Add body class so child pages can detect layout context
   useEffect(() => {
     document.body.classList.add('app-layout-active');
@@ -231,6 +246,11 @@ export default function AppLayout() {
         <div className="nav-item">
           <Link to="/tips-and-faq" className={`nav-btn nav-help${isActive('/tips-and-faq') ? ' active' : ''}`}>? Help</Link>
         </div>
+
+        {/* Theme toggle */}
+        <button className="nav-btn nav-theme-toggle" onClick={toggleTheme} title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}>
+          {theme === 'light' ? '\u263D' : '\u2600'}
+        </button>
       </nav>
 
       <main className="main-content">

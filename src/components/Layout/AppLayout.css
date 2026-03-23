@@ -99,6 +99,15 @@
 }
 .nav-btn.nav-help:hover { color: rgba(255,255,255,0.72); }
 
+/* Theme toggle */
+.nav-theme-toggle {
+  font-size: 1rem; padding: 0 0.5rem;
+  color: var(--nav-text, rgba(255,255,255,0.58));
+  opacity: 0.7; transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+.nav-theme-toggle:hover { opacity: 1; }
+
 /* Separators & spacer */
 .nav-sep {
   width: 1px; background: var(--nav-sep, rgba(255,255,255,0.12));

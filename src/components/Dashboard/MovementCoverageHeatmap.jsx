@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebase-config';
 import { MOVEMENT_CATEGORIES } from '../../services/debriefService';
@@ -24,17 +24,25 @@ export default function MovementCoverageHeatmap() {
 
     async function fetchData() {
       try {
-        const q = query(
-          collection(db, `users/${currentUser.uid}/debriefs`),
-          orderBy('submittedAt', 'desc'),
-          limit(12)
-        );
-        const snap = await getDocs(q);
-        const docs = snap.docs.map(d => d.data());
-        setDebriefCount(docs.length);
+        // Fetch all debriefs, sort client-side (no orderBy to avoid composite index)
+        const snap = await getDocs(collection(db, `users/${currentUser.uid}/debriefs`));
+        const allDocs = snap.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .filter(d => !d.isDeleted);
+
+        // Sort by submittedAt descending, take last 12
+        allDocs.sort((a, b) => {
+          const aTime = a.submittedAt?.toDate ? a.submittedAt.toDate().getTime()
+            : a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
+          const bTime = b.submittedAt?.toDate ? b.submittedAt.toDate().getTime()
+            : b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
+          return bTime - aTime;
+        });
+        const recent = allDocs.slice(0, 12);
+        setDebriefCount(recent.length);
 
         const tagCounts = {};
-        docs.forEach(debrief => {
+        recent.forEach(debrief => {
           (debrief.movements || []).forEach(tag => {
             tagCounts[tag] = (tagCounts[tag] || 0) + 1;
           });

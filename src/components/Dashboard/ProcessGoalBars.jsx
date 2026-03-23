@@ -1,9 +1,18 @@
 import { useState, useEffect } from 'react';
-import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebase-config';
 
 const BAR_COLORS = ['#b8862a', '#3d6b46', '#2e5c82', '#7a3f72', '#8b6340'];
+
+/* Helper: extract timestamp as ms number */
+function toMs(ts) {
+  if (!ts) return 0;
+  if (ts.toDate) return ts.toDate().getTime();
+  if (typeof ts === 'string') return new Date(ts).getTime();
+  if (typeof ts === 'number') return ts;
+  return 0;
+}
 
 export default function ProcessGoalBars() {
   const { currentUser } = useAuth();
@@ -15,31 +24,17 @@ export default function ProcessGoalBars() {
 
     async function fetchData() {
       try {
-        // Fetch last 20 debriefs with prevGoalRatings
-        const q = query(
-          collection(db, `users/${currentUser.uid}/debriefs`),
-          where('prevGoalRatings', '!=', null),
-          orderBy('prevGoalRatings'),
-          orderBy('submittedAt', 'desc'),
-          limit(20)
-        );
-        const snap = await getDocs(q);
-        const docs = snap.docs.map(d => d.data());
+        // Fetch all debriefs, filter and sort client-side (no orderBy/where)
+        const snap = await getDocs(collection(db, `users/${currentUser.uid}/debriefs`));
+        const allDocs = snap.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .filter(d => !d.isDeleted);
 
-        if (docs.length === 0) {
-          setGoalData(null);
-          setLoading(false);
-          return;
-        }
+        // Sort by submittedAt descending
+        allDocs.sort((a, b) => toMs(b.submittedAt) - toMs(a.submittedAt));
 
-        // Also fetch the most recent debrief to find current goals
-        const recentQ = query(
-          collection(db, `users/${currentUser.uid}/debriefs`),
-          orderBy('submittedAt', 'desc'),
-          limit(1)
-        );
-        const recentSnap = await getDocs(recentQ);
-        const mostRecent = recentSnap.docs[0]?.data() || {};
+        // The most recent debrief (for current goal detection)
+        const mostRecent = allDocs[0] || {};
         const currentGoalTexts = new Set();
         ['processGoal1', 'processGoal2', 'processGoal3'].forEach(key => {
           const val = mostRecent[key];
@@ -48,9 +43,20 @@ export default function ProcessGoalBars() {
           }
         });
 
+        // Filter to debriefs with prevGoalRatings, take first 20
+        const withRatings = allDocs
+          .filter(d => d.prevGoalRatings && typeof d.prevGoalRatings === 'object')
+          .slice(0, 20);
+
+        if (withRatings.length === 0) {
+          setGoalData(null);
+          setLoading(false);
+          return;
+        }
+
         // Group by goal text
         const goalMap = {};
-        docs.forEach(debrief => {
+        withRatings.forEach(debrief => {
           const ratings = debrief.prevGoalRatings || {};
           ['goal1', 'goal2', 'goal3'].forEach(key => {
             const entry = ratings[key];
@@ -68,11 +74,7 @@ export default function ProcessGoalBars() {
 
         // Sort by most recently seen, cap at 5
         const sorted = Object.values(goalMap)
-          .sort((a, b) => {
-            const aTime = a.lastSeen?.toDate ? a.lastSeen.toDate().getTime() : (a.lastSeen || 0);
-            const bTime = b.lastSeen?.toDate ? b.lastSeen.toDate().getTime() : (b.lastSeen || 0);
-            return bTime - aTime;
-          })
+          .sort((a, b) => toMs(b.lastSeen) - toMs(a.lastSeen))
           .slice(0, 5);
 
         // Mark current vs previous
@@ -82,7 +84,7 @@ export default function ProcessGoalBars() {
           isCurrent: currentGoalTexts.has(g.text),
         }));
 
-        setGoalData({ goals: result, rideCount: docs.length });
+        setGoalData({ goals: result, rideCount: withRatings.length });
       } catch (err) {
         console.warn('ProcessGoalBars fetch error:', err);
         setGoalData(null);
