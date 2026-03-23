@@ -1,88 +1,126 @@
-import { useState } from 'react';
-import CollapsibleSection from '../AICoaching/CollapsibleSection';
+import { useState, useCallback, useRef } from 'react';
 
 const SECTION_CFG = {
   mental: {
-    key: 'mental',
-    label: 'Mental / Emotional',
-    icon: '\u{1F9E0}',
-    colorVar: '--mental-color',
-    bgVar: '--mental-bg',
-    borderVar: '--mental-border',
+    key: 'mental', label: 'Mental / Emotional', icon: '\u{1F9E0}', prefix: 'm',
+    dotClass: 'sp-dot-mental', labelClass: 'sp-label-mental',
+    iconClass: 'sp-icon-mental', cueClass: 'sp-cue-mental', logClass: 'sp-log-mental',
   },
   technical: {
-    key: 'technical',
-    label: 'Technical',
-    icon: '\u{1F3C7}',
-    colorVar: '--tech-color',
-    bgVar: '--tech-bg',
-    borderVar: '--tech-border',
+    key: 'technical', label: 'Technical', icon: '\u{1F3C7}', prefix: 't',
+    dotClass: 'sp-dot-tech', labelClass: 'sp-label-tech',
+    iconClass: 'sp-icon-tech', cueClass: 'sp-cue-tech', logClass: 'sp-log-tech',
   },
   physical: {
-    key: 'physical',
-    label: 'Physical / Kinesthetic',
-    icon: '\u{1F33F}',
-    colorVar: '--body-color',
-    bgVar: '--body-bg',
-    borderVar: '--body-border',
+    key: 'physical', label: 'Physical / Kinesthetic', icon: '\u{1F33F}', prefix: 'p',
+    dotClass: 'sp-dot-body', labelClass: 'sp-label-body',
+    iconClass: 'sp-icon-body', cueClass: 'sp-cue-body', logClass: 'sp-log-body',
   },
 };
 
+const SECTION_KEYS = ['mental', 'technical', 'physical'];
+
+function todayStr() {
+  return new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
 /**
- * Renders the week-by-week preparation plan with 3 sections per week:
- * Mental, Technical, Physical — each with title/body/cue items.
+ * Full interactive preparation plan matching ydj-show-planner-v3.html reference.
+ * Features: week switching, drag-reorder sections, pin/check/log-practice, pinned bar.
  */
 export default function PreparationPlanDisplay({ data }) {
   const [activeWeek, setActiveWeek] = useState(data.weeks?.[0]?.week_number || 1);
+  const [sectionOrder, setSectionOrder] = useState(SECTION_KEYS);
+  const [pins, setPins] = useState({});
+  const [checks, setChecks] = useState({});
+  const [logs, setLogs] = useState({});
+  const [collapsed, setCollapsed] = useState({});
+  const [cardTitles, setCardTitles] = useState({});
+  const dragSrc = useRef(null);
+
   const totalWeeks = data.total_weeks || data.weeks?.length || 0;
   const week = data.weeks?.find(w => w.week_number === activeWeek) || data.weeks?.[0];
+  const progress = totalWeeks > 0 ? Math.round(((totalWeeks - activeWeek + 1) / totalWeeks) * 100) : 0;
+
+  // Pin/check/log handlers
+  const togglePin = useCallback((id, title) => {
+    setPins(prev => ({ ...prev, [id]: !prev[id] }));
+    setCardTitles(prev => ({ ...prev, [id]: title }));
+  }, []);
+
+  const toggleCheck = useCallback((id) => {
+    setChecks(prev => ({ ...prev, [id]: !prev[id] }));
+  }, []);
+
+  const logPractice = useCallback((id) => {
+    const today = todayStr();
+    setLogs(prev => {
+      const existing = prev[id] || [];
+      if (existing.includes(today)) return prev;
+      return { ...prev, [id]: [...existing, today] };
+    });
+  }, []);
+
+  const toggleCollapse = useCallback((key) => {
+    setCollapsed(prev => ({ ...prev, [key]: !prev[key] }));
+  }, []);
+
+  // Drag handlers for section reordering
+  const onDragStart = useCallback((key) => {
+    dragSrc.current = key;
+  }, []);
+
+  const onDrop = useCallback((targetKey) => {
+    if (!dragSrc.current || dragSrc.current === targetKey) return;
+    setSectionOrder(prev => {
+      const next = [...prev];
+      const srcIdx = next.indexOf(dragSrc.current);
+      const tgtIdx = next.indexOf(targetKey);
+      next.splice(srcIdx, 1);
+      next.splice(tgtIdx, 0, dragSrc.current);
+      return next;
+    });
+    dragSrc.current = null;
+  }, []);
+
+  // Pinned items list
+  const pinnedItems = Object.entries(pins)
+    .filter(([, v]) => v)
+    .map(([id]) => cardTitles[id])
+    .filter(Boolean);
+
+  if (!week) return null;
 
   return (
-    <CollapsibleSection
-      title={`Preparation Plan \u2014 ${totalWeeks} Weeks`}
-      icon="&#x1F4C5;"
-      defaultOpen
-    >
-      <div className="sp-plan">
-        {/* Summary */}
-        {data.plan_summary && (
-          <div className="sp-plan-summary">
-            <p>{data.plan_summary}</p>
-          </div>
-        )}
+    <div className="sp-plan">
+      {/* Summary */}
+      {data.plan_summary && (
+        <div className="sp-plan-summary">
+          <p>{data.plan_summary}</p>
+        </div>
+      )}
 
-        {/* Week chips */}
-        {data.weeks && data.weeks.length > 1 && (
-          <div className="sp-week-chips">
-            {data.weeks.map(w => (
-              <button
-                key={w.week_number}
-                className={`sp-week-chip${w.week_number === activeWeek ? ' active' : ''}`}
-                onClick={() => setActiveWeek(w.week_number)}
-              >
-                {w.week_number === 1 ? 'Show Wk' : `Wk ${w.week_number}`}
-              </button>
-            ))}
-          </div>
-        )}
+      {/* Week chips */}
+      {data.weeks && data.weeks.length > 1 && (
+        <div className="sp-week-chips">
+          {data.weeks.map(w => (
+            <button
+              key={w.week_number}
+              className={`sp-week-chip${w.week_number === activeWeek ? ' active' : ''}`}
+              onClick={() => setActiveWeek(w.week_number)}
+            >
+              {w.week_number === 1 ? 'Show Wk' : `Wk ${w.week_number}`}
+            </button>
+          ))}
+        </div>
+      )}
 
-        {/* Active week content */}
-        {week && <WeekContent week={week} totalWeeks={totalWeeks} />}
-      </div>
-    </CollapsibleSection>
-  );
-}
-
-function WeekContent({ week, totalWeeks }) {
-  const progress = totalWeeks > 0 ? Math.round(((totalWeeks - week.week_number + 1) / totalWeeks) * 100) : 0;
-
-  return (
-    <div className="sp-week">
+      {/* Week header */}
       <div className="sp-week-header">
         <div>
           <div className="sp-week-heading">
-            {week.week_number === 1 ? 'Show Week' : `Week ${week.week_number}`}
-            {week.theme && <span className="sp-week-theme"> \u00b7 {week.theme}</span>}
+            {week.week_number === 1 ? 'Show Week!' : `Week ${week.week_number}`}
+            {week.theme && <span className="sp-week-theme"> &middot; {week.theme}</span>}
           </div>
           {week.primary_focus && (
             <div className="sp-week-focus">{week.primary_focus}</div>
@@ -96,14 +134,49 @@ function WeekContent({ week, totalWeeks }) {
         </div>
       </div>
 
+      {/* Pinned bar */}
+      {pinnedItems.length > 0 && (
+        <div className="sp-pinned-bar">
+          <div className="sp-pinned-label">{'\u{1F4CC}'} Pinned This Week</div>
+          <div className="sp-pinned-list">
+            {pinnedItems.map((title, i) => (
+              <span key={i} className="sp-pinned-tag">{'\u{1F4CC}'} {title}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Reorder hint */}
+      <div className="sp-reorder-hint">{'\u2807'} Drag sections into your preferred order</div>
+
+      {/* Sections */}
       <div className="sp-sections">
-        {['mental', 'technical', 'physical'].map(key => {
+        {sectionOrder.map(key => {
           const items = week[key] || [];
           if (items.length === 0) return null;
-          return <SectionBlock key={key} sectionKey={key} items={items} />;
+          const cfg = SECTION_CFG[key];
+          return (
+            <SectionBlock
+              key={key}
+              cfg={cfg}
+              items={items}
+              weekNum={activeWeek}
+              collapsed={!!collapsed[key]}
+              onToggleCollapse={() => toggleCollapse(key)}
+              pins={pins}
+              checks={checks}
+              logs={logs}
+              onTogglePin={togglePin}
+              onToggleCheck={toggleCheck}
+              onLogPractice={logPractice}
+              onDragStart={() => onDragStart(key)}
+              onDrop={() => onDrop(key)}
+            />
+          );
         })}
       </div>
 
+      {/* Readiness checkpoint */}
       {week.readiness_checkpoint && (
         <div className="sp-checkpoint">
           <div className="sp-checkpoint-label">End-of-Week Check</div>
@@ -114,62 +187,112 @@ function WeekContent({ week, totalWeeks }) {
   );
 }
 
-function SectionBlock({ sectionKey, items }) {
-  const cfg = SECTION_CFG[sectionKey];
-  const [collapsed, setCollapsed] = useState(false);
+
+function SectionBlock({
+  cfg, items, weekNum, collapsed, onToggleCollapse,
+  pins, checks, logs, onTogglePin, onToggleCheck, onLogPractice,
+  onDragStart, onDrop,
+}) {
+  const [dragOver, setDragOver] = useState(false);
+  const [dragging, setDragging] = useState(false);
 
   return (
-    <div className="sp-section-block">
-      <div
-        className="sp-section-header"
-        onClick={() => setCollapsed(!collapsed)}
-        role="button"
-        tabIndex={0}
-      >
-        <span className="sp-section-dot" style={{ background: `var(${cfg.colorVar})` }} />
-        <span className="sp-section-label" style={{ color: `var(${cfg.colorVar})` }}>
-          {cfg.label}
-        </span>
-        <span className="sp-section-count">{items.length} items</span>
-        <span className="sp-section-chevron">{collapsed ? '\u25B6' : '\u25BC'}</span>
+    <div
+      className={`sp-section-block${dragOver ? ' sp-drag-over' : ''}${dragging ? ' sp-dragging' : ''}`}
+      draggable
+      onDragStart={(e) => { setDragging(true); e.dataTransfer.effectAllowed = 'move'; onDragStart(); }}
+      onDragEnd={() => { setDragging(false); setDragOver(false); }}
+      onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+      onDragLeave={() => setDragOver(false)}
+      onDrop={(e) => { e.preventDefault(); setDragOver(false); onDrop(); }}
+    >
+      <div className="sp-section-drag-header">
+        <span className="sp-drag-grip">{'\u2807'}</span>
+        <div className={`sp-section-dot ${cfg.dotClass}`} />
+        <div className={`sp-section-label ${cfg.labelClass}`}>{cfg.label}</div>
+        <div className="sp-section-count">{items.length} items</div>
+        <button
+          className="sp-section-collapse-btn"
+          onClick={(e) => { e.stopPropagation(); onToggleCollapse(); }}
+          title={collapsed ? 'Expand' : 'Collapse'}
+        >
+          {collapsed ? '\u25B6' : '\u25BC'}
+        </button>
       </div>
       {!collapsed && (
         <div className="sp-section-items">
-          {items.map((item, i) => (
-            <ItemCard key={i} item={item} cfg={cfg} />
-          ))}
+          {items.map((item, i) => {
+            const id = `${cfg.prefix}_w${weekNum}_${i}`;
+            return (
+              <ItemCard
+                key={id}
+                id={id}
+                item={item}
+                cfg={cfg}
+                pinned={!!pins[id]}
+                checked={!!checks[id]}
+                logDates={logs[id] || []}
+                onTogglePin={onTogglePin}
+                onToggleCheck={onToggleCheck}
+                onLogPractice={onLogPractice}
+              />
+            );
+          })}
         </div>
       )}
     </div>
   );
 }
 
-function ItemCard({ item, cfg }) {
-  const [expanded, setExpanded] = useState(true);
+
+function ItemCard({ id, item, cfg, pinned, checked, logDates, onTogglePin, onToggleCheck, onLogPractice }) {
+  const [bodyOpen, setBodyOpen] = useState(!checked);
+  const today = todayStr();
+  const loggedToday = logDates.includes(today);
 
   return (
-    <div className="sp-item-card">
-      <div className="sp-item-header" onClick={() => setExpanded(!expanded)}>
-        <div className="sp-item-icon" style={{ background: `var(${cfg.bgVar})` }}>
-          {cfg.icon}
-        </div>
+    <div className={`sp-item-card${pinned ? ' sp-pinned' : ''}${checked ? ' sp-checked' : ''}`}>
+      <div className="sp-done-stripe" />
+      <div className="sp-item-header" onClick={() => setBodyOpen(!bodyOpen)}>
+        <div className={`sp-item-icon ${cfg.iconClass}`}>{cfg.icon}</div>
         <div className="sp-item-title-block">
-          <div className="sp-item-label" style={{ color: `var(${cfg.colorVar})` }}>
-            {cfg.label}
-          </div>
+          <div className={`sp-item-label ${cfg.labelClass}`}>{cfg.label}</div>
           <div className="sp-item-title">{item.title}</div>
         </div>
-        <span className="sp-item-chevron">{expanded ? '\u25BC' : '\u25B6'}</span>
+        <div className="sp-item-actions" onClick={(e) => e.stopPropagation()}>
+          <button
+            className={`sp-pin-btn${pinned ? ' active' : ''}`}
+            title="Pin"
+            onClick={() => onTogglePin(id, item.title)}
+          >{'\u{1F4CC}'}</button>
+          <button
+            className={`sp-check-btn${checked ? ' active' : ''}`}
+            title="Mark done"
+            onClick={() => onToggleCheck(id)}
+          >{'\u2713'}</button>
+        </div>
       </div>
-      {expanded && (
+      {bodyOpen && !checked && (
         <div className="sp-item-body">
           <p className="sp-item-text">{item.body}</p>
-          <div className="sp-item-cue" style={{
-            background: `var(${cfg.bgVar})`,
-            borderLeft: `3px solid var(${cfg.colorVar})`
-          }}>
-            <span className="sp-item-cue-icon">\u2192</span>
+          <div className={`sp-item-cue ${cfg.cueClass}`}>
+            <span className="sp-cue-icon">{'\u2192'}</span>
             <span>{item.cue}</span>
+          </div>
+          <div className="sp-log-row">
+            <button
+              className={`sp-log-btn ${cfg.logClass}${loggedToday ? ' logged' : ''}`}
+              onClick={() => !loggedToday && onLogPractice(id)}
+              disabled={loggedToday}
+            >
+              {loggedToday
+                ? <>{'\u2713'} Practiced <span className="sp-log-date">&middot; {today}</span></>
+                : '+ Log practice today'
+              }
+            </button>
+            {logDates.length > 0 && (
+              <span className="sp-log-count">{logDates.length}&times; this plan</span>
+            )}
           </div>
         </div>
       )}
