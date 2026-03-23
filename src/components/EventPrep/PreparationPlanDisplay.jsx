@@ -150,10 +150,21 @@ export default function PreparationPlanDisplay({ data }) {
     hasTrainingSessions: !!data.weeks?.[0]?.training_sessions,
   }));
 
-  if (!week) return null;
+  if (!week) {
+    console.warn('[PreparationPlanDisplay] No matching week found. activeWeek:', activeWeek, 'weeks:', data.weeks?.map(w => w.week_number));
+    return <div style={{ padding: '1rem', color: '#7A7A7A', fontStyle: 'italic' }}>No preparation plan weeks available. Try regenerating the plan.</div>;
+  }
 
   return (
-    <div className="sp-plan">
+    <div className="sp-plan" style={{ border: '2px solid #E0D5C7', borderRadius: '16px', padding: '1.5rem', marginTop: '1.5rem', background: '#FAF8F5' }}>
+      {/* Section header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+        <span style={{ fontSize: '1.2rem' }}>{'\u{1F4C5}'}</span>
+        <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.1rem', color: '#8B7355', margin: 0 }}>
+          Preparation Plan — {totalWeeks} Weeks
+        </h3>
+      </div>
+
       {/* Summary */}
       {data.plan_summary && (
         <div className="sp-plan-summary">
