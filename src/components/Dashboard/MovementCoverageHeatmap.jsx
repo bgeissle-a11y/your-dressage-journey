@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebase-config';
 import { MOVEMENT_CATEGORIES } from '../../services/debriefService';
@@ -13,6 +13,14 @@ function countToLevel(c) {
   return 'lv4';
 }
 
+/* Extract timestamp as ms */
+function toMs(ts) {
+  if (!ts) return 0;
+  if (ts.toDate) return ts.toDate().getTime();
+  if (typeof ts === 'string') return new Date(ts).getTime();
+  return 0;
+}
+
 export default function MovementCoverageHeatmap() {
   const { currentUser } = useAuth();
   const [counts, setCounts] = useState(null);
@@ -24,20 +32,17 @@ export default function MovementCoverageHeatmap() {
 
     async function fetchData() {
       try {
-        // Fetch all debriefs, sort client-side (no orderBy to avoid composite index)
-        const snap = await getDocs(collection(db, `users/${currentUser.uid}/debriefs`));
-        const allDocs = snap.docs
-          .map(d => ({ id: d.id, ...d.data() }))
-          .filter(d => !d.isDeleted);
+        // Top-level debriefs collection, scoped by userId, exclude soft-deleted
+        const q = query(
+          collection(db, 'debriefs'),
+          where('userId', '==', currentUser.uid),
+          where('isDeleted', '==', false)
+        );
+        const snap = await getDocs(q);
+        const allDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
         // Sort by submittedAt descending, take last 12
-        allDocs.sort((a, b) => {
-          const aTime = a.submittedAt?.toDate ? a.submittedAt.toDate().getTime()
-            : a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
-          const bTime = b.submittedAt?.toDate ? b.submittedAt.toDate().getTime()
-            : b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
-          return bTime - aTime;
-        });
+        allDocs.sort((a, b) => toMs(b.submittedAt) - toMs(a.submittedAt));
         const recent = allDocs.slice(0, 12);
         setDebriefCount(recent.length);
 

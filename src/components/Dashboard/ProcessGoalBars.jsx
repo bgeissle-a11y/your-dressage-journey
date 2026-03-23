@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebase-config';
 
@@ -24,11 +24,14 @@ export default function ProcessGoalBars() {
 
     async function fetchData() {
       try {
-        // Fetch all debriefs, filter and sort client-side (no orderBy/where)
-        const snap = await getDocs(collection(db, `users/${currentUser.uid}/debriefs`));
-        const allDocs = snap.docs
-          .map(d => ({ id: d.id, ...d.data() }))
-          .filter(d => !d.isDeleted);
+        // Top-level debriefs collection, scoped by userId, exclude soft-deleted
+        const q = query(
+          collection(db, 'debriefs'),
+          where('userId', '==', currentUser.uid),
+          where('isDeleted', '==', false)
+        );
+        const snap = await getDocs(q);
+        const allDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
         // Sort by submittedAt descending
         allDocs.sort((a, b) => toMs(b.submittedAt) - toMs(a.submittedAt));

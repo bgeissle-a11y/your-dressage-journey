@@ -34,6 +34,7 @@ const waitlist = require("./api/waitlist");
 const adminStats = require("./api/adminStats");
 const arenaCoaching = require("./api/arenaCoaching");
 const weeklyCoachBrief = require("./api/weeklyCoachBrief");
+const readinessSnapshot = require("./api/readinessSnapshot");
 
 // Secrets — declared once, referenced by all AI functions
 const anthropicKey = defineSecret("ANTHROPIC_API_KEY");
@@ -107,6 +108,13 @@ exports.getDataVisualizations = onCall(
 exports.getEventPlanner = onCall(
   { secrets: [anthropicKey], timeoutSeconds: 540, memory: "512MiB" },
   eventPlanner.handler
+);
+
+// Readiness Snapshot: 300–400 word narrative readiness assessment for show planner
+// Input: { planId: string, refresh?: boolean }
+exports.getReadinessSnapshot = onCall(
+  { secrets: [anthropicKey], timeoutSeconds: 120, memory: "512MiB" },
+  readinessSnapshot.handler
 );
 
 // Physical Guidance: physical pattern analysis + exercise prescription

@@ -110,18 +110,15 @@ async function generateQuickInsights(riderData, forceRefresh) {
   if (!forceRefresh) {
     const cached = await getCache(riderData.uid, INSIGHTS_OUTPUT_TYPE, {
       currentHash: hash,
+      maxAgeDays: 7, // Regenerate weekly so celebration/patterns stay fresh
     });
     if (cached) {
       return { ...cached.result, fromCache: true };
     }
 
-    // Stale-while-revalidate
-    const staleCache = await getStaleCache(riderData.uid, INSIGHTS_OUTPUT_TYPE, {
-      currentHash: hash,
-    });
-    if (staleCache?._stale) {
-      return { ...staleCache.result, fromCache: true, stale: true };
-    }
+    // No stale-while-revalidate for quick insights — this is a fast call
+    // and the celebration/patterns must update when rider data changes.
+    // Stale cache was previously causing celebration to never refresh.
   }
 
   const { system, userMessage } = buildQuickInsightsPrompt(riderData);

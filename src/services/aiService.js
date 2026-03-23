@@ -150,6 +150,20 @@ export async function getEventPlannerStep(options = {}) {
 }
 
 /**
+ * Generate or refresh a Readiness Snapshot for a show plan.
+ *
+ * @param {object} options
+ * @param {string} options.planId - Show preparation document ID
+ * @param {boolean} [options.refresh] - If true, refresh an existing snapshot
+ * @returns {Promise<object>} { success, narrative, generatedAt, refreshCount }
+ */
+export async function getReadinessSnapshot(options = {}) {
+  const fn = httpsCallable(functions, 'getReadinessSnapshot', { timeout: 120_000 });
+  const result = await fn(options);
+  return result.data;
+}
+
+/**
  * Generate Quick Insights only (no coaching voices).
  * Used by progressive voice rendering to load quick insights independently.
  *

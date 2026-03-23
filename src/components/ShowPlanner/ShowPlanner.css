@@ -511,6 +511,170 @@
   margin-bottom: 1rem;
 }
 
+/* ── READINESS SNAPSHOT CARD ───────────────────────────────── */
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.snapshot-card {
+  background: white;
+  border: 1.5px solid var(--parchment-dark);
+  border-radius: 16px;
+  padding: 24px 28px 20px;
+  margin-bottom: 24px;
+  animation: fadeUp .4s ease .15s both;
+}
+
+.snapshot-card--loading {
+  padding: 24px 28px;
+}
+
+.snapshot-card--error {
+  padding: 24px 28px;
+  text-align: center;
+}
+
+.snapshot-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.snapshot-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.snapshot-byline {
+  font-size: 11px;
+  color: var(--ink-light);
+  font-style: italic;
+}
+
+.snapshot-narrative p {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--ink-mid);
+  margin-bottom: 14px;
+}
+
+.snapshot-narrative p:last-child {
+  margin-bottom: 0;
+  /* Final sentence (Empathetic Coach) — subtle visual distinction */
+  border-top: 1px solid var(--parchment-dark);
+  padding-top: 12px;
+  margin-top: 4px;
+  font-style: italic;
+  color: var(--ink);
+}
+
+/* Loading shimmer */
+.snapshot-shimmer {
+  height: 13px;
+  background: linear-gradient(90deg, var(--parchment-dark) 25%, var(--parchment-mid) 50%, var(--parchment-dark) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 7px;
+  margin-bottom: 10px;
+  width: 88%;
+}
+.snapshot-shimmer--sm  { width: 50%; }
+.snapshot-shimmer--lg  { width: 95%; }
+.snapshot-loading-text {
+  font-size: 11.5px;
+  color: var(--ink-light);
+  font-style: italic;
+  margin-top: 6px;
+}
+
+/* Error state */
+.snapshot-error-text {
+  font-size: 13px;
+  color: var(--ink-mid);
+  margin-bottom: 12px;
+}
+
+/* Confirmation block */
+.snapshot-confirm {
+  background: var(--parchment-off);
+  border: 1.5px solid var(--parchment-dark);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--ink-mid);
+  line-height: 1.55;
+}
+.snapshot-confirm-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+.snapshot-confirm-btn {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  border: 1.5px solid;
+  transition: all .18s;
+}
+.snapshot-confirm-btn--go {
+  background: var(--rust);
+  color: white;
+  border-color: var(--rust);
+}
+.snapshot-confirm-btn--go:hover { filter: brightness(.88); }
+.snapshot-confirm-btn--cancel {
+  background: transparent;
+  color: var(--ink-light);
+  border-color: var(--parchment-dark);
+}
+.snapshot-confirm-btn--cancel:hover { border-color: var(--track); }
+
+/* Refresh / Retry button */
+.snapshot-refresh-btn,
+.snapshot-retry-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--parchment-dark);
+  background: transparent;
+  color: var(--ink-light);
+  cursor: pointer;
+  margin-top: 16px;
+  transition: all .18s;
+}
+.snapshot-refresh-btn:hover,
+.snapshot-retry-btn:hover {
+  border-color: var(--track);
+  color: var(--ink);
+}
+.snapshot-refreshing-text {
+  font-size: 11.5px;
+  color: var(--ink-light);
+  font-style: italic;
+  margin-top: 12px;
+}
+
 /* ── Responsive ────────────────────────────────────────────── */
 
 @media (max-width: 600px) {
@@ -520,4 +684,5 @@
   .slp-section-header { padding: 10px 12px; }
   .slp-card-header { padding: 9px 10px; }
   .slp-card-body { padding: 10px; }
+  .snapshot-card { padding: 18px 16px 16px; }
 }

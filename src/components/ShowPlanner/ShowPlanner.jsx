@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { getShowPreparation, resolveTestNames } from '../../services';
+import { getShowPreparation, resolveTestNames, getAllDebriefs } from '../../services';
 import { getTestData, getShortLabel } from '../../services/testDatabase';
 import { getEventPlannerStep } from '../../services/aiService';
 import TestReferencePanel from '../TestReferencePanel/TestReferencePanel';
+import ReadinessSnapshotCard from '../ReadinessSnapshotCard';
 import './ShowPlanner.css';
 
 /* ── Section config ────────────────────────────────────────── */
@@ -86,6 +87,7 @@ export default function ShowPlanner() {
   const [cardTitles, setCardTitles] = useState({});
   const [testPanelOpen, setTestPanelOpen] = useState(false);
   const [flagState, setFlagState] = useState({});
+  const [debriefsCount, setDebriefsCount] = useState(0);
   const dragSrc = useRef(null);
 
   // Load data
@@ -108,6 +110,16 @@ export default function ShowPlanner() {
       const testIds = prepData.testsSelected || prepData.tests?.selected || [];
       if (testIds.length > 0) {
         setTestData(getTestData(testIds[0]));
+      }
+
+      // Load debrief count for refresh gate
+      try {
+        const debriefResult = await getAllDebriefs(currentUser.uid);
+        if (debriefResult.success) {
+          setDebriefsCount(debriefResult.data?.length || 0);
+        }
+      } catch (e) {
+        console.log('[ShowPlanner] Could not load debrief count:', e);
       }
 
       // Load cached AI plan
@@ -282,6 +294,13 @@ export default function ShowPlanner() {
           )}
         </>
       )}
+
+      {/* ── Readiness Snapshot ── */}
+      <ReadinessSnapshotCard
+        planId={planId}
+        userId={currentUser?.uid}
+        currentDebriefsCount={debriefsCount}
+      />
 
       {/* ── Pinned Bar ── */}
       {pinnedItems.length > 0 && (
