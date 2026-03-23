@@ -25,6 +25,55 @@ function todayStr() {
 }
 
 /**
+ * Convert v1 week format (training_sessions/mental_prep) to v2 (mental/technical/physical arrays).
+ * Returns the week unchanged if it already has v2 fields.
+ */
+function normalizeWeek(week) {
+  if (!week) return week;
+  if (week.mental || week.technical || week.physical) return week; // already v2
+
+  const mental = [];
+  const technical = [];
+  const physical = [];
+
+  // Convert mental_prep to mental item
+  if (week.mental_prep) {
+    mental.push({
+      title: week.mental_prep.focus || 'Mental Preparation',
+      body: week.mental_prep.practice || '',
+      cue: week.mental_prep.addresses_concern || week.mental_prep.focus || '',
+    });
+  }
+
+  // Convert training_sessions to technical/physical items
+  (week.training_sessions || []).forEach(session => {
+    const item = {
+      title: session.description?.split('.')[0]?.substring(0, 40) || session.session_type || 'Training',
+      body: session.description || '',
+      cue: session.exercises?.[0]?.tips || session.exercises?.[0]?.purpose || session.description || '',
+    };
+    if (session.session_type === 'mental') {
+      mental.push(item);
+    } else if (session.session_type === 'logistics') {
+      // skip logistics for now
+    } else {
+      technical.push(item);
+    }
+  });
+
+  // Convert week_goals to physical items if we have none
+  if (physical.length === 0 && week.week_goals?.length) {
+    physical.push({
+      title: 'Week Goals',
+      body: week.week_goals.join('. '),
+      cue: week.readiness_checkpoint || week.week_goals[0] || '',
+    });
+  }
+
+  return { ...week, mental, technical, physical };
+}
+
+/**
  * Full interactive preparation plan matching ydj-show-planner-v3.html reference.
  * Features: week switching, drag-reorder sections, pin/check/log-practice, pinned bar.
  */
@@ -39,7 +88,8 @@ export default function PreparationPlanDisplay({ data }) {
   const dragSrc = useRef(null);
 
   const totalWeeks = data.total_weeks || data.weeks?.length || 0;
-  const week = data.weeks?.find(w => w.week_number === activeWeek) || data.weeks?.[0];
+  const rawWeek = data.weeks?.find(w => w.week_number === activeWeek) || data.weeks?.[0];
+  const week = normalizeWeek(rawWeek);
   const progress = totalWeeks > 0 ? Math.round(((totalWeeks - activeWeek + 1) / totalWeeks) * 100) : 0;
 
   // Pin/check/log handlers
@@ -88,6 +138,17 @@ export default function PreparationPlanDisplay({ data }) {
     .filter(([, v]) => v)
     .map(([id]) => cardTitles[id])
     .filter(Boolean);
+
+  // Debug: log the actual data shape to help troubleshoot rendering
+  console.log('[PreparationPlanDisplay] data:', JSON.stringify({
+    hasWeeks: !!data.weeks,
+    weekCount: data.weeks?.length,
+    firstWeekKeys: data.weeks?.[0] ? Object.keys(data.weeks[0]) : [],
+    hasMental: !!data.weeks?.[0]?.mental,
+    hasTechnical: !!data.weeks?.[0]?.technical,
+    hasPhysical: !!data.weeks?.[0]?.physical,
+    hasTrainingSessions: !!data.weeks?.[0]?.training_sessions,
+  }));
 
   if (!week) return null;
 
