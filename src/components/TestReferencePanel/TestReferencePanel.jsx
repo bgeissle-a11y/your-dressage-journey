@@ -24,6 +24,7 @@ export default function TestReferencePanel({
   selectedTests = [],
   onTestSwitch,
   sticky = false,
+  flagTabLabel,
 }) {
   const [activeTab, setActiveTab] = useState(defaultTab);
   const panelRef = useRef(null);
@@ -123,7 +124,7 @@ export default function TestReferencePanel({
             className={`trp-tab${activeTab === tab ? ' active' : ''}`}
             onClick={() => handleTabClick(tab)}
           >
-            {tab === 'flag' ? 'Flag for Prep' : tab.charAt(0).toUpperCase() + tab.slice(1)}
+            {tab === 'flag' ? (flagTabLabel || 'Flag for Prep') : tab.charAt(0).toUpperCase() + tab.slice(1)}
           </button>
         ))}
       </div>

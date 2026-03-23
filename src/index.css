@@ -24,6 +24,19 @@
   --sky:            #2e5c82;
   --sky-border:     rgba(46,92,130,0.28);
   --done:           #3d6b46;
+  --forest:         #2a4a30;
+  --done-bg:        rgba(61,107,70,0.10);
+
+  /* Section identity colors */
+  --tech-color:     #7a3020;
+  --tech-bg:        rgba(122,48,32,0.06);
+  --tech-border:    rgba(122,48,32,0.22);
+  --mental-color:   #2e5c82;
+  --mental-bg:      rgba(46,92,130,0.06);
+  --mental-border:  rgba(46,92,130,0.22);
+  --body-color:     #2a4a30;
+  --body-bg:        rgba(42,74,48,0.06);
+  --body-border:    rgba(42,74,48,0.22);
 
   /* Left-edge accent colours */
   --c-debrief:  #8B7355;

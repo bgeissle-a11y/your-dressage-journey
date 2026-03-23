@@ -279,6 +279,8 @@ export default function ShowPrepPlan() {
     }
 
     setAiStep(5);
+    // Auto-navigate to the interactive Show Planner view
+    navigate(`/show-planner/${id}`);
   }
 
   async function toggleTask(index) {
@@ -483,13 +485,22 @@ export default function ShowPrepPlan() {
                   </button>
                 )}
                 {aiStep === 5 && (
-                  <button
-                    className="btn-generate-plan"
-                    onClick={() => generatePlan(true)}
-                    style={{ background: '#FAF8F5', color: '#8B7355', border: '1.5px solid #E0D5C7' }}
-                  >
-                    Regenerate Plan
-                  </button>
+                  <>
+                    <Link
+                      to={`/show-planner/${id}`}
+                      className="btn-generate-plan"
+                      style={{ textDecoration: 'none' }}
+                    >
+                      Open Show Planner
+                    </Link>
+                    <button
+                      className="btn-generate-plan"
+                      onClick={() => generatePlan(true)}
+                      style={{ background: '#FAF8F5', color: '#8B7355', border: '1.5px solid #E0D5C7' }}
+                    >
+                      Regenerate Plan
+                    </button>
+                  </>
                 )}
               </div>
             </div>
