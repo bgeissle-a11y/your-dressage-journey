@@ -35,6 +35,31 @@
   --c-show:     #C67B5C;
   --c-assess:   #b8862a;
   --c-review:   #2e5c82;
+  --c-learn:    #5c4f8a;
+
+  /* ── NAV tokens (light mode) ── */
+  --nav-bg:              #2c1f14;
+  --nav-bg-hover:        rgba(255,255,255,0.04);
+  --nav-top-stripe:      transparent;
+  --nav-border:          #b8862a;
+  --nav-border-width:    2px;
+  --nav-text:            rgba(255,255,255,0.58);
+  --nav-text-hover:      #d4a84b;
+  --nav-text-active:     #ffffff;
+  --nav-brand-color:     #d4a84b;
+  --nav-sep:             rgba(255,255,255,0.12);
+  --nav-group-label:     rgba(255,255,255,0.28);
+  --nav-dd-bg:           #2c1f14;
+  --nav-dd-border:       rgba(184,134,42,0.38);
+  --nav-special:         #d4a84b;
+  --nav-help:            rgba(255,255,255,0.38);
+
+  /* ── Heatmap & viz tokens (light mode) ── */
+  --heatmap-empty:   rgba(184,134,42,0.12);
+  --heatmap-low:     rgba(184,134,42,0.35);
+  --heatmap-mid:     rgba(184,134,42,0.65);
+  --heatmap-full:    #b8862a;
+  --bar-track-bg:    var(--parchment-dark);
 
   font-family: 'Work Sans', sans-serif;
   line-height: 1.5;
@@ -84,4 +109,76 @@ button {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* ============================================================
+   Dark Mode
+   ============================================================ */
+html[data-theme="dark"] {
+  --nav-bg:              #160e08;
+  --nav-bg-hover:        rgba(255,255,255,0.05);
+  --nav-top-stripe:      #b8862a;
+  --nav-border:          #b8862a;
+  --nav-border-width:    3px;
+  --nav-text:            rgba(255,255,255,0.62);
+  --nav-text-hover:      #f0d89a;
+  --nav-text-active:     #ffffff;
+  --nav-brand-color:     #f0d89a;
+  --nav-sep:             rgba(255,255,255,0.13);
+  --nav-group-label:     rgba(255,255,255,0.36);
+  --nav-dd-bg:           #1e130b;
+  --nav-dd-border:       rgba(184,134,42,0.55);
+  --nav-special:         #f0d89a;
+  --nav-help:            rgba(255,255,255,0.32);
+
+  --parchment:       #1c1510;
+  --parchment-dark:  #3b2a1c;
+  --parchment-mid:   #2a1c12;
+  --parchment-off:   #1c100a;
+  --ink:             #e8d9c4;
+  --ink-mid:         #c4a882;
+  --ink-light:       #9a7858;
+  --gold-light:      #d4a84b;
+
+  --heatmap-empty:   rgba(255,255,255,0.06);
+  --heatmap-low:     rgba(184,134,42,0.28);
+  --heatmap-mid:     rgba(184,134,42,0.55);
+  --heatmap-full:    #c49a3a;
+  --bar-track-bg:    rgba(255,255,255,0.09);
+
+  color-scheme: dark;
+  background-color: #1c1510;
+  color: #e8d9c4;
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) {
+    --nav-bg:              #160e08;
+    --nav-bg-hover:        rgba(255,255,255,0.05);
+    --nav-top-stripe:      #b8862a;
+    --nav-border:          #b8862a;
+    --nav-border-width:    3px;
+    --nav-text:            rgba(255,255,255,0.62);
+    --nav-text-hover:      #f0d89a;
+    --nav-brand-color:     #f0d89a;
+    --nav-sep:             rgba(255,255,255,0.13);
+    --nav-dd-bg:           #1e130b;
+    --nav-dd-border:       rgba(184,134,42,0.55);
+    --nav-special:         #f0d89a;
+
+    --parchment:       #1c1510;
+    --parchment-dark:  #3b2a1c;
+    --parchment-mid:   #2a1c12;
+    --parchment-off:   #1c100a;
+    --ink:             #e8d9c4;
+    --ink-mid:         #c4a882;
+    --ink-light:       #9a7858;
+
+    --heatmap-empty:   rgba(255,255,255,0.06);
+    --bar-track-bg:    rgba(255,255,255,0.09);
+
+    color-scheme: dark;
+    background-color: #1c1510;
+    color: #e8d9c4;
+  }
 }

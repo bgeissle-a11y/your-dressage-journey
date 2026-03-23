@@ -141,13 +141,75 @@
   padding: 1rem 0; text-align: center;
 }
 
-/* Sparklines */
-.sparkline-wrap { display: flex; flex-direction: column; gap: 7px; }
-.sparkline-row  { display: flex; align-items: center; gap: 8px; }
-.spark-label    { font-size: 10.5px; color: var(--ink-light); width: 68px; flex-shrink: 0; text-align: right; }
-.spark-track    { flex: 1; height: 26px; }
-.spark-track svg{ width: 100%; height: 26px; }
-.spark-val      { font-size: 10.5px; font-weight: 600; color: var(--ink); width: 18px; flex-shrink: 0; }
+/* ── Movement Coverage Heatmap ── */
+.mvmt-heatmap { display: flex; flex-direction: column; gap: 7px; }
+.mvmt-category { }
+.mvmt-cat-label {
+  font-size: 8px; font-weight: 700; letter-spacing: 1.8px;
+  text-transform: uppercase; color: var(--ink-light);
+  margin-bottom: 4px; opacity: 0.7;
+}
+.mvmt-chips { display: flex; flex-wrap: wrap; gap: 3px; }
+.mvmt-chip {
+  display: inline-block;
+  font-size: 8.5px; font-weight: 500;
+  padding: 2px 7px; border-radius: 20px;
+  border: 1px solid var(--parchment-dark);
+  white-space: nowrap;
+  transition: background 0.28s, color 0.28s, border-color 0.28s;
+  cursor: default;
+}
+/* level 0 — not worked on */
+.mvmt-chip.lv0 {
+  background: var(--heatmap-empty);
+  color: var(--ink-light);
+  border-color: var(--parchment-dark);
+  opacity: 0.6;
+}
+/* level 1 — 1–2 rides */
+.mvmt-chip.lv1 {
+  background: rgba(184,134,42,0.18);
+  color: var(--ink-light);
+  border-color: rgba(184,134,42,0.30);
+}
+/* level 2 — 3–5 rides */
+.mvmt-chip.lv2 {
+  background: rgba(184,134,42,0.40);
+  color: var(--ink-mid);
+  border-color: rgba(184,134,42,0.55);
+}
+/* level 3 — 6–8 rides */
+.mvmt-chip.lv3 {
+  background: rgba(184,134,42,0.68);
+  color: #2c1f14;
+  border-color: rgba(184,134,42,0.80);
+}
+/* level 4 — 9+ rides */
+.mvmt-chip.lv4 {
+  background: var(--gold);
+  color: white;
+  border-color: var(--gold);
+  font-weight: 600;
+}
+
+/* Legend */
+.mvmt-legend {
+  display: flex; align-items: center; gap: 5px; margin-top: 4px;
+  padding-top: 4px; border-top: 1px solid var(--parchment-dark);
+}
+.mvmt-legend-label { font-size: 8px; color: var(--ink-light); }
+.mvmt-legend-swatches { display: flex; gap: 3px; }
+.mvmt-legend-swatch {
+  font-size: 7.5px; padding: 1px 6px; border-radius: 10px;
+  border: 1px solid transparent;
+}
+
+/* ── Process Goal divider ── */
+.goal-divider {
+  font-size: 8px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--ink-light);
+  margin: 4px 0 2px; opacity: 0.6;
+}
 
 /* Bar chart */
 .bar-chart  { display: flex; flex-direction: column; gap: 6px; }
@@ -469,6 +531,11 @@
 .dm-card.assess { border-left-color: var(--c-assess); }
 .dm-card.assess .dm-arrow { color: var(--c-assess); }
 
+/* Learn cards */
+.dm-card.learn-card { border-left-color: var(--c-learn, #5c4f8a); }
+.dm-card.learn-card .dm-label { color: #5c4f8a; }
+.dm-card.learn-card .dm-arrow { color: #5c4f8a; }
+
 /* Export strip */
 .export-strip {
   display: flex; align-items: center; justify-content: space-between;
@@ -580,6 +647,41 @@
   color: var(--gold);
   font-size: 1rem;
 }
+
+/* ============================================================
+   DARK MODE — Dashboard overrides
+   ============================================================ */
+html[data-theme="dark"] .block {
+  background: #231710;
+  border-color: #3b2a1c;
+}
+html[data-theme="dark"] .block-header { background: #1c100a; }
+html[data-theme="dark"] .stat-card {
+  background: #2a1c12; border-color: #3b2a1c;
+}
+html[data-theme="dark"] .stat-card.warn {
+  background: #2a1c12;
+}
+html[data-theme="dark"] .dm-card {
+  background: #2a1c12; border-color: #3b2a1c;
+}
+html[data-theme="dark"] .dm-card:hover { background: #1c100a; }
+html[data-theme="dark"] .card-header { background: #1c100a; }
+html[data-theme="dark"] .insight-card { background: #231710; border-color: #3b2a1c; }
+html[data-theme="dark"] .viz-panel { background: #1c100a; border-top-color: #3b2a1c; }
+html[data-theme="dark"] .celebration {
+  background: linear-gradient(135deg, rgba(184,134,42,0.12), rgba(184,134,42,0.06));
+}
+html[data-theme="dark"] .nudge-btn { background: #2a1c12; }
+html[data-theme="dark"] .btn-export { background: #2a1c12; border-color: #3b2a1c; }
+html[data-theme="dark"] .export-strip { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.08); }
+html[data-theme="dark"] .arrange-btn { background: #2a1c12; border-color: #3b2a1c; }
+html[data-theme="dark"] .mode-bar { background: #3b2a1c; }
+
+/* Dark mode heatmap chip adjustments */
+html[data-theme="dark"] .mvmt-chip.lv0 { border-color: #3b2a1c; }
+html[data-theme="dark"] .mvmt-chip.lv1 { color: #9a7858; }
+html[data-theme="dark"] .mvmt-chip.lv2 { color: #e8d9c4; }
 
 /* ============================================================
    RESPONSIVE

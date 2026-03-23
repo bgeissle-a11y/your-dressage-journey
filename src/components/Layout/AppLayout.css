@@ -6,82 +6,149 @@
 }
 
 /* ============================================================
-   Top Navigation — horizontal scrolling bar
+   Top Navigation — dropdown menus, not sticky
    ============================================================ */
 .top-nav {
-  position: sticky; top: 0; z-index: 100;
-  background: var(--ink);
-  border-bottom: 2px solid var(--gold);
-  padding: 0 1rem;
-  display: flex; align-items: center;
-  overflow-x: auto; scrollbar-width: none;
+  position: relative;
+  z-index: 200;
+  background: var(--nav-bg, #2c1f14);
+  border-top: 3px solid var(--nav-top-stripe, transparent);
+  border-bottom: var(--nav-border-width, 2px) solid var(--nav-border, #b8862a);
+  padding: 0 1.1rem;
+  display: flex;
+  align-items: stretch;
+  transition: background 0.28s, border-color 0.28s;
 }
-.top-nav::-webkit-scrollbar { display: none; }
 
+/* ── Brand ── */
 .nav-brand {
+  display: flex; align-items: center; flex-direction: column;
+  justify-content: center;
+  padding: 0 1rem 0 0;
+  margin-right: 0.3rem;
+  border-right: 1px solid var(--nav-sep, rgba(255,255,255,0.12));
+  flex-shrink: 0; cursor: default;
+}
+.nav-brand-main {
   font-family: 'Playfair Display', serif;
-  font-size: 0.88rem; font-weight: 700;
-  color: var(--gold-light); letter-spacing: 0.5px;
-  white-space: nowrap; flex-shrink: 0;
-  padding: 0.8rem 0.9rem 0.8rem 0;
-  margin-right: 0.1rem;
-  border-right: 1px solid rgba(255,255,255,0.12);
+  font-size: 1rem; font-weight: 700;
+  color: var(--nav-brand-color, #d4a84b);
+  letter-spacing: 0.5px; line-height: 1;
+  transition: color 0.28s;
+}
+.nav-brand-sub {
+  font-size: 0.5rem; font-weight: 600;
+  letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--nav-group-label, rgba(255,255,255,0.28));
+  margin-top: 2px; white-space: nowrap;
+  transition: color 0.28s;
 }
 
+/* ── Nav item wrapper ── */
+.nav-item {
+  position: relative;
+  display: flex; align-items: stretch;
+  flex-shrink: 0;
+}
+
+/* ── Buttons ── */
 .nav-btn {
-  display: inline-flex; align-items: center; gap: 0.25rem;
-  padding: 0.8rem 0.65rem;
+  display: inline-flex; align-items: center; gap: 0.26rem;
+  padding: 0 0.68rem; height: 46px;
   font-family: 'Work Sans', sans-serif;
-  font-size: 0.72rem; font-weight: 500; letter-spacing: 0.35px;
-  color: rgba(255,255,255,0.58);
-  white-space: nowrap; border: none; background: none;
-  cursor: pointer; transition: color 0.15s; flex-shrink: 0;
+  font-size: 0.71rem; font-weight: 500; letter-spacing: 0.4px;
+  color: var(--nav-text, rgba(255,255,255,0.58));
+  white-space: nowrap; border: none; background: none; cursor: pointer;
   text-transform: uppercase;
   text-decoration: none;
+  transition: color 0.14s, background 0.14s;
+  border-bottom: 2px solid transparent;
+  margin-bottom: calc(-1 * var(--nav-border-width, 2px));
 }
-.nav-btn:hover { color: var(--gold-light); }
+.nav-btn:hover,
+.nav-item:hover > .nav-btn,
+.nav-item.open > .nav-btn {
+  color: var(--nav-text-hover, #d4a84b);
+  background: var(--nav-bg-hover, rgba(255,255,255,0.04));
+}
 .nav-btn.active {
-  color: white;
-  border-bottom: 2px solid var(--gold-light);
-  margin-bottom: -2px;
+  color: var(--nav-text-active, #ffffff);
+  border-bottom-color: var(--nav-brand-color, #d4a84b);
 }
 
+/* Caret */
+.nav-caret {
+  font-size: 0.58rem; opacity: 0.5;
+  transition: transform 0.18s, opacity 0.18s;
+  margin-left: 1px;
+}
+.nav-item:hover > .nav-btn .nav-caret,
+.nav-item.open > .nav-btn .nav-caret {
+  transform: rotate(180deg); opacity: 0.85;
+}
+
+/* Special buttons */
 .nav-btn.nav-special {
-  color: var(--gold-light); opacity: 0.9; font-weight: 600;
+  color: var(--nav-special, #d4a84b);
+  font-weight: 600; opacity: 0.92;
 }
 .nav-btn.nav-special:hover { opacity: 1; }
-
 .nav-btn.nav-help {
-  color: rgba(255,255,255,0.42); font-size: 0.68rem;
+  color: var(--nav-help, rgba(255,255,255,0.38));
+  font-size: 0.67rem;
 }
-.nav-btn.nav-help:hover { color: rgba(255,255,255,0.8); }
+.nav-btn.nav-help:hover { color: rgba(255,255,255,0.72); }
 
+/* Separators & spacer */
 .nav-sep {
-  width: 1px; height: 13px;
-  background: rgba(255,255,255,0.1);
-  flex-shrink: 0; margin: 0 0.05rem;
+  width: 1px; background: var(--nav-sep, rgba(255,255,255,0.12));
+  align-self: center; height: 13px;
+  margin: 0 0.08rem; flex-shrink: 0;
 }
+.nav-spacer { flex: 1; min-width: 0.25rem; }
 
-.nav-group-label {
-  font-size: 0.56rem; font-weight: 700; letter-spacing: 1.8px;
-  text-transform: uppercase; color: rgba(255,255,255,0.22);
-  padding: 0 0.25rem 0 0.55rem; flex-shrink: 0; white-space: nowrap;
+/* ── Dropdown panel ── */
+.nav-dd {
+  display: none;
+  position: absolute;
+  top: calc(100% + var(--nav-border-width, 2px));
+  left: 0;
+  min-width: 200px;
+  background: var(--nav-dd-bg, #2c1f14);
+  border: 1px solid var(--nav-dd-border, rgba(184,134,42,0.38));
+  border-top: 2px solid var(--nav-border, #b8862a);
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.38);
+  padding: 0.35rem 0 0.5rem;
+  z-index: 300;
+  transition: background 0.28s;
 }
+.nav-item:hover .nav-dd,
+.nav-item.open .nav-dd { display: block; }
 
-.nav-user-name {
-  font-size: 0.68rem; color: rgba(255,255,255,0.45);
-  white-space: nowrap; flex-shrink: 0;
-  padding: 0 0.4rem;
+.dd-section-label {
+  font-size: 0.54rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--nav-group-label, rgba(255,255,255,0.28));
+  padding: 0.6rem 1.05rem 0.28rem;
 }
-
-.nav-signout {
-  font-size: 0.65rem !important;
-  color: rgba(255,255,255,0.35) !important;
-  padding: 0.5rem 0.5rem !important;
+.dd-section-label:not(:first-child) {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin-top: 0.3rem; padding-top: 0.6rem;
 }
-.nav-signout:hover {
-  color: var(--rust) !important;
+.dd-link {
+  display: flex; align-items: center; gap: 0.55rem;
+  padding: 0.52rem 1.05rem;
+  font-size: 0.81rem;
+  color: var(--nav-text, rgba(255,255,255,0.58));
+  cursor: pointer; transition: background 0.12s, color 0.12s;
+  white-space: nowrap; text-decoration: none;
 }
+.dd-link:hover {
+  background: rgba(255,255,255,0.055);
+  color: var(--nav-text-hover, #d4a84b);
+}
+.dd-icon { font-size: 0.85rem; width: 1.15rem; text-align: center; opacity: 0.72; }
 
 /* ============================================================
    Main Content

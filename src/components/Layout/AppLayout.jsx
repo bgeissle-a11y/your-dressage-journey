@@ -1,20 +1,167 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import useCacheWarmth from '../../hooks/useCacheWarmth';
 import './AppLayout.css';
+
+/* ── Nav dropdown group definitions ── */
+const NAV_GROUPS = [
+  {
+    id: 'record',
+    label: 'Record',
+    sections: [
+      {
+        heading: 'After Your Ride',
+        links: [
+          { icon: '\uD83C\uDFC7', label: 'Post-Ride Debrief', to: '/debriefs/new' },
+          { icon: '\uD83D\uDCAD', label: 'Reflection', to: '/reflections/new' },
+          { icon: '\uD83D\uDC41', label: 'Observation', to: '/observations/new' },
+          { icon: '\uD83D\uDCDD', label: 'Lesson Notes', to: '/lesson-notes/new' },
+        ],
+      },
+      {
+        heading: 'Track',
+        links: [
+          { icon: '\uD83C\uDF3F', label: 'Health & Soundness', to: '/horse-health/new' },
+          { icon: '\uD83D\uDCC5', label: 'Journey Event', to: '/events/new' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'plan',
+    label: 'Plan',
+    sections: [
+      {
+        heading: 'Competitions',
+        links: [
+          { icon: '\uD83C\uDFDF', label: 'Show Preparation', to: '/show-prep/new' },
+          { icon: '\uD83D\uDCCB', label: 'Event Planner', to: '/events/new' },
+          { icon: '\uD83E\uDDF3', label: 'Packing List', to: '/show-prep/new' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'coaching',
+    label: 'AI Coaching',
+    sections: [
+      {
+        heading: 'Your Insights',
+        links: [
+          { icon: '\u2726', label: 'Weekly Focus', to: '/dashboard' },
+          { icon: '\uD83D\uDDFA', label: 'Journey Map', to: '/insights?tab=journey' },
+          { icon: '\uD83C\uDFAF', label: 'Multi-Voice Coaching', to: '/insights?tab=coaching' },
+          { icon: '\uD83E\uDDE0', label: 'Grand Prix Thinking', to: '/insights?tab=grandprix' },
+          { icon: '\uD83C\uDF3F', label: 'Physical Guidance', to: '/insights?tab=physical' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'learn',
+    label: 'Learn',
+    sections: [
+      {
+        heading: 'Dressage Study',
+        links: [
+          { icon: '\uD83D\uDCD0', label: 'Arena Geometry Trainer', href: '/arena-geometry-trainer.html' },
+          { icon: '\uD83D\uDDD2', label: 'Test Explorer', to: '/learn/test-explorer' },
+          { icon: '\uD83C\uDFA4', label: 'PSG Step-Through', to: '/learn/psg-stepthrough' },
+        ],
+      },
+      {
+        heading: 'Background',
+        links: [
+          { icon: '\uD83D\uDD2C', label: 'Science & Research', to: '/learn/science' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'assess',
+    label: 'Assess',
+    sections: [
+      {
+        heading: 'Self-Assessment',
+        links: [
+          { icon: '\uD83E\uDE9E', label: 'Rider Self-Assessment', to: '/rider-assessments/new' },
+          { icon: '\uD83C\uDFC3', label: 'Physical Assessment', to: '/physical-assessments/new' },
+          { icon: '\uD83D\uDCD0', label: 'Technical & Philosophical', to: '/technical-assessments/new' },
+        ],
+      },
+      {
+        heading: 'Practice',
+        links: [
+          { icon: '\uD83E\uDDF0', label: "Rider\u2019s Toolkit", to: '/toolkit/new' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'profiles',
+    label: 'Profiles',
+    sections: [
+      {
+        heading: 'My Info',
+        links: [
+          { icon: '\uD83E\uDDD1', label: 'Rider Profile', to: '/profile/rider' },
+          { icon: '\uD83D\uDC34', label: 'Horses', to: '/horses' },
+          { icon: '\u2699\uFE0F', label: 'Settings', to: '/settings' },
+        ],
+      },
+    ],
+  },
+];
 
 export default function AppLayout() {
   const { currentUser, logout } = useAuth();
   useCacheWarmth();
   const navigate = useNavigate();
   const location = useLocation();
+  const navRef = useRef(null);
 
   // Add body class so child pages can detect layout context
   useEffect(() => {
     document.body.classList.add('app-layout-active');
     return () => document.body.classList.remove('app-layout-active');
   }, []);
+
+  // Touch support: tap-to-toggle dropdowns on touch devices
+  const handleTouchStart = useCallback((e) => {
+    const navItem = e.target.closest('.nav-item.has-dd');
+    if (!navItem) {
+      // Tapped outside — close all
+      navRef.current?.querySelectorAll('.nav-item.open').forEach(el => el.classList.remove('open'));
+      return;
+    }
+    // If tapping the button area (not a link inside dropdown)
+    const inDropdown = e.target.closest('.nav-dd');
+    if (!inDropdown) {
+      e.preventDefault();
+      const wasOpen = navItem.classList.contains('open');
+      // Close all others
+      navRef.current?.querySelectorAll('.nav-item.open').forEach(el => el.classList.remove('open'));
+      if (!wasOpen) navItem.classList.add('open');
+    }
+  }, []);
+
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+    nav.addEventListener('touchstart', handleTouchStart, { passive: false });
+    // Close on outside touch
+    const handleOutside = (e) => {
+      if (!nav.contains(e.target)) {
+        nav.querySelectorAll('.nav-item.open').forEach(el => el.classList.remove('open'));
+      }
+    };
+    document.addEventListener('touchstart', handleOutside, { passive: true });
+    return () => {
+      nav.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchstart', handleOutside);
+    };
+  }, [handleTouchStart]);
 
   async function handleLogout() {
     const result = await logout();
@@ -28,66 +175,62 @@ export default function AppLayout() {
     return location.pathname.startsWith(path);
   }
 
-  function navClass(path) {
-    return `nav-btn${isActive(path) ? ' active' : ''}`;
-  }
-
   return (
     <div className="app-layout">
-      <nav className="top-nav">
-        <div className="nav-brand">YDJ</div>
+      <nav className="top-nav" ref={navRef}>
+        {/* Brand */}
+        <div className="nav-brand">
+          <div className="nav-brand-main">YDJ</div>
+          <div className="nav-brand-sub">Your Dressage Journey</div>
+        </div>
 
-        <Link to="/dashboard" className={navClass('/dashboard')}>&#8962; Home</Link>
+        {/* Home — direct link */}
+        <div className="nav-item">
+          <Link to="/dashboard" className={`nav-btn${isActive('/dashboard') ? ' active' : ''}`}>&#8962; Home</Link>
+        </div>
+
         <div className="nav-sep" />
 
-        {/* Utility trio — always visible */}
-        <Link to="/quickstart" className={`nav-btn nav-special${isActive('/quickstart') ? ' active' : ''}`}>&#9672; Quick Start</Link>
-        <Link to="/insights" className={`nav-btn nav-special${isActive('/insights') ? ' active' : ''}`}>&#10022; Insights</Link>
-        <Link to="/tips-and-faq" className={`nav-btn nav-help${isActive('/tips-and-faq') ? ' active' : ''}`}>? Help</Link>
+        {/* Dropdown groups */}
+        {NAV_GROUPS.map(group => (
+          <div key={group.id} className="nav-item has-dd">
+            <button className="nav-btn">
+              {group.label} <span className="nav-caret">&#9662;</span>
+            </button>
+            <div className="nav-dd">
+              {group.sections.map((section, si) => (
+                <div key={si}>
+                  <div className="dd-section-label">{section.heading}</div>
+                  {section.links.map((link, li) => (
+                    link.href ? (
+                      <a key={li} href={link.href} className="dd-link">
+                        <span className="dd-icon">{link.icon}</span> {link.label}
+                      </a>
+                    ) : (
+                      <Link key={li} to={link.to} className="dd-link">
+                        <span className="dd-icon">{link.icon}</span> {link.label}
+                      </Link>
+                    )
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+
         <div className="nav-sep" />
 
-        {/* Record */}
-        <span className="nav-group-label">Record</span>
-        <Link to="/debriefs/new" className={navClass('/debriefs')}>Debrief</Link>
-        <Link to="/reflections/new" className={navClass('/reflections')}>Reflection</Link>
-        <Link to="/observations/new" className={navClass('/observations')}>Observation</Link>
-        <Link to="/lesson-notes/new" className={navClass('/lesson-notes')}>Lesson</Link>
-        <Link to="/horse-health/new" className={navClass('/horse-health')}>Health</Link>
-        <Link to="/toolkit/new" className={navClass('/toolkit')}>Toolkit</Link>
-        <Link to="/events/new" className={navClass('/events')}>Event</Link>
-        <div className="nav-sep" />
+        {/* Quick Start — direct link */}
+        <div className="nav-item">
+          <Link to="/quickstart" className={`nav-btn nav-special${isActive('/quickstart') ? ' active' : ''}`}>&#9672; Quick Start</Link>
+        </div>
 
-        {/* Plan */}
-        <span className="nav-group-label">Plan</span>
-        <Link to="/show-prep/new" className={navClass('/show-prep')}>Show Prep</Link>
-        <Link to="/practice-card" className={navClass('/practice-card')}>Practice Card</Link>
-        <div className="nav-sep" />
+        <div className="nav-spacer" />
 
-        {/* AI Coaching */}
-        <span className="nav-group-label">AI Coaching</span>
-        <Link to="/insights?tab=journey" className="nav-btn">Journey Map</Link>
-        <Link to="/insights?tab=coaching" className="nav-btn">Multi-Voice</Link>
-        <Link to="/insights?tab=grandprix" className="nav-btn">Grand Prix</Link>
-        <Link to="/insights?tab=physical" className="nav-btn">Physical</Link>
-        <Link to="/insights?tab=dataviz" className="nav-btn">Data Viz</Link>
-        <div className="nav-sep" />
-
-        {/* Profiles */}
-        <span className="nav-group-label">Profiles</span>
-        <Link to="/profile/rider" className={navClass('/profile')}>Rider</Link>
-        <Link to="/horses" className={navClass('/horses')}>Horses</Link>
-        <div className="nav-sep" />
-
-        {/* Learn */}
-        <span className="nav-group-label">Learn</span>
-        <Link to="/learn/test-explorer" className={navClass('/learn')}>Test Explorer</Link>
-        <a href="/arena-geometry-trainer.html" className="nav-btn">Arena Trainer</a>
-        <div className="nav-sep" />
-
-        {/* Settings + User / Sign Out */}
-        <Link to="/settings" className={navClass('/settings')}>&#9881; Settings</Link>
-        <span className="nav-user-name">{currentUser?.displayName || 'Rider'}</span>
-        <button className="nav-btn nav-signout" onClick={handleLogout}>Sign Out</button>
+        {/* Help — direct link */}
+        <div className="nav-item">
+          <Link to="/tips-and-faq" className={`nav-btn nav-help${isActive('/tips-and-faq') ? ' active' : ''}`}>? Help</Link>
+        </div>
       </nav>
 
       <main className="main-content">

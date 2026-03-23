@@ -7,6 +7,8 @@ import useDashboardData from '../hooks/useDashboardData';
 import useWeeklyFocus from '../hooks/useWeeklyFocus';
 import WeeklyFocusContent from '../components/WeeklyFocus/WeeklyFocusContent';
 import { PracticeCardCompact } from '../components/PracticeCard/PracticeCard';
+import MovementCoverageHeatmap from '../components/Dashboard/MovementCoverageHeatmap';
+import ProcessGoalBars from '../components/Dashboard/ProcessGoalBars';
 import {
   getAllDebriefs,
   getAllReflections,
@@ -24,7 +26,13 @@ import './Dashboard.css';
 const ADMIN_UID = 'HwwKk5C7qZh1Bn0KYalPYIZWHmj2';
 const DEFAULT_ORDER = ['stats', 'focus', 'data'];
 
-const INTENTION_COLORS = ['#b8862a', '#3d6b46', '#2e5c82', '#7a3f72', '#8b6340'];
+/* ── Learn group cards ── */
+const DM_LEARN = [
+  { icon: '\uD83D\uDCD0', label: 'Arena Geometry Trainer', desc: 'Letters, lines, geometry', href: '/arena-geometry-trainer.html' },
+  { icon: '\uD83D\uDDD2', label: 'Test Explorer', desc: 'Browse test movements & scores', to: '/learn/test-explorer' },
+  { icon: '\uD83C\uDFA4', label: 'PSG Step-Through', desc: 'Voice-guided test practice', to: '/learn/psg-stepthrough' },
+  { icon: '\uD83D\uDD2C', label: 'Science & Research', desc: 'Learning theory behind YDJ', to: '/learn/science' },
+];
 
 /* ── Record / Plan / Assess / Review card data ── */
 const DM_RECORD = [
@@ -54,41 +62,6 @@ const DM_REVIEW = [
   { icon: '\uD83C\uDFDF', label: 'Show Preparations', desc: 'Past show prep plans', to: '/show-prep' },
   { icon: '\uD83E\uDDF0', label: 'Toolkit', desc: 'Your off-horse catalog', to: '/toolkit' },
 ];
-
-/* ── Sparkline SVG renderer ── */
-function Sparkline({ values, color, label }) {
-  const W = 200, H = 26, MIN = 4, MAX = 10;
-  const gradId = `g-${label.replace(/\s/g, '')}`;
-  const pts = values.map((v, i) => {
-    const x = (i / (values.length - 1)) * (W - 12) + 6;
-    const y = H - ((v - MIN) / (MAX - MIN)) * (H - 8) - 4;
-    return { x, y, v };
-  });
-  const polyline = pts.map(p => `${p.x},${p.y}`).join(' ');
-
-  return (
-    <div className="sparkline-row">
-      <div className="spark-label">{label}</div>
-      <div className="spark-track">
-        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
-          <defs>
-            <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor={color} stopOpacity="0.18" />
-              <stop offset="100%" stopColor={color} stopOpacity="1" />
-            </linearGradient>
-          </defs>
-          <polyline points={polyline} fill="none" stroke={`url(#${gradId})`}
-            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          {pts.map((p, i) => (
-            <circle key={i} cx={p.x} cy={p.y}
-              r={i === pts.length - 1 ? 3.5 : 2} fill={color} />
-          ))}
-        </svg>
-      </div>
-      <div className="spark-val">{values[values.length - 1]}</div>
-    </div>
-  );
-}
 
 /* ── DmCard ── */
 function DmCard({ icon, label, desc, to, color, variant = 'default', arrow = '\uFF0B' }) {
@@ -120,7 +93,7 @@ function DmGroup({ label, children }) {
    ══════════════════════════════════════ */
 export default function Dashboard() {
   const { currentUser } = useAuth();
-  const { loading, stats, recentDebriefs, upcomingEvents, sparklineData, intentionData } = useDashboardData();
+  const { loading, stats, recentDebriefs, upcomingEvents } = useDashboardData();
   const wf = useWeeklyFocus();
 
   // Arrange mode
@@ -332,41 +305,10 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Viz panel — flush at bottom of block */}
+        {/* Viz panel — movement coverage + process goals */}
         <div className="viz-panel">
-          <div>
-            <div className="viz-col-title">Ride Quality &amp; Confidence &middot; Last 8 Rides</div>
-            {sparklineData ? (
-              <div className="sparkline-wrap">
-                <Sparkline values={sparklineData.quality} color="#b8862a" label="Quality" />
-                <Sparkline values={sparklineData.confidence} color="#2e5c82" label="Confidence" />
-              </div>
-            ) : (
-              <div className="viz-placeholder">Your patterns will appear here after a few more rides.</div>
-            )}
-          </div>
-          <div>
-            <div className="viz-col-title">Intention Ratings &middot; 4-Week Average</div>
-            {intentionData ? (
-              <div className="bar-chart">
-                {intentionData.map((d, i) => (
-                  <div key={d.label} className="bar-row">
-                    <div className="bar-label">{d.label}</div>
-                    <div className="bar-track">
-                      <div className="bar-fill" style={{
-                        width: `${(d.avg / 5) * 100}%`,
-                        background: INTENTION_COLORS[i % INTENTION_COLORS.length],
-                        opacity: 0.75,
-                      }} />
-                    </div>
-                    <div className="bar-val">{d.avg}</div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="viz-placeholder">Your patterns will appear here after a few more rides.</div>
-            )}
-          </div>
+          <MovementCoverageHeatmap />
+          <ProcessGoalBars />
         </div>
       </div>
     );
@@ -437,7 +379,7 @@ export default function Dashboard() {
         <div className="block-header">
           <div className="block-header-left">
             <div className="block-title">Your Data</div>
-            <div className="block-subtitle">Record &middot; Plan &middot; Assess &middot; Review &middot; Export</div>
+            <div className="block-subtitle">Record &middot; Plan &middot; Learn &middot; Assess &middot; Review &middot; Export</div>
           </div>
           {arrangeMode && (
             <div className="drag-handle" title="Drag to reorder">
@@ -455,6 +397,23 @@ export default function Dashboard() {
               {DM_PLAN.map(c => <DmCard key={c.to} {...c} />)}
             </DmGroup>
 
+            <DmGroup label="Learn">
+              {DM_LEARN.map(c => (
+                c.href ? (
+                  <a key={c.href} href={c.href} className="dm-card learn-card">
+                    <div className="dm-icon">{c.icon}</div>
+                    <div className="dm-text">
+                      <div className="dm-label">{c.label}</div>
+                      <div className="dm-desc">{c.desc}</div>
+                    </div>
+                    <div className="dm-arrow">&rarr;</div>
+                  </a>
+                ) : (
+                  <DmCard key={c.to} {...c} variant="learn-card" color="var(--c-learn)" arrow="&rarr;" />
+                )
+              ))}
+            </DmGroup>
+
             <DmGroup label="Assess">
               {DM_ASSESS.map(c => (
                 <DmCard key={c.to} {...c} variant="assess" color="var(--c-assess)" arrow="&rarr;" />
@@ -465,17 +424,6 @@ export default function Dashboard() {
               {DM_REVIEW.map(c => (
                 <DmCard key={c.to} {...c} variant="review" arrow="&rarr;" />
               ))}
-            </DmGroup>
-
-            <DmGroup label="Learn">
-              <a href="/arena-geometry-trainer.html" className="dm-card" style={{ borderLeftColor: '#3d6b46' }}>
-                <div className="dm-icon">&#9678;</div>
-                <div className="dm-text">
-                  <div className="dm-label">Arena Geometry Trainer</div>
-                  <div className="dm-desc">Trace figures &middot; get coaching feedback</div>
-                </div>
-                <div className="dm-arrow">&rarr;</div>
-              </a>
             </DmGroup>
 
             <DmGroup label="Export">
