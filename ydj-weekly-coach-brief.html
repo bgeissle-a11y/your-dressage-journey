@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YDJ Weekly Coach Brief</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --parchment: #F9F4EC;
+    --parchment-mid: #F0E8D8;
+    --ink: #2C2416;
+    --ink-light: #4A3F2F;
+    --ink-muted: #7A6E60;
+    --gold: #B8862A;
+    --gold-light: #D4A84B;
+    --gold-pale: #F0E4C4;
+    --tech-color: #8B3A2F;
+    --mental-color: #3A6B7A;
+    --body-color: #3A5C3A;
+    --rule: rgba(184,134,42,0.22);
+    --shadow: rgba(44,36,22,0.08);
+    --consent-green: #2E6B46;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #E8E0D0;
+    font-family: 'Work Sans', sans-serif;
+    color: var(--ink);
+    padding: 32px 16px;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .brief-wrap { width: 100%; max-width: 572px; }
+
+  /* HEADER */
+  .brief-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 16px;
+  }
+
+  .brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  .brief-label {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    font-weight: 500;
+    text-align: right;
+  }
+
+  /* CONSENT BANNER */
+  .consent-banner {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(46,107,70,0.08);
+    border: 1px solid rgba(46,107,70,0.25);
+    border-radius: 3px;
+    padding: 6px 10px;
+    margin-bottom: 12px;
+  }
+
+  .consent-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--consent-green);
+    flex-shrink: 0;
+  }
+
+  .consent-text {
+    font-size: 9.5px;
+    color: var(--consent-green);
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+
+  .consent-text span {
+    font-weight: 400;
+    color: #3A5C3A;
+  }
+
+  .brief-orientation {
+    font-size: 11px;
+    color: var(--ink-muted);
+    font-style: italic;
+    line-height: 1.55;
+    margin-bottom: 14px;
+    padding: 0 2px;
+  }
+
+  /* CARD */
+  .brief-card {
+    background: var(--parchment);
+    border-radius: 3px;
+    box-shadow: 0 2px 12px var(--shadow), 0 0 0 1px rgba(184,134,42,0.15);
+    overflow: hidden;
+  }
+
+  /* IDENTITY BAR */
+  .identity-bar {
+    background: var(--ink);
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .rider-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--gold-light);
+    line-height: 1;
+  }
+
+  .horse-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    font-style: italic;
+    color: rgba(255,255,255,0.6);
+    margin-top: 4px;
+  }
+
+  .rider-type-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+    border-radius: 10px;
+    padding: 2px 9px 2px 6px;
+    font-size: 9px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .rider-type-chip.competitor {
+    background: rgba(184,134,42,0.2);
+    border: 1px solid rgba(184,134,42,0.4);
+    color: var(--gold-light);
+  }
+
+  .rider-type-chip.explorer {
+    background: rgba(58,107,122,0.25);
+    border: 1px solid rgba(58,107,122,0.45);
+    color: #7EC8D8;
+  }
+
+  .rider-type-chip.builder {
+    background: rgba(58,92,58,0.25);
+    border: 1px solid rgba(58,92,58,0.4);
+    color: #90C890;
+  }
+
+  .meta-col {
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .meta-line {
+    font-size: 9px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.42);
+    line-height: 2.1;
+    white-space: nowrap;
+  }
+
+  .meta-line span {
+    color: rgba(255,255,255,0.82);
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    font-size: 10px;
+  }
+
+  /* LEVEL STRIP */
+  .level-strip {
+    background: var(--gold);
+    padding: 5px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .level-badge {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: white;
+    font-weight: 600;
+  }
+
+  .trajectory-tag {
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.9);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 500;
+  }
+
+  /* SECTIONS */
+  .sections { padding: 0; }
+
+  .section {
+    padding: 11px 20px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .section:last-child { border-bottom: none; }
+
+  .section-label {
+    font-size: 8.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 600;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-body {
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--ink-light);
+  }
+
+  /* GROWTH EDGE */
+  .growth-edge {
+    background: var(--gold-pale);
+    border-left: 3px solid var(--gold);
+  }
+
+  .growth-edge .section-body {
+    font-style: italic;
+    color: var(--ink);
+    font-size: 13px;
+  }
+
+  /* COACH CHIPS */
+  .coach-chip {
+    display: inline-block;
+    background: var(--mental-color);
+    color: white;
+    font-size: 8px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+
+  .coach-chip.technical { background: var(--tech-color); }
+  .coach-chip.classical { background: var(--ink-light); }
+  .coach-chip.strategist { background: var(--body-color); }
+
+  .coach-rationale {
+    font-size: 10px;
+    color: var(--ink-muted);
+    font-style: italic;
+    margin-bottom: 6px;
+    line-height: 1.45;
+  }
+
+  /* FLAGGED MOVEMENTS */
+  .flagged-movements-section {
+    background: rgba(139,58,47,0.04);
+    border-left: 3px solid var(--tech-color);
+  }
+
+  .flagged-movements-section .section-label { color: var(--tech-color); }
+
+  .movement-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .mv-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(139,58,47,0.08);
+    border: 1px solid rgba(139,58,47,0.18);
+    border-radius: 10px;
+    padding: 2px 9px;
+    font-size: 10.5px;
+    color: var(--tech-color);
+    font-weight: 500;
+  }
+
+  .mv-chip.coeff {
+    background: rgba(139,58,47,0.14);
+    border-color: rgba(139,58,47,0.32);
+    font-weight: 600;
+  }
+
+  .coeff-tag {
+    font-size: 7.5px;
+    font-weight: 700;
+    background: var(--tech-color);
+    color: white;
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+
+  .flagged-context {
+    font-size: 10px;
+    color: var(--ink-muted);
+    font-style: italic;
+    margin-top: 6px;
+  }
+
+  /* TWO-COL */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; }
+
+  .two-col .section:first-child {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .two-col .section:last-child {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  /* BULLET LISTS */
+  .bullet-list { list-style: none; padding: 0; }
+
+  .bullet-list li {
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: var(--ink-light);
+    padding-left: 12px;
+    position: relative;
+    margin-bottom: 4px;
+  }
+
+  .bullet-list li:last-child { margin-bottom: 0; }
+
+  .bullet-list li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-size: 10px;
+    top: 2px;
+  }
+
+  .bullet-list.aha li::before      { color: var(--body-color); content: '✦'; font-size: 8px; top: 3px; }
+  .bullet-list.obstacle li::before { color: var(--tech-color); content: '△'; font-size: 8px; top: 3px; }
+
+  .sub-label {
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .moment-block { margin-bottom: 8px; }
+  .moment-block:last-child { margin-bottom: 0; }
+
+  /* EVENT BAR */
+  .event-bar {
+    background: #F0EAE0;
+    padding: 8px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .event-text { font-size: 11px; color: var(--ink-light); font-weight: 500; }
+  .event-text strong { color: var(--ink); }
+  .event-text .days-out { color: var(--tech-color); font-weight: 700; }
+
+  /* DATA INTEGRITY NOTE */
+  .integrity-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    margin-top: 11px;
+    padding: 7px 10px;
+    background: rgba(184,134,42,0.06);
+    border-radius: 3px;
+    border: 1px solid rgba(184,134,42,0.16);
+  }
+
+  .integrity-icon { font-size: 11px; flex-shrink: 0; margin-top: 1px; }
+
+  .integrity-text {
+    font-size: 9px;
+    color: var(--ink-muted);
+    line-height: 1.6;
+  }
+
+  .integrity-text a { color: var(--gold); text-decoration: none; }
+
+  /* FOOTER */
+  .brief-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    padding: 0 2px;
+  }
+
+  .footer-note { font-size: 9px; color: var(--ink-muted); }
+  .read-time   { font-size: 9px; color: var(--ink-muted); letter-spacing: 0.05em; }
+
+  @media print {
+    body { background: white; padding: 0; }
+    .brief-wrap { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="brief-wrap">
+
+  <div class="brief-header">
+    <div class="brand">Your Dressage Journey</div>
+    <div class="brief-label">Weekly Rider Brief · Coach Copy</div>
+  </div>
+
+  <!-- Consent Banner -->
+  <div class="consent-banner">
+    <div class="consent-dot"></div>
+    <div class="consent-text">
+      Rider consented to coach sharing
+      <span>· Opt-in confirmed Mar 15, 2026 · Data reflects rider's own entries, unmodified</span>
+    </div>
+  </div>
+
+  <p class="brief-orientation">This brief gives you a weekly view of what your student is observing between lessons — not a replacement for your coaching, but context that's yours to use however it's useful.</p>
+
+  <div class="brief-card">
+
+    <!-- Identity -->
+    <div class="identity-bar">
+      <div>
+        <div class="rider-name">Claire Hendricks</div>
+        <div class="horse-name">Benedikt &amp; Rosalind</div>
+        <div class="rider-type-chip competitor">🏆 Ambitious Competitor</div>
+      </div>
+      <div class="meta-col">
+        <div class="meta-line">Week of <span>Mar 17–23, 2026</span></div>
+        <div class="meta-line">Last entry <span>Mar 20, 2026</span></div>
+        <div class="meta-line">Rides logged <span>14 (30 days)</span></div>
+      </div>
+    </div>
+
+    <!-- Level + Trajectory -->
+    <div class="level-strip">
+      <div class="level-badge">3rd Level · Working toward 4th</div>
+      <div class="trajectory-tag">↗ Building momentum</div>
+    </div>
+
+    <div class="sections">
+
+      <!-- Growth Edge -->
+      <div class="section growth-edge">
+        <div class="section-label">Rider's Identified Growth Edge</div>
+        <div class="section-body">"Trusting the connection — I keep interrupting the half-halt instead of waiting for Benedikt to respond."</div>
+      </div>
+
+      <!-- AI Coach Insight -->
+      <div class="section">
+        <div class="section-label">
+          AI Coach Insight
+          <span class="coach-chip technical">Technical Coach</span>
+        </div>
+        <div class="coach-rationale">Selected: growth edge is biomechanical — timing and release of the half-halt, not confidence or goal-planning.</div>
+        <div class="section-body">Claire's debriefs consistently show the half-halt breaking down in the same place: just before the canter–trot transition, she closes her fingers and then releases before the horse has rebalanced — a split-second too early. The aid is correct; the wait is not. The sensation she's after is the <em>pause</em> between asking and receiving.</div>
+      </div>
+
+      <!-- Flagged Movements -->
+      <div class="section flagged-movements-section">
+        <div class="section-label">Show Prep — Rider-Flagged Movements</div>
+        <div class="movement-chips">
+          <span class="mv-chip coeff">Submission <span class="coeff-tag">×2</span></span>
+          <span class="mv-chip coeff">General Impression <span class="coeff-tag">×2</span></span>
+          <span class="mv-chip">Half-pass in canter</span>
+          <span class="mv-chip">8m voltes</span>
+        </div>
+        <div class="flagged-context">Meadowbrook Schooling Show · 3rd Level Test 3 · 12 days out</div>
+      </div>
+
+      <!-- Two-col: Lessons + AHA/Obstacles -->
+      <div class="two-col">
+        <div class="section">
+          <div class="section-label">Rider-Identified Lesson Insights <span style="font-weight:300;text-transform:none;letter-spacing:0;color:var(--ink-muted);font-size:8px">(30 days)</span></div>
+          <ul class="bullet-list">
+            <li>Shoulder-in to renvers to half-pass — maintaining angle through the change</li>
+            <li>Canter pirouette: sit more, push less with inside leg</li>
+            <li>Extended trot: release the neck on the diagonal</li>
+          </ul>
+        </div>
+        <div class="section">
+          <div class="section-label">Rider-Identified Insights <span style="font-weight:300;text-transform:none;letter-spacing:0;color:var(--ink-muted);font-size:8px">(30 days)</span></div>
+          <div class="moment-block">
+            <div class="sub-label">✦ AHA</div>
+            <ul class="bullet-list aha">
+              <li>"When I breathe out, he actually softens — I had it backwards"</li>
+              <li>Rosalind more consistent on left rein than assumed</li>
+            </ul>
+          </div>
+          <div class="moment-block">
+            <div class="sub-label">△ Obstacle</div>
+            <ul class="bullet-list obstacle">
+              <li>Work schedule disrupted training Mar 10–15</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Event Alert -->
+      <div class="event-bar">
+        <span>📅</span>
+        <span class="event-text"><strong>Upcoming:</strong> Meadowbrook Schooling Show — <span class="days-out">12 days</span> · 3rd Level Test 3 &amp; Musical Freestyle</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Data Integrity Note -->
+  <div class="integrity-note">
+    <span class="integrity-icon">⚑</span>
+    <span class="integrity-text">
+      All content reflects the rider's own entries, unedited. The AI insight uses the same data the rider sees in her platform — nothing here contradicts or supplements what she has been shown. Rider opted in to coach sharing on Mar 15, 2026 and may withdraw consent at any time. · <a href="https://yourdressagejourney.com">yourdressagejourney.com</a>
+    </span>
+  </div>
+
+  <div class="brief-footer">
+    <div class="footer-note">Confidential · For coaching use only</div>
+    <div class="read-time">~55 sec read</div>
+  </div>
+
+</div>
+
+</body>
+</html>

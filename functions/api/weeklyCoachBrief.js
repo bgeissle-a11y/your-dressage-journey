@@ -102,6 +102,28 @@ function firstSentence(str) {
   return match ? match[0].trim() : truncateAtSentence(str, 150);
 }
 
+/**
+ * Convert rider-facing second-person text to coach-to-coach third-person register.
+ * Ensures the snippet opens with the rider's first name.
+ */
+function toCoachRegister(text, firstName) {
+  if (!text) return null;
+  let out = text
+    .replace(/\bYou've\b/g, `${firstName} has`)
+    .replace(/\byou've\b/g, "she has")
+    .replace(/\bYou're\b/g, `${firstName} is`)
+    .replace(/\byou're\b/g, "she is")
+    .replace(/\bYour\b/g, `${firstName}'s`)
+    .replace(/\byour\b/g, "her")
+    .replace(/\bYou\b/g, firstName)
+    .replace(/\byou\b/g, "she");
+  // Ensure it opens with the rider's first name
+  if (!out.startsWith(firstName)) {
+    out = `${firstName} — ${out}`;
+  }
+  return out;
+}
+
 function weekOfLabel() {
   const now = new Date();
   const day = now.getDay();
@@ -278,6 +300,7 @@ async function handler(request) {
     // -- Rider name & level
     const profile = riderProfiles[0] || {};
     const riderName = profile.fullName || "Rider";
+    const firstName = (profile.fullName || "Rider").split(/\s+/)[0];
     const compLevel = profile.compLevel || null;
     const levelLabel = COMP_LEVEL_LABELS[compLevel] || null;
 
@@ -348,23 +371,20 @@ async function handler(request) {
       }
     }
 
-    // -- Growth edge (§2.2): most recent riderAssessment growthAreas[0], fallback debrief challenges
+    // -- Growth edge (§2.2): from cached Multi-Voice Coaching "Your Priority This Week"
     let growthEdge = null;
-    if (riderAssessments.length > 0) {
-      const sorted = [...riderAssessments].sort(
-        (a, b) => new Date(toISODate(b.createdAt) || 0) - new Date(toISODate(a.createdAt) || 0)
-      );
-      const latest = sorted[0];
-      if (latest.growthAreas?.length > 0) {
-        growthEdge = latest.growthAreas[0];
+    if (coachingInsightsSnap.exists) {
+      const insightsData = coachingInsightsSnap.data();
+      const result = insightsData.result || {};
+      const priorityText =
+        result.quickInsights?.priorityThisWeek ||
+        result.priority_this_week ||
+        null;
+      if (priorityText) {
+        growthEdge = truncateAtSentence(priorityText, 160);
       }
     }
-    if (!growthEdge && sortedDebriefs.length > 0) {
-      const withChallenge = sortedDebriefs.find((d) => d.challenges?.trim());
-      if (withChallenge) {
-        growthEdge = truncateAtSentence(withChallenge.challenges, 200);
-      }
-    }
+    // If null, omit the growth edge section entirely — no fallback
 
     // -- AI Coach Insight (§2.1) — extract from cached multi-voice coaching
     //
@@ -395,7 +415,7 @@ async function handler(request) {
           aiCoachInsight = {
             voiceName: "Combined Coaching Insight",
             voiceIndex: null,
-            snippet: truncateAtSentence(snippet, 300),
+            snippet: toCoachRegister(truncateAtSentence(snippet, 300), firstName),
             rationale: qi.celebration || null,
           };
         }
@@ -423,7 +443,7 @@ async function handler(request) {
             aiCoachInsight = {
               voiceName: meta.name || "The Classical Master",
               voiceIndex: meta.index ?? 0,
-              snippet: truncateAtSentence(snippet, 300),
+              snippet: toCoachRegister(truncateAtSentence(snippet, 300), firstName),
               rationale: meta.perspective || null,
             };
           }

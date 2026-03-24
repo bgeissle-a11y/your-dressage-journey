@@ -148,7 +148,7 @@ export default function CoachBriefPreview({ briefData }) {
               {lessonTakeaways.length > 0 && (
                 <div className="cb-section">
                   <div className="cb-section-label">
-                    Recent Lessons <span className="cb-label-note">(30 days)</span>
+                    Rider-Identified Lesson Insights <span className="cb-label-note">(30 days)</span>
                   </div>
                   <ul className="cb-bullet-list">
                     {lessonTakeaways.map((t, i) => (
@@ -160,7 +160,7 @@ export default function CoachBriefPreview({ briefData }) {
               {(ahas.length > 0 || obstacles.length > 0) && (
                 <div className="cb-section">
                   <div className="cb-section-label">
-                    AHAs & Obstacles <span className="cb-label-note">(30 days)</span>
+                    Rider-Identified Insights <span className="cb-label-note">(30 days)</span>
                   </div>
                   {ahas.length > 0 && (
                     <div className="cb-moment-block">

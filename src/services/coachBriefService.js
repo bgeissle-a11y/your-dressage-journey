@@ -142,20 +142,20 @@ export function buildPlainTextBrief(briefData) {
 
   // Lessons
   if (briefData.lessonTakeaways?.length > 0) {
-    lines.push('RECENT LESSON TAKEAWAYS (30 days)');
+    lines.push('RIDER-IDENTIFIED LESSON INSIGHTS (30 days)');
     briefData.lessonTakeaways.forEach(t => lines.push(`  — ${t}`));
     lines.push('');
   }
 
-  // AHAs & Obstacles
-  if (briefData.ahas?.length > 0) {
-    lines.push('AHA MOMENTS (30 days)');
-    briefData.ahas.forEach(a => lines.push(`  ✦ ${a}`));
-    lines.push('');
-  }
-  if (briefData.obstacles?.length > 0) {
-    lines.push('OBSTACLES (30 days)');
-    briefData.obstacles.forEach(o => lines.push(`  △ ${o}`));
+  // Rider-Identified Insights
+  if (briefData.ahas?.length > 0 || briefData.obstacles?.length > 0) {
+    lines.push('RIDER-IDENTIFIED INSIGHTS (30 days)');
+    if (briefData.ahas?.length > 0) {
+      briefData.ahas.forEach(a => lines.push(`  ✦ AHA: ${a}`));
+    }
+    if (briefData.obstacles?.length > 0) {
+      briefData.obstacles.forEach(o => lines.push(`  △ Obstacle: ${o}`));
+    }
     lines.push('');
   }
 
