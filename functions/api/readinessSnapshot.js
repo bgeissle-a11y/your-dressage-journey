@@ -252,22 +252,20 @@ async function handler(request) {
       throw new HttpsError("invalid-argument", "planId is required and must be a string.");
     }
 
-    // Fetch the show plan/prep document
-    // Try showPreparations first (current pattern), then showPlans
-    let planDoc;
-    let planRef;
-    let collectionUsed;
-
-    // Check showPreparations (existing pattern — planId maps to showPreparations doc)
-    const showPrepRef = db.collection("users").doc(uid).collection("showPreparations").doc(planId);
+    // Fetch the show prep document from top-level showPreparations collection
+    const showPrepRef = db.collection("showPreparations").doc(planId);
     const showPrepSnap = await showPrepRef.get();
-    if (showPrepSnap.exists) {
-      planDoc = showPrepSnap.data();
-      planRef = showPrepRef;
-      collectionUsed = "showPreparations";
-    } else {
+    if (!showPrepSnap.exists) {
       throw new HttpsError("not-found", "Show plan not found.");
     }
+    const planDoc = showPrepSnap.data();
+
+    // Verify ownership
+    if (planDoc.userId !== uid) {
+      throw new HttpsError("permission-denied", "You do not have permission to access this document.");
+    }
+
+    const planRef = showPrepRef;
 
     // Check for existing snapshot
     const snapshotRef = planRef.collection("readinessSnapshot").doc("data");

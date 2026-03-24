@@ -17,7 +17,7 @@ import { getTestData } from './testDatabase';
 export function buildPlanContext(planData, flagState, riderData) {
 
   // ── Selected tests ──────────────────────────────────────────────────────
-  const selectedTests = (planData.selectedTests || [planData.testId])
+  const selectedTests = (planData.selectedTests || planData.testsSelected || [planData.testId])
     .filter(Boolean)
     .map((testId) => {
       const testData = getTestData(testId);

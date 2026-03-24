@@ -21,7 +21,7 @@ export default function ReadinessSnapshotCard({ planId, userId, currentDebriefsC
   // Realtime listener — card hydrates when snapshot doc is written
   useEffect(() => {
     if (!planId || !userId) return;
-    const ref = doc(db, `users/${userId}/showPreparations/${planId}/readinessSnapshot`, 'data');
+    const ref = doc(db, `showPreparations/${planId}/readinessSnapshot`, 'data');
     const unsub = onSnapshot(ref, (snap) => {
       if (snap.exists()) {
         setSnapshot(snap.data());

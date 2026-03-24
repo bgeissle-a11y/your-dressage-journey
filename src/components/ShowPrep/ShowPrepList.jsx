@@ -143,7 +143,7 @@ export default function ShowPrepList() {
               const testNames = resolveTestNames(plan.testsSelected);
               return (
                 <div key={plan.id} className="list-card">
-                  <Link to={`/show-prep/${plan.id}/plan`} className="list-card-content" style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <Link to={`/show-planner/${plan.id}`} className="list-card-content" style={{ textDecoration: 'none', color: 'inherit' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div className="list-card-title">{plan.showName}</div>
                       {days !== null && days >= 0 && ['draft', 'active'].includes(plan.status) && (
@@ -167,7 +167,7 @@ export default function ShowPrepList() {
                     </div>
                   </Link>
                   <div className="list-card-actions">
-                    <Link to={`/show-prep/${plan.id}/plan`} className="btn-icon" title="View Plan">View</Link>
+                    <Link to={`/show-planner/${plan.id}`} className="btn-icon" title="View Plan">View</Link>
                     <Link to={`/show-prep/${plan.id}/edit`} className="btn-icon" title="Edit">Edit</Link>
                     <button className="btn-icon delete" title="Delete" onClick={() => setDeleteTarget(plan.id)}>Delete</button>
                   </div>

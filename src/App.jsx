@@ -36,7 +36,6 @@ import JourneyEventList from './components/JourneyEvent/JourneyEventList';
 import JourneyEventForm from './components/JourneyEvent/JourneyEventForm';
 import ShowPrepList from './components/ShowPrep/ShowPrepList';
 import ShowPrepForm from './components/ShowPrep/ShowPrepForm';
-import ShowPrepPlan from './components/ShowPrep/ShowPrepPlan';
 import ShowPlanner from './components/ShowPlanner/ShowPlanner';
 
 // Horse Health
@@ -148,7 +147,6 @@ function App() {
             <Route path="/show-prep" element={<ShowPrepList />} />
             <Route path="/show-prep/new" element={<ShowPrepForm />} />
             <Route path="/show-prep/:id/edit" element={<ShowPrepForm />} />
-            <Route path="/show-prep/:id/plan" element={<ShowPrepPlan />} />
             <Route path="/show-planner/:planId" element={<ShowPlanner />} />
 
             {/* Assessments */}

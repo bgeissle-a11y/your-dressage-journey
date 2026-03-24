@@ -64,6 +64,12 @@ service cloud.firestore {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
       allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+
+      // Readiness Snapshot subcollection — written by Cloud Function, read by client
+      match /readinessSnapshot/{snapId} {
+        allow read: if request.auth != null
+          && get(/databases/$(database)/documents/showPreparations/$(docId)).data.userId == request.auth.uid;
+      }
     }
 
     match /physicalAssessments/{docId} {

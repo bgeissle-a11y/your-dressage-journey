@@ -47,6 +47,15 @@ function todayStr() {
   return new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
+/** Renumber weeks so 1 = Show Week (closest) and N = farthest out, sorted descending. */
+function renumberWeeks(weeks) {
+  const total = weeks.length;
+  return weeks
+    .sort((a, b) => a.week_number - b.week_number) // raw order: 1=farthest
+    .map((w, i) => ({ ...w, week_number: total - i })) // flip: farthest=N, closest=1
+    .sort((a, b) => b.week_number - a.week_number); // display: N→...→1
+}
+
 function normalizeWeek(week) {
   if (!week) return week;
   if (week.mental || week.technical || week.physical) return week;
@@ -88,6 +97,11 @@ export default function ShowPlanner() {
   const [testPanelOpen, setTestPanelOpen] = useState(false);
   const [flagState, setFlagState] = useState({});
   const [debriefsCount, setDebriefsCount] = useState(0);
+  const [needsGeneration, setNeedsGeneration] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [genStep, setGenStep] = useState(0);
+  const [genError, setGenError] = useState(null);
+  const [snapshotOpen, setSnapshotOpen] = useState(false);
   const dragSrc = useRef(null);
 
   // Load data
@@ -122,23 +136,93 @@ export default function ShowPlanner() {
         console.log('[ShowPlanner] Could not load debrief count:', e);
       }
 
-      // Load cached AI plan
+      // Try to load cached week content
       const cached = await getEventPlannerStep({ showPrepPlanId: planId, step: 1, cacheOnly: true });
       if (cached.success && cached.allSections && cached.preparationPlan) {
         const rawWeeks = cached.preparationPlan.weeks || [];
-        const normalized = rawWeeks.map(normalizeWeek);
+        const normalized = renumberWeeks(rawWeeks.map(normalizeWeek));
         setWeeks(normalized);
-        if (normalized.length > 0) {
-          setActiveWeek(normalized[0].week_number);
-        }
+        if (normalized.length > 0) setActiveWeek(normalized[0].week_number);
       } else {
-        setError('No generated plan found. Go back and generate a plan first.');
+        // No cache — show empty state with generate button, not an error
+        setWeeks([]);
+        setNeedsGeneration(true);
       }
     } catch (err) {
       console.error('ShowPlanner load error:', err);
       setError('Failed to load show planner data.');
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function generatePlan() {
+    setGenerating(true);
+    setGenError(null);
+    setGenStep(0);
+    let accumulated = {};
+
+    try {
+      for (let step = 1; step <= 4; step++) {
+        setGenStep(step);
+        const payload = { showPrepPlanId: planId, step };
+        if (step === 1) payload.forceRefresh = false;
+        if (step >= 2) {
+          payload.priorResults = {};
+          if (accumulated.testRequirements) payload.priorResults.testRequirements = accumulated.testRequirements;
+          if (accumulated.readinessAnalysis) payload.priorResults.readinessAnalysis = accumulated.readinessAnalysis;
+          if (accumulated.preparationPlan) payload.priorResults.preparationPlan = accumulated.preparationPlan;
+        }
+
+        const result = await getEventPlannerStep(payload);
+
+        // Cache hit — full plan returned
+        if (result.allSections && result.fromCache) {
+          if (result.preparationPlan) {
+            const rawWeeks = result.preparationPlan.weeks || [];
+            const normalized = renumberWeeks(rawWeeks.map(normalizeWeek));
+            setWeeks(normalized);
+            if (normalized.length > 0) setActiveWeek(normalized[0].week_number);
+          }
+          setNeedsGeneration(false);
+          setGenerating(false);
+          setGenStep(0);
+          return;
+        }
+
+        if (!result.success) {
+          if (result.error === 'insufficient_data') {
+            setGenError(result.message || 'Not enough data yet. Complete your rider profile, add a horse, and submit at least 3 debriefs.');
+            setGenerating(false);
+            setGenStep(0);
+            return;
+          }
+          throw new Error(result.message || `Step ${step} failed.`);
+        }
+
+        if (step === 1) accumulated.testRequirements = result.testRequirements;
+        if (step === 2) accumulated.readinessAnalysis = result.readinessAnalysis;
+        if (step === 3) accumulated.preparationPlan = result.preparationPlan;
+      }
+
+      // After step 4 completes, reload from cache
+      const cached = await getEventPlannerStep({ showPrepPlanId: planId, step: 1, cacheOnly: true });
+      if (cached.success && cached.allSections && cached.preparationPlan) {
+        const rawWeeks = cached.preparationPlan.weeks || [];
+        const normalized = renumberWeeks(rawWeeks.map(normalizeWeek));
+        setWeeks(normalized);
+        if (normalized.length > 0) setActiveWeek(normalized[0].week_number);
+        setNeedsGeneration(false);
+      }
+    } catch (err) {
+      console.error('ShowPlanner generation error:', err);
+      const isTimeout = err.message && (err.message.includes('deadline') || err.message.includes('DEADLINE') || err.message.includes('timed out'));
+      setGenError(isTimeout
+        ? 'The AI is taking longer than expected. Please try again — it often works on the second attempt.'
+        : (err.message || 'An error occurred during plan generation.'));
+    } finally {
+      setGenerating(false);
+      setGenStep(0);
     }
   }
 
@@ -214,7 +298,7 @@ export default function ShowPlanner() {
       <div className="slp-empty">
         <h3>Show Planner</h3>
         <p>{error}</p>
-        <Link to={`/show-prep/${planId}/plan`} className="btn btn-secondary">Back to Show Prep Plan</Link>
+        <Link to="/show-prep" className="btn btn-secondary">Back to Show Preparations</Link>
       </div>
     </div>
   );
@@ -296,11 +380,39 @@ export default function ShowPlanner() {
       )}
 
       {/* ── Readiness Snapshot ── */}
-      <ReadinessSnapshotCard
-        planId={planId}
-        userId={currentUser?.uid}
-        currentDebriefsCount={debriefsCount}
-      />
+      <div className="slp-toggle" onClick={() => setSnapshotOpen(!snapshotOpen)}>
+        <span className="slp-toggle-icon">{'\u{1F3AF}'}</span>
+        <div className="slp-toggle-label">
+          Readiness Snapshot
+          <div className="slp-toggle-sub">Technical Coach assessment of your show readiness</div>
+        </div>
+        <span className={`slp-toggle-caret${snapshotOpen ? ' open' : ''}`}>{'\u25BC'}</span>
+      </div>
+      {snapshotOpen && (
+        <ReadinessSnapshotCard
+          planId={planId}
+          userId={currentUser?.uid}
+          currentDebriefsCount={debriefsCount}
+        />
+      )}
+
+      {/* ── Generate Prompt ── */}
+      {needsGeneration && !generating && (
+        <div className="slp-generate-prompt">
+          <p>Your preparation plan hasn't been generated yet.</p>
+          {genError && <p className="slp-gen-error">{genError}</p>}
+          <button className="btn btn-primary" onClick={generatePlan}>
+            {genError ? 'Try Again' : 'Generate Plan →'}
+          </button>
+        </div>
+      )}
+      {generating && (
+        <div className="slp-generate-prompt">
+          <div className="spinner" style={{ width: '28px', height: '28px', margin: '0 auto 12px' }} />
+          <p>{genStep === 1 ? 'Analyzing test requirements...' : genStep === 2 ? 'Evaluating readiness...' : genStep === 3 ? 'Building preparation plan...' : 'Creating show-day guidance...'}</p>
+          <p style={{ fontSize: '0.82rem', color: 'var(--ink-light)' }}>Step {genStep} of 4 — this takes a few minutes</p>
+        </div>
+      )}
 
       {/* ── Pinned Bar ── */}
       {pinnedItems.length > 0 && (
@@ -363,8 +475,8 @@ export default function ShowPlanner() {
 
       {/* ── Back link ── */}
       <div style={{ marginTop: '2rem', textAlign: 'center' }}>
-        <Link to={`/show-prep/${planId}/plan`} style={{ fontSize: '0.85rem', color: 'var(--ink-light)' }}>
-          &larr; Back to Show Prep Plan
+        <Link to="/show-prep" style={{ fontSize: '0.85rem', color: 'var(--ink-light)' }}>
+          &larr; Back to Show Preparations
         </Link>
       </div>
     </div>
