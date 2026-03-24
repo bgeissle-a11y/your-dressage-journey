@@ -352,13 +352,24 @@ async function handler(request) {
       activePathLabel = PATH_LABELS[activePath] || null;
       activePathClass = PATH_CSS_CLASS[activePath] || null;
 
-      // Extract trajectory snippet — first sentence of the path narrative
-      // Primary: pathNarratives.recommended_path.narrative
-      if (result.pathNarratives?.recommended_path?.narrative) {
-        trajectorySnippet = firstSentence(result.pathNarratives.recommended_path.narrative);
+      // Extract trajectory snippet — first sentence
+      // Primary: pathNarratives.recommended_path.reason (L2-4 output field)
+      if (result.pathNarratives?.recommended_path?.reason) {
+        trajectorySnippet = firstSentence(result.pathNarratives.recommended_path.reason);
       }
 
-      // Fallback: philosophy of the active path
+      // Fallback: narrative of the active path from path_narratives array
+      if (!trajectorySnippet && result.pathNarratives?.path_narratives) {
+        const activePathName = PATH_LABELS[activePath];
+        const matchedNarrative = result.pathNarratives.path_narratives.find(
+          (p) => p.path_name === activePathName
+        );
+        if (matchedNarrative?.narrative) {
+          trajectorySnippet = firstSentence(matchedNarrative.narrative);
+        }
+      }
+
+      // Fallback: philosophy of the active trajectory path
       if (!trajectorySnippet && activePath && result.trajectoryPaths?.paths) {
         const matchedPath = result.trajectoryPaths.paths.find((p) => p.isBestFit) ||
           result.trajectoryPaths.paths.find((p) =>
