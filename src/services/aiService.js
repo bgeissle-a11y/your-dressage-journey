@@ -200,3 +200,15 @@ export async function getAdminStats() {
   const result = await fn({});
   return result.data;
 }
+
+/**
+ * Visualization Script: generate a PETTLEP mental rehearsal script.
+ *
+ * @param {object} formData - Form fields (movement, problemFocus, referenceType, context, etc.)
+ * @returns {Promise<object>} { success, script: { title, totalMinutes, blocks[], reflectionPrompt, recordingTip } }
+ */
+export async function getVisualizationScript(formData) {
+  const fn = httpsCallable(functions, 'getVisualizationScript', { timeout: 120_000 });
+  const result = await fn({ formData });
+  return result.data;
+}

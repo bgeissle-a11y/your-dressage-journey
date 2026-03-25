@@ -35,6 +35,7 @@ const adminStats = require("./api/adminStats");
 const arenaCoaching = require("./api/arenaCoaching");
 const weeklyCoachBrief = require("./api/weeklyCoachBrief");
 const readinessSnapshot = require("./api/readinessSnapshot");
+const visualizationScript = require("./api/visualizationScript");
 
 // Secrets — declared once, referenced by all AI functions
 const anthropicKey = defineSecret("ANTHROPIC_API_KEY");
@@ -115,6 +116,13 @@ exports.getEventPlanner = onCall(
 exports.getReadinessSnapshot = onCall(
   { secrets: [anthropicKey], timeoutSeconds: 120, memory: "512MiB" },
   readinessSnapshot.handler
+);
+
+// Visualization Script: PETTLEP mental rehearsal script for a dressage movement
+// Input: { formData: { movement, problemFocus, referenceType, context, ... } }
+exports.getVisualizationScript = onCall(
+  { secrets: [anthropicKey], timeoutSeconds: 120, memory: "512MiB" },
+  visualizationScript.handler
 );
 
 // Physical Guidance: physical pattern analysis + exercise prescription

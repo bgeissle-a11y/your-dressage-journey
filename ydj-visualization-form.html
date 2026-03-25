@@ -1,0 +1,1895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualization Script Builder | Your Dressage Journey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Firebase SDK (compat for standalone HTML) -->
+    <script src="https://www.gstatic.com/firebasejs/11.3.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.3.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.3.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.3.0/firebase-functions-compat.js"></script>
+    <style>
+        :root {
+            --color-primary: #8B7355;
+            --color-secondary: #D4A574;
+            --color-accent: #C67B5C;
+            --color-success: #6B8E5F;
+            --color-bg: #FAF8F5;
+            --color-bg-secondary: #F5F1EB;
+            --color-text: #3A3A3A;
+            --color-text-light: #7A7A7A;
+            --color-border: #E0D5C7;
+            --color-gold: #B8862A;
+            --color-mental: #5C8BA8;
+            --shadow-soft: 0 2px 12px rgba(139,115,85,0.08);
+            --shadow-medium: 0 4px 24px rgba(139,115,85,0.12);
+            --shadow-lift: 0 8px 32px rgba(139,115,85,0.18);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background: linear-gradient(160deg, var(--color-bg) 0%, var(--color-bg-secondary) 100%);
+            color: var(--color-text);
+            min-height: 100vh;
+            padding: 24px 20px 60px;
+            line-height: 1.6;
+        }
+
+        .container { max-width: 800px; margin: 0 auto; }
+
+        /* ── Header ── */
+        header {
+            text-align: center;
+            padding: 44px 32px 36px;
+            margin-bottom: 32px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--color-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--color-mental), var(--color-gold), var(--color-accent));
+        }
+
+        .header-eyebrow {
+            font-size: 0.75em;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--color-mental);
+            margin-bottom: 10px;
+        }
+
+        header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.4em;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .header-sub {
+            font-size: 1em;
+            color: var(--color-text-light);
+            max-width: 540px;
+            margin: 0 auto 20px;
+        }
+
+        .header-note {
+            font-size: 0.88em;
+            color: var(--color-text);
+            line-height: 1.7;
+            padding: 14px 20px;
+            background: rgba(92,139,168,0.06);
+            border: 1px solid rgba(92,139,168,0.18);
+            border-radius: 10px;
+            max-width: 580px;
+            margin: 0 auto;
+        }
+
+        /* ── Section Card ── */
+        .section-card {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 20px 28px 16px;
+            border-bottom: 1px solid var(--color-bg-secondary);
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .section-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            color: white;
+            font-size: 0.8em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .section-num.optional {
+            background: var(--color-border);
+            color: var(--color-text-light);
+        }
+
+        .section-title-block h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25em;
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-bottom: 2px;
+        }
+
+        .section-title-block p {
+            font-size: 0.85em;
+            color: var(--color-text-light);
+        }
+
+        .optional-tag {
+            font-size: 0.72em;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--color-text-light);
+            background: var(--color-bg-secondary);
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .section-body { padding: 24px 28px; }
+
+        /* ── Movement Picker ── */
+        .movement-group { margin-bottom: 20px; }
+        .movement-group:last-child { margin-bottom: 0; }
+
+        .movement-group-label {
+            font-size: 0.72em;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--color-text-light);
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--color-bg-secondary);
+        }
+
+        .movement-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .movement-chip {
+            padding: 7px 14px;
+            border-radius: 24px;
+            border: 1.5px solid var(--color-border);
+            background: white;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.88em;
+            font-weight: 500;
+            color: var(--color-text);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .movement-chip:hover {
+            border-color: var(--color-primary);
+            background: rgba(139,115,85,0.04);
+        }
+
+        .movement-chip.selected {
+            border-color: var(--color-mental);
+            background: rgba(92,139,168,0.08);
+            color: var(--color-mental);
+            font-weight: 600;
+        }
+
+        .movement-chip .arrow {
+            font-size: 0.75em;
+            opacity: 0.6;
+        }
+
+        .advanced-chip {
+            border-style: dashed;
+            color: var(--color-text-light);
+        }
+
+        .advanced-chip.selected {
+            border-style: solid;
+        }
+
+        /* ── Sub-selection ── */
+        .sub-select-panel {
+            display: none;
+            margin-top: 14px;
+            padding: 16px 18px;
+            background: rgba(92,139,168,0.05);
+            border: 1px solid rgba(92,139,168,0.15);
+            border-radius: 10px;
+            animation: fadeSlideDown 0.2s ease;
+        }
+
+        .sub-select-panel.visible { display: block; }
+
+        @keyframes fadeSlideDown {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .sub-select-label {
+            font-size: 0.82em;
+            font-weight: 600;
+            color: var(--color-mental);
+            margin-bottom: 10px;
+        }
+
+        .sub-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .sub-option {
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1.5px solid rgba(92,139,168,0.3);
+            background: white;
+            font-size: 0.85em;
+            font-weight: 500;
+            color: var(--color-text);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .sub-option:hover { border-color: var(--color-mental); }
+
+        .sub-option.selected {
+            background: var(--color-mental);
+            border-color: var(--color-mental);
+            color: white;
+        }
+
+        /* ── Aspiration Caution ── */
+        .aspiration-note {
+            display: none;
+            margin-top: 16px;
+            padding: 14px 18px;
+            background: rgba(184,134,42,0.06);
+            border: 1px solid rgba(184,134,42,0.25);
+            border-radius: 10px;
+            animation: fadeSlideDown 0.2s ease;
+        }
+
+        .aspiration-note.visible { display: block; }
+
+        .aspiration-note p {
+            font-size: 0.85em;
+            color: var(--color-text);
+            line-height: 1.65;
+        }
+
+        .aspiration-note strong {
+            color: var(--color-gold);
+        }
+
+        /* ── Radio Cards ── */
+        .radio-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .radio-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 14px 18px;
+            border: 1.5px solid var(--color-border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            background: white;
+        }
+
+        .radio-card:hover {
+            border-color: var(--color-primary);
+            background: rgba(139,115,85,0.02);
+        }
+
+        .radio-card.selected {
+            border-color: var(--color-mental);
+            background: rgba(92,139,168,0.06);
+        }
+
+        .radio-card input[type="radio"] {
+            margin-top: 3px;
+            accent-color: var(--color-mental);
+            flex-shrink: 0;
+        }
+
+        .radio-card-label {
+            font-size: 0.92em;
+            font-weight: 500;
+            color: var(--color-text);
+            margin-bottom: 2px;
+        }
+
+        .radio-card-desc {
+            font-size: 0.82em;
+            color: var(--color-text-light);
+            line-height: 1.5;
+        }
+
+        /* ── Reference textarea ── */
+        .reference-textarea {
+            display: none;
+            margin-top: 12px;
+        }
+
+        .reference-textarea.visible { display: block; }
+
+        .reference-textarea textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid var(--color-border);
+            border-radius: 10px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.9em;
+            color: var(--color-text);
+            resize: vertical;
+            min-height: 80px;
+            background: var(--color-bg);
+            transition: border-color 0.15s;
+        }
+
+        .reference-textarea textarea:focus {
+            outline: none;
+            border-color: var(--color-mental);
+        }
+
+        .reference-textarea label {
+            display: block;
+            font-size: 0.82em;
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-bottom: 6px;
+        }
+
+        /* ── Toggle row (for optional sections) ── */
+        .context-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        @media (max-width: 560px) { .context-grid { grid-template-columns: 1fr; } }
+
+        .context-card {
+            padding: 14px 16px;
+            border: 1.5px solid var(--color-border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-align: center;
+            background: white;
+        }
+
+        .context-card:hover { border-color: var(--color-primary); }
+
+        .context-card.selected {
+            border-color: var(--color-mental);
+            background: rgba(92,139,168,0.07);
+        }
+
+        .context-card input { display: none; }
+
+        .context-icon { font-size: 1.6em; margin-bottom: 6px; }
+
+        .context-label {
+            font-size: 0.87em;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 3px;
+        }
+
+        .context-desc {
+            font-size: 0.76em;
+            color: var(--color-text-light);
+            line-height: 1.4;
+        }
+
+        /* ── Sensory pills ── */
+        .sensory-pills {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .sensory-pill {
+            padding: 9px 18px;
+            border-radius: 24px;
+            border: 1.5px solid var(--color-border);
+            background: white;
+            font-size: 0.88em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .sensory-pill:hover { border-color: var(--color-primary); }
+
+        .sensory-pill.selected {
+            border-color: var(--color-mental);
+            background: rgba(92,139,168,0.08);
+            color: var(--color-mental);
+            font-weight: 600;
+        }
+
+        /* ── Length selector ── */
+        .length-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        .length-option {
+            flex: 1;
+            padding: 12px 14px;
+            border: 1.5px solid var(--color-border);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            background: white;
+        }
+
+        .length-option:hover { border-color: var(--color-primary); }
+
+        .length-option.selected {
+            border-color: var(--color-mental);
+            background: rgba(92,139,168,0.07);
+        }
+
+        .length-option input { display: none; }
+
+        .length-time {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3em;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 2px;
+        }
+
+        .length-label {
+            font-size: 0.8em;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 3px;
+        }
+
+        .length-desc {
+            font-size: 0.74em;
+            color: var(--color-text-light);
+            line-height: 1.4;
+        }
+
+        /* ── Generate button ── */
+        .generate-area {
+            text-align: center;
+            margin: 32px 0 40px;
+        }
+
+        .btn-generate {
+            padding: 16px 44px;
+            background: linear-gradient(135deg, var(--color-mental), #4a7a96);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1.05em;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 18px rgba(92,139,168,0.35);
+            transition: all 0.2s ease;
+            letter-spacing: 0.01em;
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(92,139,168,0.4);
+        }
+
+        .btn-generate:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .generate-note {
+            margin-top: 12px;
+            font-size: 0.82em;
+            color: var(--color-text-light);
+        }
+
+        /* ══════════════════════════════════════
+           OUTPUT PREVIEW SECTION
+        ══════════════════════════════════════ */
+        .output-preview {
+            display: none;
+            margin-top: 0;
+        }
+
+        .output-preview.visible { display: block; }
+
+        .output-header {
+            background: white;
+            border-radius: 16px 16px 0 0;
+            border: 1px solid var(--color-border);
+            border-bottom: none;
+            padding: 28px 32px 22px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .output-header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--color-mental), var(--color-gold));
+        }
+
+        .output-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.7em;
+            color: var(--color-primary);
+            margin-bottom: 4px;
+        }
+
+        .output-meta {
+            font-size: 0.83em;
+            color: var(--color-text-light);
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .output-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Recording Instructions */
+        .recording-instructions {
+            background: rgba(184,134,42,0.05);
+            border: 1px solid rgba(184,134,42,0.2);
+            border-left: 4px solid var(--color-gold);
+            border-radius: 0;
+            padding: 20px 28px;
+        }
+
+        .recording-instructions h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05em;
+            color: var(--color-gold);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .recording-instructions p {
+            font-size: 0.88em;
+            color: var(--color-text);
+            line-height: 1.7;
+            margin-bottom: 8px;
+        }
+
+        .recording-instructions p:last-child { margin-bottom: 0; }
+
+        .recording-steps {
+            list-style: none;
+            margin: 10px 0;
+        }
+
+        .recording-steps li {
+            font-size: 0.87em;
+            color: var(--color-text);
+            padding: 5px 0 5px 22px;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        .recording-steps li::before {
+            content: attr(data-step);
+            position: absolute;
+            left: 0;
+            font-weight: 700;
+            color: var(--color-gold);
+        }
+
+        /* Script blocks */
+        .script-blocks {
+            background: white;
+            border: 1px solid var(--color-border);
+            border-top: none;
+            border-radius: 0 0 16px 16px;
+        }
+
+        .script-block {
+            border-bottom: 1px solid var(--color-bg-secondary);
+            overflow: hidden;
+        }
+
+        .script-block:last-child { border-bottom: none; }
+
+        .block-header {
+            padding: 18px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--color-bg);
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.15s;
+        }
+
+        .block-header:hover { background: var(--color-bg-secondary); }
+
+        .block-header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .block-phase {
+            font-size: 0.7em;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .phase-settle { background: rgba(92,139,168,0.1); color: var(--color-mental); }
+        .phase-arrive { background: rgba(107,142,95,0.1); color: var(--color-success); }
+        .phase-warmup { background: rgba(198,123,92,0.1); color: var(--color-accent); }
+        .phase-work   { background: rgba(139,115,85,0.1); color: var(--color-primary); }
+        .phase-close  { background: rgba(184,134,42,0.1); color: var(--color-gold); }
+        .phase-reflect{ background: rgba(92,139,168,0.08); color: var(--color-mental); border: 1px solid rgba(92,139,168,0.2); }
+
+        .block-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05em;
+            color: var(--color-text);
+            font-weight: 600;
+        }
+
+        .block-timer-badge {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.83em;
+            font-weight: 600;
+            color: var(--color-text-light);
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: 20px;
+            padding: 4px 12px;
+            white-space: nowrap;
+        }
+
+        .block-timer-badge .timer-icon { font-size: 0.9em; }
+
+        .block-content {
+            padding: 24px 28px;
+            display: none;
+        }
+
+        .block-content.open { display: block; }
+
+        /* Pause instruction */
+        .pause-instruction {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            background: rgba(92,139,168,0.05);
+            border: 1px dashed rgba(92,139,168,0.3);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .pause-icon { font-size: 1.5em; }
+
+        .pause-text {
+            font-size: 0.88em;
+            color: var(--color-mental);
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .pause-text strong { font-weight: 700; }
+
+        /* Script content paragraphs */
+        .script-text p {
+            font-size: 0.93em;
+            color: var(--color-text);
+            line-height: 1.85;
+            margin-bottom: 14px;
+        }
+
+        .script-text p:last-child { margin-bottom: 0; }
+
+        .em-dash { color: var(--color-text-light); }
+
+        .script-text .breath-cue {
+            display: inline-block;
+            padding: 1px 7px;
+            background: rgba(92,139,168,0.08);
+            border-radius: 4px;
+            font-style: italic;
+            font-size: 0.9em;
+            color: var(--color-mental);
+        }
+
+        .script-text .key-concept {
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+
+        /* Start timer button */
+        .start-timer-btn {
+            margin-top: 18px;
+            padding: 9px 20px;
+            background: white;
+            border: 1.5px solid var(--color-mental);
+            border-radius: 8px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.84em;
+            font-weight: 600;
+            color: var(--color-mental);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: all 0.15s;
+        }
+
+        .start-timer-btn:hover {
+            background: rgba(92,139,168,0.08);
+        }
+
+        .timer-display {
+            display: none;
+            margin-top: 10px;
+            padding: 10px 16px;
+            background: rgba(92,139,168,0.06);
+            border-radius: 8px;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--color-mental);
+            text-align: center;
+            letter-spacing: 0.05em;
+        }
+
+        /* Reflection box */
+        .reflection-box {
+            padding: 20px 22px;
+            background: rgba(184,134,42,0.05);
+            border: 1px solid rgba(184,134,42,0.2);
+            border-radius: 12px;
+        }
+
+        .reflection-prompt {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 1.05em;
+            color: var(--color-gold);
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .reflection-box textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid rgba(184,134,42,0.25);
+            border-radius: 8px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.88em;
+            color: var(--color-text);
+            background: white;
+            min-height: 70px;
+            resize: vertical;
+            transition: border-color 0.15s;
+        }
+
+        .reflection-box textarea:focus {
+            outline: none;
+            border-color: var(--color-gold);
+        }
+
+        .reflection-box label {
+            display: block;
+            font-size: 0.78em;
+            font-weight: 600;
+            color: var(--color-text-light);
+            margin-bottom: 6px;
+        }
+
+        /* Progress & save row */
+        .output-actions {
+            display: flex;
+            gap: 10px;
+            padding: 20px 28px;
+            background: var(--color-bg-secondary);
+            border-top: 1px solid var(--color-border);
+            flex-wrap: wrap;
+            border-radius: 0 0 16px 16px;
+        }
+
+        .btn-save {
+            padding: 10px 22px;
+            background: var(--color-success);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.88em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-save:hover { opacity: 0.9; }
+
+        .btn-reset {
+            padding: 10px 22px;
+            background: transparent;
+            color: var(--color-text-light);
+            border: 1.5px solid var(--color-border);
+            border-radius: 8px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.88em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-reset:hover { border-color: var(--color-primary); color: var(--color-primary); }
+
+        /* validation hint */
+        .validation-hint {
+            font-size: 0.8em;
+            color: var(--color-accent);
+            margin-top: 8px;
+            display: none;
+        }
+
+        .validation-hint.visible { display: block; }
+
+        /* ── Auth / Loading / Error / Toast states ── */
+        .auth-gate {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--color-text-light);
+        }
+        .auth-gate a {
+            color: var(--color-mental);
+            font-weight: 600;
+        }
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(250,248,245,0.85);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .loading-overlay.visible { display: flex; }
+        .loading-spinner {
+            width: 44px; height: 44px;
+            border: 4px solid var(--color-border);
+            border-top-color: var(--color-mental);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text {
+            font-size: 0.95em;
+            color: var(--color-text);
+            font-weight: 500;
+        }
+        .inline-error {
+            display: none;
+            margin-top: 12px;
+            padding: 12px 18px;
+            background: rgba(198,123,92,0.08);
+            border: 1px solid rgba(198,123,92,0.25);
+            border-radius: 10px;
+            color: var(--color-accent);
+            font-size: 0.88em;
+            text-align: center;
+        }
+        .inline-error.visible { display: block; }
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--color-success);
+            color: white;
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            font-weight: 600;
+            box-shadow: var(--shadow-medium);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 200;
+        }
+        .toast.visible {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Generating your visualization script...</div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ══ HEADER ══ -->
+    <header>
+        <div class="header-eyebrow">🧠 Rider's Toolkit</div>
+        <h1>Visualization Script Builder</h1>
+        <p class="header-sub">Build a personalized mental rehearsal script for any movement — then use it between rides to develop feel before you're in the saddle.</p>
+        <div class="header-note">
+            Your script is generated from your rider profile, horse profile, and debrief history.
+            Answer the questions below to frame what the AI needs to personalize it for you.
+        </div>
+    </header>
+
+    <!-- ══ FORM ══ -->
+    <div id="form-area">
+
+        <!-- ── Section 1: Movement ── -->
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-num">1</div>
+                <div class="section-title-block">
+                    <h2>Which movement do you want to rehearse?</h2>
+                    <p>Choose one. Sub-options appear for movements that need more specificity.</p>
+                </div>
+            </div>
+            <div class="section-body">
+
+                <div class="movement-group">
+                    <div class="movement-group-label">Foundation & Balance</div>
+                    <div class="movement-grid">
+                        <button class="movement-chip" data-movement="sitting-trot" onclick="selectMovement(this)">Sitting trot</button>
+                        <button class="movement-chip" data-movement="stretchy-circle" onclick="selectMovement(this)">Stretchy circle</button>
+                    </div>
+                </div>
+
+                <div class="movement-group">
+                    <div class="movement-group-label">Lateral Work</div>
+                    <div class="movement-grid">
+                        <button class="movement-chip" data-movement="leg-yield" onclick="selectMovement(this)">Leg yield</button>
+                        <button class="movement-chip" data-movement="shoulder-in" onclick="selectMovement(this)">Shoulder-in</button>
+                        <button class="movement-chip" data-movement="travers" onclick="selectMovement(this)">Travers</button>
+                        <button class="movement-chip" data-movement="renvers" onclick="selectMovement(this)">Renvers</button>
+                        <button class="movement-chip" data-movement="half-pass" data-has-sub="true" onclick="selectMovement(this)">Half-pass <span class="arrow">›</span></button>
+                    </div>
+                </div>
+
+                <div class="movement-group">
+                    <div class="movement-group-label">Transitions & Changes</div>
+                    <div class="movement-grid">
+                        <button class="movement-chip" data-movement="transition" data-has-sub="true" onclick="selectMovement(this)">Transition <span class="arrow">›</span></button>
+                        <button class="movement-chip" data-movement="simple-change" onclick="selectMovement(this)">Simple change</button>
+                        <button class="movement-chip" data-movement="flying-change" onclick="selectMovement(this)">Flying change</button>
+                        <button class="movement-chip" data-movement="tempi-changes" data-has-sub="true" onclick="selectMovement(this)">Tempi changes <span class="arrow">›</span></button>
+                    </div>
+                </div>
+
+                <div class="movement-group">
+                    <div class="movement-group-label">Advanced Collection</div>
+                    <div class="movement-grid">
+                        <button class="movement-chip advanced-chip" data-movement="pirouette" data-has-sub="true" onclick="selectMovement(this)">Pirouette <span class="arrow">›</span></button>
+                        <button class="movement-chip advanced-chip" data-movement="piaffe" onclick="selectMovement(this)">Piaffe</button>
+                        <button class="movement-chip advanced-chip" data-movement="passage" onclick="selectMovement(this)">Passage</button>
+                    </div>
+                </div>
+
+                <!-- Sub-selections -->
+                <div id="sub-half-pass" class="sub-select-panel">
+                    <div class="sub-select-label">Which gait?</div>
+                    <div class="sub-options">
+                        <button class="sub-option" data-parent="half-pass" data-sub="trot" onclick="selectSub(this)">Trot</button>
+                        <button class="sub-option" data-parent="half-pass" data-sub="canter" onclick="selectSub(this)">Canter</button>
+                    </div>
+                </div>
+
+                <div id="sub-transition" class="sub-select-panel">
+                    <div class="sub-select-label">Which transition?</div>
+                    <div class="sub-options">
+                        <button class="sub-option" data-parent="transition" data-sub="walk-trot" onclick="selectSub(this)">Walk → Trot</button>
+                        <button class="sub-option" data-parent="transition" data-sub="trot-canter" onclick="selectSub(this)">Trot → Canter</button>
+                        <button class="sub-option" data-parent="transition" data-sub="canter-trot" onclick="selectSub(this)">Canter → Trot</button>
+                        <button class="sub-option" data-parent="transition" data-sub="trot-walk" onclick="selectSub(this)">Trot → Walk</button>
+                        <button class="sub-option" data-parent="transition" data-sub="canter-walk" onclick="selectSub(this)">Canter → Walk</button>
+                        <button class="sub-option" data-parent="transition" data-sub="halt-rein-back" onclick="selectSub(this)">Halt / Rein-back</button>
+                    </div>
+                </div>
+
+                <div id="sub-tempi-changes" class="sub-select-panel">
+                    <div class="sub-select-label">How many strides between changes?</div>
+                    <div class="sub-options">
+                        <button class="sub-option" data-parent="tempi-changes" data-sub="4-tempi" onclick="selectSub(this)">4-tempi</button>
+                        <button class="sub-option" data-parent="tempi-changes" data-sub="3-tempi" onclick="selectSub(this)">3-tempi</button>
+                        <button class="sub-option" data-parent="tempi-changes" data-sub="2-tempi" onclick="selectSub(this)">2-tempi</button>
+                        <button class="sub-option" data-parent="tempi-changes" data-sub="1-tempi" onclick="selectSub(this, true)">1-tempi</button>
+                    </div>
+                </div>
+
+                <div id="sub-pirouette" class="sub-select-panel">
+                    <div class="sub-select-label">Size of pirouette?</div>
+                    <div class="sub-options">
+                        <button class="sub-option" data-parent="pirouette" data-sub="quarter" onclick="selectSub(this)">Quarter</button>
+                        <button class="sub-option" data-parent="pirouette" data-sub="half" onclick="selectSub(this)">Half</button>
+                        <button class="sub-option" data-parent="pirouette" data-sub="full" onclick="selectSub(this, true)">Full</button>
+                    </div>
+                    <div style="margin-top:10px;font-size:0.8em;color:var(--color-text-light);">
+                        Note: Walk or canter?
+                        <div class="sub-options" style="margin-top:6px;">
+                            <button class="sub-option" data-parent="pirouette" data-sub2="walk" onclick="selectSub2(this)">Walk</button>
+                            <button class="sub-option" data-parent="pirouette" data-sub2="canter" onclick="selectSub2(this)">Canter</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aspiration note (shown for advanced movements) -->
+                <div id="aspiration-note" class="aspiration-note">
+                    <p>✨ <strong>An aspiration movement — and a great one to visualize.</strong> Imagery is one of the most legitimate ways to begin building a felt sense of a movement before you have physical experience of it. Research supports this: mental practice develops internal movement representations even without physical repetition.</p>
+                    <p style="margin-top:8px;">Your script will be grounded in what you already know — the feel of collection, the rhythm of canter, the coordination you've already built — and it will extend from there toward the new movement. The first few sessions are about laying track, not running on it.</p>
+                </div>
+
+                <div class="validation-hint" id="hint-movement">Please select a movement to continue.</div>
+            </div>
+        </div>
+
+        <!-- ── Section 2: Problem to Solve ── -->
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-num">2</div>
+                <div class="section-title-block">
+                    <h2>What specifically needs work?</h2>
+                    <p>The problem you're solving shapes the heart of your script.</p>
+                </div>
+            </div>
+            <div class="section-body">
+                <div class="radio-cards" id="problem-cards">
+
+                    <label class="radio-card" onclick="selectCard(this, 'problem-cards')">
+                        <input type="radio" name="problem" value="timing">
+                        <div>
+                            <div class="radio-card-label">⏱ Timing of the aid is off</div>
+                            <div class="radio-card-desc">The movement happens but the aid arrives early, late, or inconsistently — the rhythm isn't yours yet.</div>
+                        </div>
+                    </label>
+
+                    <label class="radio-card" onclick="selectCard(this, 'problem-cards')">
+                        <input type="radio" name="problem" value="position">
+                        <div>
+                            <div class="radio-card-label">🪑 My position breaks down</div>
+                            <div class="radio-card-desc">I tip forward, grip, collapse, or brace at the moment of difficulty. My body interferes with what I want.</div>
+                        </div>
+                    </label>
+
+                    <label class="radio-card" onclick="selectCard(this, 'problem-cards')">
+                        <input type="radio" name="problem" value="collection">
+                        <div>
+                            <div class="radio-card-label">📉 Loss of collection / horse flattens</div>
+                            <div class="radio-card-desc">We lose energy, tempo, or throughness going into or during the movement. The quality drops.</div>
+                        </div>
+                    </label>
+
+                    <label class="radio-card" onclick="selectCard(this, 'problem-cards')">
+                        <input type="radio" name="problem" value="anticipation">
+                        <div>
+                            <div class="radio-card-label">⚡ Horse anticipates, rushes, or tenses</div>
+                            <div class="radio-card-desc">He knows it's coming and reacts before the aid. I need to rehearse staying quiet and unreadable.</div>
+                        </div>
+                    </label>
+
+                    <label class="radio-card" onclick="selectCard(this, 'problem-cards')">
+                        <input type="radio" name="problem" value="mental">
+                        <div>
+                            <div class="radio-card-label">😶 I freeze mentally / lose confidence going in</div>
+                            <div class="radio-card-desc">I hesitate, second-guess, or hold my breath. The movement lives in my head as much as in my body.</div>
+                        </div>
+                    </label>
+
+                    <label class="radio-card" onclick="selectCard(this, 'problem-cards')">
+                        <input type="radio" name="problem" value="unfamiliar">
+                        <div>
+                            <div class="radio-card-label">🗺 I'm building from scratch — no physical reference yet</div>
+                            <div class="radio-card-desc">I haven't ridden this movement. I want to develop an internal sense of it before I ask for it physically.</div>
+                        </div>
+                    </label>
+
+                </div>
+                <div class="validation-hint" id="hint-problem">Please select the challenge you're working on.</div>
+            </div>
+        </div>
+
+        <!-- ── Section 3: Reference Moment ── -->
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-num">3</div>
+                <div class="section-title-block">
+                    <h2>Do you have a reference moment to anchor the script?</h2>
+                    <p>A real memory — even partial — makes imagery significantly more effective.</p>
+                </div>
+            </div>
+            <div class="section-body">
+                <div class="radio-cards" id="reference-cards">
+
+                    <label class="radio-card" onclick="selectCard(this, 'reference-cards'); showRefText(false)">
+                        <input type="radio" name="reference" value="recent">
+                        <div>
+                            <div class="radio-card-label">✅ Yes — a recent ride I can describe</div>
+                            <div class="radio-card-desc">This is the most powerful anchor. The AI will build from this specific felt memory.</div>
+                        </div>
+                    </label>
+
+                    <label class="radio-card" onclick="selectCard(this, 'reference-cards'); showRefText(false)">
+                        <input type="radio" name="reference" value="old">
+                        <div>
+                            <div class="radio-card-label">📅 Yes — but it was a while ago</div>
+                            <div class="radio-card-desc">Even a faded memory anchors the imagery better than nothing. Describe what you remember.</div>
+                        </div>
+                    </label>
+
+                    <label class="radio-card" onclick="selectCard(this, 'reference-cards'); showRefText(true)">
+                        <input type="radio" name="reference" value="partial">
+                        <div>
+                            <div class="radio-card-label">🧩 Partially — I have pieces but not the whole thing</div>
+                            <div class="radio-card-desc">One stride that felt right. One moment of connection. That's enough.</div>
+                        </div>
+                    </label>
+
+                    <label class="radio-card" onclick="selectCard(this, 'reference-cards'); showRefText(false, true)">
+                        <input type="radio" name="reference" value="none">
+                        <div>
+                            <div class="radio-card-label">🌱 Not really — we're building something new</div>
+                            <div class="radio-card-desc">The script will be constructed from component feelings you do know, extended toward the new movement.</div>
+                        </div>
+                    </label>
+
+                </div>
+
+                <div id="ref-textarea" class="reference-textarea">
+                    <label>Describe the moment in a few sentences — what did you feel?</label>
+                    <textarea name="reference_text" rows="3" placeholder="e.g., In my Wednesday lesson Cindy had me come out of the corner with more inside leg and the canter half-pass just flowed — I felt him swing through his back and there was this moment where I wasn't pushing, just following..."></textarea>
+                </div>
+
+                <div class="validation-hint" id="hint-reference">Please select a reference option.</div>
+            </div>
+        </div>
+
+        <!-- ── Section 4: Context ── -->
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-num">4</div>
+                <div class="section-title-block">
+                    <h2>Where is this script set?</h2>
+                    <p>The environment layer of your imagery — choose what you're preparing for.</p>
+                </div>
+            </div>
+            <div class="section-body">
+                <div class="context-grid">
+
+                    <label class="context-card" onclick="selectContext(this)">
+                        <input type="radio" name="context" value="training">
+                        <div class="context-icon">🏠</div>
+                        <div class="context-label">Training ride</div>
+                        <div class="context-desc">At home. Quiet arena. The work itself, not the performance of it.</div>
+                    </label>
+
+                    <label class="context-card" onclick="selectContext(this)">
+                        <input type="radio" name="context" value="warmup">
+                        <div class="context-icon">⛺</div>
+                        <div class="context-label">Show warm-up</div>
+                        <div class="context-desc">Other horses, noise, limited space. Staying focused under distraction.</div>
+                    </label>
+
+                    <label class="context-card" onclick="selectContext(this)">
+                        <input type="radio" name="context" value="test">
+                        <div class="context-icon">🏟</div>
+                        <div class="context-label">Competition test</div>
+                        <div class="context-desc">Down the centerline. The movement in context of the full test ride.</div>
+                    </label>
+
+                </div>
+                <div class="validation-hint" id="hint-context">Please select a context.</div>
+            </div>
+        </div>
+
+        <!-- ── Section 5: Sensory Channel (optional) ── -->
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-num optional">5</div>
+                <div class="section-title-block">
+                    <h2>When you're riding well, what do you notice first? <span class="optional-tag">Optional</span></h2>
+                    <p>Helps the AI weight the right sensory language in your script.</p>
+                </div>
+            </div>
+            <div class="section-body">
+                <div class="sensory-pills">
+                    <button class="sensory-pill" data-value="feel" onclick="selectSensory(this)">🤲 What I feel in my body — rhythm, weight, contact, balance</button>
+                    <button class="sensory-pill" data-value="hear" onclick="selectSensory(this)">👂 What I hear — footfalls, rhythm, tempo</button>
+                    <button class="sensory-pill" data-value="see" onclick="selectSensory(this)">👁 What I see — line, geometry, where I'm going</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Section 6: Script Length (optional) ── -->
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-num optional">6</div>
+                <div class="section-title-block">
+                    <h2>How long do you want the session to be? <span class="optional-tag">Optional</span></h2>
+                    <p>Defaults to Standard if not selected.</p>
+                </div>
+            </div>
+            <div class="section-body">
+                <div class="length-options">
+
+                    <label class="length-option" onclick="selectLength(this)">
+                        <input type="radio" name="length" value="short">
+                        <div class="length-time">~8 min</div>
+                        <div class="length-label">Quick</div>
+                        <div class="length-desc">Settle + movement + brief close. Good for daily use.</div>
+                    </label>
+
+                    <label class="length-option selected" onclick="selectLength(this)">
+                        <input type="radio" name="length" value="standard" checked>
+                        <div class="length-time">~12 min</div>
+                        <div class="length-label">Standard</div>
+                        <div class="length-desc">Full PETTLEP structure. Best for most sessions.</div>
+                    </label>
+
+                    <label class="length-option" onclick="selectLength(this)">
+                        <input type="radio" name="length" value="extended">
+                        <div class="length-time">~18 min</div>
+                        <div class="length-label">Extended</div>
+                        <div class="length-desc">Multiple rehearsal passes. Pre-show or deep work.</div>
+                    </label>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Generate button -->
+        <div class="generate-area">
+            <button class="btn-generate" id="generate-btn" onclick="generateScript()">
+                🧠 Generate My Visualization Script
+            </button>
+            <div class="generate-note">Sections 1–4 required · 5 & 6 optional · Script saved to your Toolkit</div>
+            <div class="inline-error" id="generate-error"></div>
+        </div>
+
+    </div><!-- /form-area -->
+
+
+    <!-- ══════════════════════════════════════
+         OUTPUT SECTION (dynamically rendered)
+    ══════════════════════════════════════ -->
+    <div id="output-preview" class="output-preview">
+        <!-- Populated dynamically by renderScript() -->
+    </div>
+
+</div><!-- /container -->
+
+<script>
+    // ═══════════════════════════════════════════════════
+    // Firebase Configuration
+    // ═══════════════════════════════════════════════════
+    // IMPORTANT: Replace these placeholder values with your actual Firebase config.
+    // Get them from Firebase Console > Project Settings > Your Apps > Web App.
+    const FIREBASE_CONFIG = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT.firebaseapp.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT.appspot.com",
+        messagingSenderId: "YOUR_SENDER_ID",
+        appId: "YOUR_APP_ID"
+    };
+
+    firebase.initializeApp(FIREBASE_CONFIG);
+    const authService = firebase.auth();
+    const dbService = firebase.firestore();
+    const functionsService = firebase.functions();
+
+    // ═══════════════════════════════════════════════════
+    // State
+    // ═══════════════════════════════════════════════════
+    let selectedMovement = null;
+    let selectedSub = null;
+    let selectedSub2 = null;
+    let currentUser = null;
+    let currentScriptId = null;
+    let currentScript = null;
+    let currentScriptLength = 'standard';
+    let expandedBlocks = new Set();
+    const aspirationalMovements = ['piaffe','passage','1-tempi','2-tempi','full'];
+
+    // ═══════════════════════════════════════════════════
+    // Auth Guard
+    // ═══════════════════════════════════════════════════
+    authService.onAuthStateChanged(user => {
+        currentUser = user;
+        if (!user) {
+            document.getElementById('form-area').style.display = 'none';
+            document.getElementById('output-preview').classList.remove('visible');
+            const container = document.querySelector('.container');
+            if (!document.getElementById('auth-gate')) {
+                const gate = document.createElement('div');
+                gate.id = 'auth-gate';
+                gate.className = 'auth-gate';
+                gate.innerHTML = '<p>Please <a href="/login">sign in</a> to use the Visualization Script Builder.</p>';
+                container.insertBefore(gate, container.querySelector('header').nextSibling);
+            }
+            return;
+        }
+        // Authenticated — remove gate if present
+        const gate = document.getElementById('auth-gate');
+        if (gate) gate.remove();
+
+        // Check URL for scriptId (returning to a saved script)
+        const params = new URLSearchParams(window.location.search);
+        const scriptId = params.get('scriptId');
+        if (scriptId) {
+            loadExistingScript(scriptId);
+        } else {
+            document.getElementById('form-area').style.display = 'block';
+        }
+    });
+
+    // ═══════════════════════════════════════════════════
+    // Load existing script from Firestore
+    // ═══════════════════════════════════════════════════
+    async function loadExistingScript(scriptId) {
+        try {
+            const doc = await dbService.collection('riderToolkitEntries').doc(scriptId).get();
+            if (!doc.exists || doc.data().userId !== currentUser.uid) {
+                showInlineError('generate-error', 'Script not found or access denied.');
+                document.getElementById('form-area').style.display = 'block';
+                return;
+            }
+            const data = doc.data();
+            if (data.entryType !== 'visualization-script' || !data.scriptContent) {
+                showInlineError('generate-error', 'This is not a visualization script.');
+                document.getElementById('form-area').style.display = 'block';
+                return;
+            }
+            currentScriptId = scriptId;
+            currentScript = typeof data.scriptContent === 'string' ? JSON.parse(data.scriptContent) : data.scriptContent;
+            currentScriptLength = data.scriptLength || 'standard';
+            document.getElementById('form-area').style.display = 'none';
+            renderScript(currentScript, data.context || 'training');
+        } catch (err) {
+            console.error('Error loading script:', err);
+            showInlineError('generate-error', 'Failed to load the script. Please try again.');
+            document.getElementById('form-area').style.display = 'block';
+        }
+    }
+
+    // ═══════════════════════════════════════════════════
+    // Form interactions (unchanged from prototype)
+    // ═══════════════════════════════════════════════════
+    function selectMovement(btn) {
+        document.querySelectorAll('.movement-chip').forEach(c => c.classList.remove('selected'));
+        document.querySelectorAll('.sub-select-panel').forEach(p => p.classList.remove('visible'));
+        document.querySelectorAll('.sub-option').forEach(o => o.classList.remove('selected'));
+        selectedSub = null; selectedSub2 = null;
+
+        btn.classList.add('selected');
+        selectedMovement = btn.dataset.movement;
+
+        if (btn.dataset.hasSub) {
+            const panel = document.getElementById('sub-' + selectedMovement);
+            if (panel) panel.classList.add('visible');
+        }
+
+        const aspNote = document.getElementById('aspiration-note');
+        aspNote.classList.toggle('visible', aspirationalMovements.includes(selectedMovement));
+        document.getElementById('hint-movement').classList.remove('visible');
+    }
+
+    function selectSub(btn, isAspirational) {
+        document.querySelectorAll(`.sub-option[data-parent="${btn.dataset.parent}"][data-sub]`).forEach(o => o.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedSub = btn.dataset.sub;
+        const aspNote = document.getElementById('aspiration-note');
+        if (isAspirational) {
+            aspNote.classList.add('visible');
+        } else {
+            const chip = document.querySelector(`.movement-chip[data-movement="${btn.dataset.parent}"]`);
+            if (chip && !chip.classList.contains('advanced-chip')) aspNote.classList.remove('visible');
+        }
+    }
+
+    function selectSub2(btn) {
+        document.querySelectorAll(`.sub-option[data-sub2]`).forEach(o => o.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedSub2 = btn.dataset.sub2;
+    }
+
+    function selectCard(card, groupId) {
+        document.querySelectorAll(`#${groupId} .radio-card`).forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        const hintId = 'hint-' + groupId.replace('-cards','');
+        const hint = document.getElementById(hintId);
+        if (hint) hint.classList.remove('visible');
+    }
+
+    function showRefText(show, hideText) {
+        const ta = document.getElementById('ref-textarea');
+        if (show) ta.classList.add('visible');
+        else ta.classList.remove('visible');
+        document.getElementById('hint-reference').classList.remove('visible');
+    }
+
+    function selectContext(card) {
+        document.querySelectorAll('.context-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        document.getElementById('hint-context').classList.remove('visible');
+    }
+
+    function selectSensory(btn) {
+        document.querySelectorAll('.sensory-pill').forEach(p => p.classList.remove('selected'));
+        btn.classList.add('selected');
+    }
+
+    function selectLength(card) {
+        document.querySelectorAll('.length-option').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+    }
+
+    // ═══════════════════════════════════════════════════
+    // Validation
+    // ═══════════════════════════════════════════════════
+    function validate() {
+        let valid = true;
+        if (!selectedMovement) {
+            document.getElementById('hint-movement').classList.add('visible');
+            valid = false;
+        }
+        if (!document.querySelector('#problem-cards .radio-card.selected')) {
+            document.getElementById('hint-problem').classList.add('visible');
+            valid = false;
+        }
+        if (!document.querySelector('#reference-cards .radio-card.selected')) {
+            document.getElementById('hint-reference').classList.add('visible');
+            valid = false;
+        }
+        if (!document.querySelector('.context-card.selected')) {
+            document.getElementById('hint-context').classList.add('visible');
+            valid = false;
+        }
+        return valid;
+    }
+
+    // ═══════════════════════════════════════════════════
+    // Collect form data
+    // ═══════════════════════════════════════════════════
+    function collectFormData() {
+        const problemRadio = document.querySelector('#problem-cards input[type="radio"]:checked');
+        const referenceRadio = document.querySelector('#reference-cards input[type="radio"]:checked');
+        const contextRadio = document.querySelector('.context-card input[type="radio"]:checked');
+        const sensoryBtn = document.querySelector('.sensory-pill.selected');
+        const lengthRadio = document.querySelector('.length-option.selected input[type="radio"]');
+        const refTextarea = document.querySelector('#ref-textarea textarea');
+
+        return {
+            movement: selectedMovement,
+            movementSub: selectedSub || null,
+            movementSub2: selectedSub2 || null,
+            problemFocus: problemRadio ? problemRadio.value : null,
+            referenceType: referenceRadio ? referenceRadio.value : null,
+            referenceText: (refTextarea && refTextarea.value.trim()) || null,
+            context: contextRadio ? contextRadio.value : null,
+            sensoryPreference: sensoryBtn ? sensoryBtn.dataset.value : null,
+            scriptLength: lengthRadio ? lengthRadio.value : 'standard',
+        };
+    }
+
+    // ═══════════════════════════════════════════════════
+    // Movement label builder (client-side mirror of server)
+    // ═══════════════════════════════════════════════════
+    function buildMovementLabel(fd) {
+        function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+        const labels = {
+            'sitting-trot': 'Sitting Trot', 'stretchy-circle': 'Stretchy Circle',
+            'leg-yield': 'Leg Yield', 'shoulder-in': 'Shoulder-In',
+            'travers': 'Travers', 'renvers': 'Renvers',
+            'half-pass': fd.movementSub ? `Half-Pass (${cap(fd.movementSub)})` : 'Half-Pass',
+            'transition': fd.movementSub ? `Transition: ${({'walk-trot':'Walk → Trot','trot-canter':'Trot → Canter','canter-trot':'Canter → Trot','trot-walk':'Trot → Walk','canter-walk':'Canter → Walk','halt-rein-back':'Halt / Rein-Back'}[fd.movementSub] || fd.movementSub)}` : 'Transition',
+            'simple-change': 'Simple Change', 'flying-change': 'Flying Change',
+            'tempi-changes': fd.movementSub ? `${fd.movementSub.replace('-tempi','-Tempi')} Changes` : 'Tempi Changes',
+            'pirouette': (() => { const sz = fd.movementSub ? cap(fd.movementSub)+' ' : ''; const gt = fd.movementSub2 ? ` (${cap(fd.movementSub2)})` : ''; return `${sz}Pirouette${gt}`; })(),
+            'piaffe': 'Piaffe', 'passage': 'Passage',
+        };
+        return labels[fd.movement] || fd.movement;
+    }
+
+    // ═══════════════════════════════════════════════════
+    // Generate Script (API call + Firestore save)
+    // ═══════════════════════════════════════════════════
+    async function generateScript() {
+        if (!validate()) {
+            document.querySelector('.section-card').scrollIntoView({behavior:'smooth', block:'start'});
+            return;
+        }
+        if (!currentUser) {
+            showInlineError('generate-error', 'Please sign in to generate a script.');
+            return;
+        }
+
+        const formData = collectFormData();
+        currentScriptLength = formData.scriptLength;
+        const errorEl = document.getElementById('generate-error');
+        errorEl.classList.remove('visible');
+
+        // Show loading
+        const loading = document.getElementById('loading-overlay');
+        loading.classList.add('visible');
+        document.getElementById('generate-btn').disabled = true;
+
+        try {
+            // Call Cloud Function
+            const getVisualizationScript = functionsService.httpsCallable('getVisualizationScript');
+            const result = await getVisualizationScript({ formData });
+
+            if (!result.data || !result.data.success || !result.data.script) {
+                throw new Error(result.data?.message || 'Script generation failed.');
+            }
+
+            currentScript = result.data.script;
+
+            // Save to Firestore
+            const movementLabel = buildMovementLabel(formData);
+            const docRef = await dbService.collection('riderToolkitEntries').add({
+                userId: currentUser.uid,
+                entryType: 'visualization-script',
+                movement: formData.movement,
+                movementSub: formData.movementSub || null,
+                movementSub2: formData.movementSub2 || null,
+                movementLabel: movementLabel,
+                problemFocus: formData.problemFocus,
+                referenceType: formData.referenceType,
+                referenceText: formData.referenceText || null,
+                context: formData.context,
+                sensoryPreference: formData.sensoryPreference || null,
+                scriptLength: formData.scriptLength || 'standard',
+                scriptContent: JSON.stringify(currentScript),
+                category: 'mental',
+                status: 'currently-using',
+                name: `Visualization: ${movementLabel}`,
+                sessionCount: 0,
+                lastSessionDate: null,
+                isDeleted: false,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            });
+
+            currentScriptId = docRef.id;
+
+            // Update URL without reload
+            const newUrl = new URL(window.location);
+            newUrl.searchParams.set('scriptId', currentScriptId);
+            window.history.replaceState({}, '', newUrl);
+
+            // Hide form, render output
+            loading.classList.remove('visible');
+            document.getElementById('form-area').style.display = 'none';
+            renderScript(currentScript, formData.context);
+            showToast('Script generated and saved to your Toolkit.');
+
+        } catch (err) {
+            loading.classList.remove('visible');
+            document.getElementById('generate-btn').disabled = false;
+            console.error('Generation error:', err);
+            const msg = err.message || "We couldn't generate your script right now. Please try again.";
+            showInlineError('generate-error', msg);
+        }
+    }
+
+    // ═══════════════════════════════════════════════════
+    // Render Script (dynamic output section)
+    // ═══════════════════════════════════════════════════
+    function renderScript(script, context) {
+        const contextIcons = { training: '🏠', warmup: '⛺', test: '🏟' };
+        const contextLabels = { training: 'Training ride', warmup: 'Show warm-up', test: 'Competition test' };
+        expandedBlocks = new Set();
+
+        const output = document.getElementById('output-preview');
+        output.innerHTML = `
+            <div class="output-header">
+                <div class="output-title">${escHtml(script.title)}</div>
+                <div class="output-meta">
+                    <span>⏱ ~${script.totalMinutes} minutes</span>
+                    <span>${contextIcons[context] || '🏠'} ${contextLabels[context] || context}</span>
+                    <span>📅 Generated today</span>
+                </div>
+            </div>
+
+            <div class="recording-instructions">
+                <h3>🎙 Want to record this and play it back?</h3>
+                <p>The most effective way to use this script is to hear it with your eyes closed — in your own voice, at your own pace. Here's how to record it in one take on your phone:</p>
+                <ol class="recording-steps">
+                    <li data-step="1.">Find a quiet space before your next ride. Read the script through once silently so nothing surprises you.</li>
+                    <li data-step="2.">Open your phone's Voice Memos app (iOS) or Recorder app (Android). Press record.</li>
+                    <li data-step="3.">Read slowly — far slower than feels natural. The <span style="color:var(--color-gold);font-weight:600;">— pause cues</span> mean 3–4 full seconds of silence. Let them breathe.</li>
+                    <li data-step="4.">You don't need a perfect take. A stumble followed by a natural pause is fine — it's your voice your nervous system trusts.</li>
+                    <li data-step="5.">Save the file. Before each session, press play, set your phone face-down, and close your eyes.</li>
+                </ol>
+                ${script.recordingTip ? `<p style="margin-top:8px;font-size:0.85em;color:var(--color-gold);font-weight:500;">${escHtml(script.recordingTip)}</p>` : ''}
+                <p style="margin-top:4px;font-size:0.85em;color:var(--color-text-light);">No recording? Use the <strong>read-chunk method</strong>: read each section below, then put the phone face-down and close your eyes for that section before continuing to the next.</p>
+            </div>
+
+            <div class="script-blocks" id="script-blocks-container">
+                ${script.blocks.map((block, i) => renderBlock(block, i)).join('')}
+            </div>
+
+            <div class="output-actions">
+                <button class="btn-save" id="save-session-btn" onclick="saveSession()">✓ Save Session</button>
+                <button class="btn-reset" onclick="resetForm()">← Build another script</button>
+                <div class="inline-error" id="session-error" style="flex-basis:100%;"></div>
+            </div>
+        `;
+
+        output.classList.add('visible');
+        output.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    function renderBlock(block, index) {
+        const isFirst = index === 0;
+        const isReflect = block.phase === 'reflect';
+
+        // Track expanded blocks
+        if (isFirst) expandedBlocks.add(block.phase);
+
+        const timerBadge = isReflect
+            ? '<span class="block-timer-badge">No timer</span>'
+            : `<span class="block-timer-badge"><span class="timer-icon">⏱</span> ${block.minutes} min</span>`;
+
+        const timerButton = !isReflect && block.hasTimer !== false
+            ? `<button class="start-timer-btn" onclick="startTimer(this, ${block.minutes * 60})">⏱ Start ${block.minutes}-min timer</button><div class="timer-display"></div>`
+            : '';
+
+        // Format script content: — → styled dashes, **text** → <strong class="key-concept">
+        const formattedContent = formatScriptContent(block.content);
+
+        // Reflection block gets a textarea
+        const reflectionHtml = isReflect ? `
+            <div class="reflection-box">
+                <div class="reflection-prompt">"${escHtml(currentScript.reflectionPrompt || 'What did my body want to do that I had to consciously choose not to do?')}"</div>
+                <label>Write one sentence. This is your pattern to watch for in the saddle.</label>
+                <textarea id="reflection-textarea" placeholder="e.g., My body wanted to tip forward and look down after each change to check if it happened..."></textarea>
+            </div>
+            <p style="font-size:0.82em;color:var(--color-text-light);margin-top:14px;line-height:1.6;">This response feeds back into your YDJ data. Over time, patterns in what your body wants to do become as useful as patterns in what actually happens.</p>
+        ` : '';
+
+        return `
+            <div class="script-block" data-phase="${block.phase}">
+                <div class="block-header" onclick="toggleBlock(this, '${block.phase}')">
+                    <div class="block-header-left">
+                        <span class="block-phase phase-${block.phase}">${capitalize(block.phase)}</span>
+                        <span class="block-title">${escHtml(block.title)}</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        ${timerBadge}
+                        <span style="color:var(--color-text-light);font-size:0.9em;">${isFirst ? '▾' : '▸'}</span>
+                    </div>
+                </div>
+                <div class="block-content${isFirst ? ' open' : ''}">
+                    ${!isReflect ? `
+                    <div class="pause-instruction">
+                        <span class="pause-icon">👁</span>
+                        <span class="pause-text">${escHtml(block.pauseInstruction || 'Read this section, then close your eyes.')}</span>
+                    </div>` : ''}
+                    ${!isReflect ? `<div class="script-text">${formattedContent}</div>` : ''}
+                    ${reflectionHtml}
+                    ${timerButton}
+                </div>
+            </div>
+        `;
+    }
+
+    function formatScriptContent(content) {
+        if (!content) return '';
+        // Split into paragraphs by double newlines or single newlines
+        const paragraphs = content.split(/\n\n|\n/).filter(p => p.trim());
+        return paragraphs.map(p => {
+            // Replace **text** with key-concept spans
+            let html = escHtml(p);
+            html = html.replace(/\*\*(.*?)\*\*/g, '<span class="key-concept">$1</span>');
+            // Replace standalone — with styled em-dash
+            html = html.replace(/\s—\s?/g, ' <span class="em-dash">—</span> ');
+            html = html.replace(/—$/g, '<span class="em-dash">—</span>');
+            return `<p>${html}</p>`;
+        }).join('');
+    }
+
+    // ═══════════════════════════════════════════════════
+    // Save Session (reflection + completedBlocks)
+    // ═══════════════════════════════════════════════════
+    async function saveSession() {
+        if (!currentUser || !currentScriptId) return;
+
+        const textarea = document.getElementById('reflection-textarea');
+        const reflectionText = textarea ? textarea.value.trim() : '';
+        const saveBtn = document.getElementById('save-session-btn');
+
+        try {
+            // Save session to subcollection
+            await dbService
+                .collection('riderToolkitEntries')
+                .doc(currentScriptId)
+                .collection('sessions')
+                .add({
+                    sessionDate: new Date().toISOString().split('T')[0],
+                    reflectionResponse: reflectionText,
+                    completedBlocks: Array.from(expandedBlocks),
+                    sessionLength: currentScriptLength,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                });
+
+            // Update parent script document
+            await dbService
+                .collection('riderToolkitEntries')
+                .doc(currentScriptId)
+                .update({
+                    sessionCount: firebase.firestore.FieldValue.increment(1),
+                    lastSessionDate: new Date().toISOString().split('T')[0],
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                });
+
+            saveBtn.disabled = true;
+            saveBtn.textContent = '✓ Session Saved';
+            showToast('Session saved. Your reflection has been recorded.');
+        } catch (err) {
+            console.error('Session save error:', err);
+            showInlineError('session-error', 'Failed to save session. Please try again.');
+        }
+    }
+
+    // ═══════════════════════════════════════════════════
+    // UI helpers
+    // ═══════════════════════════════════════════════════
+    function toggleBlock(header, phase) {
+        const content = header.nextElementSibling;
+        const arrow = header.querySelector('span:last-child');
+        const isOpen = content.classList.contains('open');
+        content.classList.toggle('open', !isOpen);
+        arrow.textContent = isOpen ? '▸' : '▾';
+        // Track expanded blocks for completedBlocks
+        if (!isOpen && phase) expandedBlocks.add(phase);
+    }
+
+    function startTimer(btn, seconds) {
+        const display = btn.nextElementSibling;
+        display.style.display = 'block';
+        btn.disabled = true;
+        btn.textContent = '⏸ Timer running…';
+
+        let remaining = seconds;
+        const update = () => {
+            const m = Math.floor(remaining / 60);
+            const s = remaining % 60;
+            display.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+            if (remaining <= 0) {
+                display.textContent = '✓ Done';
+                display.style.color = 'var(--color-success)';
+                btn.textContent = '✓ Complete';
+                return;
+            }
+            remaining--;
+            setTimeout(update, 1000);
+        };
+        update();
+    }
+
+    function resetForm() {
+        document.getElementById('output-preview').classList.remove('visible');
+        document.getElementById('output-preview').innerHTML = '';
+        document.getElementById('form-area').style.display = 'block';
+        document.getElementById('generate-btn').disabled = false;
+        currentScriptId = null;
+        currentScript = null;
+        expandedBlocks = new Set();
+        // Remove scriptId from URL
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.delete('scriptId');
+        window.history.replaceState({}, '', newUrl);
+        window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    function showInlineError(elementId, message) {
+        const el = document.getElementById(elementId);
+        if (el) {
+            el.textContent = message;
+            el.classList.add('visible');
+        }
+    }
+
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.add('visible');
+        setTimeout(() => toast.classList.remove('visible'), 3000);
+    }
+
+    function escHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    function capitalize(str) {
+        if (!str) return '';
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+</script>
+</body>
+</html>

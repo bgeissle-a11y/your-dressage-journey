@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, collection, getDocs } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../firebase-config';
 import useDashboardData from '../hooks/useDashboardData';
@@ -187,6 +187,33 @@ export default function Dashboard() {
       if (tkRes.success && tkRes.data.length) {
         const tkExport = tkRes.data.map(e => ({ ...e, bodyTags: Array.isArray(e.bodyTags) ? e.bodyTags.join('|') : e.bodyTags }));
         exportFn(tkExport, `toolkit-${today}`, EXPORT_COLUMNS.riderToolkitEntries);
+
+        // Export visualization sessions from subcollections
+        const vizEntries = tkRes.data.filter(e => e.entryType === 'visualization-script' && e.sessionCount > 0);
+        if (vizEntries.length > 0) {
+          const allSessions = [];
+          for (const entry of vizEntries) {
+            try {
+              const sessionsSnap = await getDocs(collection(db, 'riderToolkitEntries', entry.id, 'sessions'));
+              sessionsSnap.forEach(sDoc => {
+                const s = sDoc.data();
+                allSessions.push({
+                  scriptId: entry.id,
+                  movementLabel: entry.movementLabel || entry.name,
+                  sessionDate: s.sessionDate || '',
+                  reflectionResponse: s.reflectionResponse || '',
+                  completedBlocks: Array.isArray(s.completedBlocks) ? s.completedBlocks.join('|') : '',
+                  sessionLength: s.sessionLength || '',
+                });
+              });
+            } catch (e) {
+              console.warn('Failed to fetch sessions for', entry.id, e);
+            }
+          }
+          if (allSessions.length > 0) {
+            exportFn(allSessions, `visualization-sessions-${today}`, EXPORT_COLUMNS.visualizationSessions);
+          }
+        }
       }
     } catch (err) {
       console.error('Export failed:', err);

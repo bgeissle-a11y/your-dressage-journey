@@ -12,6 +12,15 @@ import './Toolkit.css';
 
 const STATUS_ORDER = TOOLKIT_STATUSES.map(s => s.value);
 
+const PROBLEM_LABELS = {
+  timing: 'Timing of the aid',
+  position: 'Position breaks down',
+  collection: 'Loss of collection',
+  anticipation: 'Horse anticipates or rushes',
+  mental: 'Mental freeze or confidence loss',
+  unfamiliar: 'Building from scratch',
+};
+
 const FILTERS = [
   { value: 'all', label: 'All' },
   ...TOOLKIT_CATEGORIES.filter(c => c.value !== 'other').map(c => ({
@@ -100,6 +109,7 @@ export default function ToolkitList() {
             </>
           )}
           <Link to="/toolkit/new" className="btn-new">+ New Entry</Link>
+          <a href="/ydj-visualization-form.html" className="btn-new tk-viz-btn">Build Visualization Script</a>
         </div>
       </div>
 
@@ -156,7 +166,50 @@ export default function ToolkitList() {
               <p>No entries in this category yet.</p>
             </div>
           ) : (
-            filtered.map(entry => (
+            filtered.map(entry => entry.entryType === 'visualization-script' ? (
+              <div key={entry.id} className="tk-entry-card tk-viz-card">
+                <div className="tk-entry-top">
+                  <div className="tk-entry-title">{entry.name}</div>
+                  <span className="tk-cat-badge mental">Mental Rehearsal</span>
+                </div>
+
+                <div className="tk-entry-meta-row">
+                  <span className="tk-entry-meta-item">
+                    <span className={`tk-status-dot ${entry.status}`} />
+                    {STATUS_LABELS[entry.status]}
+                  </span>
+                  {entry.sessionCount > 0 && (
+                    <span className="tk-entry-meta-item">
+                      {entry.sessionCount} session{entry.sessionCount > 1 ? 's' : ''} completed
+                    </span>
+                  )}
+                  {entry.lastSessionDate && (
+                    <span className="tk-entry-meta-item">Last used: {formatDate(entry.lastSessionDate)}</span>
+                  )}
+                </div>
+
+                {entry.problemFocus && (
+                  <div className="tk-entry-description tk-viz-problem">
+                    {PROBLEM_LABELS[entry.problemFocus] || entry.problemFocus}
+                  </div>
+                )}
+
+                <div className="tk-entry-actions">
+                  <a
+                    href={`/ydj-visualization-form.html?scriptId=${entry.id}`}
+                    className="tk-entry-btn tk-viz-open-btn"
+                  >
+                    Open Script
+                  </a>
+                  <button className="tk-entry-btn" onClick={() => handleCycleStatus(entry.id)}>
+                    Change status
+                  </button>
+                  <button className="tk-entry-btn delete" onClick={() => setDeleteTarget(entry.id)}>
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ) : (
               <div key={entry.id} className="tk-entry-card">
                 <div className="tk-entry-top">
                   <div className="tk-entry-title">{entry.name}</div>

@@ -3592,6 +3592,217 @@ Create personalized exercises, a pre-ride warm-up, and in-ride body awareness cu
   return { system, userMessage };
 }
 
+// ─── Visualization Script Builder ─────────────────────────────────
+
+function buildVisualizationScriptSystemPrompt() {
+  return `You are generating a personalized mental rehearsal (visualization) script for an adult amateur dressage rider. Your script follows the PETTLEP model (Holmes & Collins, 2001): Physical setup, Environment, Task specificity, Timing (real-time pacing), Learning (appropriate to skill level), Emotion (authentic feeling states), and Perspective (first-person internal throughout).
+
+SCRIPT PHILOSOPHY:
+- This is a felt-sense practice, not a performance checklist. Language should evoke sensation, rhythm, and presence — not instruct or evaluate.
+- The horse is always present as an active participant. The rider imagines both bodies, not just their own. Use the horse's name throughout.
+- Pause cues (—) are placed where silence is needed. They appear frequently in the Settle and Work sections. They are doing therapeutic work — do not omit them.
+- Key concepts are bolded using **text** syntax. Use sparingly — one or two per section at most.
+- The rider's own language from their debriefs and reflections is more powerful than any generic phrasing. When the context includes quotes or paraphrases from their writing, weave them in.
+- The Settle and Arrive sections are never skipped or compressed, even for the short script length. They establish the nervous system state the rest of the session depends on.
+
+DRESSAGE DOMAIN RULES (never violate):
+- Use the horse's name, not "your horse"
+- Aid timing in canter lives in the moment of suspension — the brief period when all four feet are off the ground. This is where every flying change and tempi change aid is given.
+- Collection is stored energy, not compression. The horse carries from behind; the rider receives forward.
+- The rider's nervous system is an aid. Tension in the rider transmits directly to the horse. Imagery that includes the rider regulating their own state is not decorative — it is functional.
+- For aspiration movements (piaffe, passage, full pirouette, 1-tempi) where the rider has no physical reference: build from component feelings they do know, extended toward the new movement. Be explicit that this is construction, not replay.
+
+OUTPUT FORMAT:
+Return valid JSON only. No preamble, no explanation, no markdown fences. Structure:
+{
+  "title": "string — e.g. 'Visualization: 1-Tempi Changes'",
+  "totalMinutes": number,
+  "blocks": [
+    {
+      "phase": "settle | arrive | warmup | work | close | reflect",
+      "title": "string — short evocative label",
+      "minutes": number,
+      "hasTimer": boolean,
+      "pauseInstruction": "string — the read-then-close-eyes instruction shown at top of block",
+      "content": "string — the full script text for this block, with — pause cues inline, **bold** for key concepts"
+    }
+  ],
+  "reflectionPrompt": "string — the single question for the rider to answer after the session",
+  "recordingTip": "string | null — optional single sentence of recording guidance specific to this movement/problem"
+}`;
+}
+
+function buildMovementLabel(formData) {
+  function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+  function tempiLabel(sub) {
+    return sub.replace("-tempi", "-Tempi");
+  }
+  function transitionLabel(sub) {
+    const map = {
+      "walk-trot": "Walk → Trot",
+      "trot-canter": "Trot → Canter",
+      "canter-trot": "Canter → Trot",
+      "trot-walk": "Trot → Walk",
+      "canter-walk": "Canter → Walk",
+      "halt-rein-back": "Halt / Rein-Back",
+    };
+    return map[sub] || sub;
+  }
+  function buildPirouetteLabel(fd) {
+    const size = fd.movementSub
+      ? capitalize(fd.movementSub) + " "
+      : "";
+    const gait = fd.movementSub2
+      ? ` (${capitalize(fd.movementSub2)})`
+      : "";
+    return `${size}Pirouette${gait}`;
+  }
+
+  const labels = {
+    "sitting-trot": "Sitting Trot",
+    "stretchy-circle": "Stretchy Circle",
+    "leg-yield": "Leg Yield",
+    "shoulder-in": "Shoulder-In",
+    "travers": "Travers",
+    "renvers": "Renvers",
+    "half-pass": formData.movementSub
+      ? `Half-Pass (${capitalize(formData.movementSub)})`
+      : "Half-Pass",
+    "transition": formData.movementSub
+      ? `Transition: ${transitionLabel(formData.movementSub)}`
+      : "Transition",
+    "simple-change": "Simple Change",
+    "flying-change": "Flying Change",
+    "tempi-changes": formData.movementSub
+      ? `${tempiLabel(formData.movementSub)} Changes`
+      : "Tempi Changes",
+    "pirouette": buildPirouetteLabel(formData),
+    "piaffe": "Piaffe",
+    "passage": "Passage",
+  };
+  return labels[formData.movement] || formData.movement;
+}
+
+function formatProblem(problemFocus) {
+  const map = {
+    "timing": "Timing of the aid — the aid is inconsistent or off the beat",
+    "position": "Position breaks down — rider tips forward, grips, collapses, or braces at the moment of difficulty",
+    "collection": "Loss of collection — energy or tempo drops entering or during the movement",
+    "anticipation": "Horse anticipates or rushes — rider needs to rehearse staying quiet and unreadable",
+    "mental": "Mental freeze or confidence loss — rider hesitates, second-guesses, or holds breath",
+    "unfamiliar": "Building from scratch — no physical reference for this movement yet",
+  };
+  return map[problemFocus] || problemFocus;
+}
+
+function formatReference(type, text) {
+  const typeLabel = {
+    "recent": "Yes — a recent ride the rider can describe",
+    "old": "Yes — from a while ago",
+    "partial": "Partial — pieces but not the whole movement",
+    "none": "No reference — entirely new territory",
+  };
+  const label = typeLabel[type] || type;
+  if (text) return `${label}. Rider's description: "${text}"`;
+  return label;
+}
+
+function formatContext(context) {
+  const map = {
+    "training": "Training ride at home — quiet arena, no performance pressure",
+    "warmup": "Show warm-up — other horses, noise, limited space, managing distraction",
+    "test": "Competition test — down the centerline, movement in context of the full test",
+  };
+  return map[context] || context;
+}
+
+function scriptMinutes(length) {
+  return { short: 8, standard: 12, extended: 18 }[length] || 12;
+}
+
+function buildVisualizationScriptUserMessage(formData, riderContext) {
+  const movementLabel = buildMovementLabel(formData);
+  const horse = riderContext.horseProfile;
+  const rider = riderContext.riderProfile;
+
+  // Determine aspiration flag
+  const aspirationalMovements = ["piaffe", "passage"];
+  const aspirationalSubs = ["1-tempi", "2-tempi", "full"];
+  const isAspirational =
+    aspirationalMovements.includes(formData.movement) ||
+    aspirationalSubs.includes(formData.movementSub);
+
+  // Format movement-specific debrief history
+  const movementDebriefs = riderContext.movementSpecificDebriefs
+    .slice(0, 5)
+    .map(d => `[${d.rideDate || d.date || "unknown"}] ${d.feelNotes || d.challenges || ""}`)
+    .filter(line => line.includes("]") && line.trim().length > 15)
+    .join("\n");
+
+  // Format lesson observations
+  const lessonNotes = riderContext.lessonNotes
+    .slice(0, 3)
+    .map(l => `[${l.date || "unknown"}] ${l.keyInsights || l.corrections || l.takeaways || ""}`)
+    .filter(line => line.includes("]") && line.trim().length > 15)
+    .join("\n");
+
+  // Format physical tension patterns
+  const tensionAreas = riderContext.physicalAssessment?.ridingTensionAreas?.join(", ") || "not recorded";
+  const tensionDetails = riderContext.physicalAssessment?.ridingTensionDetails || "";
+
+  return `RIDER CONTEXT:
+Name reference: the rider (use "you" throughout — this is a second-person script)
+Horse name: ${horse?.name || "not recorded"}
+Horse breed/type: ${horse?.breed || "not recorded"}
+Horse temperament notes: ${horse?.temperament || "not recorded"}
+Horse asymmetries/quirks: ${horse?.asymmetries || horse?.quirks || "none recorded"}
+Rider current level: ${rider?.currentLevel || "not recorded"}
+Rider years of experience: ${rider?.yearsRiding || "not recorded"}
+Rider learning style: ${rider?.learningStyle || "not recorded"}
+Rider tension areas when riding: ${tensionAreas}
+Rider tension detail: ${tensionDetails}
+
+SCRIPT REQUEST:
+Movement to rehearse: ${movementLabel}
+Problem to solve: ${formatProblem(formData.problemFocus)}
+Reference moment: ${formatReference(formData.referenceType, formData.referenceText)}
+Context/setting: ${formatContext(formData.context)}
+Sensory preference: ${formData.sensoryPreference || "not specified — use balanced sensory language"}
+Script length: ${formData.scriptLength} (~${scriptMinutes(formData.scriptLength)} minutes)
+Aspiration movement (no physical reference exists): ${isAspirational ? "YES — construct from component feelings, do not fabricate a memory" : "NO"}
+
+MOVEMENT-SPECIFIC RIDE HISTORY (what this rider has actually written about this movement):
+${movementDebriefs || "No specific history for this movement yet."}
+
+RECENT LESSON NOTES:
+${lessonNotes || "No lesson notes available."}
+
+Generate a ${formData.scriptLength} visualization script following the output format specified. The script must feel personal to this rider and this horse — not generic. Use the rider's own language and observations where they appear above. Pacing cues (—) should appear frequently in settle, arrive, and work sections.`;
+}
+
+/**
+ * Build the full prompt object for the visualization script API call.
+ *
+ * @param {object} formData - Form submission data
+ * @param {object} riderContext - Fetched rider context from Firestore
+ * @returns {{ system: string, userMessage: string }}
+ */
+function buildVisualizationScriptPrompt(formData, riderContext) {
+  return {
+    system: buildVisualizationScriptSystemPrompt(),
+    userMessage: buildVisualizationScriptUserMessage(formData, riderContext),
+  };
+}
+
+// TODO: When implementing weekly coaching context assembly, add a lightweight
+// visualization session summary for riders with sessionCount > 0 on their
+// visualization-script toolkit entries. Format:
+// RECENT VISUALIZATION PRACTICE:
+// - [Movement]: [sessionCount] sessions. Recent reflections: "[response1]", "[response2]"
+// This adds ~100-150 tokens and allows coaching voices to reference between-ride practice.
+
 module.exports = {
   BASE_CONTEXT,
   VOICE_META,
@@ -3612,5 +3823,7 @@ module.exports = {
   buildDataVisualizationPrompt,
   buildEventPlannerPrompt,
   buildPhysicalGuidancePrompt,
+  buildVisualizationScriptPrompt,
+  buildMovementLabel,
   buildUserDataMessage,
 };

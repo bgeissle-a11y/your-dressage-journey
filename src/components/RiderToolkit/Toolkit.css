@@ -382,3 +382,25 @@
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+/* ── Visualization Script entries ── */
+.tk-viz-btn {
+  background: var(--tk-mental) !important;
+  border-color: var(--tk-mental) !important;
+  color: white !important;
+}
+
+.tk-viz-card {
+  border-left: 4px solid var(--tk-mental);
+}
+
+.tk-viz-problem {
+  font-style: italic;
+  color: #7A7A7A;
+}
+
+.tk-viz-open-btn {
+  color: var(--tk-mental) !important;
+  font-weight: 600;
+  text-decoration: none;
+}

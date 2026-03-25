@@ -126,7 +126,13 @@ export const EXPORT_COLUMNS = {
   ],
   riderToolkitEntries: [
     'date', 'name', 'category', 'status', 'source', 'description',
-    'ridingConnection', 'bodyTags', 'followupNotes'
+    'ridingConnection', 'bodyTags', 'followupNotes',
+    'entryType', 'movement', 'movementSub', 'problemFocus',
+    'referenceType', 'context', 'scriptLength', 'sessionCount', 'lastSessionDate'
+  ],
+  visualizationSessions: [
+    'scriptId', 'movementLabel', 'sessionDate', 'reflectionResponse',
+    'completedBlocks', 'sessionLength'
   ]
 };
 
