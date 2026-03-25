@@ -231,115 +231,82 @@ export function extractPhysicalSnapshot(physResult) {
 }
 
 /**
- * Derive the current week's show content from a cached EP-3 preparation plan.
- * Returns null if no matching week or no plan.
+ * Hardcoded fallback tasks by week bucket.
+ * Used when showPlanner.weeklyShowTasks hasn't been generated yet.
+ * One task per area per week — mental, technical (keyed as 'tech'), physical.
  */
-export function deriveShowWeekContent(showPlanResult, currentWeekStart) {
-  if (!showPlanResult?.result) return null;
-
-  const plan = showPlanResult.result.preparationPlan;
-  if (!plan?.weeks?.length) return null;
-
-  // Find week whose date range overlaps current ISO week
-  const matchedWeek = plan.weeks.find(w => {
-    if (!w.dates) return false;
-    const [startStr, endStr] = w.dates.split(' to ');
-    if (!startStr || !endStr) return false;
-    const weekStart = new Date(startStr + 'T00:00:00');
-    const weekEnd = new Date(endStr + 'T00:00:00');
-    return currentWeekStart >= weekStart && currentWeekStart <= weekEnd;
-  });
-
-  if (!matchedWeek) {
-    // Check if we're before plan start or after plan end
-    const firstWeekStart = new Date(plan.weeks[0].dates?.split(' to ')[0] + 'T00:00:00');
-    const lastWeekEnd = new Date(plan.weeks[plan.weeks.length - 1].dates?.split(' to ')[1] + 'T00:00:00');
-
-    if (currentWeekStart < firstWeekStart) {
-      return {
-        state: 'before_plan',
-        planStartDate: firstWeekStart.toISOString().split('T')[0],
-      };
-    }
-    if (currentWeekStart > lastWeekEnd) {
-      return { state: 'after_plan' };
-    }
-    return null;
-  }
-
-  // Support both v2 (3-section) and v1 (training_sessions) formats
-  const hasV2Sections = matchedWeek.mental || matchedWeek.technical || matchedWeek.physical;
-
-  let weekGoals, trainingHighlights, mentalPrepFocus;
-  if (hasV2Sections) {
-    // v2: derive goals from section titles, highlights from first item of each section
-    weekGoals = [
-      ...(matchedWeek.mental || []),
-      ...(matchedWeek.technical || []),
-      ...(matchedWeek.physical || []),
-    ].map(item => item.title).filter(Boolean);
-    trainingHighlights = ['technical', 'mental', 'physical']
-      .map(key => (matchedWeek[key] || [])[0])
-      .filter(Boolean)
-      .map(item => ({ type: key === 'mental' ? 'mental' : key === 'physical' ? 'physical' : 'movements', description: item.body || item.title }));
-    mentalPrepFocus = (matchedWeek.mental || [])[0]?.cue || null;
-  } else {
-    // v1: legacy training_sessions format
-    weekGoals = matchedWeek.week_goals || [];
-    trainingHighlights = (matchedWeek.training_sessions || [])
-      .slice(0, 3)
-      .map(s => ({ type: s.session_type, description: s.description }));
-    mentalPrepFocus = matchedWeek.mental_prep?.focus || null;
-  }
-
-  return {
-    state: 'active_week',
-    weekNumber: matchedWeek.week_number,
-    totalWeeks: plan.total_weeks,
-    primaryFocus: matchedWeek.primary_focus,
-    weekGoals,
-    trainingHighlights,
-    mentalPrepFocus,
-    readinessCheckpoint: matchedWeek.readiness_checkpoint || null,
-  };
-}
+const TASKS_BY_WEEK = {
+  10: [
+    { area: 'mental',   title: 'Set your show season intention', cue: 'Write one sentence about what you want this show to teach you — not what you want to score.' },
+    { area: 'tech',     title: 'Audit your weakest movement',    cue: 'Identify the one movement you avoid schooling. Ride it once per session this week — just to feel where you are.' },
+    { area: 'physical', title: 'Baseline body inventory',        cue: 'Before riding today, stand still and scan: where are you tight? Write it down. This is your starting point.' },
+  ],
+  9: [
+    { area: 'mental',   title: 'Build your focus reset habit',   cue: 'Each ride, practice one deliberate reset: exhale, soften, re-engage. Make it automatic before you need it at the show.' },
+    { area: 'tech',     title: 'Ride transitions, not movements', cue: 'Pick 3 key transitions from your test. Ride them in isolation until they feel seamless — the movements will follow.' },
+    { area: 'physical', title: 'Find your neutral pelvis',       cue: 'At walk and trot, check: are you tipping forward or bracing back? Find the middle. That is your show posture starting point.' },
+  ],
+  8: [
+    { area: 'mental',   title: 'Establish your baseline mental cue',  cue: 'Choose one word or phrase that signals "ready to ride". Use it every warm-up this week.' },
+    { area: 'tech',     title: 'Know your test geometry cold',         cue: 'Walk (or visualize) the test twice — trace the voltes, half-pass lines, and pirouette entry points.' },
+    { area: 'physical', title: 'Map your show-day warm-up body',      cue: 'After each ride, note which part of your body needed the most releasing. This becomes your pre-show checklist.' },
+  ],
+  7: [
+    { area: 'mental',   title: 'Ride the movement before the marker', cue: 'Practice committing to each movement 3 strides earlier than the letter this week.' },
+    { area: 'tech',     title: 'Counter change of hand accuracy',     cue: 'Ride the half-pass at least twice per session — change of bend at centerline, angle matching both directions.' },
+    { area: 'physical', title: 'Upper back, not hands',               cue: 'Every correction originates from the back. Note when the hands want to take over.' },
+  ],
+  6: [
+    { area: 'mental',   title: 'Recovery reflex under pressure',      cue: 'When something goes wrong, give yourself 2 strides to reset — no more. Practice the reset, not the mistake.' },
+    { area: 'tech',     title: 'Half-pirouette energy up, not out',   cue: 'Approach every half-pirouette from half-steps this week. Energy must go up before the turn begins.' },
+    { area: 'physical', title: 'Glutes soft in collection',           cue: 'In every collected movement, do a single glute-check: are you gripping? Soften and feel what changes.' },
+  ],
+  5: [
+    { area: 'mental',   title: 'Quality over quantity this week',     cue: 'Set a maximum of 3 full run-throughs of any sequence. After 3, move on.' },
+    { area: 'tech',     title: 'Straightness in the tempi changes',   cue: 'Ride your changes on the centerline once per session. Straightness matters more than timing at this stage.' },
+    { area: 'physical', title: 'Show posture, not fixing posture',    cue: 'Once per session: 2 minutes of your best show posture — tall, open, soft — without correcting the horse at all.' },
+  ],
+  4: [
+    { area: 'mental',   title: 'Sharpen your anchor routine',         cue: 'Finalize the 3-step mental routine you will use before entering at A. Practice it at the start of every ride.' },
+    { area: 'tech',     title: 'Halt, immobility, rein back as unit', cue: 'Practice the halt/rein back movement 3× per session as one clean sequence. 5 straight steps back, no shuffle.' },
+    { area: 'physical', title: 'Elbow position in extensions',        cue: 'In every extended trot and canter: elbows by your sides, not wings. Feel the difference in following contact.' },
+  ],
+  3: [
+    { area: 'mental',   title: 'No new experiments this week',        cue: 'If you feel the urge to try something new, write it down for after the show. This week, ride only what you know.' },
+    { area: 'tech',     title: 'Solidify one weak movement',          cue: 'Pick the one movement you are least confident about. Ride it well — not perfectly — every session. Then leave it.' },
+    { area: 'physical', title: 'One body-prep habit daily',           cue: 'Pick one thing — hip circles, shoulder rolls, breathing. Do it every day before you get on.' },
+  ],
+  2: [
+    { area: 'mental',   title: 'Trust the horse, trust the training', cue: 'Before mounting, say one true thing about what your horse can do. Let that be the lens for the whole ride.' },
+    { area: 'tech',     title: 'Run your planned warm-up once',       cue: 'Ride your full intended show warm-up sequence once this week. Time it. Adjust if needed.' },
+    { area: 'physical', title: 'Ride fresh — shorten sessions',       cue: 'Keep rides to 35–40 minutes max. You are banking energy, not building it.' },
+  ],
+  1: [
+    { area: 'mental',   title: 'Arrive, breathe, be present',         cue: 'Your only job at the show is to ride the horse in front of you. Not the one in your head. This one, right now.' },
+    { area: 'tech',     title: 'Warm up to his rhythm, not the clock', cue: 'Let jaw softness and throughness be your green light — not a time target. Forward first, then everything else.' },
+    { area: 'physical', title: 'Body check before entry at A',        cue: 'At your final halt before entering: tall, soft glutes, elbows in, exhale. Then go.' },
+  ],
+};
 
 /**
- * Check if the show date falls within the current ISO week.
+ * Find the nearest upcoming show within 60 days and derive show card content.
+ *
+ * Returns either:
+ *   { state: 'active_show', name, daysOut, weekNum, showTasks: [...] }
+ *   { state: 'no_shows' }
  */
-export function isShowDayWeek(showDateStart, currentWeekStart) {
-  if (!showDateStart) return false;
-  const showDate = new Date(showDateStart + 'T00:00:00');
-  const weekEnd = new Date(currentWeekStart);
-  weekEnd.setDate(weekEnd.getDate() + 6);
-  return showDate >= currentWeekStart && showDate <= weekEnd;
-}
-
-/**
- * Extract show-day highlights from EP-4 (Show-Day Guidance) result.
- */
-export function extractShowDayHighlights(showPlanResult) {
-  if (!showPlanResult?.result?.showDayGuidance) return null;
-
-  const guidance = showPlanResult.result.showDayGuidance;
-  return {
-    state: 'show_week',
-    warmUpSummary: guidance.warm_up_strategy?.summary || guidance.warm_up_plan?.summary || null,
-    keyTiming: guidance.timing_logistics?.key_times || null,
-    mentalCue: guidance.mental_game?.test_ride_cue || guidance.mental_game?.key_focus || null,
-  };
-}
-
-/**
- * Find the nearest upcoming show prep and derive show card content.
- */
-export function buildShowSnapshot(showPreps, showPlanCache, currentWeekStart) {
-  // Find nearest upcoming show
+export function buildShowSnapshot(showPreps, showPlanCache, _currentWeekStart) {
   const today = new Date();
   const todayStr = today.toISOString().split('T')[0];
   const cutoff = new Date(today);
-  cutoff.setDate(cutoff.getDate() + 90);
+  cutoff.setDate(cutoff.getDate() + 70); // 10-week window
   const cutoffStr = cutoff.toISOString().split('T')[0];
+
+  console.log('[WF Show] buildShowSnapshot input:', {
+    totalPreps: showPreps?.length,
+    preps: showPreps?.map(p => ({ name: p.showName, date: p.showDateStart, status: p.status })),
+    todayStr, cutoffStr,
+  });
 
   const upcoming = showPreps
     .filter(p =>
@@ -349,6 +316,8 @@ export function buildShowSnapshot(showPreps, showPlanCache, currentWeekStart) {
     )
     .sort((a, b) => (a.showDateStart || '').localeCompare(b.showDateStart || ''));
 
+  console.log('[WF Show] After filter:', upcoming.length, 'shows within 70 days');
+
   if (upcoming.length === 0) {
     return { state: 'no_shows' };
   }
@@ -357,39 +326,41 @@ export function buildShowSnapshot(showPreps, showPlanCache, currentWeekStart) {
   const showDate = new Date(show.showDateStart + 'T00:00:00');
   const daysOut = Math.ceil((showDate - today) / (1000 * 60 * 60 * 24));
 
-  const base = {
+  if (daysOut <= 0 || daysOut > 70) {
+    return { state: 'no_shows' };
+  }
+
+  const weekNum = Math.min(10, Math.max(1, Math.ceil(daysOut / 7)));
+
+  // Try to get tasks from cached show planner weeklyShowTasks
+  let showTasks = null;
+  if (showPlanCache?.result?.weeklyShowTasks) {
+    const cached = showPlanCache.result.weeklyShowTasks;
+    // Extract first item per area
+    showTasks = ['mental', 'technical', 'physical']
+      .map(area => {
+        const items = cached[area];
+        if (!items?.length) return null;
+        return { area, title: items[0].title, cue: items[0].cue };
+      })
+      .filter(Boolean);
+  }
+
+  // Fallback to hardcoded tasks
+  if (!showTasks?.length) {
+    showTasks = TASKS_BY_WEEK[weekNum] || TASKS_BY_WEEK[8];
+  }
+
+  return {
+    state: 'active_show',
     showId: show.id,
     name: show.showName || 'Upcoming Show',
     horseName: show.horseName || null,
     daysOut,
-    showDateStart: show.showDateStart,
+    weekNum,
+    showTasks,
+    sourceGeneratedAt: showPlanCache?.generatedAt || null,
   };
-
-  // No cached plan yet
-  if (!showPlanCache) {
-    return { ...base, state: 'plan_not_generated' };
-  }
-
-  // Show day this week?
-  if (isShowDayWeek(show.showDateStart, currentWeekStart)) {
-    const highlights = extractShowDayHighlights(showPlanCache);
-    if (highlights) {
-      return { ...base, ...highlights };
-    }
-  }
-
-  // Derive week content from EP-3
-  const weekContent = deriveShowWeekContent(showPlanCache, currentWeekStart);
-  if (weekContent) {
-    return {
-      ...base,
-      ...weekContent,
-      sourceGeneratedAt: showPlanCache.generatedAt || null,
-    };
-  }
-
-  // Current week not covered by plan
-  return { ...base, state: 'outside_range' };
 }
 
 /**

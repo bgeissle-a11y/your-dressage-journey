@@ -75,7 +75,7 @@ export default function WeeklyFocusContent({
 
         <WFShowCard
           show={show}
-          checkedItems={checkedItems?.show || []}
+          checkedItems={checkedItems?.show || {}}
           isPinned={pinned.has('show')}
           isDone={completed.has('show')}
           isCollapsed={collapsed.has('show')}

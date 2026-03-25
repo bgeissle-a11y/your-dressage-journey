@@ -1,17 +1,33 @@
 import { Link } from 'react-router-dom';
 
-function DaysOutBadge({ daysOut }) {
-  const color = daysOut > 30 ? 'var(--sage)' : daysOut > 7 ? 'var(--gold)' : 'var(--rust)';
-  return (
-    <span className="show-days-badge" style={{ color, borderColor: color }}>
-      {daysOut} day{daysOut !== 1 ? 's' : ''} out
-    </span>
-  );
-}
+const WEEK_SUBS = {
+  10: 'Intention — set your direction and take stock',
+  9: 'Groundwork — habits, transitions, and body awareness',
+  8: 'Foundation — establish the physical and mental baseline',
+  7: 'Technical — geometry, accuracy, and test knowledge',
+  6: 'Build — condition your recovery reflexes',
+  5: 'Refine — peak schooling, quality over quantity',
+  4: 'Sharpen — entries, halts, and test accuracy',
+  3: 'Solidify — no new experiments',
+  2: 'Trust — the horse, the training, yourself',
+  1: 'Arrive ready — mindset, routines, peak readiness',
+};
+
+const BADGE_CLASS = { mental: 'badge-mental', tech: 'badge-tech', technical: 'badge-tech', physical: 'badge-physical' };
+const AREA_LABEL = { mental: 'Mental', tech: 'Technical', technical: 'Technical', physical: 'Physical' };
 
 export default function WFShowCard({ show, checkedItems, isPinned, isDone, isCollapsed, onPin, onDone, onToggle, onItemCheck, hasNewer, onUpdate }) {
   const state = show?.state || 'no_shows';
-  const hasShow = state !== 'no_shows';
+  const hasActiveShow = state === 'active_show';
+
+  // For active state: build the 3 tasks (one per area)
+  const tasks = show?.showTasks || [];
+  const weekNum = show?.weekNum || 0;
+
+  function handleCheck(area) {
+    const key = `${weekNum}-${area}`;
+    onItemCheck?.('show', key);
+  }
 
   return (
     <div className={`insight-card${isPinned ? ' pinned' : ''}${isDone ? ' completed' : ''}`}>
@@ -24,7 +40,9 @@ export default function WFShowCard({ show, checkedItems, isPinned, isDone, isCol
             {hasNewer && <span className="newer-dot" title="Updated insights available" />}
           </div>
           <div className="card-title">
-            {state === 'show_week' ? 'SHOW WEEK!' : hasShow ? show.name : 'Nothing on the calendar yet'}
+            {hasActiveShow
+              ? `${show.name} · ${show.daysOut} day${show.daysOut !== 1 ? 's' : ''} out`
+              : 'Nothing on the calendar yet'}
           </div>
         </div>
         <div className="card-actions">
@@ -34,49 +52,34 @@ export default function WFShowCard({ show, checkedItems, isPinned, isDone, isCol
       </div>
       {!isCollapsed && (
         <div className="card-body">
-          {/* State 1: Active week with EP-3 content */}
-          {state === 'active_week' && (
+          {/* Active state — show within 60 days */}
+          {hasActiveShow && (
             <>
-              <div className="show-meta">
-                <DaysOutBadge daysOut={show.daysOut} />
-                {show.horseName && <span className="show-horse">{show.horseName}</span>}
-                <span className="show-week-badge">Week {show.weekNumber} of {show.totalWeeks}</span>
+              <div className="show-callout">
+                <span>&#128197;</span>
+                <span>Week {weekNum} &middot; {WEEK_SUBS[weekNum] || ''}</span>
               </div>
-              {show.primaryFocus && (
-                <div className="show-focus"><strong>Focus:</strong> {show.primaryFocus}</div>
-              )}
-              {show.weekGoals?.length > 0 && (
-                <ul className="gpt-list">
-                  {show.weekGoals.map((goal, i) => (
-                    <li key={i} className="gpt-item">
+              <ul className="show-tasks">
+                {tasks.map(task => {
+                  const key = `${weekNum}-${task.area}`;
+                  const checked = !!checkedItems?.[key];
+                  return (
+                    <li key={task.area} className="show-task">
                       <div
-                        className={`gpt-check${checkedItems?.[i] ? ' done' : ''}`}
-                        onClick={() => onItemCheck?.('show', i)}
+                        className={`show-checkbox${checked ? ' done' : ''}`}
+                        onClick={() => handleCheck(task.area)}
                       >{'\u2713'}</div>
-                      <div className="gpt-title">{goal}</div>
+                      <div className="show-task-body">
+                        <div className={`show-task-title${checked ? ' done-text' : ''}`}>{task.title}</div>
+                        <div className="show-task-cue">{task.cue}</div>
+                      </div>
+                      <div className={`show-area-badge ${BADGE_CLASS[task.area] || ''}`}>{AREA_LABEL[task.area] || task.area}</div>
                     </li>
-                  ))}
-                </ul>
-              )}
-              {show.trainingHighlights?.length > 0 && (
-                <div className="show-training">
-                  {show.trainingHighlights.map((h, i) => (
-                    <div key={i} className="show-highlight">
-                      <span className="show-highlight-type">{h.type}</span> {h.description}
-                    </div>
-                  ))}
-                </div>
-              )}
-              {show.mentalPrepFocus && (
-                <div className="reflection-nudge">{show.mentalPrepFocus}</div>
-              )}
-              {show.readinessCheckpoint && (
-                <div className="show-checkpoint">
-                  <strong>End-of-week check:</strong> {show.readinessCheckpoint}
-                </div>
-              )}
-              <Link to={`/show-prep/${show.showId}/plan`} className="insight-link" style={{ marginTop: '10px', display: 'inline-flex' }}>
-                View full show plan &rarr;
+                  );
+                })}
+              </ul>
+              <Link to={`/show-planner/${show.showId}`} className="insight-link" style={{ marginTop: '14px', display: 'inline-flex', color: 'var(--rust)' }}>
+                View full Show Plan &rarr;
               </Link>
               {hasNewer && (
                 <button className="update-btn" onClick={onUpdate}>Update to latest</button>
@@ -84,96 +87,13 @@ export default function WFShowCard({ show, checkedItems, isPinned, isDone, isCol
             </>
           )}
 
-          {/* State 2: Show week — EP-4 highlights */}
-          {state === 'show_week' && (
-            <>
-              <div className="show-meta">
-                <DaysOutBadge daysOut={show.daysOut} />
-                {show.horseName && <span className="show-horse">{show.horseName}</span>}
-                <span className="show-week-badge show-week-live">Show Day!</span>
-              </div>
-              {show.warmUpSummary && (
-                <div className="show-focus"><strong>Warm-up:</strong> {show.warmUpSummary}</div>
-              )}
-              {show.mentalCue && (
-                <div className="reflection-nudge">{show.mentalCue}</div>
-              )}
-              <Link to={`/show-prep/${show.showId}/plan`} className="insight-link" style={{ marginTop: '10px', display: 'inline-flex' }}>
-                View show-day plan &rarr;
-              </Link>
-            </>
-          )}
-
-          {/* State 3: Plan not yet generated */}
-          {state === 'plan_not_generated' && (
-            <>
-              <div className="show-meta">
-                <DaysOutBadge daysOut={show.daysOut} />
-                {show.horseName && <span className="show-horse">{show.horseName}</span>}
-              </div>
-              <p className="show-cta-text">
-                Your show plan will create week-by-week preparation guidance tailored to you and {show.horseName || 'your horse'}.
-              </p>
-              <Link to={`/show-prep/${show.showId}/plan`} className="insight-link show-cta" style={{ marginTop: '10px', display: 'inline-flex' }}>
-                Generate your AI show plan &rarr;
-              </Link>
-            </>
-          )}
-
-          {/* State 4: No upcoming shows */}
-          {state === 'no_shows' && (
+          {/* Empty state — no show within 60 days */}
+          {!hasActiveShow && (
             <div className="no-show-state">
               <div className="no-show-icon">&#128197;</div>
-              No upcoming shows on the calendar &mdash; enjoy the training journey.
-              <Link to="/show-prep/new" className="insight-link" style={{ marginTop: '10px', display: 'inline-flex' }}>
-                Plan a show &rarr;
-              </Link>
+              No upcoming shows logged. When you add an event in the Journey Event Log,
+              your preparation checklist and timeline will appear here automatically.
             </div>
-          )}
-
-          {/* State 5a: Before plan date range */}
-          {state === 'before_plan' && (
-            <>
-              <div className="show-meta">
-                <DaysOutBadge daysOut={show.daysOut} />
-                {show.horseName && <span className="show-horse">{show.horseName}</span>}
-              </div>
-              <p className="show-cta-text">
-                Show prep begins {new Date(show.planStartDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
-              </p>
-              <Link to={`/show-prep/${show.showId}/plan`} className="insight-link" style={{ marginTop: '10px', display: 'inline-flex' }}>
-                View full show plan &rarr;
-              </Link>
-            </>
-          )}
-
-          {/* State 5b: After plan date range but before show */}
-          {state === 'after_plan' && (
-            <>
-              <div className="show-meta">
-                <DaysOutBadge daysOut={show.daysOut} />
-                {show.horseName && <span className="show-horse">{show.horseName}</span>}
-              </div>
-              <p className="show-cta-text">
-                Preparation plan complete &mdash; trust the work you&rsquo;ve done!
-              </p>
-              <Link to={`/show-prep/${show.showId}/plan`} className="insight-link" style={{ marginTop: '10px', display: 'inline-flex' }}>
-                View show-day plan &rarr;
-              </Link>
-            </>
-          )}
-
-          {/* State: outside_range fallback */}
-          {state === 'outside_range' && (
-            <>
-              <div className="show-meta">
-                <DaysOutBadge daysOut={show.daysOut} />
-                {show.horseName && <span className="show-horse">{show.horseName}</span>}
-              </div>
-              <Link to={`/show-prep/${show.showId}/plan`} className="insight-link" style={{ marginTop: '10px', display: 'inline-flex' }}>
-                View show plan &rarr;
-              </Link>
-            </>
           )}
         </div>
       )}

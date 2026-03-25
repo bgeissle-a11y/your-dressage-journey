@@ -48,7 +48,7 @@ export default function useWeeklyFocus() {
   const [pinned, setPinned] = useState(new Set());
   const [completed, setCompleted] = useState(new Set());
   const [collapsed, setCollapsed] = useState(new Set());
-  const [checkedItems, setCheckedItems] = useState({ gpt: [], physical: [], show: [] });
+  const [checkedItems, setCheckedItems] = useState({ gpt: [], physical: [], show: {} });
   const [mode, setMode] = useState('all');
 
   // Refs
@@ -93,11 +93,20 @@ export default function useWeeklyFocus() {
     });
   }, []);
 
-  const handleItemCheck = useCallback((type, index) => {
+  const handleItemCheck = useCallback((type, indexOrKey) => {
     setCheckedItems(prev => {
-      const arr = [...(prev[type] || [])];
-      arr[index] = !arr[index];
-      const next = { ...prev, [type]: arr };
+      let next;
+      if (type === 'show') {
+        // Object-keyed: "{weekNum}-{area}"
+        const obj = { ...(prev.show || {}) };
+        obj[indexOrKey] = !obj[indexOrKey];
+        next = { ...prev, show: obj };
+      } else {
+        // Array-indexed (gpt, physical)
+        const arr = [...(prev[type] || [])];
+        arr[indexOrKey] = !arr[indexOrKey];
+        next = { ...prev, [type]: arr };
+      }
       debouncedSave({ checkedItems: next });
       return next;
     });
@@ -120,9 +129,16 @@ export default function useWeeklyFocus() {
 
   // ── Read show plan content ──
   const readShowContent = useCallback(async (uid, showPreps) => {
-    if (!showPreps?.length) return { state: 'no_shows' };
+    console.log('[WF Show] readShowContent called, showPreps:', showPreps?.length,
+      showPreps?.map(p => ({ name: p.showName, date: p.showDateStart, status: p.status })));
 
-    // Find nearest upcoming show
+    if (!showPreps?.length) {
+      console.log('[WF Show] No show preps found');
+      return { state: 'no_shows' };
+    }
+
+    // Find nearest upcoming show — delegate filtering to buildShowSnapshot
+    // but first find the active show to load its plan cache
     const today = new Date();
     const todayStr = today.toISOString().split('T')[0];
     const upcoming = showPreps
@@ -132,10 +148,14 @@ export default function useWeeklyFocus() {
       )
       .sort((a, b) => (a.showDateStart || '').localeCompare(b.showDateStart || ''));
 
+    console.log('[WF Show] Upcoming shows (any future date):', upcoming.length,
+      upcoming.map(p => ({ name: p.showName, date: p.showDateStart })));
+
     if (upcoming.length === 0) return { state: 'no_shows' };
 
     const activeShow = upcoming[0];
     const planCache = await readShowPlanCache(uid, activeShow.id);
+    console.log('[WF Show] Plan cache for', activeShow.showName, ':', planCache ? 'found' : 'null');
     return buildShowSnapshot(showPreps, planCache, weekMonday);
   }, [weekMonday]);
 
@@ -219,6 +239,9 @@ export default function useWeeklyFocus() {
         const reflections = reflRes.success ? reflRes.data : [];
         const showPreps = showRes.success ? showRes.data : [];
         showPrepsRef.current = showPreps;
+        console.log('[WF Show] Init — showPreps loaded:', showPreps.length,
+          showPreps.map(p => ({ name: p.showName, date: p.showDateStart, status: p.status })));
+        console.log('[WF Show] Init — weekState snapshot:', weekState?.contentSnapshot?.show?.state);
 
         // Restore interaction state
         if (weekState) {
@@ -248,7 +271,7 @@ export default function useWeeklyFocus() {
           if (snapshot.physical?.weeklyFocusItems) {
             setPhysicalItems(snapshot.physical.weeklyFocusItems);
           }
-          if (snapshot.show && snapshot.show.state !== 'no_shows') {
+          if (snapshot.show && snapshot.show.state === 'active_show') {
             setShow(snapshot.show);
           }
 
@@ -265,7 +288,7 @@ export default function useWeeklyFocus() {
           if (!snapshot.coaching) nullSections.push('coaching');
           if (!snapshot.gpt) nullSections.push('gpt');
           if (!snapshot.physical) nullSections.push('physical');
-          if (!snapshot.show) nullSections.push('show');
+          if (!snapshot.show || snapshot.show.state !== 'active_show') nullSections.push('show');
 
           if (nullSections.length > 0) {
             const freshContent = await readFreshContent(uid);
@@ -431,11 +454,14 @@ export default function useWeeklyFocus() {
   const progress = useMemo(() => {
     const gptCount = checkedItems.gpt?.length || 0;
     const physCount = checkedItems.physical?.length || 0;
-    const showCount = checkedItems.show?.length || 0;
+    // Show items are object-keyed — count active keys (3 max when a show is active)
+    const showObj = checkedItems.show || {};
+    const showKeys = Object.keys(showObj);
+    const showCount = showKeys.length;
     const total = gptCount + physCount + showCount;
     const done = (checkedItems.gpt?.filter(Boolean).length || 0)
       + (checkedItems.physical?.filter(Boolean).length || 0)
-      + (checkedItems.show?.filter(Boolean).length || 0);
+      + showKeys.filter(k => showObj[k]).length;
     return { done, total };
   }, [checkedItems]);
 

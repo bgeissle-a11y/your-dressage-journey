@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YDJ — Show Card Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── YDJ CSS VARIABLES (subset) ── */
+:root {
+  --parchment:      #f5ede0;
+  --parchment-dark: #e8d9c4;
+  --parchment-mid:  #ede1ce;
+  --ink:            #2c1f14;
+  --ink-light:      #6b4f38;
+  --gold:           #b8862a;
+  --gold-light:     #d4a84b;
+  --forest-light:   #3d6b46;
+  --rust:           #7a3020;
+  --sky:            #2e5c82;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--parchment); font-family: 'Work Sans', sans-serif; padding: 32px 20px; }
+
+/* ── SHARED CARD SHELL (matches WeeklyFocus grid cards) ── */
+.section-card {
+  background: white; border: 1.5px solid var(--parchment-dark);
+  border-radius: 14px; overflow: hidden;
+  max-width: 420px; margin-bottom: 32px;
+}
+.section-card.pinned { border-color: var(--gold-light); box-shadow: 0 2px 18px rgba(184,134,42,0.18); }
+.section-card.completed { opacity: 0.55; }
+.section-card.completed .card-title { text-decoration: line-through; opacity: 0.6; }
+
+.done-stripe { height: 3px; background: linear-gradient(90deg, var(--forest-light), transparent); opacity: 0; transition: opacity 0.3s; }
+.section-card.completed .done-stripe { opacity: 1; }
+
+.card-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 16px 12px; border-bottom: 1px solid var(--parchment-dark);
+  background: var(--parchment); cursor: pointer; user-select: none;
+}
+.card-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; flex-shrink: 0;
+  background: rgba(122,48,32,0.10);
+}
+.card-title-block { flex: 1; min-width: 0; }
+.card-label { font-size: 9.5px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 2px; color: var(--rust); }
+.card-title { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 600; color: var(--ink); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.card-actions { display: flex; gap: 4px; align-items: center; flex-shrink: 0; }
+.pin-btn, .check-btn {
+  width: 28px; height: 28px; border-radius: 50%; border: none;
+  background: transparent; cursor: pointer; display: flex; align-items: center;
+  justify-content: center; font-size: 14px; transition: background 0.2s, transform 0.15s;
+  color: var(--ink-light);
+}
+.pin-btn:hover   { background: rgba(184,134,42,0.10); }
+.check-btn:hover { background: rgba(61,107,70,0.10); }
+.pin-btn.active  { color: var(--gold); transform: rotate(-45deg); }
+.check-btn.active{ color: var(--forest-light); }
+
+.card-body { padding: 16px; }
+.card-body.collapsed { display: none; }
+
+/* ── SHOW CARD — ACTIVE STATE ── */
+.show-callout {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(122,48,32,0.06); border-radius: 8px;
+  padding: 8px 12px; margin-bottom: 12px;
+  font-size: 12px; color: var(--rust); font-weight: 500;
+}
+.show-tasks { list-style: none; }
+.show-task {
+  display: flex; align-items: flex-start; gap: 9px;
+  padding: 9px 0; border-bottom: 1px solid var(--parchment-mid);
+}
+.show-task:last-child { border-bottom: none; padding-bottom: 0; }
+.show-checkbox {
+  width: 20px; height: 20px; border: 2px solid rgba(122,48,32,0.30);
+  border-radius: 4px; flex-shrink: 0; margin-top: 2px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s; font-size: 11px; color: transparent;
+}
+.show-checkbox.done { background: var(--rust); border-color: var(--rust); color: white; }
+.show-task-body { flex: 1; }
+.show-task-title { font-size: 13px; font-weight: 600; color: var(--ink); line-height: 1.35; margin-bottom: 2px; }
+.show-task-title.done-text { text-decoration: line-through; color: var(--ink-light); }
+.show-task-cue { font-size: 11px; color: var(--ink-light); line-height: 1.4; }
+.show-area-badge {
+  font-size: 9.5px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 10px; white-space: nowrap; flex-shrink: 0; margin-top: 3px;
+}
+.badge-mental   { background: rgba(46,92,130,0.10);  color: var(--sky); }
+.badge-tech     { background: rgba(122,48,32,0.10);  color: var(--rust); }
+.badge-physical { background: rgba(42,74,48,0.10);   color: var(--forest-light); }
+
+/* ── SHOW CARD — EMPTY STATE ── */
+.no-show-state {
+  text-align: center; padding: 20px 12px;
+  font-size: 13px; color: var(--ink-light); font-style: italic; line-height: 1.6;
+}
+.no-show-icon { font-size: 28px; margin-bottom: 8px; opacity: 0.4; }
+
+/* ── SHARED LINK STYLE ── */
+.insight-link {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 600; text-decoration: none;
+  border-bottom: 1.5px solid rgba(122,48,32,0.30); padding-bottom: 1px;
+  transition: color 0.2s; color: var(--rust); margin-top: 14px;
+}
+.insight-link:hover { color: var(--gold); border-color: var(--gold); }
+
+/* ── DEV LABELS ── */
+.state-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--ink-light); margin-bottom: 10px;
+}
+</style>
+</head>
+<body>
+
+<div class="state-label">Active state — show within 60 days</div>
+
+<!-- SHOW CARD: ACTIVE STATE -->
+<div class="section-card" id="card-show-active">
+  <div class="done-stripe"></div>
+  <div class="card-header" onclick="toggleCollapse('show-active')">
+    <div class="card-icon">🏟</div>
+    <div class="card-title-block">
+      <div class="card-label">Show Planning</div>
+      <div class="card-title" id="active-card-title">Spring Classic · 38 days out</div>
+    </div>
+    <div class="card-actions">
+      <button class="pin-btn" onclick="event.stopPropagation(); this.classList.toggle('active')">📌</button>
+      <button class="check-btn" onclick="event.stopPropagation(); document.getElementById('card-show-active').classList.toggle('completed')">✓</button>
+    </div>
+  </div>
+  <div class="card-body" id="body-show-active">
+    <div class="show-callout">
+      <span>📅</span>
+      <span id="active-callout-text">Week 6 · Build — condition your recovery reflexes</span>
+    </div>
+    <ul class="show-tasks" id="active-task-list">
+      <!-- Populated by buildShowTasks() -->
+    </ul>
+    <a href="/show-planner" class="insight-link">View full Show Plan →</a>
+  </div>
+</div>
+
+<div class="state-label">Empty state — no show within 60 days</div>
+
+<!-- SHOW CARD: EMPTY STATE -->
+<div class="section-card" id="card-show-empty">
+  <div class="done-stripe"></div>
+  <div class="card-header" onclick="toggleCollapse('show-empty')">
+    <div class="card-icon">🏟</div>
+    <div class="card-title-block">
+      <div class="card-label">Show Planning</div>
+      <div class="card-title">Nothing on the calendar yet</div>
+    </div>
+    <div class="card-actions">
+      <button class="pin-btn" onclick="event.stopPropagation(); this.classList.toggle('active')">📌</button>
+      <button class="check-btn" onclick="event.stopPropagation(); document.getElementById('card-show-empty').classList.toggle('completed')">✓</button>
+    </div>
+  </div>
+  <div class="card-body" id="body-show-empty">
+    <div class="no-show-state">
+      <div class="no-show-icon">🗓</div>
+      No upcoming shows logged. When you add an event in the Journey Event Log,
+      your preparation checklist and timeline will appear here automatically.
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleCollapse(id) {
+  document.getElementById('body-' + id)?.classList.toggle('collapsed');
+}
+
+function toggleShowCheck(el) {
+  el.classList.toggle('done');
+  el.nextElementSibling?.querySelector('.show-task-title')?.classList.toggle('done-text');
+}
+
+// ── WEEK THEMES (mirrors show planner WEEK_SUBS exactly) ──
+const WEEK_SUBS = {
+  8: 'Foundation — establish the physical and mental baseline',
+  7: 'Technical — geometry, accuracy, and test knowledge',
+  6: 'Build — condition your recovery reflexes',
+  5: 'Refine — peak schooling, quality over quantity',
+  4: 'Sharpen — entries, halts, and test accuracy',
+  3: 'Solidify — no new experiments',
+  2: 'Trust — the horse, the training, yourself',
+  1: 'Arrive ready — mindset, routines, peak readiness',
+};
+
+// ── WEEK-KEYED TASK DATA ──
+// Fallback content used when showPlanner.weeklyShowTasks[weekNum] hasn't been
+// generated yet for the active show. One object per area per week.
+// In production: read first item per area from Firestore cache; fall back to this.
+const TASKS_BY_WEEK = {
+  8: [
+    { area: 'mental',   title: 'Establish your baseline mental cue',  cue: 'Choose one word or phrase that signals "ready to ride". Use it every warm-up this week.' },
+    { area: 'tech',     title: 'Know your test geometry cold',         cue: 'Walk (or visualize) the PSG test twice — trace the 8m voltes, half-pass lines, and pirouette entry points.' },
+    { area: 'physical', title: 'Map your show-day warm-up body',      cue: 'After each ride, note which part of your body needed the most releasing. This becomes your pre-show checklist.' },
+  ],
+  7: [
+    { area: 'mental',   title: 'Ride the movement before the marker', cue: 'Practice committing to each PSG movement 3 strides earlier than the letter this week.' },
+    { area: 'tech',     title: 'Counter change of hand accuracy',     cue: 'Ride the zig-zag half-pass at least twice per session — change of bend at centerline, angle matching both directions.' },
+    { area: 'physical', title: 'Upper back, not hands',               cue: 'Every correction originates from the back. Note when the hands want to take over.' },
+  ],
+  6: [
+    { area: 'mental',   title: 'Recovery reflex under pressure',      cue: 'When something goes wrong, give yourself 2 strides to reset — no more. Practice the reset, not the mistake.' },
+    { area: 'tech',     title: 'Half-pirouette energy up, not out',   cue: 'Approach every half-pirouette from half-steps this week. Energy must go up before the turn begins.' },
+    { area: 'physical', title: 'Glutes soft in collection',           cue: 'In every collected movement, do a single glute-check: are you gripping? Soften and feel what changes.' },
+  ],
+  5: [
+    { area: 'mental',   title: 'Quality over quantity this week',     cue: 'Set a maximum of 3 full run-throughs of any sequence. After 3, move on — Rocket anticipates repetition.' },
+    { area: 'tech',     title: 'Straightness in the tempi changes',   cue: 'Ride your 3s and 4s on the centerline once per session. Straightness matters more than timing at this stage.' },
+    { area: 'physical', title: 'Show posture, not fixing posture',    cue: 'Once per session: 2 minutes of your best show posture — tall, open, soft — without correcting the horse at all.' },
+  ],
+  4: [
+    { area: 'mental',   title: 'Sharpen your anchor routine',         cue: 'Finalize the 3-step mental routine you will use before entering at A. Practice it at the start of every ride.' },
+    { area: 'tech',     title: 'Halt, immobility, rein back as unit', cue: 'Practice the halt/rein back movement 3× per session as one clean sequence. 5 straight steps back, no shuffle.' },
+    { area: 'physical', title: 'Elbow position in extensions',        cue: 'In every extended trot and canter: elbows by your sides, not wings. Feel the difference in following contact.' },
+  ],
+  3: [
+    { area: 'mental',   title: 'No new experiments this week',        cue: 'If you feel the urge to try something new, write it down for after the show. This week, ride only what you know.' },
+    { area: 'tech',     title: 'Solidify one weak movement',          cue: 'Pick the one movement you are least confident about. Ride it well — not perfectly — every session. Then leave it.' },
+    { area: 'physical', title: 'One body-prep habit daily',           cue: 'Pick one thing — hip circles, shoulder rolls, breathing. Do it every day before you get on.' },
+  ],
+  2: [
+    { area: 'mental',   title: 'Trust the horse, trust the training', cue: 'Before mounting, say one true thing about what Rocket can do. Let that be the lens for the whole ride.' },
+    { area: 'tech',     title: 'Run your planned warm-up once',       cue: 'Ride your full intended show warm-up sequence once this week. Time it. Adjust if needed.' },
+    { area: 'physical', title: 'Ride fresh — shorten sessions',       cue: 'Keep rides to 35–40 minutes max. You are banking energy, not building it.' },
+  ],
+  1: [
+    { area: 'mental',   title: 'Arrive, breathe, be present',         cue: 'Your only job at the show is to ride the horse in front of you. Not the one in your head. This one, right now.' },
+    { area: 'tech',     title: 'Warm up to his rhythm, not the clock',cue: 'Let jaw softness and throughness be your green light — not a time target. Forward first, then everything else.' },
+    { area: 'physical', title: 'Body check before entry at A',        cue: 'At your final halt before entering: tall, soft glutes, elbows in, exhale. Then go.' },
+  ],
+};
+
+const BADGE_CLASS = { mental: 'badge-mental', tech: 'badge-tech', physical: 'badge-physical' };
+const AREA_LABEL  = { mental: 'Mental', tech: 'Technical', physical: 'Physical' };
+
+// ── MULTI-SHOW SELECTION + TASK RENDERING ──
+// In production:
+//   1. Query journeyEventLog where type in ["show","competition"],
+//      eventDate >= today, eventDate <= today+60, orderBy eventDate asc, limit 1.
+//   2. Read tasks from users/{userId}/outputs/showPlanner/{showEventId}/weeklyShowTasks/{weekNum}.
+//   3. Display first item per area. Fall back to TASKS_BY_WEEK[weekNum] if cache is empty.
+(function buildShowTasks() {
+  const today = new Date();
+
+  // Simulated Firestore events — replace with live query.
+  const UPCOMING_SHOWS = [
+    { name: 'Spring Classic',      date: new Date('2026-05-08'), id: 'show_001' },
+    { name: 'Summer Invitational', date: new Date('2026-06-28'), id: 'show_002' },
+  ];
+
+  // Filter to within 60 days, sort ascending → soonest first.
+  const eligible = UPCOMING_SHOWS
+    .map(s => ({ ...s, daysOut: Math.ceil((s.date - today) / 86400000) }))
+    .filter(s => s.daysOut > 0 && s.daysOut <= 60)
+    .sort((a, b) => a.daysOut - b.daysOut);
+
+  if (eligible.length === 0) return; // empty card already rendered in HTML
+
+  const { name: showName, daysOut } = eligible[0];
+  const weekNum = Math.min(8, Math.max(1, Math.ceil(daysOut / 7)));
+
+  // Update header
+  document.getElementById('active-card-title').textContent =
+    `${showName} · ${daysOut} day${daysOut === 1 ? '' : 's'} out`;
+  document.getElementById('active-callout-text').textContent =
+    `Week ${weekNum} · ${WEEK_SUBS[weekNum]}`;
+
+  // Render tasks — in production, swap TASKS_BY_WEEK[weekNum] with Firestore cache.
+  const tasks = TASKS_BY_WEEK[weekNum] || TASKS_BY_WEEK[8];
+  const list  = document.getElementById('active-task-list');
+
+  tasks.forEach(task => {
+    const li = document.createElement('li');
+    li.className = 'show-task';
+    li.innerHTML = `
+      <div class="show-checkbox" onclick="toggleShowCheck(this)">✓</div>
+      <div class="show-task-body">
+        <div class="show-task-title">${task.title}</div>
+        <div class="show-task-cue">${task.cue}</div>
+      </div>
+      <div class="show-area-badge ${BADGE_CLASS[task.area]}">${AREA_LABEL[task.area]}</div>
+    `;
+    list.appendChild(li);
+  });
+})();
+</script>
+</body>
+</html>

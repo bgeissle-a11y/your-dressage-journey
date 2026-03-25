@@ -2939,6 +2939,18 @@ NOTE: Quality freestyle typically takes 2-4 months. If <6 weeks remain without s
 ${VOICE_REFERENCE_BLOCK}
 Include voice snippets from all 4 coaching voices at key plan milestones. The rider's preferred voice is ${preferredVoice}.
 
+WEEKLY SHOW TASKS (for the Weekly Focus card):
+In addition to the full show prep plan, include a field called "weeklyShowTasks" —
+an object with keys "mental", "technical", and "physical". Each key holds an array
+of task objects for that section, ordered by priority.
+
+Each task object: { "title": "5 words max", "cue": "One specific action for this week." }
+
+These tasks must:
+- Be drawn directly from the full plan for this week (not new content)
+- Be the highest-priority item from each section for this week number
+- Be self-contained — readable without the full plan
+
 ITEM FORMAT: Each item in the mental, technical, and physical arrays must follow this structure:
 - "title": 5 words maximum — a scannable headline
 - "body": 2-3 sentences grounded in THIS rider's actual data and patterns. Reference specific debrief/reflection data, named movements, named horse behaviors. Never generic.
@@ -2990,7 +3002,12 @@ Respond in JSON format:
     "trigger": "string — what might cause anxiety",
     "strategy": "string — specific coping technique",
     "voice": "string — which coaching voice perspective"
-  }]${isFreestyle ? `,
+  }],
+  "weeklyShowTasks": {
+    "mental":    [{ "title": "5 words max", "cue": "One specific action for this week." }],
+    "technical": [{ "title": "5 words max", "cue": "One specific action for this week." }],
+    "physical":  [{ "title": "5 words max", "cue": "One specific action for this week." }]
+  }${isFreestyle ? `,
   "freestyle_plan": {
     "music_status": "string — assessment and next steps",
     "choreography_notes": "string",
