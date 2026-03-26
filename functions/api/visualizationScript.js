@@ -35,46 +35,43 @@ async function fetchVisualizationContext(uid, formData) {
   ] = await Promise.all([
     db.collection("riderProfiles")
       .where("userId", "==", uid)
-      .where("isDeleted", "!=", true)
-      .limit(1)
       .get(),
     db.collection("horseProfiles")
       .where("userId", "==", uid)
-      .where("isDeleted", "!=", true)
-      .limit(1)
       .get(),
     db.collection("debriefs")
       .where("userId", "==", uid)
-      .where("isDeleted", "!=", true)
-      .limit(10)
       .get(),
     db.collection("lessonNotes")
       .where("userId", "==", uid)
-      .where("isDeleted", "!=", true)
-      .limit(5)
       .get(),
     db.collection("physicalAssessments")
       .where("userId", "==", uid)
-      .where("isDeleted", "!=", true)
-      .limit(1)
       .get(),
   ]);
 
+  // Filter out soft-deleted docs (no composite index needed)
+  const filterActive = (snap) => snap.docs.filter(d => !d.data().isDeleted);
+
+  const activeRiders = filterActive(riderSnap);
+  const activeHorses = filterActive(horseSnap);
+
   // Require rider + horse profiles
-  if (riderSnap.empty || horseSnap.empty) {
+  if (activeRiders.length === 0 || activeHorses.length === 0) {
     throw new HttpsError(
       "failed-precondition",
       "Please complete your Rider Profile and Horse Profile before generating a visualization script."
     );
   }
 
-  const riderProfile = riderSnap.docs[0].data();
-  const horseProfile = horseSnap.docs[0].data();
+  const riderProfile = activeRiders[0].data();
+  const horseProfile = activeHorses[0].data();
 
-  // Process debriefs — sort by date descending, flag movement-specific ones
-  const debriefs = debriefSnap.docs
+  // Process debriefs — filter soft-deleted, sort by date descending, limit to 10
+  const debriefs = filterActive(debriefSnap)
     .map(d => d.data())
-    .sort((a, b) => (b.rideDate || b.date || "").localeCompare(a.rideDate || a.date || ""));
+    .sort((a, b) => (b.rideDate || b.date || "").localeCompare(a.rideDate || a.date || ""))
+    .slice(0, 10);
 
   const movementSpecificDebriefs = debriefs.filter(d => {
     const movements = d.movements || d.movementTags || [];
@@ -85,13 +82,15 @@ async function fetchVisualizationContext(uid, formData) {
     });
   });
 
-  // Process lesson notes — sort by date descending
-  const lessonNotes = lessonSnap.docs
+  // Process lesson notes — filter soft-deleted, sort by date descending, limit to 5
+  const lessonNotes = filterActive(lessonSnap)
     .map(d => d.data())
-    .sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+    .sort((a, b) => (b.date || "").localeCompare(a.date || ""))
+    .slice(0, 5);
 
   // Physical assessment
-  const physicalAssessment = physicalSnap.empty ? null : physicalSnap.docs[0].data();
+  const activePhysical = filterActive(physicalSnap);
+  const physicalAssessment = activePhysical.length > 0 ? activePhysical[0].data() : null;
 
   return {
     riderProfile,
@@ -141,6 +140,7 @@ async function handler(request) {
       maxTokens: getMaxTokens(scriptLength),
       jsonMode: true,
       context: "visualization-script",
+      uid,
     });
 
     if (!script || !script.blocks || !Array.isArray(script.blocks)) {

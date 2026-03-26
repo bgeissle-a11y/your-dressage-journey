@@ -117,6 +117,7 @@ async function handler(request) {
         jsonMode: true,
         maxTokens: 4096,
         context: "dv-pattern-extraction",
+        uid,
       }),
       callClaude({
         system: sys2,
@@ -124,6 +125,7 @@ async function handler(request) {
         jsonMode: true,
         maxTokens: 4096,
         context: "dv-goal-mapping",
+        uid,
       }),
     ]);
 
@@ -139,6 +141,7 @@ async function handler(request) {
       jsonMode: true,
       maxTokens: 4096,
       context: "dv-insight-narratives",
+      uid,
     });
 
     // Assemble complete result

@@ -250,6 +250,7 @@ async function handler(request) {
           jsonMode: true,
           maxTokens: 16384,
           context: "ep-1-test-requirements",
+          uid,
         });
       } catch (err) {
         if (err.message && err.message.includes("TRUNCATED")) {
@@ -297,6 +298,7 @@ async function handler(request) {
         jsonMode: true,
         maxTokens: 8192,
         context: "ep-2-readiness-analysis",
+        uid,
       });
 
       return { success: true, step: 2, readinessAnalysis };
@@ -325,6 +327,7 @@ async function handler(request) {
         jsonMode: true,
         maxTokens: 24576,
         context: "ep-3-preparation-plan",
+        uid,
       });
 
       return { success: true, step: 3, preparationPlan };
@@ -358,6 +361,7 @@ async function handler(request) {
         jsonMode: true,
         maxTokens: 12288,
         context: "ep-4-show-day-guidance",
+        uid,
       });
 
       // Cache the full assembled result

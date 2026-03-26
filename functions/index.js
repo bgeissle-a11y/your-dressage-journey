@@ -32,6 +32,7 @@ const dataTriggeredRegeneration = require("./api/dataTriggeredRegeneration");
 const firstGlimpse = require("./api/firstGlimpse");
 const waitlist = require("./api/waitlist");
 const adminStats = require("./api/adminStats");
+const adminUsageStats = require("./api/adminUsageStats");
 const arenaCoaching = require("./api/arenaCoaching");
 const weeklyCoachBrief = require("./api/weeklyCoachBrief");
 const readinessSnapshot = require("./api/readinessSnapshot");
@@ -173,6 +174,12 @@ exports.checkCacheStaleness = onCall(
 exports.getAdminStats = onCall(
   { timeoutSeconds: 60, memory: "256MiB" },
   adminStats.handler
+);
+
+// API token usage stats — per-user, per-output, per-model breakdowns (requires admin)
+exports.getAdminUsageStats = onCall(
+  { timeoutSeconds: 120, memory: "512MiB" },
+  adminUsageStats.handler
 );
 
 // --- Data-Triggered Background Regeneration ---

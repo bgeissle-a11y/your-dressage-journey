@@ -202,6 +202,21 @@ export async function getAdminStats() {
 }
 
 /**
+ * Admin: API token usage stats — per-user, per-output, per-model breakdowns.
+ * Requires admin custom claim on the caller's Firebase Auth account.
+ *
+ * @param {object} [options]
+ * @param {number} [options.days=30] - Number of days to query
+ * @param {string} [options.uid] - Filter to a specific user
+ * @returns {Promise<object>} { success, totals, byUser, byOutput, byModel, dailyTrend, topCalls, generatedAt }
+ */
+export async function getAdminUsageStats(options = {}) {
+  const fn = httpsCallable(functions, 'getAdminUsageStats', { timeout: 120_000 });
+  const result = await fn(options);
+  return result.data;
+}
+
+/**
  * Visualization Script: generate a PETTLEP mental rehearsal script.
  *
  * @param {object} formData - Form fields (movement, problemFocus, referenceType, context, etc.)

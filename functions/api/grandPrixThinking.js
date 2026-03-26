@@ -201,6 +201,7 @@ async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerConte
     jsonMode: true,
     maxTokens: 8192,
     context: "grand-prix-l1-mental",
+    uid,
   });
 
   logHorseNameUsage("L1", l1Output, riderData);
@@ -277,6 +278,7 @@ async function generateExpandedPlan(uid, riderData, pathId) {
     jsonMode: true,
     maxTokens: 8192,
     context: "grand-prix-l1-expand",
+    uid,
   });
 
   const result = {
@@ -364,6 +366,7 @@ async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerC
     jsonMode: true,
     maxTokens: 8192,
     context: "trajectory-call1-state-analysis",
+    uid,
   });
   logHorseNameUsage("L2-1", currentStateAnalysis, riderData);
 
@@ -380,6 +383,7 @@ async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerC
       jsonMode: true,
       maxTokens: 8192,
       context: "trajectory-call2-three-paths",
+      uid,
     }),
     callClaude({
       system: sys3,
@@ -387,6 +391,7 @@ async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerC
       jsonMode: true,
       maxTokens: 4096,
       context: "trajectory-call3-movement-maps",
+      uid,
     }),
   ]);
 
@@ -423,6 +428,7 @@ async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerC
     jsonMode: true,
     maxTokens: 4096,
     context: "trajectory-call4-narratives",
+    uid,
   });
   logHorseNameUsage("L2-4", pathNarratives, riderData);
 

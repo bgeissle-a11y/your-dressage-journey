@@ -11,6 +11,7 @@
 
 const { getAnthropicClient } = require("./anthropic");
 const { isTransientError } = require("./errors");
+const { db } = require("./firebase");
 
 const DEFAULT_MODEL = "claude-sonnet-4-5-20250929";
 const DEFAULT_MAX_TOKENS = 4096;
@@ -28,6 +29,7 @@ const RETRY_BASE_DELAY_MS = 2000;
  * @param {number} [options.maxTokens] - Max output tokens (default: 4096)
  * @param {string} [options.context] - Label for logging (e.g. "coaching-voice-0")
  * @param {number} [options.maxRetries] - Max retries for transient failures (default: 1)
+ * @param {string} [options.uid] - User ID for usage tracking (if provided, logs to Firestore)
  * @returns {Promise<object|string>} Parsed JSON object or text string
  */
 async function callClaude({
@@ -38,6 +40,7 @@ async function callClaude({
   maxTokens = DEFAULT_MAX_TOKENS,
   context = "claude-call",
   maxRetries = DEFAULT_MAX_RETRIES,
+  uid = null,
 }) {
   const client = getAnthropicClient();
   let lastError;
@@ -45,7 +48,7 @@ async function callClaude({
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       return await _callClaudeOnce(client, {
-        system, userMessage, model, jsonMode, maxTokens, context,
+        system, userMessage, model, jsonMode, maxTokens, context, uid,
       });
     } catch (err) {
       lastError = err;
@@ -71,7 +74,7 @@ async function callClaude({
  * Single attempt to call the Claude API (no retries).
  * @private
  */
-async function _callClaudeOnce(client, { system, userMessage, model, jsonMode, maxTokens, context }) {
+async function _callClaudeOnce(client, { system, userMessage, model, jsonMode, maxTokens, context, uid }) {
   const messages = [{ role: "user", content: userMessage }];
 
   // When jsonMode is true, append a JSON instruction to the system prompt
@@ -97,6 +100,16 @@ async function _callClaudeOnce(client, { system, userMessage, model, jsonMode, m
     );
   }
 
+  // Log usage to Firestore for cost tracking (fire-and-forget)
+  _logUsage({
+    uid: uid || null,
+    context,
+    model,
+    inputTokens: usage.input_tokens || 0,
+    outputTokens: usage.output_tokens || 0,
+    stopReason,
+  });
+
   // Extract text content from response
   const textBlock = response.content.find((block) => block.type === "text");
   if (!textBlock) {
@@ -111,6 +124,53 @@ async function _callClaudeOnce(client, { system, userMessage, model, jsonMode, m
 
   // JSON mode: extract and parse JSON from response
   return extractJSON(text, context, stopReason === "max_tokens");
+}
+
+/**
+ * Log API usage to Firestore for cost tracking.
+ * Fire-and-forget — never blocks the API response or throws.
+ *
+ * Writes to `usageLogs` collection with auto-generated IDs.
+ * Each document represents a single Claude API call.
+ *
+ * @param {object} entry
+ * @param {string|null} entry.uid - User ID (null for unauthenticated calls)
+ * @param {string} entry.context - Call context label (e.g. "coaching-voice-0")
+ * @param {string} entry.model - Model ID used
+ * @param {number} entry.inputTokens - Input tokens consumed
+ * @param {number} entry.outputTokens - Output tokens consumed
+ * @param {string} entry.stopReason - Stop reason (end_turn, max_tokens, etc.)
+ * @private
+ */
+function _logUsage({ uid, context, model, inputTokens, outputTokens, stopReason }) {
+  // Derive outputType from the context label (e.g. "coaching-voice-0" → "coaching")
+  const outputType = context.split("-")[0] || "unknown";
+
+  // Estimate cost in millicents (1/1000 of a cent) for easy aggregation
+  // Sonnet: $3/M input, $15/M output. Opus: $15/M input, $75/M output.
+  const isOpus = model.includes("opus");
+  const inputRate = isOpus ? 15 : 3; // $ per million tokens
+  const outputRate = isOpus ? 75 : 15;
+  const estimatedCostMillicents = Math.round(
+    (inputTokens * inputRate / 1_000_000 + outputTokens * outputRate / 1_000_000) * 100_000
+  );
+
+  const doc = {
+    uid,
+    context,
+    outputType,
+    model,
+    inputTokens,
+    outputTokens,
+    totalTokens: inputTokens + outputTokens,
+    estimatedCostMillicents,
+    stopReason,
+    timestamp: new Date().toISOString(),
+  };
+
+  db.collection("usageLogs").add(doc).catch((err) => {
+    console.warn(`[usage-log] Failed to write usage log: ${err.message}`);
+  });
 }
 
 /**

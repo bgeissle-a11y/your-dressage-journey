@@ -326,6 +326,7 @@ async function handler(request) {
       maxTokens: 700,
       jsonMode: false,
       context: "readiness-snapshot",
+      uid,
     });
 
     if (!narrative || narrative.length < 100) {

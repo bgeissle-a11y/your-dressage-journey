@@ -111,6 +111,7 @@ async function handler(request) {
       jsonMode: true,
       maxTokens: 8192,
       context: "journey-map-synthesis",
+      uid,
     });
 
     // --- Calls 2 & 3 in parallel (both depend on Call 1, not each other) ---
@@ -132,6 +133,7 @@ async function handler(request) {
         jsonMode: false,
         maxTokens: 4096,
         context: "journey-map-narrative",
+        uid,
       }),
       callClaude({
         system: sys3,
@@ -139,6 +141,7 @@ async function handler(request) {
         jsonMode: true,
         maxTokens: 2048,
         context: "journey-map-visualization",
+        uid,
       }),
     ]);
 

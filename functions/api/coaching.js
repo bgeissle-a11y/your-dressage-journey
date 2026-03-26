@@ -34,7 +34,7 @@ const INSIGHTS_OUTPUT_TYPE = "coaching_insights";
  * @param {boolean} forceRefresh - Skip cache
  * @returns {Promise<object>} Voice result with meta + content
  */
-async function generateVoice(voiceIndex, riderData, forceRefresh) {
+async function generateVoice(voiceIndex, riderData, forceRefresh, uid) {
   const meta = VOICE_META[voiceIndex];
   const hash = riderData.dataSnapshot?.hash;
 
@@ -80,6 +80,7 @@ async function generateVoice(voiceIndex, riderData, forceRefresh) {
     jsonMode: true,
     maxTokens: 4096,
     context: `coaching-voice-${voiceIndex}`,
+    uid,
   });
 
   // Cache the result
@@ -103,7 +104,7 @@ async function generateVoice(voiceIndex, riderData, forceRefresh) {
  * @param {boolean} forceRefresh - Skip cache
  * @returns {Promise<object>} Quick insights result
  */
-async function generateQuickInsights(riderData, forceRefresh) {
+async function generateQuickInsights(riderData, forceRefresh, uid) {
   const hash = riderData.dataSnapshot?.hash;
 
   // Check cache
@@ -129,6 +130,7 @@ async function generateQuickInsights(riderData, forceRefresh) {
     jsonMode: true,
     maxTokens: 1024,
     context: "coaching-quick-insights",
+    uid,
   });
 
   // Cache
@@ -183,7 +185,7 @@ async function handler(request) {
 
     // Generate quick insights only (for progressive voice rendering)
     if (quickInsightsOnly) {
-      const quickInsights = await generateQuickInsights(riderData, forceRefresh);
+      const quickInsights = await generateQuickInsights(riderData, forceRefresh, uid);
       return {
         success: true,
         quickInsights,
@@ -196,7 +198,7 @@ async function handler(request) {
 
     // Generate specific voice (no quick insights for single-voice requests)
     if (voiceIndex !== undefined && voiceIndex !== null) {
-      const voiceResult = await generateVoice(voiceIndex, riderData, forceRefresh);
+      const voiceResult = await generateVoice(voiceIndex, riderData, forceRefresh, uid);
       return {
         success: true,
         voices: { [voiceIndex]: voiceResult },
@@ -210,11 +212,11 @@ async function handler(request) {
     // Generate all 4 voices + Quick Insights in parallel (5 calls)
     // Use Promise.allSettled so partial results can be returned if some voices fail
     const results = await Promise.allSettled([
-      generateVoice(0, riderData, forceRefresh),
-      generateVoice(1, riderData, forceRefresh),
-      generateVoice(2, riderData, forceRefresh),
-      generateVoice(3, riderData, forceRefresh),
-      generateQuickInsights(riderData, forceRefresh),
+      generateVoice(0, riderData, forceRefresh, uid),
+      generateVoice(1, riderData, forceRefresh, uid),
+      generateVoice(2, riderData, forceRefresh, uid),
+      generateVoice(3, riderData, forceRefresh, uid),
+      generateQuickInsights(riderData, forceRefresh, uid),
     ]);
 
     const voices = {};

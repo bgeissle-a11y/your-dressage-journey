@@ -113,6 +113,7 @@ async function handler(request) {
       jsonMode: true,
       maxTokens: 4096,
       context: "pg-1-pattern-analysis",
+      uid,
     });
 
     // --- PG-2: Exercise Prescription (depends on PG-1) ---
@@ -128,6 +129,7 @@ async function handler(request) {
       jsonMode: true,
       maxTokens: 8192,
       context: "pg-2-exercise-prescription",
+      uid,
     });
 
     // Assemble complete result

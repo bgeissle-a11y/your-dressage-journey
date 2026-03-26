@@ -19,7 +19,7 @@ import {
   getAllLessonNotes,
   getAllToolkitEntries
 } from '../services';
-import { getAdminStats } from '../services/aiService';
+import { getAdminStats, getAdminUsageStats } from '../services/aiService';
 import { exportToCSV, exportToJSON, EXPORT_COLUMNS } from '../utils/exportUtils';
 import './Dashboard.css';
 
@@ -123,6 +123,13 @@ export default function Dashboard() {
   const [adminLoading, setAdminLoading] = useState(false);
   const [adminError, setAdminError] = useState(null);
   const isAdmin = currentUser?.uid === ADMIN_UID;
+
+  // Admin usage stats
+  const [usageData, setUsageData] = useState(null);
+  const [usageLoading, setUsageLoading] = useState(false);
+  const [usageError, setUsageError] = useState(null);
+  const [usageDays, setUsageDays] = useState(30);
+  const [usageView, setUsageView] = useState('byOutput'); // byOutput | byUser | byModel | dailyTrend | topCalls
 
   function toggleArrange() {
     if (arrangeMode && currentUser) {
@@ -232,6 +239,19 @@ export default function Dashboard() {
       setAdminError(err.message || 'Failed to load admin stats');
     }
     setAdminLoading(false);
+  }
+
+  // Admin usage stats
+  async function handleUsageStats(days = usageDays) {
+    setUsageLoading(true);
+    setUsageError(null);
+    try {
+      const data = await getAdminUsageStats({ days });
+      setUsageData(data);
+    } catch (err) {
+      setUsageError(err.message || 'Failed to load usage stats');
+    }
+    setUsageLoading(false);
   }
 
   // Format date
@@ -551,6 +571,239 @@ export default function Dashboard() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Admin API Usage Stats */}
+      {isAdmin && (
+        <div className="block" style={{ marginTop: '1.5rem' }}>
+          <div className="block-header">
+            <div className="block-header-left">
+              <div className="block-title">API Token Usage</div>
+              <div className="block-subtitle">Cost tracking by output, user, and model</div>
+            </div>
+          </div>
+          <div className="block-body">
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+              <select
+                value={usageDays}
+                onChange={e => setUsageDays(Number(e.target.value))}
+                style={{ padding: '0.4rem 0.6rem', borderRadius: '6px', border: '1px solid var(--parchment-dark)', fontSize: '0.85rem', background: 'var(--cream)' }}
+              >
+                <option value={7}>Last 7 days</option>
+                <option value={14}>Last 14 days</option>
+                <option value={30}>Last 30 days</option>
+                <option value={60}>Last 60 days</option>
+                <option value={90}>Last 90 days</option>
+              </select>
+              <button className="btn-export" onClick={() => handleUsageStats(usageDays)} disabled={usageLoading}>
+                {usageLoading ? 'Loading...' : 'Load Usage Stats'}
+              </button>
+            </div>
+            {usageError && <p style={{ color: 'var(--rust)', marginTop: '0.5rem' }}>{usageError}</p>}
+            {usageData && (
+              <div style={{ marginTop: '1rem' }}>
+                {/* Summary cards */}
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+                  <div style={{ background: 'var(--cream)', border: '1px solid var(--parchment-dark)', borderRadius: '8px', padding: '0.75rem 1rem', flex: '1 1 120px', minWidth: '120px' }}>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--brown-light)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>API Calls</div>
+                    <div style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--brown)' }}>{usageData.totals.callCount.toLocaleString()}</div>
+                  </div>
+                  <div style={{ background: 'var(--cream)', border: '1px solid var(--parchment-dark)', borderRadius: '8px', padding: '0.75rem 1rem', flex: '1 1 120px', minWidth: '120px' }}>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--brown-light)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Tokens</div>
+                    <div style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--brown)' }}>{(usageData.totals.totalTokens / 1_000_000).toFixed(2)}M</div>
+                  </div>
+                  <div style={{ background: 'var(--cream)', border: '1px solid var(--parchment-dark)', borderRadius: '8px', padding: '0.75rem 1rem', flex: '1 1 120px', minWidth: '120px' }}>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--brown-light)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Est. Cost</div>
+                    <div style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--brown)' }}>${(usageData.totals.estimatedCostCents / 100).toFixed(2)}</div>
+                  </div>
+                  <div style={{ background: 'var(--cream)', border: '1px solid var(--parchment-dark)', borderRadius: '8px', padding: '0.75rem 1rem', flex: '1 1 120px', minWidth: '120px' }}>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--brown-light)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Input / Output</div>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--brown)' }}>
+                      {(usageData.totals.inputTokens / 1_000_000).toFixed(2)}M / {(usageData.totals.outputTokens / 1_000_000).toFixed(2)}M
+                    </div>
+                  </div>
+                </div>
+
+                {/* View tabs */}
+                <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+                  {[
+                    ['byOutput', 'By Output'],
+                    ['byUser', 'By User'],
+                    ['byModel', 'By Model'],
+                    ['dailyTrend', 'Daily Trend'],
+                    ['topCalls', 'Top Calls'],
+                  ].map(([key, label]) => (
+                    <button
+                      key={key}
+                      onClick={() => setUsageView(key)}
+                      style={{
+                        padding: '0.3rem 0.7rem', borderRadius: '4px', fontSize: '0.8rem', cursor: 'pointer',
+                        border: usageView === key ? '1px solid var(--gold)' : '1px solid var(--parchment-dark)',
+                        background: usageView === key ? 'var(--gold)' : 'transparent',
+                        color: usageView === key ? 'white' : 'var(--brown)',
+                        fontWeight: usageView === key ? 600 : 400,
+                      }}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* By Output table */}
+                {usageView === 'byOutput' && (
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                      <thead>
+                        <tr style={{ borderBottom: '2px solid var(--parchment-dark)', textAlign: 'left' }}>
+                          <th style={{ padding: '0.5rem' }}>Output</th>
+                          <th style={{ padding: '0.5rem', textAlign: 'right' }}>Calls</th>
+                          <th style={{ padding: '0.5rem', textAlign: 'right' }}>Input Tokens</th>
+                          <th style={{ padding: '0.5rem', textAlign: 'right' }}>Output Tokens</th>
+                          <th style={{ padding: '0.5rem', textAlign: 'right' }}>Cost</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {usageData.byOutput.map(o => (
+                          <tr key={o.outputType} style={{ borderBottom: '1px solid var(--parchment-dark)' }}>
+                            <td style={{ padding: '0.5rem', fontWeight: 500 }}>{o.outputType}</td>
+                            <td style={{ padding: '0.5rem', textAlign: 'right' }}>{o.callCount}</td>
+                            <td style={{ padding: '0.5rem', textAlign: 'right' }}>{(o.inputTokens / 1000).toFixed(1)}k</td>
+                            <td style={{ padding: '0.5rem', textAlign: 'right' }}>{(o.outputTokens / 1000).toFixed(1)}k</td>
+                            <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 600 }}>${(o.costCents / 100).toFixed(2)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {/* By User table */}
+                {usageView === 'byUser' && (
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                      <thead>
+                        <tr style={{ borderBottom: '2px solid var(--parchment-dark)', textAlign: 'left' }}>
+                          <th style={{ padding: '0.5rem' }}>User</th>
+                          <th style={{ padding: '0.5rem', textAlign: 'right' }}>Calls</th>
+                          <th style={{ padding: '0.5rem', textAlign: 'right' }}>Tokens</th>
+                          <th style={{ padding: '0.5rem', textAlign: 'right' }}>Cost</th>
+                          <th style={{ padding: '0.5rem' }}>Top Output</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {usageData.byUser.map(u => {
+                          const topOutput = Object.entries(u.outputs || {}).sort(([,a], [,b]) => b.costCents - a.costCents)[0];
+                          return (
+                            <tr key={u.uid} style={{ borderBottom: '1px solid var(--parchment-dark)' }}>
+                              <td style={{ padding: '0.5rem' }}>{u.displayName || u.email || u.uid?.slice(0, 8) + '...'}</td>
+                              <td style={{ padding: '0.5rem', textAlign: 'right' }}>{u.callCount}</td>
+                              <td style={{ padding: '0.5rem', textAlign: 'right' }}>{(u.totalTokens / 1000).toFixed(1)}k</td>
+                              <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 600 }}>${(u.costCents / 100).toFixed(2)}</td>
+                              <td style={{ padding: '0.5rem', fontSize: '0.8rem' }}>{topOutput ? `${topOutput[0]} ($${(topOutput[1].costCents / 100).toFixed(2)})` : '\u2014'}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {/* By Model table */}
+                {usageView === 'byModel' && (
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                      <thead>
+                        <tr style={{ borderBottom: '2px solid var(--parchment-dark)', textAlign: 'left' }}>
+                          <th style={{ padding: '0.5rem' }}>Model</th>
+                          <th style={{ padding: '0.5rem', textAlign: 'right' }}>Calls</th>
+                          <th style={{ padding: '0.5rem', textAlign: 'right' }}>Input</th>
+                          <th style={{ padding: '0.5rem', textAlign: 'right' }}>Output</th>
+                          <th style={{ padding: '0.5rem', textAlign: 'right' }}>Cost</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {usageData.byModel.map(m => (
+                          <tr key={m.model} style={{ borderBottom: '1px solid var(--parchment-dark)' }}>
+                            <td style={{ padding: '0.5rem', fontFamily: 'monospace', fontSize: '0.8rem' }}>{m.model}</td>
+                            <td style={{ padding: '0.5rem', textAlign: 'right' }}>{m.callCount}</td>
+                            <td style={{ padding: '0.5rem', textAlign: 'right' }}>{(m.inputTokens / 1000).toFixed(1)}k</td>
+                            <td style={{ padding: '0.5rem', textAlign: 'right' }}>{(m.outputTokens / 1000).toFixed(1)}k</td>
+                            <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 600 }}>${(m.costCents / 100).toFixed(2)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {/* Daily Trend table */}
+                {usageView === 'dailyTrend' && (
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                      <thead>
+                        <tr style={{ borderBottom: '2px solid var(--parchment-dark)', textAlign: 'left' }}>
+                          <th style={{ padding: '0.5rem' }}>Date</th>
+                          <th style={{ padding: '0.5rem', textAlign: 'right' }}>Calls</th>
+                          <th style={{ padding: '0.5rem', textAlign: 'right' }}>Input</th>
+                          <th style={{ padding: '0.5rem', textAlign: 'right' }}>Output</th>
+                          <th style={{ padding: '0.5rem', textAlign: 'right' }}>Cost</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {usageData.dailyTrend.map(d => (
+                          <tr key={d.date} style={{ borderBottom: '1px solid var(--parchment-dark)' }}>
+                            <td style={{ padding: '0.5rem' }}>{d.date}</td>
+                            <td style={{ padding: '0.5rem', textAlign: 'right' }}>{d.callCount}</td>
+                            <td style={{ padding: '0.5rem', textAlign: 'right' }}>{(d.inputTokens / 1000).toFixed(1)}k</td>
+                            <td style={{ padding: '0.5rem', textAlign: 'right' }}>{(d.outputTokens / 1000).toFixed(1)}k</td>
+                            <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 600 }}>${(d.costCents / 100).toFixed(2)}</td>
+                          </tr>
+                        ))}
+                        {usageData.dailyTrend.length === 0 && (
+                          <tr><td colSpan={5} style={{ padding: '1rem', textAlign: 'center', color: 'var(--brown-light)' }}>No usage data yet. Data starts logging after deploy.</td></tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {/* Top Calls table */}
+                {usageView === 'topCalls' && (
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                      <thead>
+                        <tr style={{ borderBottom: '2px solid var(--parchment-dark)', textAlign: 'left' }}>
+                          <th style={{ padding: '0.5rem' }}>Context</th>
+                          <th style={{ padding: '0.5rem' }}>Model</th>
+                          <th style={{ padding: '0.5rem', textAlign: 'right' }}>In</th>
+                          <th style={{ padding: '0.5rem', textAlign: 'right' }}>Out</th>
+                          <th style={{ padding: '0.5rem', textAlign: 'right' }}>Cost</th>
+                          <th style={{ padding: '0.5rem' }}>When</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {usageData.topCalls.map((c, i) => (
+                          <tr key={i} style={{ borderBottom: '1px solid var(--parchment-dark)' }}>
+                            <td style={{ padding: '0.5rem', fontFamily: 'monospace', fontSize: '0.8rem' }}>{c.context}</td>
+                            <td style={{ padding: '0.5rem', fontSize: '0.8rem' }}>{c.model?.includes('opus') ? 'Opus' : 'Sonnet'}</td>
+                            <td style={{ padding: '0.5rem', textAlign: 'right' }}>{(c.inputTokens / 1000).toFixed(1)}k</td>
+                            <td style={{ padding: '0.5rem', textAlign: 'right' }}>{(c.outputTokens / 1000).toFixed(1)}k</td>
+                            <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 600 }}>${c.costCents.toFixed(2)}</td>
+                            <td style={{ padding: '0.5rem', fontSize: '0.8rem' }}>{c.timestamp ? new Date(c.timestamp).toLocaleString() : '\u2014'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                <p style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: 'var(--brown-light)' }}>
+                  Generated {new Date(usageData.generatedAt).toLocaleString()} &middot; {usageData.days}-day window
+                </p>
               </div>
             )}
           </div>

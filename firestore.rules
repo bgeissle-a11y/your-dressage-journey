@@ -140,5 +140,11 @@ service cloud.firestore {
     match /generationStatus/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
     }
+
+    // Usage logs — written by Cloud Functions (admin SDK bypasses rules),
+    // no client read/write access (admin queries via Cloud Function)
+    match /usageLogs/{docId} {
+      allow read, write: if false;
+    }
   }
 }
