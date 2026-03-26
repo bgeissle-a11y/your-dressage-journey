@@ -1704,6 +1704,7 @@ async function submitWaitlist() {
             body: JSON.stringify({
                 email: email,
                 name: answers.rider_name || '',
+                source: 'first-glimpse-quick',
             }),
         });
 

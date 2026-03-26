@@ -744,6 +744,54 @@
     color: rgba(253,248,242,0.4);
   }
 
+  /* ── WAITLIST EMAIL FORM ── */
+  .cta-email-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 32px;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .cta-email-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 14px 20px;
+    border-radius: 100px;
+    border: 1px solid rgba(253,248,242,0.25);
+    background: rgba(253,248,242,0.08);
+    color: var(--cream);
+    font-family: 'Work Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .cta-email-input::placeholder { color: rgba(253,248,242,0.35); }
+  .cta-email-input:focus { border-color: var(--gold-light); }
+  .cta-email-error {
+    color: #F5A623;
+    font-size: 13px;
+    margin-top: 8px;
+    min-height: 18px;
+  }
+  .cta-email-fine {
+    font-size: 0.78em;
+    opacity: 0.45;
+    margin-top: 14px;
+    color: var(--cream);
+  }
+  .cta-success-check {
+    font-size: 48px;
+    margin-bottom: 12px;
+  }
+  .cta-success-msg {
+    font-size: 17px;
+    color: rgba(253,248,242,0.85);
+    font-weight: 400;
+  }
+
   /* ── FOOTER ── */
   footer {
     background: var(--brown-deep);
@@ -1208,16 +1256,85 @@
   </div>
 </section>
 
-<!-- FINAL CTA -->
+<!-- FINAL CTA — WAITLIST EMAIL CAPTURE -->
 <section class="final-cta" id="get-started">
   <h2>Your journey is already<br><em>in progress</em>.</h2>
-  <p>Let's illuminate it. Your Dressage Journey gives you the tools to collect, analyze, and understand your riding at a level you've never had access to before.</p>
-  <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
-    <a href="https://yourdressagejourney.com" class="btn-primary">Start Your Journey</a>
+  <p>Let's illuminate it. Join the waitlist for priority access and an exclusive launch offer.</p>
+  <div id="ctaForm">
+    <div class="cta-email-row">
+      <input type="email" id="ctaEmail" class="cta-email-input" placeholder="your@email.com" autocomplete="email" />
+      <button class="btn-primary" id="ctaBtn" onclick="submitWaitlist()">Get Priority Access</button>
+    </div>
+    <div class="cta-email-error" id="ctaError"></div>
+    <p class="cta-email-fine">Priority notice + an exclusive offer when we launch. No spam.</p>
+  </div>
+  <div id="ctaSuccess" style="display:none">
+    <div class="cta-success-check">✓</div>
+    <p class="cta-success-msg">You're on the list! We'll reach out before anyone else.</p>
+  </div>
+  <div style="margin-top: 24px;">
     <a href="ydj-first-glimpse-quick.html" style="display: inline-block; background: transparent; color: var(--gold-light); font-family: 'Work Sans', sans-serif; font-weight: 600; font-size: 14px; padding: 14px 32px; border-radius: 100px; text-decoration: none; border: 1px solid rgba(212,169,96,0.4); transition: all 0.2s;">Try a Free First Glimpse ✦</a>
   </div>
   <div class="cta-note">Questions? Reach out at barb@yourdressagejourney.com</div>
 </section>
+
+<script>
+async function submitWaitlist() {
+  const emailInput = document.getElementById('ctaEmail');
+  const errorEl = document.getElementById('ctaError');
+  const btn = document.getElementById('ctaBtn');
+  const email = emailInput.value.trim();
+
+  errorEl.textContent = '';
+
+  if (!email) {
+    errorEl.textContent = 'Please enter your email address.';
+    emailInput.focus();
+    return;
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errorEl.textContent = 'Please enter a valid email address.';
+    emailInput.focus();
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  try {
+    const response = await fetch('/waitlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, name: '', source: 'learn-more' }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Something went wrong');
+    }
+
+    document.getElementById('ctaForm').style.display = 'none';
+    const successEl = document.getElementById('ctaSuccess');
+    successEl.style.display = 'block';
+
+    if (data.alreadyExists) {
+      successEl.querySelector('.cta-success-msg').textContent =
+        "You're already on the list — we'll be in touch soon!";
+    }
+  } catch (err) {
+    errorEl.textContent = err.message;
+    btn.disabled = false;
+    btn.textContent = 'Get Priority Access';
+  }
+}
+
+// Allow Enter key to submit
+document.getElementById('ctaEmail').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') submitWaitlist();
+});
+</script>
 
 <footer>
   <stron

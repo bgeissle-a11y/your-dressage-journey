@@ -69,7 +69,7 @@ async function handler(req, res) {
   }
 
   try {
-    const { email, name } = req.body || {};
+    const { email, name, source } = req.body || {};
 
     if (!email || typeof email !== "string") {
       res.status(400).json({ error: "Email is required" });
@@ -82,6 +82,12 @@ async function handler(req, res) {
       res.status(400).json({ error: "Please enter a valid email address" });
       return;
     }
+
+    // Whitelist allowed source values
+    const ALLOWED_SOURCES = ["first-glimpse", "first-glimpse-quick", "learn-more"];
+    const normalizedSource = (source && typeof source === "string" && ALLOWED_SOURCES.includes(source))
+      ? source
+      : "first-glimpse";
 
     // Check for duplicate
     const existing = await db
@@ -100,7 +106,7 @@ async function handler(req, res) {
     await db.collection(WAITLIST_COLLECTION).add({
       email: normalizedEmail,
       name: (name && typeof name === "string") ? name.trim() : "",
-      source: "first-glimpse",
+      source: normalizedSource,
       createdAt: new Date().toISOString(),
     });
 
