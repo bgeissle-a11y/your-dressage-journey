@@ -46,7 +46,7 @@ screenResult:
 ## What's Different from First Glimpse Quick
 
 ### 1. Welcome screen — two paths
-The welcome has two buttons: **"Try It Yourself →"** and **"See a Demo First"**. The demo button goes directly to `screenMargaret`, which is a fully static screen — no API call, no questions, just pre-written content for Margaret and Pemberly. After reading, visitors can click "Try It Yourself →" from the Margaret screen to start the live flow.
+The welcome has two buttons: **"Try It Yourself →"** and **"See a Demo First"**. The demo button goes directly to `screenMargaret`, which is a fully static screen — no API call, no questions, just pre-written content for Margaret and Copperfield. After reading, visitors can click "Try It Yourself →" from the Margaret screen to start the live flow.
 
 ### 2. Max 2 category tiles (not 3)
 The booth audience has less time and more distraction. Max 2 tiles keeps the experience tighter.
@@ -79,12 +79,12 @@ When Margaret's static result is being shown via the Margaret flow (if you ever 
 Margaret is a **fictional rider** created specifically for YDJ demos. Her profile:
 
 - **Name:** Margaret
-- **Horse:** Pemberly (Welsh-Thoroughbred cross)
+- **Horse:** Copperfield (Welsh-Thoroughbred cross)
 - **Level:** First Level
 - **Show context:** Competing this weekend
-- **Story:** She's had breakthrough moments of real softness and swing, but braces at shows in anticipation of things that haven't happened yet. Pemberly reads the anticipation and mirrors it back.
+- **Story:** She's had breakthrough moments of real softness and swing, but braces at shows in anticipation of things that haven't happened yet. Copperfield reads the anticipation and mirrors it back.
 - **Coach selected:** The Empathetic Coach (⭐)
-- **Actionable:** "Breathe Before You Ask" — exhale before every transition in warm-up as a cue to Pemberly
+- **Actionable:** "Breathe Before You Ask" — exhale before every transition in warm-up as a cue to Copperfield
 
 The Margaret content is **hardcoded static HTML** in `#screenMargaret`. It does not make an API call. This means it always works, displays instantly, and is never affected by API availability at the booth.
 
