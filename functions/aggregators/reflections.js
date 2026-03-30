@@ -83,6 +83,7 @@ function aggregateReflections(reflections, weeklyContext) {
     const recentEntries = entries.slice(0, 3).map((r) => {
       const entry = {
         prompt: r.prompt || "",
+        promptVoice: r.promptVoice || null,
         reflection: r.mainReflection || "",
         feeling: r.feeling || "",
         influence: r.influence || "",
