@@ -1503,22 +1503,36 @@ Do not include the voice name in your output. Do not explain your choice. Just b
 // API CALL
 // ═══════════════════════════════════════════
 async function callAPI(prompt) {
-    const response = await fetch('/firstGlimpse', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ prompt }),
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 25000);
 
-    if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err.error?.message || `API error ${response.status}`);
+    try {
+        const response = await fetch('/firstGlimpse', {
+            method: 'POST',
+            signal: controller.signal,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ prompt }),
+        });
+        clearTimeout(timeout);
+
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.error?.message || `API error ${response.status}`);
+        }
+
+        const data = await response.json();
+        const text = data.text || '';
+        return parseResponse(text);
+
+    } catch (err) {
+        clearTimeout(timeout);
+        if (err.name === 'AbortError') {
+            throw new Error('Request timed out — please try again.');
+        }
+        throw err;
     }
-
-    const data = await response.json();
-    const text = data.text || '';
-    return parseResponse(text);
 }
 
 function parseResponse(text) {
