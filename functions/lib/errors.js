@@ -29,6 +29,15 @@ function classifyError(error) {
   const code = error.code;
   const msg = (error.message || "").toLowerCase();
 
+  // Per-user daily rate limit (our own, not Anthropic's)
+  if (code === "rate-limit-exceeded") {
+    return {
+      category: "rate_limited",
+      retryable: false,
+      userMessage: "You've reached today's insight refresh limit. Your cached insights are still available — fresh analysis will resume tomorrow.",
+    };
+  }
+
   // Transient: rate limits, server overload, network issues
   if (status === 429 || msg.includes("rate_limit") || msg.includes("rate limit")) {
     return {

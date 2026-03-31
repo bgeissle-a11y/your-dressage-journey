@@ -19,6 +19,19 @@ const DEFAULT_MAX_RETRIES = 1;
 const RETRY_BASE_DELAY_MS = 2000;
 
 /**
+ * Per-user daily API call rate limit.
+ * Prevents runaway usage from page reloads, refresh-clicking, or
+ * compounding background regeneration triggers.
+ *
+ * Budget is checked before each Claude call. When exceeded, the call
+ * throws a rate-limit error so the caller can fall back to cached data.
+ *
+ * Stored in Firestore at `usageBudgets/{uid}` with a date-keyed counter.
+ */
+const DAILY_CALL_LIMIT = 40; // max Claude API calls per user per day
+const BUDGET_COLLECTION = "usageBudgets";
+
+/**
  * Make a call to the Claude API with automatic retry for transient failures.
  *
  * @param {object} options
@@ -42,6 +55,17 @@ async function callClaude({
   maxRetries = DEFAULT_MAX_RETRIES,
   uid = null,
 }) {
+  // Per-user daily rate limit check
+  if (uid) {
+    const allowed = await _checkAndIncrementBudget(uid);
+    if (!allowed) {
+      console.warn(`[${context}] ⛔ Daily API limit (${DAILY_CALL_LIMIT}) exceeded for user ${uid}`);
+      const err = new Error(`Daily API call limit reached. Your insights will refresh tomorrow.`);
+      err.code = "rate-limit-exceeded";
+      throw err;
+    }
+  }
+
   const client = getAnthropicClient();
   let lastError;
 
@@ -68,6 +92,49 @@ async function callClaude({
 
   // Should not reach here, but safety net
   throw lastError;
+}
+
+/**
+ * Check and increment a user's daily API call counter.
+ * Returns true if the call is allowed, false if the daily limit is exceeded.
+ *
+ * Uses a single Firestore doc per user (`usageBudgets/{uid}`) with
+ * a `date` field (YYYY-MM-DD) and a `count` field. Resets automatically
+ * when the date changes.
+ *
+ * @param {string} uid - User ID
+ * @returns {Promise<boolean>} true if under budget
+ * @private
+ */
+async function _checkAndIncrementBudget(uid) {
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const docRef = db.collection(BUDGET_COLLECTION).doc(uid);
+
+  try {
+    const result = await db.runTransaction(async (tx) => {
+      const doc = await tx.get(docRef);
+      const data = doc.exists ? doc.data() : null;
+
+      // Reset counter if it's a new day or doc doesn't exist
+      if (!data || data.date !== today) {
+        tx.set(docRef, { date: today, count: 1, uid });
+        return true;
+      }
+
+      if (data.count >= DAILY_CALL_LIMIT) {
+        return false; // Over budget
+      }
+
+      tx.update(docRef, { count: data.count + 1 });
+      return true;
+    });
+
+    return result;
+  } catch (err) {
+    // If budget check fails, allow the call (fail open) but log warning
+    console.warn(`[rate-limit] Budget check failed for ${uid}: ${err.message} — allowing call`);
+    return true;
+  }
 }
 
 /**

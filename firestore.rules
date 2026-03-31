@@ -146,5 +146,10 @@ service cloud.firestore {
     match /usageLogs/{docId} {
       allow read, write: if false;
     }
+
+    // Usage budgets — per-user daily API call counters, managed by Cloud Functions only
+    match /usageBudgets/{uid} {
+      allow read, write: if false;
+    }
   }
 }

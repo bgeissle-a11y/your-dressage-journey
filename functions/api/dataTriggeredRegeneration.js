@@ -33,6 +33,9 @@ const {
 // Regeneration threshold for high-frequency collections
 const REGEN_THRESHOLD = 5;
 
+// Minimum time between regeneration runs for the same user (milliseconds)
+const REGEN_COOLDOWN_MS = 2 * 60 * 60 * 1000; // 2 hours
+
 // Output priority order (same as warmHandler)
 // Skip GP Thinking Trajectory (Opus — too expensive for automated runs)
 const ALL_OUTPUTS = ["coaching", "dataVisualizations", "journeyMap", "grandPrixThinking"];
@@ -89,6 +92,17 @@ async function runRegeneration(uid, outputTypes, triggeredBy) {
     console.log(`[dataRegen] Generation already in progress for ${uid} — requesting rerun`);
     await requestRerun(uid);
     return;
+  }
+
+  // Cooldown: skip if last regeneration completed less than 2 hours ago
+  if (currentStatus?.completedAt) {
+    const lastCompleted = new Date(currentStatus.completedAt).getTime();
+    const elapsed = Date.now() - lastCompleted;
+    if (elapsed < REGEN_COOLDOWN_MS) {
+      const minutesLeft = Math.ceil((REGEN_COOLDOWN_MS - elapsed) / 60000);
+      console.log(`[dataRegen] Cooldown active for ${uid} — ${minutesLeft}m remaining, skipping`);
+      return;
+    }
   }
 
   // Start generation
