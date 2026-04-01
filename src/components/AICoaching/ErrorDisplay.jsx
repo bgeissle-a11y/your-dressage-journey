@@ -22,7 +22,7 @@ export default function ErrorDisplay({
 
   return (
     <div className={className}>
-      <p>{message}</p>
+      <p>{typeof message === 'string' ? message : 'An error occurred. Please try again.'}</p>
       {retryable && onRetry && (
         <button
           onClick={onRetry}

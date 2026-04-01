@@ -13,10 +13,11 @@ import PriorityCloser from './PriorityCloser';
  */
 function parseErrorDetails(err) {
   const details = err?.details || err?.customData || {};
+  const rawMessage = err?.message;
   return {
     category: details.category || 'unknown',
     retryable: details.retryable !== false,
-    message: err?.message || 'An error occurred while generating coaching insights.',
+    message: (typeof rawMessage === 'string' ? rawMessage : null) || 'An error occurred while generating coaching insights.',
   };
 }
 

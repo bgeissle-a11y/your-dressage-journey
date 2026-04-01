@@ -57,10 +57,11 @@ export default function JourneyMapPanel({ generationStatus }) {
       }
       console.error('Journey Map error:', err);
       const details = err?.details || err?.customData || {};
+      const rawMessage = err?.message;
       const parsed = {
         category: details.category || 'unknown',
         retryable: details.retryable !== false,
-        message: err?.message || 'An error occurred while generating your Journey Map.',
+        message: (typeof rawMessage === 'string' ? rawMessage : null) || 'An error occurred while generating your Journey Map.',
       };
 
       // If refreshing with existing data, show non-destructive error

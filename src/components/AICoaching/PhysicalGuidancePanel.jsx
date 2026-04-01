@@ -314,10 +314,11 @@ export default function PhysicalGuidancePanel() {
       }
       console.error('Physical Guidance error:', err);
       const details = err?.details || err?.customData || {};
+      const rawMessage = err?.message;
       const parsed = {
         category: details.category || 'unknown',
         retryable: details.retryable !== false,
-        message: err?.message || 'An error occurred.',
+        message: (typeof rawMessage === 'string' ? rawMessage : null) || 'An error occurred.',
       };
       if (data) {
         setError({

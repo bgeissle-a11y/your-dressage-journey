@@ -123,7 +123,7 @@ export default function GrandPrixPanel({ generationStatus }) {
       setActiveWeek(1);
     } catch (err) {
       if (!staleOk) {
-        setMentalError({ message: err.message || 'Something went wrong.' });
+        setMentalError({ message: typeof err.message === 'string' ? err.message : 'Something went wrong.' });
       }
     } finally {
       setMentalLoading(false);
@@ -158,7 +158,7 @@ export default function GrandPrixPanel({ generationStatus }) {
       }
     } catch (err) {
       if (!staleOk) {
-        setTrajectoryError({ message: err.message || 'Something went wrong.' });
+        setTrajectoryError({ message: typeof err.message === 'string' ? err.message : 'Something went wrong.' });
       }
     } finally {
       setTrajectoryLoading(false);

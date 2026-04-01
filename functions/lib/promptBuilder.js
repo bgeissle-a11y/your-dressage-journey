@@ -1014,17 +1014,21 @@ all outputs.`;
 
 // ─── Quick Insights Schema ──────────────────────────────────────────
 
-const QUICK_INSIGHTS_INSTRUCTIONS = `Respond in JSON format with this exact structure:
+const QUICK_INSIGHTS_INSTRUCTIONS = `QUICK INSIGHTS — STRICT FORMAT:
+
+Respond in JSON format with this exact structure:
 {
-  "top_patterns": ["exactly 3 one-sentence pattern observations — specific, actionable, grounded in the rider's data"],
-  "priority_this_week": "one clear, achievable focus for the next 7 days with specific context from their data",
-  "celebration": "one genuine breakthrough or success from recent rides — connect it to their broader progress, not empty praise",
+  "top_patterns": ["exactly 3 bullets, each ONE sentence only, maximum 25 words. No sub-clauses, no parentheticals, no 'which means that...' extensions. If you cannot say it in 25 words, cut the observation, not the word limit."],
+  "priority_this_week": "Maximum 4 sentences. One specific, achievable focus for the next 7 days. Must reference this rider's actual data — named horse, specific movement, or trainer language. No setup or preamble — start with the priority itself.",
+  "celebration": "Maximum 3 sentences. One genuine win from this period's data. Specific — name the date, the horse, the movement, or the trainer's words. Do not frame as encouragement — frame as evidence of progress.",
   "priority_closer": {
     "restatement": "2–3 sentence restatement of the priority as a direct commitment frame in second person. Not 'you should focus on...' but 'This week, your laboratory is...' It should feel like the coaching team has converged and handed the rider one thing to carry out the door.",
     "strategy_prompt": "→ One specific open-ended question asking how the rider will make this priority real in their specific situation. Must reference something particular from their data — a horse, a movement, a pattern, a context.",
     "evidence_prompt": "→ One specific open-ended question asking how the rider will know this week whether they actually lived the priority — not whether they got the outcome right, but whether they genuinely made it a focus."
   }
 }
+
+These three elements — top_patterns, priority_this_week, celebration — are all that renders in Quick Insights. No additional sub-sections, no "what this means" additions, no bridging text between elements. Respect the word and sentence ceilings strictly.
 
 CRITICAL for priority_this_week: This must be FORWARD-LOOKING. Identify something the rider has NOT yet achieved or is still developing — never recommend something they have already accomplished or that appears as a win/celebration in their recent rides. If their data shows a breakthrough or success in an area, that area should move to the celebration field, not the priority. The priority should address an unresolved challenge, an emerging opportunity, or the logical next step beyond their recent progress.
 
