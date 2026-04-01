@@ -1,4 +1,4 @@
-/* ── PracticeCard ── */
+/* ── PracticeCard v2 ── */
 
 .pc-loading {
   text-align: center;
@@ -37,7 +37,7 @@
 
 .pc-wordmark {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 10px;
+  font-size: 8px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: #B8862A;
@@ -46,14 +46,14 @@
 
 .pc-title {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 22px;
+  font-size: 20px;
   color: #2C1810;
   line-height: 1.2;
   margin-bottom: 5px;
 }
 
 .pc-meta {
-  font-size: 12px;
+  font-size: 10.5px;
   color: #9A7A6A;
 }
 
@@ -73,9 +73,9 @@
 
 .pc-section-label {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 9px;
+  font-size: 7.5px;
   font-weight: 600;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   margin-bottom: 8px;
 }
@@ -87,27 +87,127 @@
 }
 .pc-label-gold { color: #B8862A; }
 
+/* Edit hint (State A only) */
+.pc-goals-edit-hint {
+  font-size: 9px;
+  color: #B8862A;
+  letter-spacing: 0.06em;
+  margin-bottom: 7px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.85;
+}
+
+/* Goal rows */
 .pc-goal-row {
   display: flex;
   gap: 8px;
   align-items: flex-start;
-  margin-bottom: 6px;
+  margin-bottom: 7px;
+  position: relative;
 }
 .pc-goal-row:last-child { margin-bottom: 0; }
 
 .pc-goal-num {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 14px;
-  font-weight: 600;
-  min-width: 17px;
-  line-height: 1.45;
+  font-size: 13px;
+  font-weight: 700;
+  min-width: 14px;
+  line-height: 1.4;
   color: #B8862A;
+  flex-shrink: 0;
+  margin-top: 1px;
 }
 
-.pc-goal-text {
-  font-size: 13.5px;
-  line-height: 1.5;
+.pc-goal-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Tappable goal text (State A) */
+.pc-goal-text-display {
+  font-size: 11.5px;
+  line-height: 1.55;
   color: #2C1810;
+  cursor: pointer;
+  padding: 3px 6px 3px 3px;
+  border-radius: 4px;
+  transition: background 0.12s;
+  border: 1.5px solid transparent;
+  word-break: break-word;
+}
+
+.pc-goal-text-display:hover {
+  background: rgba(184, 134, 42, 0.08);
+  border-color: rgba(184, 134, 42, 0.2);
+}
+
+/* Locked goal text (State C) */
+.pc-goal-text-locked {
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: #2C1810;
+  padding: 3px 0;
+}
+
+/* Edited label */
+.pc-goal-edited-label {
+  font-size: 8.5px;
+  font-weight: 600;
+  color: #B8862A;
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+}
+
+/* Edit button (visible on hover, State A) */
+.pc-goal-edit-btn {
+  background: none;
+  border: none;
+  color: #C4AFA4;
+  cursor: pointer;
+  padding: 3px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  opacity: 0;
+  transition: opacity 0.12s, color 0.12s;
+  display: flex;
+  align-items: center;
+}
+
+.pc-goal-row:hover .pc-goal-edit-btn { opacity: 1; }
+.pc-goal-edit-btn:hover { color: #B8862A; }
+
+/* Goal textarea (editing state) */
+.pc-goal-input {
+  font-family: 'Work Sans', system-ui, sans-serif;
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: #2C1810;
+  background: white;
+  border: 1.5px solid #B8862A;
+  border-radius: 4px;
+  padding: 3px 6px;
+  width: 100%;
+  resize: none;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(184, 134, 42, 0.12);
+  overflow: hidden;
+  min-height: 20px;
+}
+
+/* Modification summary badge */
+.pc-mod-summary {
+  margin: 6px 14px 0;
+  padding: 5px 10px;
+  background: rgba(184, 134, 42, 0.10);
+  border-radius: 5px;
+  font-size: 9.5px;
+  color: #B8862A;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-align: center;
 }
 
 /* Section 2: In-Saddle Cues — Rust */
@@ -146,34 +246,7 @@
 }
 .pc-label-forest { color: #2D6A4F; }
 
-/* Section 4: Mental Rehearsal — Sky */
-.pc-section-rehearsal {
-  background: #D5E8F2;
-  border-left-color: #3D6E8A;
-}
-.pc-label-sky { color: #3D6E8A; }
-
-.pc-rehearsal-text {
-  font-size: 13px;
-  line-height: 1.65;
-  color: #6B4A3A;
-}
-
-/* Section 5: Carry Question — Parchment */
-.pc-section-question {
-  background: #F7F2E8;
-  border: 1px solid #E8DFC8;
-  border-left: 3px solid #E8DFC8;
-  border-radius: 7px;
-  margin-bottom: 12px;
-}
-.pc-label-parchment { color: #9A7A6A; }
-
-.pc-question-text {
-  color: #2C1810 !important;
-}
-
-/* Italic text (analogy, carry question) */
+/* Italic text (analogy) */
 .pc-italic-text {
   font-family: 'Playfair Display', Georgia, serif;
   font-style: italic;
@@ -185,126 +258,147 @@
 /* ── Footer ── */
 .pc-footer {
   text-align: center;
-  padding: 14px 0 18px;
-  background: #FDFAF3;
+  padding: 14px 0 10px;
+  border-top: 1px solid #E8DFC8;
+  margin: 10px 14px 0;
 }
 
 .pc-footer-text {
   font-family: 'Playfair Display', Georgia, serif;
   font-style: italic;
-  font-size: 10px;
-  color: #9A7A6A;
-  letter-spacing: 0.1em;
+  font-size: 9px;
+  color: #C4AFA4;
+  letter-spacing: 0.12em;
 }
 
 /* ── Ready to Ride Button (State A) ── */
 .pc-ready-btn {
   display: block;
-  width: calc(100% - 32px);
-  margin: 0 16px 16px;
-  padding: 14px 16px;
+  width: calc(100% - 28px);
+  margin: 12px 14px 14px;
+  padding: 13px 12px;
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 15px;
+  font-size: 14px;
+  letter-spacing: 0.03em;
   background: #2C1810;
   color: #F7F2E8;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: background 0.15s;
   text-align: center;
+  transition: background 0.15s, transform 0.1s;
+  position: relative;
+  overflow: hidden;
 }
 
-.pc-ready-btn:hover {
-  background: #6B4A3A;
+.pc-ready-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 50%);
+  pointer-events: none;
 }
+
+.pc-ready-btn:hover { background: #4A2E22; }
+.pc-ready-btn:active { transform: scale(0.98); }
 
 /* ── Breath Overlay (State B) ── */
 .pc-breath-overlay {
   position: absolute;
   inset: 0;
-  background: #2C1810;
+  background: rgba(44, 24, 16, 0.92);
   border-radius: 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   z-index: 10;
+  backdrop-filter: blur(2px);
 }
 
 .pc-breath-word {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 28px;
+  font-size: 34px;
+  font-style: italic;
   color: #F7F2E8;
-  letter-spacing: 0.08em;
-  animation: pc-breathe 3s ease-in-out forwards;
+  letter-spacing: 0.04em;
+  animation: pc-breathe 3.2s ease-in-out forwards;
 }
 
 .pc-breath-subtitle {
   font-size: 11px;
-  color: #9A7A6A;
-  letter-spacing: 0.06em;
-  margin-top: 8px;
+  color: #C4AFA4;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-top: 6px;
+  opacity: 0;
+  animation: pc-breathe-sub 3.2s ease-in-out forwards;
 }
 
 @keyframes pc-breathe {
-  0%   { opacity: 0; transform: scale(0.92); }
+  0%   { opacity: 0; transform: scale(0.96); }
   20%  { opacity: 1; transform: scale(1);    }
-  80%  { opacity: 1; transform: scale(1);    }
-  100% { opacity: 0; transform: scale(1.04); }
+  70%  { opacity: 1; transform: scale(1);    }
+  100% { opacity: 0; transform: scale(1.02); }
+}
+
+@keyframes pc-breathe-sub {
+  0%   { opacity: 0; }
+  30%  { opacity: 0.6; }
+  70%  { opacity: 0.6; }
+  100% { opacity: 0; }
 }
 
 /* ── Locked Banner (State C) ── */
 .pc-locked-banner {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
   background: #D0EAE0;
-  border: 1px solid #A8D4C0;
-  border-radius: 7px;
-  padding: 8px 12px;
+  border: 1px solid rgba(45, 106, 79, 0.3);
+  border-radius: 8px;
+  padding: 10px 14px;
   margin-bottom: 12px;
 }
 
 .pc-locked-dot {
-  width: 7px;
-  height: 7px;
-  background: #2D6A4F;
-  border-radius: 50%;
+  font-size: 16px;
+  color: #2D6A4F;
   flex-shrink: 0;
 }
 
 .pc-locked-line1 {
-  font-size: 11px;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 13px;
   color: #2D6A4F;
 }
 
 .pc-locked-line2 {
   font-size: 10px;
-  color: #6B9E86;
+  color: #4A8A6A;
+  margin-top: 2px;
 }
 
 /* ── Post-Ride CTA (State C, below card) ── */
 .pc-debrief-cta {
   display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   width: 100%;
-  margin-top: 12px;
-  padding: 10px 12px;
-  background: #FDFAF3;
+  margin-top: 10px;
+  padding: 11px 14px;
+  background: white;
   border: 1px solid #E8DFC8;
-  border-radius: 7px;
+  border-radius: 8px;
   cursor: pointer;
-  text-align: center;
-  transition: background 0.15s;
+  transition: background 0.12s;
 }
 
-.pc-debrief-cta:hover {
-  background: #F7F2E8;
-}
+.pc-debrief-cta:hover { background: #F7F2E8; }
 
 .pc-cta-label {
-  font-size: 9px;
+  font-size: 8.5px;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: #9A7A6A;
@@ -313,14 +407,13 @@
 
 .pc-cta-action {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 12px;
+  font-size: 12.5px;
   color: #2C1810;
 }
 
 .pc-cta-arrow {
-  font-size: 10px;
+  font-size: 14px;
   color: #B8862A;
-  margin-top: 2px;
 }
 
 /* ── Compact Card (Dashboard Entry Point) ── */
@@ -384,6 +477,9 @@
   padding-left: 24px;
   margin-bottom: 6px;
   line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .pc-compact-link-inline {

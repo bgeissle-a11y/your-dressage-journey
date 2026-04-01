@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   createDebrief, getDebrief, updateDebrief,
@@ -8,6 +8,7 @@ import {
   MENTAL_STATE_GROUPS,
   MOVEMENT_CATEGORIES, RIDE_ARC_OPTIONS
 } from '../../services';
+import { readPracticeCardCache } from '../../services/weeklyFocusService';
 import useFormRecovery from '../../hooks/useFormRecovery';
 import FormSection from '../Forms/FormSection';
 import FormField from '../Forms/FormField';
@@ -55,6 +56,7 @@ export default function DebriefForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const isEdit = Boolean(id);
 
   const narrativeRefs = useRef({});
@@ -62,11 +64,9 @@ export default function DebriefForm() {
   const [draftId, setDraftId] = useState(null);
   const [horseNames, setHorseNames] = useState([]);
 
-  // Previous ride process goals (fetched from Firestore)
-  const [prevGoals, setPrevGoals] = useState(null); // { goal1, goal2, goal3 } or null
-
-  // Process goal help expanded
-  const [goalHelpOpen, setGoalHelpOpen] = useState(false);
+  // Practice Card confirmed goals (fetched from cache)
+  const [practiceCardGoals, setPracticeCardGoals] = useState(null); // string[] or null
+  const [hasPracticeCard, setHasPracticeCard] = useState(false);
 
   const [formData, setFormData] = useState({
     rideDate: searchParams.get("date") || new Date().toISOString().split('T')[0],
@@ -82,15 +82,15 @@ export default function DebriefForm() {
     movements: [],
     // Legacy intentions (kept for backward compat)
     intentionRatings: {},
-    // Process goals
-    processGoal1: '',
-    processGoal2: '',
-    processGoal3: '',
-    // Previous goal ratings
-    prevGoal1Rating: '',
-    prevGoal2Rating: '',
-    prevGoal3Rating: '',
+    // Goal ratings (from Practice Card or fallback)
+    goalRating1: '',
+    goalRating2: '',
+    goalRating3: '',
     goalReflection: '',
+    // Fallback manual goals (when no Practice Card)
+    fallbackGoal1: '',
+    fallbackGoal2: '',
+    fallbackGoal3: '',
     rideArc: '',
     rideArcNote: '',
     wins: '',
@@ -113,12 +113,17 @@ export default function DebriefForm() {
     if (id) loadExisting();
   }, [id, currentUser]);
 
-  // Fetch previous goals when horse changes
+  // Load Practice Card goals: from nav state (instant) or Firestore (fallback)
   useEffect(() => {
-    if (formData.horseName && currentUser && !isEdit) {
-      fetchPreviousGoals(formData.horseName);
+    if (isEdit) return;
+    const navGoals = location.state?.practiceCardGoals;
+    if (navGoals && navGoals.length > 0) {
+      setPracticeCardGoals(navGoals);
+      setHasPracticeCard(true);
+    } else if (currentUser) {
+      fetchPracticeCardGoals();
     }
-  }, [formData.horseName, currentUser]);
+  }, [currentUser]);
 
   async function loadHorses() {
     if (!currentUser) return;
@@ -130,27 +135,23 @@ export default function DebriefForm() {
     }
   }
 
-  async function fetchPreviousGoals(horseName) {
+  async function fetchPracticeCardGoals() {
     if (!currentUser) return;
     try {
-      const result = await getAllDebriefs(currentUser.uid);
-      if (result.success && result.data.length > 0) {
-        // Find most recent submitted debrief for this horse with process goals
-        const prev = result.data
-          .filter(d => d.horseName === horseName && !d.isDraft && d.processGoal1)
-          .sort((a, b) => (b.rideDate || '').localeCompare(a.rideDate || ''))[0];
-        if (prev) {
-          setPrevGoals({
-            goal1: prev.processGoal1 || null,
-            goal2: prev.processGoal2 || null,
-            goal3: prev.processGoal3 || null
-          });
-        } else {
-          setPrevGoals(null);
+      const data = await readPracticeCardCache(currentUser.uid);
+      if (data && data.confirmedAt) {
+        const goals = data.confirmedGoals || data.processGoals || data.suggestedGoals || [];
+        if (goals.length > 0) {
+          setPracticeCardGoals(goals);
+          setHasPracticeCard(true);
+          return;
         }
       }
+      setPracticeCardGoals(null);
+      setHasPracticeCard(false);
     } catch {
-      setPrevGoals(null);
+      setPracticeCardGoals(null);
+      setHasPracticeCard(false);
     }
   }
 
@@ -173,13 +174,13 @@ export default function DebriefForm() {
         mentalState: d.mentalState || '',
         movements: d.movements || [],
         intentionRatings: d.intentionRatings || {},
-        processGoal1: d.processGoal1 || '',
-        processGoal2: d.processGoal2 || '',
-        processGoal3: d.processGoal3 || '',
-        prevGoal1Rating: d.prevGoalRatings?.goal1?.rating || '',
-        prevGoal2Rating: d.prevGoalRatings?.goal2?.rating || '',
-        prevGoal3Rating: d.prevGoalRatings?.goal3?.rating || '',
-        goalReflection: d.prevGoalRatings?.reflection || '',
+        goalRating1: d.goalRatings?.goal1 || '',
+        goalRating2: d.goalRatings?.goal2 || '',
+        goalRating3: d.goalRatings?.goal3 || '',
+        goalReflection: d.goalRatings?.reflection || '',
+        fallbackGoal1: '',
+        fallbackGoal2: '',
+        fallbackGoal3: '',
         rideArc: d.rideArc || '',
         rideArcNote: d.rideArcNote || '',
         wins: d.wins || '',
@@ -189,13 +190,17 @@ export default function DebriefForm() {
         workFocus: d.workFocus || ''
       });
       if (d.overallQuality != null) setOverallQualityTouched(true);
-      // Load previous goals if they were stored
-      if (d.prevGoalRatings) {
-        setPrevGoals({
-          goal1: d.prevGoalRatings.goal1?.text || null,
-          goal2: d.prevGoalRatings.goal2?.text || null,
-          goal3: d.prevGoalRatings.goal3?.text || null
-        });
+      // Load confirmed goals snapshot if stored
+      if (d.confirmedGoalsSnapshot) {
+        const goals = [
+          d.confirmedGoalsSnapshot.goal1,
+          d.confirmedGoalsSnapshot.goal2,
+          d.confirmedGoalsSnapshot.goal3
+        ].filter(Boolean);
+        if (goals.length > 0) {
+          setPracticeCardGoals(goals);
+          setHasPracticeCard(true);
+        }
       }
     }
     setLoadingData(false);
@@ -229,7 +234,6 @@ export default function DebriefForm() {
     if (!formData.horseName.trim()) newErrors.horseName = 'Horse name is required';
     if (!formData.sessionType) newErrors.sessionType = 'Please select session type';
     if (!formData.rideArc) newErrors.rideArc = 'Please select how your ride unfolded.';
-    if (!formData.processGoal1.trim()) newErrors.processGoal1 = 'At least one process goal is required';
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) {
       // Scroll to first error field so user sees what needs fixing (critical on mobile)
@@ -248,15 +252,41 @@ export default function DebriefForm() {
 
     setLoading(true);
 
-    // Build prevGoalRatings from form state
-    let prevGoalRatings = null;
-    if (prevGoals) {
-      prevGoalRatings = {
-        goal1: prevGoals.goal1 ? { text: prevGoals.goal1, rating: formData.prevGoal1Rating || '' } : null,
-        goal2: prevGoals.goal2 ? { text: prevGoals.goal2, rating: formData.prevGoal2Rating || '' } : null,
-        goal3: prevGoals.goal3 ? { text: prevGoals.goal3, rating: formData.prevGoal3Rating || '' } : null,
+    // Build goal data based on whether Practice Card was used
+    let confirmedGoalsSnapshot = null;
+    let goalRatings = null;
+
+    if (hasPracticeCard && practiceCardGoals) {
+      // Primary path: Practice Card goals
+      confirmedGoalsSnapshot = {
+        goal1: practiceCardGoals[0] || null,
+        goal2: practiceCardGoals[1] || null,
+        goal3: practiceCardGoals[2] || null
+      };
+      goalRatings = {
+        goal1: formData.goalRating1 || null,
+        goal2: formData.goalRating2 || null,
+        goal3: formData.goalRating3 || null,
         reflection: formData.goalReflection || null
       };
+    } else {
+      // Fallback path: manual entry
+      const fb1 = formData.fallbackGoal1?.trim();
+      const fb2 = formData.fallbackGoal2?.trim();
+      const fb3 = formData.fallbackGoal3?.trim();
+      if (fb1 || fb2 || fb3) {
+        confirmedGoalsSnapshot = {
+          goal1: fb1 || null,
+          goal2: fb2 || null,
+          goal3: fb3 || null
+        };
+        goalRatings = {
+          goal1: fb1 ? (formData.goalRating1 || null) : null,
+          goal2: fb2 ? (formData.goalRating2 || null) : null,
+          goal3: fb3 ? (formData.goalRating3 || null) : null,
+          reflection: formData.goalReflection || null
+        };
+      }
     }
 
     const data = {
@@ -272,10 +302,8 @@ export default function DebriefForm() {
       mentalState: formData.mentalState,
       movements: formData.movements,
       intentionRatings: formData.intentionRatings,
-      processGoal1: formData.processGoal1,
-      processGoal2: formData.processGoal2,
-      processGoal3: formData.processGoal3,
-      prevGoalRatings,
+      confirmedGoalsSnapshot,
+      goalRatings,
       rideArc: formData.rideArc,
       rideArcNote: formData.rideArcNote,
       wins: formData.wins,
@@ -575,11 +603,11 @@ export default function DebriefForm() {
             ))}
           </FormSection>
 
-          {/* Section: Process Goals */}
-          <FormSection title="Process Goals" description="What will you focus on in your next ride?">
-            {/* Previous ride check-in — only show when previous goals exist */}
-            {prevGoals && (prevGoals.goal1 || prevGoals.goal2 || prevGoals.goal3) && (
-              <div style={{ marginBottom: '1.5rem', padding: '1rem', background: '#FAF8F5', borderRadius: '12px', border: '1px solid #E0D5C7' }}>
+          {/* Section: Process Goals — rate confirmed goals from Practice Card */}
+          <FormSection title="Process Goals" description="How well did you stay focused on your goals for this ride?">
+            {hasPracticeCard && practiceCardGoals && practiceCardGoals.length > 0 ? (
+              /* Primary path: Practice Card was locked — show goals read-only with ratings */
+              <div>
                 <div style={{
                   fontSize: '0.72rem',
                   fontWeight: 600,
@@ -588,48 +616,120 @@ export default function DebriefForm() {
                   color: '#7A7A7A',
                   marginBottom: '0.75rem'
                 }}>
-                  From your last ride
+                  From your practice card
                 </div>
+                {practiceCardGoals.map((goal, idx) => {
+                  const ratingKey = `goalRating${idx + 1}`;
+                  return (
+                    <div key={idx} style={{ marginBottom: '0.75rem', paddingBottom: '0.75rem', borderBottom: idx < practiceCardGoals.length - 1 ? '1px solid #E0D5C7' : 'none' }}>
+                      <div style={{ fontSize: '0.95rem', marginBottom: '0.5rem', fontStyle: 'italic', color: '#3A3A3A' }}>
+                        {goal}
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: '#7A7A7A', marginBottom: '0.35rem' }}>
+                        How well did you maintain this focus?
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                        {PREV_GOAL_RATING_OPTIONS.map(opt => (
+                          <label key={opt.value} style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.3rem',
+                            cursor: 'pointer',
+                            padding: '0.3rem 0.65rem',
+                            borderRadius: '16px',
+                            border: `1.5px solid ${formData[ratingKey] === opt.value ? '#8B7355' : '#E0D5C7'}`,
+                            background: formData[ratingKey] === opt.value ? '#8B7355' : 'white',
+                            color: formData[ratingKey] === opt.value ? 'white' : '#3A3A3A',
+                            fontSize: '0.82rem',
+                            transition: 'all 0.15s ease'
+                          }}>
+                            <input
+                              type="radio"
+                              name={ratingKey}
+                              value={opt.value}
+                              checked={formData[ratingKey] === opt.value}
+                              onChange={handleChange}
+                              disabled={loading}
+                              style={{ display: 'none' }}
+                            />
+                            {opt.label}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+                <div style={{ marginTop: '0.5rem' }}>
+                  <label style={{ fontSize: '0.85rem', color: '#7A7A7A', display: 'block', marginBottom: '0.35rem' }}>
+                    What got in the way, or what helped? <span style={{ fontStyle: 'italic' }}>(optional)</span>
+                  </label>
+                  <textarea
+                    name="goalReflection"
+                    value={formData.goalReflection}
+                    onChange={handleChange}
+                    disabled={loading}
+                    rows={2}
+                    style={{ fontSize: '0.9rem' }}
+                  />
+                </div>
+              </div>
+            ) : (
+              /* Fallback path: no locked Practice Card — manual entry */
+              <div>
+                <p style={{ fontSize: '0.9rem', color: '#7A7A7A', marginBottom: '1rem', lineHeight: '1.5' }}>
+                  What were you focusing on in this ride?
+                </p>
                 {[
-                  { goal: prevGoals.goal1, ratingKey: 'prevGoal1Rating' },
-                  { goal: prevGoals.goal2, ratingKey: 'prevGoal2Rating' },
-                  { goal: prevGoals.goal3, ratingKey: 'prevGoal3Rating' }
-                ].filter(item => item.goal).map((item, idx) => (
-                  <div key={idx} style={{ marginBottom: '0.75rem', paddingBottom: '0.75rem', borderBottom: idx < 2 ? '1px solid #E0D5C7' : 'none' }}>
-                    <div style={{ fontSize: '0.95rem', marginBottom: '0.5rem', fontStyle: 'italic', color: '#3A3A3A' }}>
-                      {item.goal}
-                    </div>
-                    <div style={{ fontSize: '0.85rem', color: '#7A7A7A', marginBottom: '0.35rem' }}>
-                      How well did you maintain this focus?
-                    </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
-                      {PREV_GOAL_RATING_OPTIONS.map(opt => (
-                        <label key={opt.value} style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.3rem',
-                          cursor: 'pointer',
-                          padding: '0.3rem 0.65rem',
-                          borderRadius: '16px',
-                          border: `1.5px solid ${formData[item.ratingKey] === opt.value ? '#8B7355' : '#E0D5C7'}`,
-                          background: formData[item.ratingKey] === opt.value ? '#8B7355' : 'white',
-                          color: formData[item.ratingKey] === opt.value ? 'white' : '#3A3A3A',
-                          fontSize: '0.82rem',
-                          transition: 'all 0.15s ease'
-                        }}>
-                          <input
-                            type="radio"
-                            name={item.ratingKey}
-                            value={opt.value}
-                            checked={formData[item.ratingKey] === opt.value}
-                            onChange={handleChange}
-                            disabled={loading}
-                            style={{ display: 'none' }}
-                          />
-                          {opt.label}
-                        </label>
-                      ))}
-                    </div>
+                  { goalKey: 'fallbackGoal1', ratingKey: 'goalRating1', num: 1 },
+                  { goalKey: 'fallbackGoal2', ratingKey: 'goalRating2', num: 2 },
+                  { goalKey: 'fallbackGoal3', ratingKey: 'goalRating3', num: 3 }
+                ].map(({ goalKey, ratingKey, num }) => (
+                  <div key={goalKey} style={{ marginBottom: '1rem' }}>
+                    <FormField label={`Focus ${num}`} optional={num > 1}>
+                      <input
+                        type="text"
+                        name={goalKey}
+                        value={formData[goalKey]}
+                        onChange={handleChange}
+                        disabled={loading}
+                        placeholder="What were you working on?"
+                      />
+                    </FormField>
+                    {formData[goalKey]?.trim() && (
+                      <div style={{ marginTop: '0.35rem', marginBottom: '0.5rem' }}>
+                        <div style={{ fontSize: '0.85rem', color: '#7A7A7A', marginBottom: '0.35rem' }}>
+                          How well did you maintain this focus?
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                          {PREV_GOAL_RATING_OPTIONS.map(opt => (
+                            <label key={opt.value} style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.3rem',
+                              cursor: 'pointer',
+                              padding: '0.3rem 0.65rem',
+                              borderRadius: '16px',
+                              border: `1.5px solid ${formData[ratingKey] === opt.value ? '#8B7355' : '#E0D5C7'}`,
+                              background: formData[ratingKey] === opt.value ? '#8B7355' : 'white',
+                              color: formData[ratingKey] === opt.value ? 'white' : '#3A3A3A',
+                              fontSize: '0.82rem',
+                              transition: 'all 0.15s ease'
+                            }}>
+                              <input
+                                type="radio"
+                                name={ratingKey}
+                                value={opt.value}
+                                checked={formData[ratingKey] === opt.value}
+                                onChange={handleChange}
+                                disabled={loading}
+                                style={{ display: 'none' }}
+                              />
+                              {opt.label}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
                 <div style={{ marginTop: '0.5rem' }}>
@@ -647,85 +747,6 @@ export default function DebriefForm() {
                 </div>
               </div>
             )}
-
-            <p style={{ fontSize: '0.9rem', color: '#7A7A7A', marginBottom: '1rem', lineHeight: '1.5' }}>
-              Name up to three specific things you will DO — not achieve. Process goals direct your attention during the ride. Keep each one short and action-focused.
-            </p>
-
-            <FormField label="Process Goal 1" error={errors.processGoal1}>
-              <input
-                type="text"
-                name="processGoal1"
-                value={formData.processGoal1}
-                onChange={handleChange}
-                disabled={loading}
-                className={errors.processGoal1 ? 'error' : ''}
-                placeholder="e.g. 'Wait for Rocket Star to seek the contact before asking for collection'"
-              />
-            </FormField>
-            <FormField label="Process Goal 2" optional>
-              <input
-                type="text"
-                name="processGoal2"
-                value={formData.processGoal2}
-                onChange={handleChange}
-                disabled={loading}
-                placeholder="e.g. 'Breathe through every downward transition'"
-              />
-            </FormField>
-            <FormField label="Process Goal 3" optional>
-              <input
-                type="text"
-                name="processGoal3"
-                value={formData.processGoal3}
-                onChange={handleChange}
-                disabled={loading}
-                placeholder="e.g. 'Soften my lower back at the moment of canter strike-off'"
-              />
-            </FormField>
-
-            <div style={{ marginTop: '0.5rem' }}>
-              <button
-                type="button"
-                onClick={() => setGoalHelpOpen(prev => !prev)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#8B7355',
-                  cursor: 'pointer',
-                  fontSize: '0.88rem',
-                  textDecoration: 'underline',
-                  padding: 0
-                }}
-              >
-                {goalHelpOpen ? 'Hide' : "What's a process goal?"}
-              </button>
-              {goalHelpOpen && (
-                <div style={{
-                  marginTop: '0.5rem',
-                  padding: '0.75rem 1rem',
-                  background: '#FAF8F5',
-                  borderRadius: '8px',
-                  border: '1px solid #E0D5C7',
-                  fontSize: '0.88rem',
-                  color: '#5A5A5A',
-                  lineHeight: '1.5'
-                }}>
-                  <p style={{ marginBottom: '0.5rem' }}>
-                    A process goal describes an action within your control during the ride — what you will attend to or do, not what you hope results from it.
-                  </p>
-                  <p style={{ marginBottom: '0.5rem' }}>
-                    <strong style={{ color: '#D0021B' }}>Outcome goal (avoid for in-session focus):</strong> "Get a good canter transition"
-                  </p>
-                  <p style={{ marginBottom: '0.5rem' }}>
-                    <strong style={{ color: '#6B8E5F' }}>Process goal (use this):</strong> "Establish outside rein contact before asking"
-                  </p>
-                  <p style={{ margin: 0, fontStyle: 'italic' }}>
-                    Three is the maximum. More than three splits your attention below useful threshold.
-                  </p>
-                </div>
-              )}
-            </div>
           </FormSection>
 
           {/* Section: Narrative */}

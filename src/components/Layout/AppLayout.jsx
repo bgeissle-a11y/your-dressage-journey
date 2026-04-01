@@ -11,6 +11,12 @@ const NAV_GROUPS = [
     label: 'Record',
     sections: [
       {
+        heading: 'Before Your Ride',
+        links: [
+          { icon: '\uD83C\uDCCF', label: 'Practice Card', to: '/practice-card' },
+        ],
+      },
+      {
         heading: 'After Your Ride',
         links: [
           { icon: '\uD83C\uDFC7', label: 'Post-Ride Debrief', to: '/debriefs/new' },

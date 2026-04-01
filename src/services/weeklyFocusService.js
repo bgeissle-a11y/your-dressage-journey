@@ -149,19 +149,29 @@ export async function readPracticeCardCache(uid) {
 }
 
 /**
- * Write confirmedAt timestamp for a Practice Card.
+ * Write confirmedAt timestamp + confirmedGoals for a Practice Card.
  * Called when the rider taps "Ready to ride".
+ * @param {string} uid - User ID
+ * @param {string[]} confirmedGoals - The goals the rider locked with (may differ from suggested)
+ * @param {boolean[]} goalsEdited - Which goals were modified from the AI suggestion
  */
-export async function confirmPracticeCard(uid) {
+export async function confirmPracticeCard(uid, confirmedGoals, goalsEdited) {
   try {
     const docId = `${uid}_coaching_practiceCard`;
     const ref = doc(db, "analysisCache", docId);
     const now = new Date();
     const confirmedDate = now.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
-    await updateDoc(ref, {
+    const updates = {
       "result.confirmedAt": now.toISOString(),
       "result.confirmedDate": confirmedDate,
-    });
+    };
+    if (confirmedGoals) {
+      updates["result.confirmedGoals"] = confirmedGoals;
+    }
+    if (goalsEdited) {
+      updates["result.goalsEdited"] = goalsEdited;
+    }
+    await updateDoc(ref, updates);
     return { success: true, confirmedAt: now.toISOString(), confirmedDate };
   } catch (error) {
     console.error("[weeklyFocusService] confirmPracticeCard error:", error);

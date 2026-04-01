@@ -963,22 +963,8 @@ VOICE_OUTPUT_INSTRUCTIONS[3] = `Respond in JSON format with this exact structure
   "narrative": "your full 300-400 word coaching analysis in this voice",
   "weeklyFocusExcerpt": "2-3 sentence excerpt for the Weekly Focus page. Self-contained, quotable. null if no clear insight.",
   "weeklyFocusTitle": "A short (3-8 word) title summarizing the rider's primary coaching theme this week. Concise and specific to their data.",
-  "between_rides": {
-    "intro": "Mental rehearsal works best when it's specific, sensory, and real-time (not sped up). Take 5–10 minutes on a non-riding day to practice this:",
-    "starting_point": "string — specific starting point relevant to this week's coaching focus (e.g., 'the entry at A,' 'the moment before you ask for the canter,' 'riding down the long side in trot')",
-    "movement_quality": "string — specific movement quality to feel (e.g., 'the swing through his back,' 'the reach under with the hind leg,' 'the softness at the poll')",
-    "exercise_focus": "string — the specific movement or exercise that is this week's primary focus",
-    "external_cue": "string — an external focus cue to notice when it's right (draw from the Technical Coach's analysis if available)",
-    "closing": "If it goes wrong in your mind, ride it again. Repetition in imagination builds the same neural pathways as repetition in the arena."
-  }
-}
+}`;
 
-BETWEEN RIDES SECTION:
-After your main coaching analysis, generate the "between_rides" field — a structured
-mental rehearsal prompt the rider can use on non-riding days. Customize all fields
-using the rider's actual coaching content from this week: same horse name, same
-movement vocabulary, same themes. The section should feel continuous with their
-coaching, not generic.`;
 
 // ─── Voice Reference Block (for non-coaching outputs) ───────────────
 // ~100 token compact reference appended to prompts requesting voice snippets.
@@ -1047,18 +1033,14 @@ Return the practiceCard field with exactly this shape:
   "practiceCard": {
     "processGoals": ["goal 1", "goal 2", "goal 3"],
     "inSaddleCues": ["cue 1", "cue 2"],
-    "analogy": "text",
-    "mentalRehearsal": "text",
-    "carryQuestion": "text"
+    "analogy": "text"
   }
 }
 
 Rules for practiceCard:
-- processGoals: 3 items, verb-first, achievable in one ride, max ~12 words each. Name relaxation, forwardness, or trust in the hand by name when relevant. Never refer to them collectively as "the three principles."
-- inSaddleCues: 2 items. EXTERNAL FOCUS only — what does the horse's movement feel like when the work is correct? Never frame as rider body instructions.
-- analogy: one vivid image or metaphor, 1-2 sentences.
-- mentalRehearsal: 2-3 sentences. Start mid-ride at a specific arena moment.
-- carryQuestion: one sentence. Opens curiosity, not anxiety.`;
+- processGoals: exactly 3 items. Verb-first. Each goal achievable in a single ride, max ~15 words. Name relaxation, forwardness, or trust in the hand by name when relevant — never refer to them collectively as "the three principles." These are suggestions the rider may edit before the ride; write them as starting points that invite ownership, not prescriptions.
+- inSaddleCues: exactly 2 items. EXTERNAL FOCUS only — describe what the horse's movement feels like when the work is correct. Never frame as rider body instructions. The rider should be attending to the horse, not monitoring themselves.
+- analogy: one vivid image or metaphor, 1-2 sentences. Specific enough to carry into the arena. Draw from the week's primary technical theme.`;
 
 // ─── Prompt Builders ────────────────────────────────────────────────
 
