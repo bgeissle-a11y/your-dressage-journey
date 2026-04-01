@@ -55,7 +55,6 @@ const NAV_GROUPS = [
       {
         heading: 'Your Insights',
         links: [
-          { icon: '\u2726', label: 'Weekly Focus', to: '/dashboard' },
           { icon: '\uD83D\uDDFA', label: 'Journey Map', to: '/insights?tab=journey' },
           { icon: '\uD83C\uDFAF', label: 'Multi-Voice Coaching', to: '/insights?tab=coaching' },
           { icon: '\uD83E\uDDE0', label: 'Grand Prix Thinking', to: '/insights?tab=grandprix' },
@@ -73,7 +72,6 @@ const NAV_GROUPS = [
         links: [
           { icon: '\uD83D\uDCD0', label: 'Arena Geometry Trainer', href: '/arena-geometry-trainer.html' },
           { icon: '\uD83D\uDDD2', label: 'Test Explorer', to: '/learn/test-explorer' },
-          { icon: '\uD83C\uDFA4', label: 'PSG Step-Through', to: '/learn/psg-stepthrough' },
         ],
       },
       {
