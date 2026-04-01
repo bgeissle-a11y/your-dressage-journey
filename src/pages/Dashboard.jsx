@@ -393,6 +393,7 @@ export default function Dashboard() {
             coaching={wf.coaching}
             gptAssignments={wf.gptAssignments}
             physicalItems={wf.physicalItems}
+            visualization={wf.visualization}
             show={wf.show}
             pinned={wf.pinned}
             togglePin={wf.togglePin}

@@ -2,6 +2,7 @@ import WFCelebration from './WFCelebration';
 import WFCoachingCard from './WFCoachingCard';
 import WFGPTCard from './WFGPTCard';
 import WFPhysicalCard from './WFPhysicalCard';
+import WFVisualizationCard from './WFVisualizationCard';
 import WFShowCard from './WFShowCard';
 import WFModeBar from './WFModeBar';
 
@@ -10,6 +11,7 @@ export default function WeeklyFocusContent({
   coaching,
   gptAssignments,
   physicalItems,
+  visualization,
   show,
   pinned,
   togglePin,
@@ -72,6 +74,8 @@ export default function WeeklyFocusContent({
           hasNewer={hasNewerContent?.physical}
           onUpdate={() => updateToLatest?.('physical')}
         />
+
+        <WFVisualizationCard visualization={visualization} />
 
         <WFShowCard
           show={show}

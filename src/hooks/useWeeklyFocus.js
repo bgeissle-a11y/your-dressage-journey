@@ -5,6 +5,7 @@ import { getAllReflections, getAllShowPreparations } from '../services';
 import {
   getWeekId, getWeekMonday, getWeekState, saveWeekState,
   readCoachingCaches, readGPTCache, readPhysicalCache, readShowPlanCache,
+  readVisualizationSuggestionCache,
 } from '../services/weeklyFocusService';
 import {
   extractCoachingSnapshot, extractGPTSnapshot, extractPhysicalSnapshot,
@@ -37,6 +38,7 @@ export default function useWeeklyFocus() {
   const [gptAssignments, setGptAssignments] = useState(null);
   const [physicalItems, setPhysicalItems] = useState(null);
   const [celebration, setCelebration] = useState(null);
+  const [visualization, setVisualization] = useState(null);
   const [show, setShow] = useState(null);
 
   // hasNewerContent flags
@@ -114,16 +116,18 @@ export default function useWeeklyFocus() {
 
   // ── Read fresh AI data from analysisCache ──
   const readFreshContent = useCallback(async (uid) => {
-    const [coachingData, gptData, physData] = await Promise.allSettled([
+    const [coachingData, gptData, physData, vizData] = await Promise.allSettled([
       readCoachingCaches(uid),
       readGPTCache(uid),
       readPhysicalCache(uid),
+      readVisualizationSuggestionCache(uid),
     ]);
 
     return {
       coaching: coachingData.status === 'fulfilled' ? extractCoachingSnapshot(coachingData.value, weekId) : null,
       gpt: gptData.status === 'fulfilled' ? extractGPTSnapshot(gptData.value) : null,
       physical: physData.status === 'fulfilled' ? extractPhysicalSnapshot(physData.value) : null,
+      visualization: vizData.status === 'fulfilled' ? vizData.value : null,
     };
   }, [weekId]);
 
@@ -271,6 +275,9 @@ export default function useWeeklyFocus() {
           if (snapshot.physical?.weeklyFocusItems) {
             setPhysicalItems(snapshot.physical.weeklyFocusItems);
           }
+          if (snapshot.visualization) {
+            setVisualization(snapshot.visualization);
+          }
           if (snapshot.show && snapshot.show.state === 'active_show') {
             setShow(snapshot.show);
           }
@@ -349,6 +356,9 @@ export default function useWeeklyFocus() {
           if (freshContent.physical?.weeklyFocusItems) {
             setPhysicalItems(freshContent.physical.weeklyFocusItems);
           }
+          if (freshContent.visualization) {
+            setVisualization(freshContent.visualization);
+          }
           setShow(showContent);
 
           // Store generatedAt timestamps
@@ -364,6 +374,7 @@ export default function useWeeklyFocus() {
             coaching: freshContent.coaching || null,
             gpt: freshContent.gpt || null,
             physical: freshContent.physical || null,
+            visualization: freshContent.visualization || null,
             show: showContent || null,
           };
           saveWeekState(uid, weekId, { contentSnapshot });
@@ -472,6 +483,7 @@ export default function useWeeklyFocus() {
     coaching,
     gptAssignments,
     physicalItems,
+    visualization,
     show,
     pinned,
     togglePin,

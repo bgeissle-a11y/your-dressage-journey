@@ -26,6 +26,7 @@
    - 5I. USDF Awards Additions
    - 5J. Voice Integration Additions
    - 5K. Body Mapping Additions
+   - 5L. Visualization Awareness Additions
 6. [Platform Outputs Definition & API Architecture](#part-6-platform-outputs-definition--api-architecture)
 7. [Formatting Guide for Chunked Outputs](#part-7-formatting-guide-for-chunked-outputs)
 
@@ -1694,6 +1695,33 @@ monthly; rotation: quarterly; VOR: quarterly).
 When no body mapping data exists, proceed with existing physical change tracking
 based on narrative self-assessment comparisons.
 ```
+
+---
+
+## 5L. Visualization Awareness Additions
+
+**Source:** `YDJ_Prompt_Additions_Visualization_Awareness.md` (April 2026)
+
+**Voices affected:** Voice 1 (Empathetic Coach), Voice 2 (Technical Coach)
+
+**What this is:** A conditional single-sentence addition that allows two voices
+to reference mental rehearsal analytically when a clear trigger condition is
+present in the rider's data. Not a CTA — an analytical observation that connects
+an identified pattern to the category of practice that addresses it.
+
+**Trigger conditions:**
+- Technical Coach: 3+ occurrences of a specific body habit or mechanical
+  interference in recent debriefs/observations
+- Empathetic Coach: confidence hesitation, freeze, or second-guessing language
+  around a specific movement
+
+**Non-duplication rule:** Both additions include an explicit instruction to
+suppress the observation when `visualizationSuggestionGenerated = true` — the
+Weekly Focus Visualization This Week card handles the action pathway in those
+cases.
+
+**Voices NOT affected:** Classical Master (may reference organically),
+Practical Strategist (not in analytical scope for this tool)
 
 ---
 

@@ -241,6 +241,20 @@ async function handler(request) {
       console.error("[coaching] Quick insights failed:", results[4].reason?.message || results[4].reason);
     }
 
+    // Extract visualizationSuggestion from Quick Insights and cache separately
+    if (quickInsights) {
+      try {
+        const vizSuggestion = quickInsights.visualizationSuggestion ?? { shouldSuggest: false };
+        await setCache(riderData.uid, "coaching_visualizationSuggestion", vizSuggestion, {
+          dataSnapshotHash: riderData.dataSnapshot?.hash,
+          tierLabel: riderData.tier?.label || "unknown",
+          dataTier: riderData.dataTier,
+        });
+      } catch (vizErr) {
+        console.error("[coaching] Failed to save visualizationSuggestion:", vizErr.message);
+      }
+    }
+
     // Extract practiceCard from Quick Insights and cache separately
     if (quickInsights && quickInsights.practiceCard) {
       try {

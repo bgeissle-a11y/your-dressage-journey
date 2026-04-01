@@ -307,13 +307,52 @@
 .icon-gpt      { background: rgba(46,92,130,0.10); }
 .icon-physical { background: rgba(42,74,48,0.10); }
 .icon-show     { background: rgba(122,48,32,0.10); }
+.icon-viz      { background: rgba(92,139,168,0.12); }
 
 .card-title-block { flex: 1; min-width: 0; }
 .card-label { font-size: 8.5px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 2px; }
 .label-coaching { color: var(--opt); }
 .label-gpt      { color: var(--sky); }
 .label-physical { color: var(--forest-light); }
+.label-viz      { color: #5C8BA8; }
 .label-show     { color: var(--rust); }
+
+/* ── Visualization This Week card ── */
+.viz-badges { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.viz-badge {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.5px;
+  padding: 3px 10px; border-radius: 12px;
+}
+.badge-movement { background: rgba(92,139,168,0.12); color: #5C8BA8; }
+.badge-trigger  { background: rgba(184,134,42,0.12); color: #B8862A; }
+
+.viz-rationale {
+  font-size: 13px; line-height: 1.6; color: var(--ink);
+  margin-bottom: 12px;
+}
+.viz-mechanic-box {
+  background: var(--parchment, #FAF8F5);
+  border-left: 3px solid #5C8BA8;
+  padding: 10px 14px;
+  border-radius: 0 8px 8px 0;
+  margin-bottom: 14px;
+}
+.viz-mechanic-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: #5C8BA8; margin-bottom: 4px;
+}
+.viz-mechanic-quote {
+  font-size: 13px; font-style: italic; color: var(--ink); line-height: 1.5;
+}
+.viz-cta-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 10px 20px; border-radius: 10px;
+  background: #5C8BA8; color: white;
+  font-size: 13px; font-weight: 600;
+  text-decoration: none; border: none; cursor: pointer;
+  transition: background 0.2s;
+}
+.viz-cta-btn:hover { background: #4a7a96; }
 .card-title {
   font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 600;
   color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;

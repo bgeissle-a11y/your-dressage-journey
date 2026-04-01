@@ -149,6 +149,19 @@ export async function readPracticeCardCache(uid) {
 }
 
 /**
+ * Read the Visualization Suggestion cache for a user.
+ * Returns the visualizationSuggestion data or null if not found.
+ */
+export async function readVisualizationSuggestionCache(uid) {
+  const cached = await readAnalysisCache(uid, "coaching_visualizationSuggestion");
+  if (!cached?.result) return null;
+  return {
+    ...cached.result,
+    generatedAt: cached.generatedAt,
+  };
+}
+
+/**
  * Write confirmedAt timestamp + confirmedGoals for a Practice Card.
  * Called when the rider taps "Ready to ride".
  * @param {string} uid - User ID

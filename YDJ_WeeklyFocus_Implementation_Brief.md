@@ -362,6 +362,22 @@ Both visualizations are computed client-side from raw Firestore data — no API 
 - [ ] Test: pin/check state persists across page refresh and between sessions
 - [ ] Test: mobile layout at 375px width (barn use case)
 
+### Visualization Suggestion Card
+- [ ] Add `visualizationSuggestion` field to Quick Insights prompt (output format spec in `promptBuilder.js`)
+- [ ] Update `coaching.js` to write `visualizationSuggestion` to cache
+- [ ] Default to `{ shouldSuggest: false }` if field is absent or parse fails
+- [ ] Build `WFVisualizationCard.jsx` per spec
+- [ ] Conditionally render `WFVisualizationCard` in WeeklyFocus between Physical and Show cards
+- [ ] Card renders nothing (no empty state) when `shouldSuggest: false`
+- [ ] CTA navigates to visualization form with correct URL params
+- [ ] Add URL param reader to `ydj-visualization-form.html`
+- [ ] Test: params pre-select correct form elements on load
+- [ ] Test: Section 3 (Reference) is never pre-filled (rider selects manually)
+- [ ] Test: `problem=unfamiliar` auto-selects `referenceType=none`
+- [ ] Test: "From Weekly Focus" banner shows when params present
+- [ ] Test: `triggerType=upcoming_show` only fires when show ≤ 14 days (not 15)
+- [ ] Test: `shouldSuggest=false` renders no card, no placeholder
+
 ---
 
 ## What NOT to Build

@@ -99,6 +99,25 @@
             margin: 0 auto;
         }
 
+        /* ── Prefill Banner ── */
+        .prefill-banner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 20px;
+            background: #FAF8F5;
+            border: 1px solid var(--color-gold);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: var(--color-text);
+            line-height: 1.5;
+        }
+        .prefill-banner span:first-child {
+            color: var(--color-gold);
+            font-size: 1.2em;
+        }
+
         /* ── Section Card ── */
         .section-card {
             background: white;
@@ -995,6 +1014,12 @@
         </div>
     </header>
 
+    <!-- ── From Weekly Focus banner (shown when URL params present) ── -->
+    <div class="prefill-banner" id="prefill-banner" style="display:none;">
+        <span>✦</span>
+        <span>Pre-filled from your Weekly Focus suggestion. Review and adjust before generating.</span>
+    </div>
+
     <!-- ══ FORM ══ -->
     <div id="form-area">
 
@@ -1890,6 +1915,75 @@
         if (!str) return '';
         return str.charAt(0).toUpperCase() + str.slice(1);
     }
+
+    // ── URL param pre-fill (from Weekly Focus CTA) ──
+    (function applyUrlParams() {
+        const params = new URLSearchParams(window.location.search);
+        const movement = params.get('movement');
+        const problem  = params.get('problem');
+        const context  = params.get('context');
+        const length   = params.get('length');
+
+        if (!movement && !problem && !context && !length) return;
+
+        // Show the prefill banner
+        const banner = document.getElementById('prefill-banner');
+        if (banner) banner.style.display = 'flex';
+
+        // Pre-select movement chip
+        if (movement) {
+            const chip = document.querySelector(`.movement-chip[data-movement="${movement}"]`);
+            if (chip) selectMovement(chip);
+        }
+
+        // Pre-select problem focus card
+        if (problem) {
+            const radio = document.querySelector(`input[name="problem"][value="${problem}"]`);
+            if (radio) {
+                const card = radio.closest('.radio-card') || radio.closest('label');
+                if (card) {
+                    selectCard(card, 'problem-cards');
+                    radio.checked = true;
+                }
+            }
+        }
+
+        // Pre-select context
+        if (context) {
+            const radio = document.querySelector(`input[name="context"][value="${context}"]`);
+            if (radio) {
+                const card = radio.closest('.context-card') || radio.closest('label');
+                if (card) {
+                    selectContext(card);
+                    radio.checked = true;
+                }
+            }
+        }
+
+        // Pre-select length
+        if (length) {
+            const radio = document.querySelector(`input[name="length"][value="${length}"]`);
+            if (radio) {
+                const card = radio.closest('.length-option') || radio.closest('label');
+                if (card) {
+                    selectLength(card);
+                    radio.checked = true;
+                }
+            }
+        }
+
+        // If problem=unfamiliar, auto-select referenceType=none
+        if (problem === 'unfamiliar') {
+            const noneRadio = document.querySelector('input[name="reference"][value="none"]');
+            if (noneRadio) {
+                const card = noneRadio.closest('.radio-card') || noneRadio.closest('label');
+                if (card) {
+                    selectCard(card, 'reference-cards');
+                    noneRadio.checked = true;
+                }
+            }
+        }
+    })();
 </script>
 </body>
 </html>
