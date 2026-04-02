@@ -262,8 +262,8 @@ async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerConte
   const truncated = isFirstGen && shouldTruncateFirstCycle();
 
   // Determine max tokens based on tier
-  const topTierMaxTokens = parseInt(process.env.PHYSICAL_GPT_TOP_TIER_MAX_TOKENS, 10) || 6000;
-  const maxTokens = tier === "top" ? topTierMaxTokens : 4000;
+  const topTierMaxTokens = parseInt(process.env.PHYSICAL_GPT_TOP_TIER_MAX_TOKENS, 10) || 8192;
+  const maxTokens = tier === "top" ? topTierMaxTokens : 8192;
 
   // Single Claude call (Sonnet) for full 4-week program
   console.log(`[gpt-l1] Generating ${truncated ? "truncated 2-week" : "full 4-week"} Mental Performance (Sonnet)`);

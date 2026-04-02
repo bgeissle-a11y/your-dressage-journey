@@ -202,8 +202,8 @@ async function handler(request) {
     // --- Call 2: Body Awareness (4-Week Program) ---
     // Receives Exercise Protocol from Call 1 as input context (Hard Rule 1)
     const awarenessMaxTokens = tier === "top"
-      ? (parseInt(process.env.PHYSICAL_AWARENESS_TOP_TIER_MAX_TOKENS, 10) || 6000)
-      : 4000;
+      ? (parseInt(process.env.PHYSICAL_AWARENESS_TOP_TIER_MAX_TOKENS, 10) || 8192)
+      : 8192;
 
     console.log(`[physical] Starting Call 2: Body Awareness ${truncated ? "(truncated 2-week)" : "(4-week program)"}`);
     const { system: sys2, userMessage: msg2 } = buildPhysicalGuidancePrompt(
