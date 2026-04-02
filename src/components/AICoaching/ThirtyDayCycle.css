@@ -802,6 +802,7 @@
   position: absolute;
   inset: 0;
   background: radial-gradient(ellipse at 72% 50%, rgba(46,92,130,.14) 0%, transparent 65%);
+  pointer-events: none;
 }
 
 .gpt-hero::after {
@@ -813,6 +814,7 @@
   height: 210px;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='44' fill='none' stroke='rgba(46,92,130,0.12)' stroke-width='1'/%3E%3Ccircle cx='50' cy='50' r='34' fill='none' stroke='rgba(46,92,130,0.08)' stroke-width='1'/%3E%3Ccircle cx='50' cy='50' r='24' fill='none' stroke='rgba(46,92,130,0.06)' stroke-width='1'/%3E%3C/svg%3E");
   background-size: contain;
+  pointer-events: none;
 }
 
 
@@ -1619,6 +1621,7 @@
   position: absolute;
   inset: 0;
   background: radial-gradient(ellipse at 70% 50%, rgba(61,107,70,.16) 0%, transparent 65%);
+  pointer-events: none;
 }
 
 .phys-hero::after {
@@ -1630,6 +1633,7 @@
   height: 210px;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='44' fill='none' stroke='rgba(61,107,70,0.12)' stroke-width='1'/%3E%3Ccircle cx='50' cy='50' r='34' fill='none' stroke='rgba(61,107,70,0.08)' stroke-width='1'/%3E%3Ccircle cx='50' cy='50' r='24' fill='none' stroke='rgba(61,107,70,0.06)' stroke-width='1'/%3E%3C/svg%3E");
   background-size: contain;
+  pointer-events: none;
 }
 
 
