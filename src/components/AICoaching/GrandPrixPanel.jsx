@@ -427,7 +427,7 @@ export default function GrandPrixPanel({ generationStatus }) {
     }
 
     if (mentalError) {
-      return <ErrorDisplay error={mentalError} onRetry={() => fetchMental({ forceRefresh: true })} />;
+      return <ErrorDisplay message={mentalError?.message} onRetry={() => fetchMental({ forceRefresh: true })} />;
     }
 
     if (!mentalData?.selectedPath) return null;
@@ -610,7 +610,7 @@ export default function GrandPrixPanel({ generationStatus }) {
     }
 
     if (trajectoryError) {
-      return <ErrorDisplay error={trajectoryError} onRetry={() => fetchTrajectory({ forceRefresh: true })} />;
+      return <ErrorDisplay message={trajectoryError?.message} onRetry={() => fetchTrajectory({ forceRefresh: true })} />;
     }
 
     if (!trajectoryData) return null;

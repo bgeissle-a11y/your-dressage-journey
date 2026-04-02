@@ -17,8 +17,8 @@
 const { db } = require("./firebase");
 
 const CYCLE_PATHS = {
-  gpt: "analysis/grandPrixThinkingCycle",
-  physical: "analysis/physicalGuidanceCycle",
+  gpt: "grandPrixThinkingCycle",
+  physical: "physicalGuidanceCycle",
 };
 
 const OUTPUT_PATHS = {

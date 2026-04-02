@@ -145,8 +145,8 @@ export async function readPhysicalCache(uid) {
  */
 export async function readCycleState(uid, outputType) {
   const paths = {
-    gpt: 'analysis/grandPrixThinkingCycle',
-    physical: 'analysis/physicalGuidanceCycle',
+    gpt: 'grandPrixThinkingCycle',
+    physical: 'physicalGuidanceCycle',
   };
   const path = paths[outputType];
   if (!path) return null;
