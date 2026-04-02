@@ -1,18 +1,23 @@
 /**
- * Physical Guidance API
+ * Physical Guidance API — 30-Day Cycle Architecture (April 2026)
  *
  * Generates personalized physical fitness and body awareness guidance
- * through 2 sequential API calls:
+ * through 2 sequential API calls on a 30-day program cycle:
  *
- * PG-1 (Physical Pattern Analysis): Identify recurring physical themes
- *       from cross-referencing assessment + debrief narratives
- * PG-2 (Exercise Prescription): Personalized exercises, warm-up routines,
- *       and body awareness cues calibrated to kinesthetic level
+ * Call 1 — Exercise Protocol: Priority tier classification, prescribed
+ *   exercises, body awareness profile, pre-ride ritual.
+ * Call 2 — Body Awareness (4-Week Program): Patterns, per-week noticing
+ *   cues, debrief prompts, success metrics. Receives Exercise Protocol
+ *   from Call 1 as input context.
  *
- * PG-1 runs first. PG-2 depends on PG-1 output.
+ * Hard Rule 1: Body Awareness receives cached Exercise Protocol as input.
+ * Hard Rule 2: Both calls receive active GPT trajectory as input context.
+ * Hard Rule 3: weeklyFocusItems extracted server-side, never AI-generated.
  *
- * Input:  { forceRefresh?: boolean }
- * Output: { patternAnalysis, exercisePrescription, tier, dataTier, generatedAt }
+ * Cycle state stored in: analysis/physicalGuidanceCycle/{userId}
+ *
+ * Input:  { forceRefresh?: boolean, staleOk?: boolean, advanceWeek?: boolean }
+ * Output: { exerciseProtocol, weeks, weeklyFocusItems, cycleState, ... }
  */
 
 const { validateAuth } = require("../lib/auth");
@@ -21,31 +26,50 @@ const { prepareRiderData } = require("../lib/prepareRiderData");
 const { callClaude } = require("../lib/claudeCall");
 const { buildPhysicalGuidancePrompt } = require("../lib/promptBuilder");
 const { getCache, setCache, getStaleCache } = require("../lib/cacheManager");
+const {
+  getCycleState,
+  initCycle,
+  checkRegenPermission,
+  recordRegen,
+  advanceWeekAndExtract,
+  shouldExtendCycle,
+  shouldTruncateFirstCycle,
+  getUserTier,
+} = require("../lib/cycleState");
 
 const OUTPUT_TYPE = "physicalGuidance";
 
 /**
  * Cloud Function handler for Physical Guidance generation.
- *
- * @param {object} request - Firebase v2 onCall request
- * @returns {Promise<object>} Physical Guidance result
  */
 async function handler(request) {
   try {
     const uid = validateAuth(request);
-    const { forceRefresh = false, staleOk = false } = request.data || {};
+    const {
+      forceRefresh = false,
+      staleOk = false,
+      advanceWeek = false,
+    } = request.data || {};
 
-    // Fast path: return cached data immediately without preparing rider data.
-    // Used by frontend two-phase load to show results instantly on mount.
+    // Handle week advancement request (no API call)
+    if (advanceWeek) {
+      const result = await advanceWeekAndExtract(uid, "physical");
+      const cycleState = await getCycleState(uid, "physical");
+      return { success: true, ...result, cycleState };
+    }
+
+    // Fast path: return cached data immediately
     if (staleOk && !forceRefresh) {
-      const cached = await getStaleCache(uid, OUTPUT_TYPE, { maxAgeDays: 14 });
+      const cached = await getStaleCache(uid, OUTPUT_TYPE, { maxAgeDays: 60 });
       if (cached) {
+        const cycleState = await getCycleState(uid, "physical");
         return {
           success: true,
           ...cached.result,
           fromCache: true,
           stale: cached._stale !== false,
           generatedAt: cached.generatedAt,
+          cycleState,
         };
       }
     }
@@ -53,8 +77,9 @@ async function handler(request) {
     // Prepare rider data
     const riderData = await prepareRiderData(uid, "physicalGuidance");
     const hash = riderData.dataSnapshot?.hash;
+    const tier = await getUserTier(uid);
 
-    // Check data tier — need Tier 1+ (rider profile + horse + 3 debriefs)
+    // Check data tier
     if (riderData.dataTier < 1) {
       return {
         success: false,
@@ -68,7 +93,7 @@ async function handler(request) {
       };
     }
 
-    // Check for physical self-assessment (primary gating for this output)
+    // Check for physical self-assessment
     if (!riderData.selfAssessments?.physical?.hasAssessment) {
       return {
         success: false,
@@ -82,13 +107,35 @@ async function handler(request) {
       };
     }
 
-    // Check cache (14-day max age for bi-weekly cadence)
+    // Check cycle state and advance week if needed
+    const cycleState = await getCycleState(uid, "physical");
+    if (cycleState && ["active", "truncated"].includes(cycleState.status)) {
+      await advanceWeekAndExtract(uid, "physical");
+    }
+
+    // Tier enforcement for regeneration
+    if (forceRefresh) {
+      const regenCheck = await checkRegenPermission(uid, "physical", { tier });
+      if (!regenCheck.allowed) {
+        return {
+          success: false,
+          error: "regen_blocked",
+          reason: regenCheck.reason,
+          cycleExpiresAt: regenCheck.cycleExpiresAt,
+          cooldownMinutesRemaining: regenCheck.cooldownMinutesRemaining,
+          cycleState: regenCheck.cycleState,
+        };
+      }
+    }
+
+    // Check cache (30-day cycle)
     if (!forceRefresh) {
       const cached = await getCache(uid, OUTPUT_TYPE, {
         currentHash: hash,
-        maxAgeDays: 14,
+        maxAgeDays: 30,
       });
       if (cached) {
+        const currentCycleState = await getCycleState(uid, "physical");
         return {
           success: true,
           ...cached.result,
@@ -97,43 +144,128 @@ async function handler(request) {
           dataTier: riderData.dataTier,
           dataSnapshot: riderData.dataSnapshot,
           generatedAt: cached.generatedAt,
+          cycleState: currentCycleState,
         };
       }
     }
 
-    // --- PG-1: Physical Pattern Analysis ---
+    // Check if cycle expired but insufficient new data → extend
+    if (cycleState && forceRefresh && tier !== "top") {
+      const extend = await shouldExtendCycle(uid, cycleState.cycleStartDate);
+      if (extend) {
+        const { setCycleState } = require("../lib/cycleState");
+        await setCycleState(uid, "physical", { status: "extended" });
+        const cached = await getStaleCache(uid, OUTPUT_TYPE, { maxAgeDays: 90 });
+        const updatedCycleState = await getCycleState(uid, "physical");
+        return {
+          success: true,
+          ...(cached?.result || {}),
+          fromCache: true,
+          extended: true,
+          tier: riderData.tier,
+          dataTier: riderData.dataTier,
+          dataSnapshot: riderData.dataSnapshot,
+          generatedAt: cached?.generatedAt,
+          cycleState: updatedCycleState,
+        };
+      }
+    }
+
+    // Read active GPT trajectory for context (Hard Rule 2)
+    const trajectoryCache = await getCache(uid, "grandPrixTrajectory", { maxAgeDays: 9999 });
+    const activeTrajectory = trajectoryCache?.result?.activePath || "ambitious_competitor";
+    console.log(`[physical] Active trajectory context: ${activeTrajectory}`);
+
+    // Determine truncated cycle
+    const isFirstGen = !cycleState;
+    const truncated = isFirstGen && shouldTruncateFirstCycle();
+
+    // --- Call 1: Exercise Protocol ---
+    const protocolMaxTokens = tier === "top"
+      ? (parseInt(process.env.PHYSICAL_PROTOCOL_TOP_TIER_MAX_TOKENS, 10) || 4500)
+      : 3000;
+
+    console.log("[physical] Starting Call 1: Exercise Protocol");
     const { system: sys1, userMessage: msg1 } = buildPhysicalGuidancePrompt(
-      1,
-      riderData
+      1, riderData, { activeTrajectory, truncated }
     );
 
-    const patternAnalysis = await callClaude({
+    const exerciseProtocol = await callClaude({
       system: sys1,
       userMessage: msg1,
       jsonMode: true,
-      maxTokens: 4096,
-      context: "pg-1-pattern-analysis",
+      maxTokens: protocolMaxTokens,
+      context: "physical-call1-exercise-protocol",
       uid,
     });
 
-    // --- PG-2: Exercise Prescription (depends on PG-1) ---
+    // --- Call 2: Body Awareness (4-Week Program) ---
+    // Receives Exercise Protocol from Call 1 as input context (Hard Rule 1)
+    const awarenessMaxTokens = tier === "top"
+      ? (parseInt(process.env.PHYSICAL_AWARENESS_TOP_TIER_MAX_TOKENS, 10) || 6000)
+      : 4000;
+
+    console.log(`[physical] Starting Call 2: Body Awareness ${truncated ? "(truncated 2-week)" : "(4-week program)"}`);
     const { system: sys2, userMessage: msg2 } = buildPhysicalGuidancePrompt(
-      2,
-      riderData,
-      { patternAnalysis }
+      2, riderData, { patternAnalysis: exerciseProtocol, activeTrajectory, truncated }
     );
 
-    const exercisePrescription = await callClaude({
+    const bodyAwareness = await callClaude({
       system: sys2,
       userMessage: msg2,
       jsonMode: true,
-      maxTokens: 8192,
-      context: "pg-2-exercise-prescription",
+      maxTokens: awarenessMaxTokens,
+      context: "physical-call2-body-awareness",
       uid,
     });
 
-    // Assemble complete result
-    const result = { patternAnalysis, exercisePrescription };
+    // Extract weeklyFocusItems from weeks[0].patterns (Hard Rule 3)
+    const week0Patterns = bodyAwareness.weeks?.[0]?.patterns || [];
+    const weeklyFocusItems = week0Patterns
+      .filter((p) => p.feedsWeeklyFocus)
+      .map((p) => ({
+        text: p.noticingCuePrimary,
+        sub: p.source || null,
+        isHorseHealth: p.isHorseHealth || false,
+      }));
+
+    // Merge Call 1 + Call 2 into single document
+    const result = {
+      generatedAt: new Date().toISOString(),
+      cycleId: new Date().toISOString().split("T")[0],
+      dataSnapshot: {
+        debriefCount: riderData.dataSnapshot?.debriefCount || 0,
+        assessmentCount: riderData.dataSnapshot?.assessmentCount || 0,
+        bodyMappingComplete: !!riderData.selfAssessments?.physical?.bodyMapping,
+        tier,
+      },
+      activeTrajectory,
+      patternAnalysis: exerciseProtocol.patternAnalysis || bodyAwareness.patternAnalysis || {
+        primaryPatterns: [],
+        secondaryPatterns: [],
+        asymmetries: [],
+      },
+      weeks: bodyAwareness.weeks || [],
+      exerciseProtocol: {
+        priorityTier: exerciseProtocol.priorityTier || exerciseProtocol.priority_tier || "proprioceptive",
+        exercises: exerciseProtocol.exercises || [],
+        preRideRitual: exerciseProtocol.preRideRitual || exerciseProtocol.pre_ride_ritual || [],
+      },
+      bodyAwarenessProfile: exerciseProtocol.bodyAwarenessProfile || exerciseProtocol.body_awareness_profile || {
+        level: riderData.selfAssessments?.physical?.kinestheticLevel || 5,
+        blindSpots: [],
+        strengths: [],
+      },
+      weeklyFocusItems,
+      aiReasoning: bodyAwareness.aiReasoning || {
+        patternCited: "",
+        trajectoryLink: activeTrajectory,
+      },
+      stale: false,
+      // Preserve legacy fields for backward compatibility
+      patternAnalysisLegacy: exerciseProtocol,
+      exercisePrescription: exerciseProtocol,
+    };
 
     // Cache
     await setCache(uid, OUTPUT_TYPE, result, {
@@ -142,6 +274,14 @@ async function handler(request) {
       dataTier: riderData.dataTier,
     });
 
+    // Initialize cycle state
+    const newCycleState = await initCycle(uid, "physical", { tier, truncated });
+
+    // Record regen if this was a forceRefresh
+    if (forceRefresh && !isFirstGen) {
+      await recordRegen(uid, "physical");
+    }
+
     return {
       success: true,
       ...result,
@@ -149,7 +289,8 @@ async function handler(request) {
       tier: riderData.tier,
       dataTier: riderData.dataTier,
       dataSnapshot: riderData.dataSnapshot,
-      generatedAt: new Date().toISOString(),
+      generatedAt: result.generatedAt,
+      cycleState: newCycleState,
     };
   } catch (error) {
     throw wrapError(error, "getPhysicalGuidance");

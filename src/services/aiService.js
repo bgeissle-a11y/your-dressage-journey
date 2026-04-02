@@ -92,14 +92,16 @@ export async function getGrandPrixThinking(options = {}) {
 }
 
 /**
- * Generate on-demand 4-week expansion for a GPT L1 Mental Performance path.
+ * Advance the week pointer for a 30-day cycle output.
+ * No API call — reads from cached document.
  *
- * @param {string} pathId - The selected path ID (e.g. "pre_ride")
- * @returns {Promise<object>} { success, pathId, weeks: [...], ... }
+ * @param {string} outputType - "mental" for GPT, "physical" for Physical Guidance
+ * @returns {Promise<object>} { success, advanced, currentWeek, cycleState }
  */
-export async function getGPTExpanded(pathId) {
-  const fn = httpsCallable(functions, 'getGrandPrixThinking', { timeout: 300_000 });
-  const result = await fn({ action: 'expand', pathId });
+export async function advanceWeekPointer(outputType = 'mental') {
+  const fnName = outputType === 'physical' ? 'getPhysicalGuidance' : 'getGrandPrixThinking';
+  const fn = httpsCallable(functions, fnName, { timeout: 30_000 });
+  const result = await fn({ advanceWeek: true });
   return result.data;
 }
 

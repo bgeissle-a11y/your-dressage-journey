@@ -135,6 +135,15 @@ service cloud.firestore {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
+    // Cycle state — written by Cloud Functions (admin SDK bypasses rules),
+    // read-only by the authenticated user for cycle tracking
+    match /analysis/grandPrixThinkingCycle/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+    }
+    match /analysis/physicalGuidanceCycle/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+    }
+
     // Generation status — written by Cloud Functions (admin SDK bypasses rules),
     // read-only by the authenticated user for real-time progress tracking
     match /generationStatus/{uid} {

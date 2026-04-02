@@ -1,19 +1,21 @@
 /**
- * Grand Prix Thinking API — Redesigned March 2026
+ * Grand Prix Thinking API — 30-Day Cycle Architecture (April 2026)
  *
  * Two-output architecture:
- *   L1 (Mental Performance): Weekly cycle. AI selects ONE path, generates
- *     Week 1 in full detail, with on-demand 4-week expansion. Uses Sonnet.
+ *   L1 (Mental Performance): Monthly 30-day cycle. Full 4-week program
+ *     generated upfront in a single call. Uses Sonnet.
  *   L2 (Training Trajectory): Monthly cycle. 4-call pipeline (Opus + Sonnet)
  *     with activePath (Best Fit) for cross-layer coherence.
  *
  * Hard Rule 1: L1 receives cached L2 activePath before generating.
- * Hard Rule 2: weeklyAssignments extracted server-side from Week 1 assignments.
+ * Hard Rule 2: weeklyAssignments extracted server-side from current week assignments.
+ * Hard Rule 3: Both outputs receive active GPT trajectory as input context.
  *
- * Input:  { forceRefresh?, layer?: "mental"|"trajectory", action?: "expand", pathId? }
- * Output: Mental → { selectedPath, weeklyAssignments, activeTrajectory, ... }
+ * Cycle state stored in: analysis/grandPrixThinkingCycle/{userId}
+ *
+ * Input:  { forceRefresh?, layer?: "mental"|"trajectory", advanceWeek?: boolean }
+ * Output: Mental → { selectedPath, weeklyAssignments, activeTrajectory, cycleState, ... }
  *         Trajectory → { currentStateAnalysis, trajectoryPaths, movementMaps, pathNarratives, activePath, ... }
- *         Expand → { weeks: [...], pathId, ... }
  */
 
 const { validateAuth } = require("../lib/auth");
@@ -22,7 +24,6 @@ const { prepareRiderData } = require("../lib/prepareRiderData");
 const { callClaude } = require("../lib/claudeCall");
 const {
   buildGPTL1Prompt,
-  buildGPTL1ExpandPrompt,
   buildTrajectoryCall1Prompt,
   buildTrajectoryCall2Prompt,
   buildTrajectoryCall3Prompt,
@@ -31,10 +32,21 @@ const {
 const { buildTestDatabaseContext } = require("../lib/testDatabase");
 const { getCache, setCache, getStaleCache } = require("../lib/cacheManager");
 const { getStatus: getGenStatus } = require("../lib/generationStatus");
+const {
+  getCycleState,
+  initCycle,
+  checkRegenPermission,
+  recordRegen,
+  extractWeeklyFocusItems,
+  advanceWeekAndExtract,
+  shouldExtendCycle,
+  shouldTruncateFirstCycle,
+  getUserTier,
+  computeCurrentWeek,
+} = require("../lib/cycleState");
 
 const OUTPUT_TYPE_MENTAL = "grandPrixThinking";
 const OUTPUT_TYPE_TRAJECTORY = "grandPrixTrajectory";
-const OUTPUT_TYPE_EXPANDED = "grandPrixExpanded";
 const OPUS_MODEL = "claude-opus-4-6";
 
 /**
@@ -54,7 +66,6 @@ function logHorseNameUsage(label, result, riderData) {
 
 /**
  * Build a condensed cross-layer summary for prompt injection.
- * Returns null if no cached result exists or essential data is missing.
  */
 function buildCrossLayerSummary(cachedDoc, direction) {
   if (!cachedDoc?.result) return null;
@@ -103,21 +114,18 @@ When generating mental performance practices, connect them to the rider's long-t
 
 /**
  * Extract L2 trajectory context for L1 prompt injection (Hard Rule 1).
- * Returns structured context object or null.
  */
 function extractL2TrajectoryContext(cachedTrajectoryDoc) {
   if (!cachedTrajectoryDoc?.result) return null;
 
   const { trajectoryPaths, activePath, pathNarratives } = cachedTrajectoryDoc.result;
 
-  // Find the active path from trajectory data
   const activePathId = activePath
     || pathNarratives?.recommended_path?.path_name?.toLowerCase().replace(/\s+/g, "_")
     || null;
 
   if (!activePathId) return null;
 
-  // Find the path details
   const pathIdMap = {
     "ambitious_competitor": "Ambitious Competitor",
     "steady_builder": "Steady Builder",
@@ -137,20 +145,47 @@ function extractL2TrajectoryContext(cachedTrajectoryDoc) {
 }
 
 /**
- * Generate mental performance layer — Slim L1 architecture.
- * Single API call: AI selects ONE path, generates Week 1 only.
- * weeklyAssignments extracted server-side from Week 1 assignments (Hard Rule 2).
+ * Extract activePath from L2-2 paths array when activePath field is missing.
+ */
+function extractActivePathFromPaths(paths) {
+  if (!paths?.length) return null;
+
+  const bestFit = paths.find((p) => p.isBestFit === true);
+  if (bestFit) {
+    return bestFit.name?.toLowerCase().replace(/\s+/g, "_") || null;
+  }
+
+  const ambitious = paths.find((p) => p.name?.includes("Ambitious"));
+  if (ambitious) return "ambitious_competitor";
+
+  return null;
+}
+
+/**
+ * Generate mental performance layer — 30-Day Cycle Architecture.
+ * Single API call generates full 4-week program upfront.
+ * weeklyAssignments extracted server-side from current week (Hard Rule 2).
  */
 async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerContext) {
   const hash = riderData.dataSnapshot?.hash;
+  const tier = await getUserTier(uid);
 
-  // Check cache (7-day cycle)
+  // Check cycle state
+  const cycleState = await getCycleState(uid, "gpt");
+
+  // If cycle exists and is active, check if week needs advancing
+  if (cycleState && ["active", "truncated"].includes(cycleState.status)) {
+    await advanceWeekAndExtract(uid, "gpt");
+  }
+
+  // Check cache (30-day cycle)
   if (!forceRefresh) {
     const cached = await getCache(uid, OUTPUT_TYPE_MENTAL, {
       currentHash: hash,
-      maxAgeDays: 7,
+      maxAgeDays: 30,
     });
     if (cached) {
+      const currentCycleState = await getCycleState(uid, "gpt");
       return {
         success: true,
         ...cached.result,
@@ -159,16 +194,18 @@ async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerConte
         dataTier: riderData.dataTier,
         dataSnapshot: riderData.dataSnapshot,
         generatedAt: cached.generatedAt,
+        cycleState: currentCycleState,
       };
     }
 
     // Stale-while-revalidate
     const staleCache = await getStaleCache(uid, OUTPUT_TYPE_MENTAL, {
       currentHash: hash,
-      maxAgeDays: 30,
+      maxAgeDays: 60,
     });
     if (staleCache?._stale) {
       const genStatus = await getGenStatus(uid);
+      const currentCycleState = await getCycleState(uid, "gpt");
       return {
         success: true,
         ...staleCache.result,
@@ -179,7 +216,35 @@ async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerConte
         dataTier: riderData.dataTier,
         dataSnapshot: riderData.dataSnapshot,
         generatedAt: staleCache.generatedAt,
+        cycleState: currentCycleState,
       };
+    }
+  }
+
+  // Check if cycle expired but insufficient new data → extend
+  if (cycleState && forceRefresh) {
+    if (tier !== "top") {
+      const lastGenAt = cycleState.cycleStartDate;
+      const extend = await shouldExtendCycle(uid, lastGenAt);
+      if (extend) {
+        // Extend the cycle — serve cached content for another 30 days
+        await require("../lib/cycleState").setCycleState(uid, "gpt", {
+          status: "extended",
+        });
+        const cached = await getStaleCache(uid, OUTPUT_TYPE_MENTAL, { maxAgeDays: 90 });
+        const updatedCycleState = await getCycleState(uid, "gpt");
+        return {
+          success: true,
+          ...(cached?.result || {}),
+          fromCache: true,
+          extended: true,
+          tier: riderData.tier,
+          dataTier: riderData.dataTier,
+          dataSnapshot: riderData.dataSnapshot,
+          generatedAt: cached?.generatedAt,
+          cycleState: updatedCycleState,
+        };
+      }
     }
   }
 
@@ -192,21 +257,29 @@ async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerConte
     console.log("[gpt-l1] No L2 trajectory found — defaulting to ambitious_competitor");
   }
 
-  // Single Claude call (Sonnet) for path selection + Week 1
-  console.log("[gpt-l1] Generating slim L1 Mental Performance (Sonnet)");
-  const { system, userMessage } = buildGPTL1Prompt(riderData, l2TrajectoryContext, crossLayerContext);
+  // Determine if this should be a truncated cycle
+  const isFirstGen = !cycleState;
+  const truncated = isFirstGen && shouldTruncateFirstCycle();
+
+  // Determine max tokens based on tier
+  const topTierMaxTokens = parseInt(process.env.PHYSICAL_GPT_TOP_TIER_MAX_TOKENS, 10) || 6000;
+  const maxTokens = tier === "top" ? topTierMaxTokens : 4000;
+
+  // Single Claude call (Sonnet) for full 4-week program
+  console.log(`[gpt-l1] Generating ${truncated ? "truncated 2-week" : "full 4-week"} Mental Performance (Sonnet)`);
+  const { system, userMessage } = buildGPTL1Prompt(riderData, l2TrajectoryContext, crossLayerContext, { truncated });
   const l1Output = await callClaude({
     system,
     userMessage,
     jsonMode: true,
-    maxTokens: 8192,
+    maxTokens,
     context: "grand-prix-l1-mental",
     uid,
   });
 
   logHorseNameUsage("L1", l1Output, riderData);
 
-  // Hard Rule 2: Extract weeklyAssignments from selectedPath.weeks[0].assignments
+  // Hard Rule 2: Extract weeklyAssignments from weeks[0].assignments
   const currentWeekAssignments = l1Output.selectedPath?.weeks?.[0]?.assignments || [];
   l1Output.weeklyAssignments = currentWeekAssignments.map((item) => ({
     title: item.title,
@@ -217,7 +290,7 @@ async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerConte
 
   // Ensure stale/regenerateAfter fields
   l1Output.stale = false;
-  l1Output.regenerateAfter = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+  l1Output.regenerateAfter = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
   // Cache the result
   await setCache(uid, OUTPUT_TYPE_MENTAL, l1Output, {
@@ -225,6 +298,14 @@ async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerConte
     tierLabel: riderData.tier?.label || "unknown",
     dataTier: riderData.dataTier,
   });
+
+  // Initialize cycle state
+  const newCycleState = await initCycle(uid, "gpt", { tier, truncated });
+
+  // Record regen if this was a forceRefresh (not first gen)
+  if (forceRefresh && !isFirstGen) {
+    await recordRegen(uid, "gpt");
+  }
 
   return {
     success: true,
@@ -234,70 +315,7 @@ async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerConte
     dataTier: riderData.dataTier,
     dataSnapshot: riderData.dataSnapshot,
     generatedAt: l1Output.generatedAt || new Date().toISOString(),
-  };
-}
-
-/**
- * Generate on-demand 4-week expansion for a selected path.
- * Generates Weeks 2-4, caches result.
- */
-async function generateExpandedPlan(uid, riderData, pathId) {
-  // Check for cached expansion
-  const expandCacheKey = `${OUTPUT_TYPE_EXPANDED}_${pathId}`;
-  const cached = await getCache(uid, expandCacheKey, { maxAgeDays: 7 });
-  if (cached) {
-    return {
-      success: true,
-      ...cached.result,
-      fromCache: true,
-    };
-  }
-
-  // Get the current L1 output for Week 1 content
-  const cachedL1 = await getCache(uid, OUTPUT_TYPE_MENTAL, { maxAgeDays: 30 });
-  if (!cachedL1?.result?.selectedPath) {
-    throw new Error("No L1 Mental Performance output found. Generate L1 first.");
-  }
-
-  const selectedPath = cachedL1.result.selectedPath;
-  const week1Content = selectedPath.weeks?.[0];
-  const activeTrajectory = cachedL1.result.activeTrajectory || "ambitious_competitor";
-
-  if (!week1Content) {
-    throw new Error("Week 1 content not found in L1 output.");
-  }
-
-  console.log(`[gpt-l1-expand] Generating weeks 2-4 for path: ${pathId}`);
-  const { system, userMessage } = buildGPTL1ExpandPrompt(
-    week1Content, selectedPath, riderData, activeTrajectory
-  );
-
-  const expandedWeeks = await callClaude({
-    system,
-    userMessage,
-    jsonMode: true,
-    maxTokens: 8192,
-    context: "grand-prix-l1-expand",
-    uid,
-  });
-
-  const result = {
-    pathId,
-    generatedAt: new Date().toISOString(),
-    weeks: [week1Content, ...(Array.isArray(expandedWeeks) ? expandedWeeks : [])],
-    expiresAfter: cachedL1.result.regenerateAfter || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-  };
-
-  // Cache the expansion
-  await setCache(uid, expandCacheKey, result, {
-    tierLabel: riderData.tier?.label || "unknown",
-    dataTier: riderData.dataTier,
-  });
-
-  return {
-    success: true,
-    ...result,
-    fromCache: false,
+    cycleState: newCycleState,
   };
 }
 
@@ -469,26 +487,6 @@ async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerC
 }
 
 /**
- * Extract activePath from L2-2 paths array when activePath field is missing.
- * Falls back to recommended_path from L2-4 narratives or heuristic.
- */
-function extractActivePathFromPaths(paths) {
-  if (!paths?.length) return null;
-
-  // Check for isBestFit flag
-  const bestFit = paths.find((p) => p.isBestFit === true);
-  if (bestFit) {
-    return bestFit.name?.toLowerCase().replace(/\s+/g, "_") || null;
-  }
-
-  // Default to Ambitious Competitor if present
-  const ambitious = paths.find((p) => p.name?.includes("Ambitious"));
-  if (ambitious) return "ambitious_competitor";
-
-  return null;
-}
-
-/**
  * Cloud Function handler for Grand Prix Thinking.
  */
 async function handler(request) {
@@ -498,31 +496,30 @@ async function handler(request) {
       forceRefresh = false,
       layer = "mental",
       staleOk = false,
-      action = null,
-      pathId = null,
+      advanceWeek = false,
     } = request.data || {};
 
-    // Handle on-demand 4-week expansion
-    if (action === "expand") {
-      if (!pathId) {
-        throw new Error("pathId is required for expand action.");
-      }
-      const riderData = await prepareRiderData(uid, "grandPrixMental");
-      return await generateExpandedPlan(uid, riderData, pathId);
+    // Handle week advancement request (no API call — just reads cached doc)
+    if (advanceWeek) {
+      const result = await advanceWeekAndExtract(uid, "gpt");
+      const cycleState = await getCycleState(uid, "gpt");
+      return { success: true, ...result, cycleState };
     }
 
     // Fast path: return cached data immediately
     if (staleOk && !forceRefresh) {
       const cacheType = layer === "trajectory" ? OUTPUT_TYPE_TRAJECTORY : OUTPUT_TYPE_MENTAL;
-      const maxAge = layer === "trajectory" ? 60 : 30;
+      const maxAge = 60;
       const cached = await getStaleCache(uid, cacheType, { maxAgeDays: maxAge });
       if (cached) {
+        const cycleState = layer === "mental" ? await getCycleState(uid, "gpt") : null;
         return {
           success: true,
           ...cached.result,
           fromCache: true,
           stale: cached._stale !== false,
           generatedAt: cached.generatedAt,
+          cycleState,
         };
       }
     }
@@ -549,6 +546,21 @@ async function handler(request) {
         dataTier: riderData.dataTier,
         tier: riderData.tier,
       };
+    }
+
+    // Tier enforcement for mental layer regeneration
+    if (layer === "mental" && forceRefresh) {
+      const regenCheck = await checkRegenPermission(uid, "gpt");
+      if (!regenCheck.allowed) {
+        return {
+          success: false,
+          error: "regen_blocked",
+          reason: regenCheck.reason,
+          cycleExpiresAt: regenCheck.cycleExpiresAt,
+          cooldownMinutesRemaining: regenCheck.cooldownMinutesRemaining,
+          cycleState: regenCheck.cycleState,
+        };
+      }
     }
 
     // Build condensed cross-layer summary

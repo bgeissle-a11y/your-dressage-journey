@@ -175,12 +175,19 @@ export function extractCoachingSnapshot(coachingResult, weekId) {
 
 /**
  * Extract GPT snapshot from grand prix thinking result.
+ * Now supports optional cycleState override from the 30-day cycle system.
+ *
+ * @param {object} gptResult - Cached GPT output
+ * @param {object} [cycleState] - Optional cycle state from readCycleState('gpt')
  */
-export function extractGPTSnapshot(gptResult) {
+export function extractGPTSnapshot(gptResult, cycleState = null) {
   if (!gptResult) return null;
 
-  const cycleStartDate = gptResult.cycleStartDate || null;
-  const cycleWeek = getCurrentCycleWeek(cycleStartDate);
+  // Prefer cycle state currentWeek if available (30-day cycle system)
+  const cycleWeek = cycleState?.currentWeek
+    || getCurrentCycleWeek(gptResult.cycleStartDate || null);
+  const cycleStartDate = cycleState?.cycleStartDate || gptResult.cycleStartDate || null;
+
   const assignments = deriveWeeklyAssignments(gptResult, cycleWeek);
 
   if (!assignments?.length) return null;
@@ -189,22 +196,45 @@ export function extractGPTSnapshot(gptResult) {
     weeklyAssignments: assignments,
     cycleWeek,
     cycleStartDate,
+    cycleStatus: cycleState?.status || null,
     sourceGeneratedAt: gptResult.generatedAt || null,
   };
 }
 
 /**
  * Extract physical focus items from physical guidance result.
- * Falls back to body_awareness_cues or exercises when weeklyFocusItems not yet available.
+ * Supports both new 30-day cycle schema (weeks[].patterns) and legacy schema.
+ *
+ * @param {object} physResult - Cached Physical Guidance output
+ * @param {object} [cycleState] - Optional cycle state from readCycleState('physical')
  */
-export function extractPhysicalSnapshot(physResult) {
+export function extractPhysicalSnapshot(physResult, cycleState = null) {
   if (!physResult) return null;
 
-  // Preferred: weeklyFocusItems from PG-2 prompt
-  let items = physResult.exercisePrescription?.weeklyFocusItems
-    || physResult.weeklyFocusItems;
+  // Preferred: top-level weeklyFocusItems (extracted server-side by Hard Rule 3)
+  let items = physResult.weeklyFocusItems;
 
-  // Fallback: derive from body_awareness_cues
+  // New schema fallback: extract from weeks[currentWeek].patterns
+  if (!items?.length && physResult.weeks?.length) {
+    const weekIndex = (cycleState?.currentWeek || 1) - 1;
+    const weekData = physResult.weeks[weekIndex] || physResult.weeks[0];
+    if (weekData?.patterns) {
+      items = weekData.patterns
+        .filter(p => p.feedsWeeklyFocus)
+        .map(p => ({
+          text: p.noticingCuePrimary || p.title || '',
+          sub: p.source || null,
+          isHorseHealth: p.isHorseHealth || false,
+        }));
+    }
+  }
+
+  // Legacy fallback: weeklyFocusItems from PG-2 exercisePrescription
+  if (!items?.length && physResult.exercisePrescription?.weeklyFocusItems?.length) {
+    items = physResult.exercisePrescription.weeklyFocusItems;
+  }
+
+  // Legacy fallback: derive from body_awareness_cues
   if (!items?.length && physResult.exercisePrescription?.body_awareness_cues?.length) {
     items = physResult.exercisePrescription.body_awareness_cues.slice(0, 4).map(cue => ({
       text: cue.cue || cue.trigger || '',
@@ -213,7 +243,7 @@ export function extractPhysicalSnapshot(physResult) {
     }));
   }
 
-  // Fallback: derive from exercises
+  // Legacy fallback: derive from exercises
   if (!items?.length && physResult.exercisePrescription?.exercises?.length) {
     items = physResult.exercisePrescription.exercises.slice(0, 4).map(ex => ({
       text: ex.name || '',
@@ -226,6 +256,7 @@ export function extractPhysicalSnapshot(physResult) {
 
   return {
     weeklyFocusItems: items,
+    cycleStatus: cycleState?.status || null,
     sourceGeneratedAt: physResult.generatedAt || null,
   };
 }

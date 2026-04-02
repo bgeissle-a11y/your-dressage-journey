@@ -136,6 +136,32 @@ export async function readPhysicalCache(uid) {
 }
 
 /**
+ * Read the cycle state document for GPT or Physical Guidance.
+ * Used by Weekly Focus and output pages to determine current week.
+ *
+ * @param {string} uid - User ID
+ * @param {string} outputType - "gpt" | "physical"
+ * @returns {Promise<object|null>} Cycle state or null
+ */
+export async function readCycleState(uid, outputType) {
+  const paths = {
+    gpt: 'analysis/grandPrixThinkingCycle',
+    physical: 'analysis/physicalGuidanceCycle',
+  };
+  const path = paths[outputType];
+  if (!path) return null;
+
+  try {
+    const ref = doc(db, path, uid);
+    const snap = await getDoc(ref);
+    return snap.exists() ? snap.data() : null;
+  } catch (error) {
+    console.error(`[weeklyFocusService] readCycleState(${outputType}) error:`, error);
+    return null;
+  }
+}
+
+/**
  * Read the Practice Card cache for a user.
  * Returns the practiceCard data or null if not found.
  */

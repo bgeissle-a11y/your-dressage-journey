@@ -1,21 +1,24 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { getGrandPrixThinking, getGPTExpanded } from '../../services/aiService';
+import { getGrandPrixThinking, advanceWeekPointer } from '../../services/aiService';
 import { useAuth } from '../../contexts/AuthContext';
 import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { db } from '../../firebase-config';
+import { readCycleState } from '../../services/weeklyFocusService';
 import ErrorDisplay from './ErrorDisplay';
 import ElapsedTimer from './ElapsedTimer';
+import './ThirtyDayCycle.css';
 
 /**
- * Grand Prix Thinking — Redesigned March 2026
+ * Grand Prix Thinking — 30-Day Cycle Architecture (April 2026)
  *
  * Two-tab layout:
- *   Mental Performance (Weekly): Single AI-selected path, Week 1 detail, on-demand 4-week expansion
+ *   Mental Performance (Monthly): Full 4-week program, AI-selected path, week chip navigation
  *   Training Trajectory (Monthly): 3 trajectory cards with collapse/expand, Best Fit highlighted
  *
  * Architecture:
  *   - L1 receives L2 activePath for trajectory alignment (Hard Rule 1)
- *   - weeklyAssignments extracted server-side from Week 1 (Hard Rule 2)
+ *   - weeklyAssignments extracted server-side from current week (Hard Rule 2)
+ *   - 30-day cycle with week pointer advancement
  */
 export default function GrandPrixPanel({ generationStatus }) {
   const { currentUser } = useAuth();
@@ -32,17 +35,25 @@ export default function GrandPrixPanel({ generationStatus }) {
   const [trajectoryError, setTrajectoryError] = useState(null);
   const trajectoryLoaded = useRef(false);
 
-  // Expansion state
-  const [expandedPlan, setExpandedPlan] = useState(null);
-  const [expandLoading, setExpandLoading] = useState(false);
-  const [expandOpen, setExpandOpen] = useState(false);
+  // Cycle state
+  const [cycleState, setCycleState] = useState(null);
   const [activeWeek, setActiveWeek] = useState(1);
 
   // Trajectory card expansion
-  const [openTrajCard, setOpenTrajCard] = useState(null); // Best Fit opens by default
+  const [openTrajCard, setOpenTrajCard] = useState(null);
+
+  // Assignment accordion state
+  const [openAssignments, setOpenAssignments] = useState(new Set());
+
+  // Check-in card open state
+  const [checkInOpen, setCheckInOpen] = useState(false);
 
   // Assignment checkbox state
   const [checkedAssignments, setCheckedAssignments] = useState({});
+
+  // Modals
+  const [showRegenModal, setShowRegenModal] = useState(null); // 'upgrade' | 'warning' | null
+  const [regenBlocked, setRegenBlocked] = useState(null);
 
   // General state
   const [insufficientData, setInsufficientData] = useState(null);
@@ -59,17 +70,14 @@ export default function GrandPrixPanel({ generationStatus }) {
     if (!currentUser) return;
     (async () => {
       try {
-        const [riderSnap, horsesSnap] = await Promise.all([
-          getDoc(doc(db, 'riderProfiles', currentUser.uid)),
-          getDoc(doc(db, 'users', currentUser.uid)),
-        ]);
+        const riderSnap = await getDoc(doc(db, 'riderProfiles', currentUser.uid));
         const riderData = riderSnap.data();
         const displayName = riderData?.firstName || currentUser.displayName || '';
         const horseName = riderData?.primaryHorseName || '';
         const level = riderData?.currentLevel || '';
         setRiderInfo({ name: displayName, horse: horseName, level });
       } catch {
-        // Silently fail — hero will show without rider info
+        // Silently fail
       }
     })();
   }, [currentUser]);
@@ -89,6 +97,34 @@ export default function GrandPrixPanel({ generationStatus }) {
     })();
   }, [currentUser, mentalData?.selectedPath?.id]);
 
+  // Read cycle state on mount and update active week
+  useEffect(() => {
+    if (!currentUser) return;
+    (async () => {
+      const cs = await readCycleState(currentUser.uid, 'gpt');
+      if (cs) {
+        setCycleState(cs);
+        setActiveWeek(cs.currentWeek || 1);
+      }
+    })();
+  }, [currentUser]);
+
+  // Compute cycle display info
+  const cycleInfo = cycleState ? {
+    startDate: cycleState.cycleStartDate ? new Date(cycleState.cycleStartDate) : null,
+    currentWeek: cycleState.currentWeek || 1,
+    status: cycleState.status || 'active',
+    tier: cycleState.tier || 'standard',
+    maxWeeks: cycleState.status === 'truncated' ? 2 : 4,
+    expiresAt: cycleState.cycleStartDate
+      ? new Date(new Date(cycleState.cycleStartDate).getTime() + 30 * 24 * 60 * 60 * 1000)
+      : null,
+  } : null;
+
+  const daysUntilRefresh = cycleInfo?.expiresAt
+    ? Math.max(0, Math.ceil((cycleInfo.expiresAt - new Date()) / (1000 * 60 * 60 * 24)))
+    : null;
+
   // Fetch mental layer
   const fetchMental = useCallback(async ({ forceRefresh = false, staleOk = false } = {}) => {
     if (forceRefresh && mentalData) {
@@ -100,6 +136,7 @@ export default function GrandPrixPanel({ generationStatus }) {
     if (!staleOk) {
       setMentalError(null);
       setInsufficientData(null);
+      setRegenBlocked(null);
     }
 
     try {
@@ -108,6 +145,11 @@ export default function GrandPrixPanel({ generationStatus }) {
       if (!result.success) {
         if (result.error === 'insufficient_data') {
           setInsufficientData(result);
+        } else if (result.error === 'regen_blocked') {
+          setRegenBlocked(result);
+          if (result.reason === 'standard_tier_active_cycle') {
+            setShowRegenModal('upgrade');
+          }
         } else if (!staleOk) {
           setMentalError({ message: 'Failed to generate your Mental Performance output.' });
         }
@@ -117,10 +159,11 @@ export default function GrandPrixPanel({ generationStatus }) {
       setMentalData(result);
       setMentalStale(!!result.stale);
 
-      // Reset expansion state on new data
-      setExpandedPlan(null);
-      setExpandOpen(false);
-      setActiveWeek(1);
+      // Update cycle state from response
+      if (result.cycleState) {
+        setCycleState(result.cycleState);
+        setActiveWeek(result.cycleState.currentWeek || 1);
+      }
     } catch (err) {
       if (!staleOk) {
         setMentalError({ message: typeof err.message === 'string' ? err.message : 'Something went wrong.' });
@@ -151,10 +194,8 @@ export default function GrandPrixPanel({ generationStatus }) {
       setTrajectoryData(result);
       setTrajectoryStale(!!result.stale);
 
-      // Open Best Fit card by default
-      const activePath = result.activePath;
-      if (activePath) {
-        setOpenTrajCard(activePath);
+      if (result.activePath) {
+        setOpenTrajCard(result.activePath);
       }
     } catch (err) {
       if (!staleOk) {
@@ -165,7 +206,7 @@ export default function GrandPrixPanel({ generationStatus }) {
     }
   }, []);
 
-  // Initial load — mental (staleOk first, then full)
+  // Initial load
   useEffect(() => {
     fetchMental({ staleOk: true }).then(() => fetchMental());
   }, []);
@@ -188,45 +229,40 @@ export default function GrandPrixPanel({ generationStatus }) {
     }
   }, [generationStatus?.justCompleted]);
 
-  // Handle 4-week expansion
-  const handleExpand = async () => {
-    if (expandOpen) {
-      setExpandOpen(false);
-      return;
-    }
+  // Handle regenerate
+  const handleRegenerate = async () => {
+    setShowRegenModal(null);
+    await fetchMental({ forceRefresh: true });
+  };
 
-    setExpandOpen(true);
-
-    if (expandedPlan) return; // Already loaded
-
-    const pathId = mentalData?.selectedPath?.id;
-    if (!pathId) return;
-
-    setExpandLoading(true);
-    try {
-      const result = await getGPTExpanded(pathId);
-      if (result.success) {
-        setExpandedPlan(result);
-      }
-    } catch (err) {
-      console.error('[GPT Expand]', err);
-    } finally {
-      setExpandLoading(false);
+  // Handle regen button click
+  const handleRegenClick = () => {
+    if (cycleInfo?.tier === 'top') {
+      setShowRegenModal('warning');
+    } else {
+      setShowRegenModal('upgrade');
     }
   };
 
+  // Toggle assignment accordion
+  const toggleAssignment = (key) => {
+    setOpenAssignments(prev => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+  };
+
   // Toggle assignment checkbox
-  const toggleAssignment = async (index) => {
-    const key = `${mentalData?.selectedPath?.id}_w1_${index}`;
+  const toggleCheck = async (weekNum, index) => {
+    const key = `${mentalData?.selectedPath?.id}_w${weekNum}_${index}`;
     const newChecked = { ...checkedAssignments, [key]: !checkedAssignments[key] };
     setCheckedAssignments(newChecked);
 
-    // Persist to Firestore
     if (currentUser) {
       try {
         const ref = doc(db, 'users', currentUser.uid, 'gptProgress', 'assignments');
         await updateDoc(ref, { checked: newChecked }).catch(() => {
-          // Document may not exist yet — create it
           setDoc(ref, { checked: newChecked });
         });
       } catch {
@@ -235,21 +271,18 @@ export default function GrandPrixPanel({ generationStatus }) {
     }
   };
 
-  // Toggle trajectory card
   const toggleTrajCard = (cardId) => {
     setOpenTrajCard(openTrajCard === cardId ? null : cardId);
   };
 
-  // Format date for display
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
     const d = new Date(dateStr);
     return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
   };
 
-  // ─── RENDER ────────────────────────────────────────────────
+  // ─── RENDER ──────────────────────────────────────────────────
 
-  // Insufficient data state
   if (insufficientData) {
     return (
       <div className="gpt-redesign">
@@ -267,35 +300,117 @@ export default function GrandPrixPanel({ generationStatus }) {
     );
   }
 
+  function renderCycleBar() {
+    if (!cycleInfo) return null;
+
+    // Health hold state
+    if (cycleInfo.status === 'health_hold') {
+      return (
+        <div className="cycle-bar cycle-bar--hold">
+          <span className="cycle-hold-text">
+            Your current program is paused. Resume when cleared by your veterinarian or healthcare provider.
+            {cycleInfo.tier === 'top' && ' You may regenerate when ready to return.'}
+          </span>
+        </div>
+      );
+    }
+
+    // Extended state
+    if (cycleInfo.status === 'extended') {
+      return (
+        <div className="cycle-bar cycle-bar--extended">
+          <span className="cycle-extended-text">
+            Cycle extended — Log 5+ rides to unlock your next program
+          </span>
+        </div>
+      );
+    }
+
+    // Expired state
+    if (cycleInfo.status === 'expired') {
+      return (
+        <div className="cycle-bar cycle-bar--expired" onClick={() => handleRegenerate()}>
+          <span className="cycle-expired-text">
+            New cycle ready — your data has grown since {formatDate(cycleInfo.startDate)}. Tap to generate your next 4-week program.
+          </span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="cycle-bar">
+        <div className="cycle-seg">
+          <span className="cycle-label">Cycle started</span>
+          <span className="cycle-value">{formatDate(cycleInfo.startDate)}</span>
+        </div>
+        <div className="cycle-seg">
+          <span className="cycle-label">Current</span>
+          <span className="cycle-value highlight">Week {cycleInfo.currentWeek} of {cycleInfo.maxWeeks}</span>
+        </div>
+        <div className="cycle-seg">
+          <span className="cycle-label">Next refresh</span>
+          <span className="cycle-value">
+            {cycleInfo.expiresAt ? formatDate(cycleInfo.expiresAt) : '—'}
+            {daysUntilRefresh != null && ` · ${daysUntilRefresh} days`}
+          </span>
+        </div>
+        <button className="cycle-regen" onClick={handleRegenClick}>
+          ↺ Regenerate early
+        </button>
+      </div>
+    );
+  }
+
   function renderHero() {
     const heroSub = [riderInfo.name, riderInfo.horse, riderInfo.level]
       .filter(Boolean).join(' · ');
 
     return (
       <div className="gpt-hero">
-        <div className="gpt-hero__eyebrow">Your Dressage Journey</div>
-        <div className="gpt-hero__title">Grand Prix Thinking</div>
+        <div className="hero-eyebrow">Your Dressage Journey</div>
+        <div className="hero-title">Grand Prix Thinking</div>
         {heroSub && (
-          <div className="gpt-hero__sub">
+          <div className="hero-sub">
             {riderInfo.name}{riderInfo.horse && <> · <strong>{riderInfo.horse}</strong></>}{riderInfo.level && <> · {riderInfo.level}</>}
           </div>
         )}
-        <div className="gpt-tab-row">
+        {renderCycleBar()}
+        <div className="tab-row">
           <button
-            className={`gpt-tab-chip ${activeTab === 'mental' ? 'active' : ''}`}
+            className={`tab-chip ${activeTab === 'mental' ? 'active' : ''}`}
             onClick={() => setActiveTab('mental')}
           >
-            🧠 Mental Performance
-            <span className="gpt-chip-badge">Weekly</span>
+            Mental Performance
+            <span className="chip-badge">Monthly</span>
           </button>
           <button
-            className={`gpt-tab-chip ${activeTab === 'trajectory' ? 'active' : ''}`}
+            className={`tab-chip ${activeTab === 'trajectory' ? 'active' : ''}`}
             onClick={() => setActiveTab('trajectory')}
           >
-            🗺 Training Trajectory
-            <span className="gpt-chip-badge">Monthly</span>
+            Training Trajectory
+            <span className="chip-badge">Monthly</span>
           </button>
         </div>
+      </div>
+    );
+  }
+
+  function renderWeekNav() {
+    const maxWeeks = cycleInfo?.maxWeeks || 4;
+    const currentWeek = cycleInfo?.currentWeek || 1;
+
+    return (
+      <div className="week-nav-row">
+        <span className="week-nav-label">Week</span>
+        {Array.from({ length: maxWeeks }, (_, i) => i + 1).map(n => (
+          <button
+            key={n}
+            className={`wk-chip ${activeWeek === n ? 'active' : ''} ${n > currentWeek ? 'upcoming' : ''}`}
+            onClick={() => setActiveWeek(n)}
+          >
+            Week {n}
+          </button>
+        ))}
       </div>
     );
   }
@@ -305,7 +420,7 @@ export default function GrandPrixPanel({ generationStatus }) {
       return (
         <div className="gpt-loading">
           <div className="spinner" />
-          <p>Generating your Mental Performance analysis...</p>
+          <p>Generating your Mental Performance program...</p>
           {loadStartedAt && <ElapsedTimer startedAt={loadStartedAt} />}
         </div>
       );
@@ -318,28 +433,12 @@ export default function GrandPrixPanel({ generationStatus }) {
     if (!mentalData?.selectedPath) return null;
 
     const sp = mentalData.selectedPath;
-    const week1 = sp.weeks?.[0];
-    const assignments = week1?.assignments || [];
+    const weeks = sp.weeks || [];
+    const currentWeekData = weeks[activeWeek - 1];
+    const assignments = currentWeekData?.assignments || [];
 
     return (
-      <div className="gpt-tab-panel gpt-fade-up">
-        {/* Generation meta bar */}
-        <div className="gpt-gen-meta">
-          <span className="gpt-gen-dot gpt-gen-dot--green" />
-          <span className="gpt-gen-fresh">
-            {mentalStale ? 'Update available' : 'Current'} — generated {formatDate(mentalData.generatedAt)}
-          </span>
-          <span className="gpt-gen-divider">·</span>
-          <span>Built from {mentalData.dataSnapshot?.debriefCount || 0} debriefs &amp; {mentalData.dataSnapshot?.reflectionCount || 0} reflections</span>
-          {mentalData.regenerateAfter && (
-            <>
-              <span className="gpt-gen-divider">·</span>
-              <span>Next refresh {formatDate(mentalData.regenerateAfter)}</span>
-            </>
-          )}
-          {mentalRefreshing && <span className="gpt-gen-refreshing">Refreshing...</span>}
-        </div>
-
+      <div className="tab-panel active gpt-fade-up">
         {/* Staleness banner */}
         {mentalStale && (
           <div className="gpt-stale-banner" onClick={() => fetchMental({ forceRefresh: true })}>
@@ -347,39 +446,47 @@ export default function GrandPrixPanel({ generationStatus }) {
           </div>
         )}
 
+        {mentalRefreshing && (
+          <div className="gpt-gen-refreshing-bar">
+            <div className="spinner spinner--small" /> Refreshing with your latest data...
+          </div>
+        )}
+
         {/* Section label */}
-        <div className="gpt-section-label-row">
-          <span className="gpt-section-pill gpt-pill-mental">
-            <span className="gpt-pill-dot gpt-dot-mental" />
+        <div className="section-label-row">
+          <span className="section-pill pill-mental">
+            <span className="pill-dot dot-mental" />
             Mental Performance
           </span>
-          <span className="gpt-section-note">AI-selected path · Week 1 of 4</span>
+          <span className="section-note">AI-selected path · {cycleInfo?.maxWeeks || 4}-week program</span>
         </div>
 
-        {/* AI Path Selection Card */}
-        <div className="gpt-ai-selection-card">
-          <div className="gpt-ai-selection-header">
-            <div className="gpt-ai-icon">🎯</div>
-            <div className="gpt-ai-selection-title">Your path this week: {sp.title}</div>
-            <span className="gpt-ai-selection-tag">Why This</span>
+        {/* AI Reasoning Card */}
+        <div className="ai-card">
+          <div className="ai-card-header">
+            <div className="ai-icon">🎯</div>
+            <div className="ai-card-title">Why this path, this cycle</div>
+            <span className="ai-card-tag">AI Reasoning</span>
           </div>
-          <div className="gpt-ai-selection-body">
-            <div className="gpt-ai-why-label">Pattern from your data</div>
-            <div className="gpt-ai-why-text">
-              {sp.aiReasoning?.dataEvidence && (
-                <span dangerouslySetInnerHTML={{
-                  __html: sp.aiReasoning.dataEvidence.replace(
-                    /(\d+[\.\d]*[-–]\w+\s+\w+\s+\w+)/g, '<strong>$1</strong>'
-                  )
-                }} />
-              )}
-              {!sp.aiReasoning?.dataEvidence && sp.aiReasoning?.patternCited}
+          <div className="ai-card-body">
+            <div className="ai-why-label">Pattern from your data</div>
+            <div className="ai-why-text">
+              {sp.aiReasoning?.dataEvidence || sp.aiReasoning?.patternCited || 'Analysis based on your recent rides.'}
             </div>
+            {sp.aiReasoning?.trajectoryLink && (
+              <div className="traj-link-bar">
+                <strong>Trajectory link:</strong> {sp.aiReasoning.trajectoryLink}
+              </div>
+            )}
             {sp.otherPaths?.length > 0 && (
-              <div className="gpt-other-paths-row">
-                <span className="gpt-other-path-label">Other paths available:</span>
-                {sp.otherPaths.map((op) => (
-                  <button key={op.id} className="gpt-other-path-chip">
+              <div className="other-paths-row">
+                <span className="other-paths-label">Other paths available:</span>
+                {sp.otherPaths.map(op => (
+                  <button
+                    key={op.id}
+                    className="path-chip"
+                    onClick={() => setActiveTab('trajectory')}
+                  >
                     {op.icon} {op.title}
                   </button>
                 ))}
@@ -388,132 +495,104 @@ export default function GrandPrixPanel({ generationStatus }) {
           </div>
         </div>
 
-        {/* The Path Card */}
-        <div className="gpt-path-card">
-          <div className="gpt-path-header">
-            <div className="gpt-path-icon">{sp.icon || '🌅'}</div>
-            <div className="gpt-path-header-text">
-              <div className="gpt-path-title">{sp.title}</div>
-              <div className="gpt-path-subtitle">{sp.subtitle}</div>
+        {/* Week Navigation */}
+        {renderWeekNav()}
+
+        {/* Week Theme */}
+        {currentWeekData && (
+          <div className="week-theme">
+            <span className="week-num-badge">{activeWeek}</span>
+            <div>
+              <div className="week-theme-label">Week {activeWeek}</div>
+              <div className="week-theme-title">{currentWeekData.title || `Week ${activeWeek}`}</div>
+              {currentWeekData.focus && (
+                <div className="week-theme-sub">{currentWeekData.focus}</div>
+              )}
             </div>
-            <span className="gpt-path-week-badge">Week 1</span>
           </div>
+        )}
 
-          <div className="gpt-week-body">
-            {/* Week title row */}
-            <div className="gpt-week-title-row">
-              <span className="gpt-week-title">{week1?.title || 'Week 1'}</span>
-              {week1?.focus && <span className="gpt-week-focus-tag">{week1.focus}</span>}
-            </div>
+        {/* Assignment Cards */}
+        {assignments.map((a, i) => {
+          const cardKey = `w${activeWeek}_${i}`;
+          const checkKey = `${sp.id}_w${activeWeek}_${i}`;
+          const isOpen = openAssignments.has(cardKey);
+          const isChecked = !!checkedAssignments[checkKey];
 
-            {/* Assignments */}
-            <div className="gpt-assignments-label">This Week's Assignments</div>
-            <div className="gpt-assignment-list">
-              {assignments.map((a, i) => {
-                const key = `${sp.id}_w1_${i}`;
-                const isChecked = !!checkedAssignments[key];
-                return (
+          return (
+            <div key={cardKey} className={`assign-card ${isOpen ? 'open' : ''}`}>
+              <div className="assign-header" onClick={() => toggleAssignment(cardKey)}>
+                <div className="assign-icon">{a.when === 'Pre-ride' ? '🌅' : a.when === 'During ride' ? '🐴' : a.when === 'Post-ride' ? '📝' : '🧠'}</div>
+                <div className="assign-title-block">
+                  <div className="assign-title">{a.title}</div>
+                  <div className="assign-meta">{a.description?.substring(0, 60)}...</div>
+                </div>
+                <span className="assign-when">{a.when}</span>
+                <div className="assign-check-wrap">
                   <div
-                    key={i}
-                    className={`gpt-assignment-item ${isChecked ? 'checked' : ''}`}
-                    onClick={() => toggleAssignment(i)}
+                    className={`assign-check ${isChecked ? 'checked' : ''}`}
+                    onClick={(e) => { e.stopPropagation(); toggleCheck(activeWeek, i); }}
                   >
-                    <div className="gpt-a-checkbox">{isChecked ? '✓' : ''}</div>
-                    <div className="gpt-assignment-text">
-                      <strong>{a.title}.</strong> {a.description}
-                      {a.example && <em> {a.example}</em>}
-                    </div>
-                    <span className="gpt-assignment-when">{a.when}</span>
+                    {isChecked ? '✓' : ''}
                   </div>
-                );
-              })}
-            </div>
-
-            {/* Success metric */}
-            {week1?.successMetric && (
-              <div className="gpt-success-metric">
-                <span className="gpt-success-icon">✓</span>
-                <div>
-                  <div className="gpt-success-label">This week looks like success when…</div>
-                  <div className="gpt-success-text">{week1.successMetric}</div>
+                  <span className="assign-arrow">▼</span>
                 </div>
               </div>
-            )}
-
-            {/* Expand button */}
-            <button
-              className={`gpt-expand-btn ${expandOpen ? 'open' : ''}`}
-              onClick={handleExpand}
-            >
-              <span>{expandOpen ? 'Collapse 4-week plan' : 'View full 4-week plan'}</span>
-              <span className="gpt-expand-arrow">▼</span>
-            </button>
-
-            {/* 4-week plan (expanded) */}
-            {expandOpen && (
-              <div className="gpt-four-week-plan open">
-                {expandLoading && !expandedPlan && (
-                  <div className="gpt-loading gpt-loading--inline">
-                    <div className="spinner spinner--small" />
-                    <span>Generating weeks 2-4...</span>
+              <div className="assign-body">
+                <div className="assign-desc">{a.description}</div>
+                {a.example && (
+                  <div className="data-callout">
+                    <div className="data-callout-label">From your data</div>
+                    <div className="data-callout-text">{a.example}</div>
                   </div>
                 )}
-
-                {expandedPlan?.weeks && (
-                  <>
-                    <div className="gpt-week-nav">
-                      {[1, 2, 3, 4].map((n) => (
-                        <button
-                          key={n}
-                          className={`gpt-wk-chip ${activeWeek === n ? 'active' : ''}`}
-                          onClick={() => setActiveWeek(n)}
-                        >
-                          Week {n}
-                        </button>
-                      ))}
-                    </div>
-
-                    {expandedPlan.weeks.map((week, idx) => {
-                      const weekNum = week.number || idx + 1;
-                      if (activeWeek !== weekNum) return null;
-                      return (
-                        <div key={weekNum} className="gpt-week-panel active">
-                          <div className="gpt-week-panel-title">
-                            Week {weekNum}: {week.title}
-                          </div>
-                          <div className="gpt-week-panel-focus"><em>{week.focus}</em></div>
-                          {(week.assignments || []).map((a, j) => (
-                            <div key={j} className="gpt-mini-practice">
-                              <div className="gpt-mini-practice-name">{a.title}</div>
-                              <div className="gpt-mini-practice-detail">{a.description}</div>
-                            </div>
-                          ))}
-                          {week.checkIn && (
-                            <div className="gpt-check-in-box">
-                              <div className="gpt-check-in-label">End-of-week check-in</div>
-                              {(Array.isArray(week.checkIn) ? week.checkIn : [week.checkIn]).map((q, k) => (
-                                <div key={k} className="gpt-check-in-q">{q}</div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </>
-                )}
-
-                {/* Show week previews if no expanded plan yet */}
-                {!expandedPlan && !expandLoading && sp.weekPreviews?.length > 0 && (
-                  <div className="gpt-week-previews">
-                    {sp.weekPreviews.map((wp) => (
-                      <div key={wp.number} className="gpt-week-preview-item">
-                        <strong>Week {wp.number}:</strong> {wp.title}
-                      </div>
-                    ))}
+                {a.trajectoryLink && (
+                  <div className="wf-pin-row">
+                    <span className="wf-pin">Feeds Weekly Focus</span>
+                    <span className="wf-pin-text">Builds toward: {a.trajectoryLink}</span>
                   </div>
                 )}
               </div>
-            )}
+            </div>
+          );
+        })}
+
+        {/* Success metric */}
+        {currentWeekData?.successMetric && (
+          <div className="success-block">
+            <span className="success-icon">✓</span>
+            <div>
+              <div className="success-label">This week looks like success when...</div>
+              <div className="success-text">{currentWeekData.successMetric}</div>
+            </div>
+          </div>
+        )}
+
+        {/* Check-in questions */}
+        {currentWeekData?.checkIn?.length > 0 && (
+          <div className={`checkin-card ${checkInOpen ? 'open' : ''}`}>
+            <div className="checkin-header" onClick={() => setCheckInOpen(!checkInOpen)}>
+              <span className="checkin-title">End-of-week check-in</span>
+              <span className="checkin-arrow">▼</span>
+            </div>
+            <div className="checkin-body">
+              {currentWeekData.checkIn.map((q, k) => (
+                <div key={k} className="checkin-q">
+                  <span className="q-num">{k + 1}.</span>
+                  <span>{q}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Weekly Focus callout */}
+        <div className="wf-callout">
+          <span>📌</span>
+          <div className="wf-callout-text">
+            <strong>Weekly Focus</strong> pulls your current week's assignments into a single view alongside coaching and physical guidance.
+            <br />
+            <a className="wf-link" href="/weekly-focus">View in This Week →</a>
           </div>
         </div>
       </div>
@@ -540,124 +619,156 @@ export default function GrandPrixPanel({ generationStatus }) {
     const narratives = trajectoryData.pathNarratives?.path_narratives || [];
     const activePath = trajectoryData.activePath;
 
-    // Map trajectory cards
     const TRAJ_CARDS = [
-      { id: 'ambitious_competitor', name: 'Ambitious Competitor', icon: '🏆', iconClass: 'gpt-icon-gold', subtitle: 'Goal-driven. PSG debut with a score you\'re proud of.' },
+      { id: 'ambitious_competitor', name: 'Ambitious Competitor', icon: '🏆', iconClass: 'gpt-icon-gold', subtitle: "Goal-driven. PSG debut with a score you're proud of." },
       { id: 'steady_builder', name: 'Steady Builder', icon: '🧱', iconClass: 'gpt-icon-sky', subtitle: 'Mastery-first. No rush, no gaps in the foundation.' },
       { id: 'curious_explorer', name: 'Curious Explorer', icon: '🌿', iconClass: 'gpt-icon-forest', subtitle: 'Joy-centered. Breadth over timeline. Partnership first.' },
     ];
 
     return (
-      <div className="gpt-tab-panel gpt-fade-up">
-        {/* Monthly notice */}
-        <div className="gpt-monthly-notice">
-          <span className="gpt-monthly-notice-icon">🗓</span>
-          <div>
-            <strong>Updated monthly.</strong> Training Trajectory looks further out than your weekly mental performance work — it updates when your data changes significantly, you add a new horse, or 30 days have passed.
+      <div className="tab-panel active gpt-fade-up">
+        {/* Cadence card */}
+        <div className="cadence-card">
+          <span>🗓</span>
+          <div className="cadence-text">
+            <strong>Updated monthly.</strong> Training Trajectory looks further out than your monthly mental performance work — it updates when your data changes significantly or 30 days have passed.
             {trajectoryData.generatedAt && <em> Last generated: {formatDate(trajectoryData.generatedAt)}.</em>}
           </div>
         </div>
 
-        {/* Staleness banner */}
         {trajectoryStale && (
           <div className="gpt-stale-banner" onClick={() => fetchTrajectory({ forceRefresh: true })}>
             Updated trajectory available — tap to refresh
           </div>
         )}
 
-        {/* Section label */}
-        <div className="gpt-section-label-row">
-          <span className="gpt-section-pill gpt-pill-gold">
-            <span className="gpt-pill-dot gpt-dot-gold" />
+        <div className="section-label-row">
+          <span className="section-pill pill-gold">
+            <span className="pill-dot dot-gold" />
             Training Trajectory
           </span>
-          <span className="gpt-section-note">3 paths · choose your direction</span>
+          <span className="section-note">3 paths · choose your direction</span>
         </div>
 
-        {/* Trajectory cards */}
-        <div className="gpt-trajectory-grid">
-          {TRAJ_CARDS.map((card) => {
-            const isBestFit = activePath === card.id;
-            const isOpen = openTrajCard === card.id;
-            const pathData = paths.find((p) =>
-              p.name?.toLowerCase().replace(/\s+/g, '_') === card.id
-              || p.name === card.name
-            );
-            const narrative = narratives.find((n) =>
-              n.path_name?.toLowerCase().replace(/\s+/g, '_') === card.id
-              || n.path_name === card.name
-            );
+        {TRAJ_CARDS.map(card => {
+          const isBestFit = activePath === card.id;
+          const isOpen = openTrajCard === card.id;
+          const pathData = paths.find(p =>
+            p.name?.toLowerCase().replace(/\s+/g, '_') === card.id || p.name === card.name
+          );
+          const narrative = narratives.find(n =>
+            n.path_name?.toLowerCase().replace(/\s+/g, '_') === card.id || n.path_name === card.name
+          );
 
-            return (
-              <div key={card.id} className={`gpt-traj-card ${isBestFit ? 'primary' : ''}`}>
-                <div className="gpt-traj-header" onClick={() => toggleTrajCard(card.id)}>
-                  <div className={`gpt-traj-icon ${card.iconClass}`}>{card.icon}</div>
-                  <div className="gpt-traj-header-text">
-                    <div className="gpt-traj-title">{card.name}</div>
-                    <div className="gpt-traj-subtitle">
-                      {pathData?.subtitle || card.subtitle}
-                    </div>
-                  </div>
-                  {isBestFit && <span className="gpt-primary-badge">Best Fit</span>}
-                  <button className={`gpt-collapse-icon ${isOpen ? 'open' : ''}`}>▼</button>
+          return (
+            <div key={card.id} className={`traj-card ${isBestFit ? 'active-path' : ''}`}>
+              <div className="traj-header" onClick={() => toggleTrajCard(card.id)}>
+                <div className={`traj-icon ${card.iconClass}`}>{card.icon}</div>
+                <div className="traj-header-text">
+                  <div className="traj-title">{card.name}</div>
+                  <div className="traj-subtitle">{pathData?.subtitle || card.subtitle}</div>
                 </div>
+                {isBestFit && <span className="gpt-primary-badge">Best Fit</span>}
+                <button className={`gpt-collapse-icon ${isOpen ? 'open' : ''}`}>▼</button>
+              </div>
 
-                {isOpen && (
-                  <div className="gpt-traj-body open">
-                    {/* Stats row */}
-                    <div className="gpt-traj-row">
-                      <div className="gpt-traj-stat">
-                        <div className="gpt-traj-stat-label">Where you are now</div>
-                        <div className="gpt-traj-stat-value">
-                          {pathData?.philosophy || trajectoryData.currentStateAnalysis?.trajectory || ''}
-                        </div>
-                      </div>
-                      <div className="gpt-traj-stat">
-                        <div className="gpt-traj-stat-label">What this path prioritizes</div>
-                        <div className="gpt-traj-stat-value">
-                          {pathData?.year1?.focus || ''}
-                        </div>
+              {isOpen && (
+                <div className="traj-body open">
+                  <div className="traj-row">
+                    <div className="traj-stat">
+                      <div className="traj-stat-label">Where you are now</div>
+                      <div className="traj-stat-value">
+                        {pathData?.philosophy || trajectoryData.currentStateAnalysis?.trajectory || ''}
                       </div>
                     </div>
-
-                    {/* Milestones */}
-                    {pathData?.year1?.milestones?.length > 0 && (
-                      <>
-                        <div className="gpt-milestones-label">3–6 Month Milestones</div>
-                        <div className="gpt-milestone-list">
-                          {pathData.year1.milestones.map((m, i) => (
-                            <div key={i} className="gpt-milestone-item">
-                              <div className={`gpt-milestone-dot ${card.id === 'steady_builder' ? 'sky' : card.id === 'curious_explorer' ? 'forest' : ''}`} />
-                              <span>{m}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </>
-                    )}
-
-                    {/* Narrative / timeline projection */}
-                    {narrative?.narrative && (
-                      <div className="gpt-traj-timeline">
-                        <strong>Trajectory projection:</strong> {narrative.narrative.substring(0, 300)}
-                        {narrative.narrative.length > 300 ? '...' : ''}
-                      </div>
-                    )}
+                    <div className="traj-stat">
+                      <div className="traj-stat-label">What this path prioritizes</div>
+                      <div className="traj-stat-value">{pathData?.year1?.focus || ''}</div>
+                    </div>
                   </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+
+                  {pathData?.year1?.milestones?.length > 0 && (
+                    <>
+                      <div className="gpt-milestones-label">3-6 Month Milestones</div>
+                      <div className="gpt-milestone-list">
+                        {pathData.year1.milestones.map((m, i) => (
+                          <div key={i} className="gpt-milestone-item">
+                            <div className={`gpt-milestone-dot ${card.id === 'steady_builder' ? 'sky' : card.id === 'curious_explorer' ? 'forest' : ''}`} />
+                            <span>{m}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  {narrative?.narrative && (
+                    <div className="gpt-traj-timeline">
+                      <strong>Trajectory projection:</strong> {narrative.narrative.substring(0, 300)}
+                      {narrative.narrative.length > 300 ? '...' : ''}
+                    </div>
+                  )}
+
+                  {!isBestFit && narrative?.why_not_selected && (
+                    <div className="traj-why-not">
+                      <strong>Why not selected this cycle:</strong> {narrative.why_not_selected}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     );
+  }
+
+  function renderRegenModal() {
+    if (!showRegenModal) return null;
+
+    if (showRegenModal === 'upgrade') {
+      return (
+        <div className="gpt-modal-overlay" onClick={() => setShowRegenModal(null)}>
+          <div className="gpt-modal" onClick={e => e.stopPropagation()}>
+            <h3>Early Regeneration</h3>
+            <p>
+              Early regeneration is available on the Top tier plan. Your current cycle runs
+              until {cycleInfo?.expiresAt ? formatDate(cycleInfo.expiresAt) : 'the end of this month'}.
+              Your next free refresh will incorporate all rides logged between now and then.
+            </p>
+            <p className="gpt-modal-note">Upgrade to Top tier to regenerate any time.</p>
+            <button className="gpt-modal-btn" onClick={() => setShowRegenModal(null)}>Got it</button>
+          </div>
+        </div>
+      );
+    }
+
+    if (showRegenModal === 'warning') {
+      return (
+        <div className="gpt-modal-overlay" onClick={() => setShowRegenModal(null)}>
+          <div className="gpt-modal" onClick={e => e.stopPropagation()}>
+            <h3>Regenerate Early?</h3>
+            <p>
+              This will start a new 30-day cycle and reset your week pointer to Week 1.
+              Your current Week {cycleInfo?.currentWeek} progress will be replaced.
+            </p>
+            <div className="gpt-modal-actions">
+              <button className="gpt-modal-btn gpt-modal-btn--secondary" onClick={() => setShowRegenModal(null)}>Cancel</button>
+              <button className="gpt-modal-btn" onClick={handleRegenerate}>Regenerate</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return null;
   }
 
   return (
     <div className="gpt-redesign">
       {renderHero()}
-
       {activeTab === 'mental' && renderMentalTab()}
       {activeTab === 'trajectory' && renderTrajectoryTab()}
+      {renderRegenModal()}
     </div>
   );
 }

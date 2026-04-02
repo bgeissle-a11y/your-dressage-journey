@@ -1621,9 +1621,11 @@ function buildGrandPrixPathPrompt(pathId, riderData, crossLayerContext = null) {
  * @param {string|null} crossLayerContext - Legacy cross-layer summary text
  * @returns {{ system: string, userMessage: string }}
  */
-function buildGPTL1Prompt(riderData, l2TrajectoryContext = null, crossLayerContext = null) {
+function buildGPTL1Prompt(riderData, l2TrajectoryContext = null, crossLayerContext = null, options = {}) {
   const activePath = l2TrajectoryContext?.activePath || "ambitious_competitor";
   const hasL2 = !!l2TrajectoryContext?.activePath;
+  const { truncated = false } = options;
+  const weekCount = truncated ? 2 : 4;
 
   const trajectoryBlock = hasL2
     ? `=== ACTIVE TRAINING TRAJECTORY ===
@@ -1639,11 +1641,11 @@ Note in aiReasoning.trajectoryLink: "Training Trajectory analysis pending — de
 
 GRAND PRIX THINKING L1 — MENTAL PERFORMANCE
 
-You are generating the weekly Mental Performance output for Grand Prix Thinking.
+You are generating the monthly Mental Performance output for Grand Prix Thinking.
 
 Your task: Analyze this rider's recent data and select ONE mental performance
-path that will produce the most meaningful change this week. Generate Week 1
-of that path in full detail.
+path that will produce the most meaningful change this cycle. Generate a full
+${weekCount}-week program for that path with escalating progression.
 
 ACTIVE TRAJECTORY CONTEXT:
 The rider's Training Trajectory path is: ${activePath}
@@ -1697,17 +1699,20 @@ The aiReasoning object must contain:
 - dataEvidence: Quote specific data (debrief count, exact words used, trainer cues)
 - trajectoryLink: One sentence connecting this week's work to the active trajectory
 
-WEEK 1 GENERATION RULES:
+WEEK GENERATION RULE — FULL ${weekCount}-WEEK PROGRAM:
+Generate ALL ${weekCount} weeks with this progression:
+- Week 1 (Diagnostic Lens): Establish the pattern. Help the rider NAME what is happening.
+- Week 2 (Checkpoint Habit): Build a consistent check-in routine around the pattern.
+${!truncated ? `- Week 3 (Under Pressure): Apply the skill under increasing difficulty or stress.
+- Week 4 (Anchoring): Solidify the habit so it transfers to new contexts.` : ""}
+
+Rules per week:
 - Exactly 3 assignments per week (not more, not fewer)
 - Each assignment must reference the rider's specific data, horses, or trainer cues
 - The "when" field uses: "Pre-ride", "During ride", "Post-ride", "Daily", "Grooming",
   or "Weekly"
 - successMetric is one sentence, observable, connected to debrief logging
 - checkIn questions reference things measurable in the debrief form
-
-WEEK PREVIEW RULE:
-Provide only titles for weeks 2-4. Do not generate their full content.
-Full content for weeks 2-4 generates on-demand in a separate API call.
 
 PERSONALIZATION RULES:
 - Use the rider's own language for affirmations, self-talk scripts, and mantras
@@ -1761,11 +1766,6 @@ Respond with ONLY the JSON object matching this schema. No markdown, no explanat
         "checkIn": ["End-of-week reflection question 1", "Question 2"]
       }
     ],
-    "weekPreviews": [
-      { "number": 2, "title": "Week 2 title" },
-      { "number": 3, "title": "Week 3 title" },
-      { "number": 4, "title": "Week 4 title" }
-    ],
     "otherPaths": [
       { "id": "path_id", "title": "Path title", "icon": "emoji" },
       { "id": "path_id", "title": "Path title", "icon": "emoji" }
@@ -1776,8 +1776,12 @@ Respond with ONLY the JSON object matching this schema. No markdown, no explanat
     }
   },
   "stale": false,
-  "regenerateAfter": "ISO timestamp — 7 days from now"
-}`;
+  "regenerateAfter": "ISO timestamp — 30 days from now"
+}${truncated ? `\nTRUNCATED CYCLE NOTE:
+This is the rider's first generation and fewer than 15 days remain in the month.
+Generate only 2 weeks. Use a slightly more introductory tone — you are helping them
+understand HOW the system works — without condescending to their actual dressage experience.
+Acknowledge this is a shorter introductory cycle and their next will be the full 4-week program.` : ""}`;
 
   const userMessage = `Here is the complete rider data for Grand Prix Thinking personalization:
 
@@ -1785,75 +1789,7 @@ ${buildUserDataMessage(riderData)}
 
 ${trajectoryBlock}
 
-Select the single most impactful mental performance path for this rider this week and generate Week 1 in full detail. Make every element personally relevant.`;
-
-  return { system, userMessage };
-}
-
-/**
- * Build system + user message for GPT L1 on-demand 4-week expansion.
- * Generates weeks 2-4 for the selected path, building on Week 1 content.
- *
- * @param {object} week1Content - The full Week 1 content from L1 output
- * @param {object} selectedPath - The selectedPath object from L1 output
- * @param {object} riderData - Output from prepareRiderData()
- * @param {string} activeTrajectory - The active trajectory id
- * @returns {{ system: string, userMessage: string }}
- */
-function buildGPTL1ExpandPrompt(week1Content, selectedPath, riderData, activeTrajectory) {
-  const system = `${BASE_CONTEXT}
-
-GRAND PRIX THINKING L1 — 4-WEEK EXPANSION
-
-You are expanding the Mental Performance path "${selectedPath.title}" from Week 1 into a full 4-week progressive plan.
-
-Week 1 has already been generated and is provided below. Generate Weeks 2, 3, and 4 that build progressively from it.
-
-ACTIVE TRAJECTORY: ${activeTrajectory}
-Ensure all weeks maintain alignment with this trajectory direction.
-
-PROGRESSIVE BUILDING RULES:
-- Week 2 deepens the foundation laid in Week 1
-- Week 3 connects the skill to the specific horse and riding context
-- Week 4 anchors the habit and tests it under more challenging conditions
-- Each week should reference the rider's specific data, horses, and trainer cues
-- Exactly 3 assignments per week
-- The "when" field uses: "Pre-ride", "During ride", "Post-ride", "Daily", "Grooming", or "Weekly"
-- Each week has a successMetric (one observable sentence) and 2 checkIn questions
-
-Respond with ONLY the JSON array. No markdown, no explanation.
-[
-  {
-    "number": 2,
-    "title": "Week title",
-    "focus": "Focus description",
-    "assignments": [
-      {
-        "title": "Assignment title",
-        "description": "2-3 sentence description",
-        "example": "Optional example or null",
-        "when": "Pre-ride|During ride|Post-ride|Daily|Grooming|Weekly"
-      }
-    ],
-    "successMetric": "Observable metric",
-    "checkIn": ["Question 1", "Question 2"]
-  },
-  { "number": 3, ... },
-  { "number": 4, ... }
-]`;
-
-  const userMessage = `Here is Week 1 content to build from:
-${JSON.stringify(week1Content, null, 2)}
-
-Path context:
-- Path: ${selectedPath.title} (${selectedPath.id})
-- AI Reasoning: ${selectedPath.aiReasoning?.patternCited || ""}
-- Trajectory: ${activeTrajectory}
-
-Rider data:
-${buildUserDataMessage(riderData)}
-
-Generate Weeks 2-4 that build progressively from Week 1. Make each week personally relevant.`;
+Select the single most impactful mental performance path for this rider this cycle and generate the full ${weekCount}-week program. Make every element personally relevant.`;
 
   return { system, userMessage };
 }
@@ -3483,13 +3419,16 @@ Create a comprehensive show-day plan personalized to ${riderData.displayName || 
  * @param {object} [priorResults] - { patternAnalysis } from PG-1 (for PG-2)
  * @returns {{ system: string, userMessage: string }}
  */
-function buildPhysicalGuidancePrompt(callIndex, riderData, priorResults) {
+function buildPhysicalGuidancePrompt(callIndex, riderData, priorResults = {}) {
   let system, userMessage;
 
   const kinLevel = riderData.selfAssessments?.physical?.kinestheticLevel || 5;
 
   if (callIndex === 1) {
-    // PG-1: Physical Pattern Analysis
+    // PG-1: Physical Pattern Analysis + Exercise Protocol
+    const activeTrajectory = priorResults?.activeTrajectory || "ambitious_competitor";
+    const truncated = priorResults?.truncated || false;
+
     system = `${BASE_CONTEXT}
 
 You are a physical awareness and body-pattern analyst for dressage riders. Your job is to identify recurring physical themes by cross-referencing:
@@ -3563,6 +3502,12 @@ Respond in JSON format:
   }
 }
 
+TRAJECTORY ALIGNMENT RULE:
+Active trajectory: ${activeTrajectory}
+- If "ambitious_competitor": Exercise urgency framing appropriate. Competition-readiness language.
+- If "steady_builder": No urgency language. Frame exercises around mastery and comfort.
+- If "curious_explorer": Frame exercises around curiosity and exploration. Partnership focus.
+
 Be thorough but prioritize the 3-5 most impactful patterns. Every insight must cite specific data from the rider's actual input.
 
 BODY MAPPING DATA INTEGRATION
@@ -3599,171 +3544,119 @@ ${buildUserDataMessage(riderData)}
 Analyze the physical assessment data, debrief narratives (especially the "horseNotices" field which contains body awareness and feel observations), and any self-regulation data. Identify the most impactful physical patterns for this rider's dressage development.`;
 
   } else if (callIndex === 2) {
-    // PG-2: Exercise Prescription
+    // PG-2: Body Awareness 4-Week Program
+    const activeTrajectory = priorResults?.activeTrajectory || "ambitious_competitor";
+    const truncated = priorResults?.truncated || false;
+    const weekCount = truncated ? 2 : 4;
+
     system = `${BASE_CONTEXT}
 
-You are a dressage-specific exercise and body awareness specialist. Using the physical pattern analysis from the previous assessment, you will create personalized:
-1. Off-horse exercises targeting identified patterns and asymmetries
-2. Pre-ride warm-up routines calibrated to the rider's kinesthetic awareness level
-3. In-ride body awareness prompts for specific tension areas
+PHYSICAL GUIDANCE \u2014 BODY AWARENESS 4-WEEK PROGRAM
 
-SAFETY AND CONTEXT RULES:
-- If the rider is working with a PT/trainer/yoga instructor, your exercises must COMPLEMENT their existing program, never contradict it. Reference their PT cues where relevant.
-- All exercises should be accessible to adult amateur riders (no extreme flexibility or strength requirements unless the rider's assessment indicates athletic background).
-- NEVER prescribe exercises that could aggravate reported injuries or physical challenges.
-- Always explain the RIDING CONNECTION — why each exercise matters for dressage specifically.
-- This is NOT medical advice. The medical disclaimer will be displayed separately.
+You are generating the ${weekCount}-week Body Awareness program for Physical Guidance.
+You have been provided with the rider's Exercise Protocol (generated in the previous call).
+
+EXERCISE PROTOCOL ALIGNMENT RULE (CRITICAL):
+
+You have been provided with the rider's current Exercise Protocol (stable for this
+30-day cycle). The awareness noticing cues you generate for the ${weekCount}-week program MUST
+connect to and reinforce the exercises prescribed.
+
+For each exercise in the protocol, at least one noticing cue across the ${weekCount}-week program
+should name what that exercise produces in the saddle. A rider doing the flamingo balance
+exercise off-horse should encounter a noticing cue in-saddle that names what changed when
+it is working.
+
+NEVER generate a Body Awareness noticing cue that contradicts an exercise in the protocol.
+NEVER prescribe a new exercise or physical intervention in Body Awareness \u2014 that belongs
+in the Exercise Protocol only.
+
+TRAJECTORY ALIGNMENT RULE:
+Active trajectory: ${activeTrajectory}
+- If "ambitious_competitor": Frame awareness progression around competition readiness.
+- If "steady_builder": Frame around depth of feel and mastery. No urgency.
+- If "curious_explorer": Frame around curiosity and partnership awareness.
+
+${weekCount}-WEEK PROGRESSION FRAMING:
+${truncated
+    ? `- Week 1 (Establish): Name it when you feel it. Help the rider identify patterns.
+- Week 2 (Connect): Link the awareness to riding outcomes.`
+    : `- Week 1 (Establish): Name it when you feel it. Help the rider identify patterns.
+- Week 2 (Connect): Link the awareness to riding outcomes.
+- Week 3 (Under Load): Apply awareness under increasing difficulty.
+- Week 4 (Real Time): Automatic noticing integrated into riding flow.`}
 
 KINESTHETIC LEVEL CALIBRATION:
 The rider's kinesthetic awareness level is ${kinLevel}/10.
+${kinLevel <= 3 ? "Levels 1-3: Concrete external cues. Flag blind spots." :
+    kinLevel <= 6 ? "Levels 4-6: Mix concrete + proprioceptive cues." :
+    "Levels 7-10: Nuanced proprioceptive analysis appropriate."}
 
-For LOWER kinesthetic levels (1-4):
-- Cues should be CONCRETE and EXTERNAL: "Press your right seat bone into the saddle" rather than "Feel your pelvis shift"
-- Use visual or tactile references: "Imagine your shoulder blades sliding into your back pockets"
-- Include feedback mechanisms: "Have someone watch to tell you when your shoulders creep up"
-- Exercises should include self-check methods: mirrors, wall contact, partner feedback
+DEBRIEF PROMPT REQUIREMENT:
+Each week's pattern must include a specific debrief prompt formatted as:
+"\u2192 Log in debrief: [specific thing to notice and record]"
 
-For MODERATE kinesthetic levels (5-7):
-- Mix concrete cues with proprioceptive ones: "Feel the weight difference between your seat bones"
-- Include exercises that build awareness, not just strength/flexibility
-- Transition cues: bridge from what they CAN feel to what they are learning to feel
+HORSE HEALTH PATTERN RULE:
+Any pattern derived from horse health data must set isHorseHealth = true and
+feedsWeeklyFocus = true. The debrief prompt must ask specifically about the horse's state.
 
-For HIGHER kinesthetic levels (8-10):
-- Cues can be PROPRIOCEPTIVE and INTERNAL: "Notice the quality of connection through your seat"
-- Include subtle awareness exercises: breathing coordination, micro-adjustments, energy direction
-- Build on their existing body vocabulary
-
-${VOICE_REFERENCE_BLOCK}
-Include a brief coaching voice snippet with each exercise from the most relevant voice.
+${truncated ? `TRUNCATED CYCLE NOTE:
+Generate only 2 weeks. Introductory tone without condescending to dressage experience.
+Acknowledge shorter cycle; full 4-week program starts next month.` : ""}
 
 Respond in JSON format:
 {
-  "exercises": [
+  "weeks": [
     {
-      "name": "exercise name",
-      "target_pattern": "which identified pattern this addresses",
-      "description": "clear, step-by-step instructions",
-      "riding_connection": "specific explanation of why this helps their riding",
-      "duration": "how long this takes (e.g., '2-3 minutes')",
-      "frequency": "recommended frequency (e.g., 'daily', '3x/week', 'before every ride')",
-      "difficulty": "beginner|intermediate|advanced",
-      "coach_snippet": { "voice": "voice name", "note": "1 sentence motivation or tip" }
+      "number": 1,
+      "theme": { "title": "Establish", "subtitle": "Name it when you feel it" },
+      "patterns": [
+        {
+          "id": "pattern_id_snake_case",
+          "title": "Pattern display title",
+          "source": "Where this was identified (e.g., 'Assessment + 8 debriefs')",
+          "isHorseHealth": false,
+          "feedsWeeklyFocus": true,
+          "badge": "Primary \u00b7 Rider",
+          "description": "2-3 sentence description of the pattern and its riding impact",
+          "noticingCuePrimary": "The main noticing cue for this week \u2014 what to feel for",
+          "noticingCues": ["Additional noticing cues for this pattern"],
+          "debriefPrompt": "\u2192 Log in debrief: specific observation to record"
+        }
+      ],
+      "successMetric": "One sentence \u2014 observable, specific to this week",
+      "reflectionNudge": "Italic reflection prompt for end of week"
     }
   ],
-  "warm_up_routine": {
-    "total_time": "estimated total time (e.g., '5-7 minutes')",
-    "context": "when to do this (e.g., 'In the barn aisle before mounting')",
-    "steps": [
-      {
-        "name": "movement or stretch name",
-        "instruction": "brief instruction calibrated to kinesthetic level",
-        "purpose": "riding-specific purpose",
-        "duration": "time for this step"
-      }
-    ]
+  "patternAnalysis": {
+    "primaryPatterns": ["list of primary patterns identified"],
+    "secondaryPatterns": ["list of secondary patterns"],
+    "asymmetries": ["list of asymmetries"]
   },
-  "body_awareness_cues": [
-    {
-      "trigger": "when to use this cue (e.g., 'At the start of sitting trot', 'During left-rein work')",
-      "cue": "the specific body awareness prompt calibrated to kinesthetic level",
-      "target_pattern": "which pattern this addresses",
-      "check_method": "how to know if they are doing it (feedback mechanism for lower levels, internal sensation for higher levels)"
-    }
-  ],
-  "pt_integration_notes": "string or null — if the rider works with a PT/trainer, notes on how these exercises complement that work",
-  "personalization_summary": "2-3 sentences explaining why these specific exercises were chosen for this rider",
-  "weeklyFocusItems": [
-    {
-      "text": "body awareness point to notice this week — framed as something to feel, not a correction to force",
-      "sub": "supporting note or source (e.g., 'Mentioned: 11 of last 15 rides') or null if none",
-      "isHorseHealth": false
-    }
-  ]
-}
-
-Include 3-4 weeklyFocusItems — the most relevant physical awareness points for the coming week. Frame as things to notice or feel, not corrections to force. If horse health data suggests relevant body awareness for the horse, include one item with isHorseHealth set to true.
-
-Prescribe 5-8 exercises maximum. Focus on the highest-impact patterns. Every exercise must have a clear riding connection.
-
-BODY MAPPING EXERCISE PRIORITY HIERARCHY
-
-When body mapping data is present and prescribing exercises, follow this priority
-order \u2014 work upstream before downstream:
-
-1. NEUROLOGICAL (VOR / peripheral vision issues flagged) \u2014 fix the signal first.
-   Prescribing muscular or structural exercises when the neurological input is
-   unreliable addresses symptoms, not causes.
-
-2. PROPRIOCEPTIVE (blind pelvic clock gaps, T-pose surprise level) \u2014 calibrate
-   awareness before building capacity. A rider who can't sense their asymmetry
-   cannot self-correct it.
-
-3. STRUCTURAL (flamingo balance imbalance, rotation range limits) \u2014 build physical
-   capacity once the rider can feel what they're working on.
-
-4. TENSION-BASED (existing narrative tension patterns from debriefs) \u2014 manage
-   symptomatic tension last, as it is often downstream of the above.
-
-For every body-mapping-derived exercise, explicitly link it to a saddle outcome
-the rider will be able to feel: "When this exercise is working, you will notice X
-in the saddle." Abstract exercises without a felt saddle connection have low
-compliance in equestrian contexts.
-
-When body mapping data is absent, prescribe exercises based on physical narrative
-and debrief patterns as normal.
-
-PHYSICAL-RIDING CORRELATION PROTOCOL:
-For every physical pattern identified, explicitly map it to its most likely riding
-effect using this three-part chain:
-
-[Body Pattern] → [Most Likely Riding Effect] → [Exercise to Address Both]
-
-Do not leave the rider to infer the connection. The mapping should be stated clearly.
-
-Examples of the pattern:
-- "Chronic right hip collapse (from your pelvic clock assessment) → probable weight
-  imbalance creating heavier right-rein contact → horse resistance or drift in
-  right-lead work → Exercise: seated side stretch on right side, 30 seconds before
-  mounting, 3x weekly; in the saddle, weight equally through both seat bones at halt
-  before asking for any transition."
-- "Limited thoracic rotation (from your rotation assessment) → reduced elasticity
-  through corners and circles → horse falls out through the outside shoulder in curved
-  lines → Exercise: thoracic rotation stretches daily; in the saddle, soften through
-  the waist rather than turning through the shoulder."
-
-Always include a "What to notice in the saddle" statement for each exercise:
-"When this exercise is working, you will notice [specific felt change in the saddle]."
-Abstract exercises without a felt saddle connection have low follow-through in
-equestrian contexts — the rider cannot know if the work is transferring.
-
-If body mapping data is absent, prescribe exercises based on physical narrative and
-debrief patterns as previously instructed.`;
+  "aiReasoning": {
+    "patternCited": "The dominant pattern driving this program",
+    "trajectoryLink": "How this program connects to the active trajectory"
+  }
+}`;
 
     const ptStatus = riderData.selfAssessments?.physical?.ptStatus || "unknown";
-    const ptType = riderData.selfAssessments?.physical?.ptType || "none";
-    const ptCues = riderData.selfAssessments?.physical?.ptCues || "none reported";
-    const energizers = riderData.selfAssessments?.mental?.selfRegulation?.energizers || "not reported";
-    const relaxers = riderData.selfAssessments?.mental?.selfRegulation?.relaxers || "not reported";
     const horses = riderData.horseSummaries?.map((h) => h.name).join(", ") || "none";
     const level = riderData.profile?.level || "unknown";
 
-    userMessage = `Here is the physical pattern analysis from the previous assessment (PG-1):
+    userMessage = `Here is the Exercise Protocol from Call 1:
 
-${JSON.stringify(priorResults.patternAnalysis, null, 2)}
+${JSON.stringify(priorResults.patternAnalysis || priorResults, null, 2)}
 
-And here is the rider's context:
+Rider context:
+- Display Name: ${riderData.displayName || "Rider"}
+- Kinesthetic Level: ${kinLevel}/10
+- PT Status: ${ptStatus}
+- Horses: ${horses}
+- Current Level: ${level}
+- Active Trajectory: ${activeTrajectory}
 
-Display Name: ${riderData.displayName || "Rider"}
-Kinesthetic Level: ${kinLevel}/10
-PT Status: ${ptStatus}
-PT Type: ${ptType}
-PT Cues: ${ptCues}
-Horses: ${horses}
-Current Level: ${level}
-Self-Regulation Energizers: ${energizers}
-Self-Regulation Relaxers: ${relaxers}
+Generate the ${weekCount}-week Body Awareness program. Each pattern must connect to exercises in the protocol above. Reference the rider's data and horse by name.`;
 
-Create personalized exercises, a pre-ride warm-up, and in-ride body awareness cues. Calibrate all cues to kinesthetic level ${kinLevel}. Reference the rider's specific patterns and their horse by name.`;
 
   } else {
     throw new Error(`Invalid Physical Guidance call index: ${callIndex}`);
@@ -3995,7 +3888,6 @@ module.exports = {
   buildGrandPrixPrompt,
   buildGrandPrixPathPrompt,
   buildGPTL1Prompt,
-  buildGPTL1ExpandPrompt,
   buildTrajectoryCall1Prompt,
   buildTrajectoryCall2Prompt,
   buildTrajectoryCall3Prompt,

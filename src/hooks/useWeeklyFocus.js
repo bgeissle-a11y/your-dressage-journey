@@ -5,7 +5,7 @@ import { getAllReflections, getAllShowPreparations } from '../services';
 import {
   getWeekId, getWeekMonday, getWeekState, saveWeekState,
   readCoachingCaches, readGPTCache, readPhysicalCache, readShowPlanCache,
-  readVisualizationSuggestionCache,
+  readVisualizationSuggestionCache, readCycleState,
 } from '../services/weeklyFocusService';
 import {
   extractCoachingSnapshot, extractGPTSnapshot, extractPhysicalSnapshot,
@@ -116,17 +116,25 @@ export default function useWeeklyFocus() {
 
   // ── Read fresh AI data from analysisCache ──
   const readFreshContent = useCallback(async (uid) => {
-    const [coachingData, gptData, physData, vizData] = await Promise.allSettled([
+    const [coachingData, gptData, physData, vizData, gptCycleState, physCycleState] = await Promise.allSettled([
       readCoachingCaches(uid),
       readGPTCache(uid),
       readPhysicalCache(uid),
       readVisualizationSuggestionCache(uid),
+      readCycleState(uid, 'gpt'),
+      readCycleState(uid, 'physical'),
     ]);
 
     return {
       coaching: coachingData.status === 'fulfilled' ? extractCoachingSnapshot(coachingData.value, weekId) : null,
-      gpt: gptData.status === 'fulfilled' ? extractGPTSnapshot(gptData.value) : null,
-      physical: physData.status === 'fulfilled' ? extractPhysicalSnapshot(physData.value) : null,
+      gpt: gptData.status === 'fulfilled' ? extractGPTSnapshot(
+        gptData.value,
+        gptCycleState.status === 'fulfilled' ? gptCycleState.value : null
+      ) : null,
+      physical: physData.status === 'fulfilled' ? extractPhysicalSnapshot(
+        physData.value,
+        physCycleState.status === 'fulfilled' ? physCycleState.value : null
+      ) : null,
       visualization: vizData.status === 'fulfilled' ? vizData.value : null,
     };
   }, [weekId]);

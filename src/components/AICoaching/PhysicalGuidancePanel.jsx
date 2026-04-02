@@ -1,270 +1,29 @@
-/**
- * Physical Guidance Panel
- *
- * Renders personalized physical fitness and body awareness guidance:
- * - Position Pattern Analysis (from PG-1)
- * - Off-Horse Exercises (from PG-2)
- * - Pre-Ride Warm-Up Routine (from PG-2)
- * - In-Ride Body Awareness Cues (from PG-2)
- *
- * Medical disclaimer displayed persistently at the top.
- * Single-fetch pattern: calls getPhysicalGuidance once, renders all sections.
- */
-
 import { useState, useEffect, useCallback } from 'react';
-import { getPhysicalGuidance, VOICE_META } from '../../services/aiService';
-import CollapsibleSection from './CollapsibleSection';
+import { getPhysicalGuidance, advanceWeekPointer } from '../../services/aiService';
+import { readCycleState } from '../../services/weeklyFocusService';
+import { useAuth } from '../../contexts/AuthContext';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../firebase-config';
 import ErrorDisplay from './ErrorDisplay';
 import ElapsedTimer from './ElapsedTimer';
+import './ThirtyDayCycle.css';
 
-// Build voice lookup for coach snippets
-const VOICE_LOOKUP = {};
-VOICE_META.forEach((v) => {
-  VOICE_LOOKUP[v.name] = v;
-  VOICE_LOOKUP[v.name.replace('The ', '')] = v;
-});
-
-// ─── Medical Disclaimer ────────────────────────────────────────────
-
-function MedicalDisclaimer() {
-  return (
-    <div className="pg-medical-disclaimer">
-      <div className="pg-medical-disclaimer__icon">&#9888;&#65039;</div>
-      <div className="pg-medical-disclaimer__content">
-        <strong>Important Notice</strong>
-        <p>
-          The exercises and body awareness suggestions provided here are general
-          fitness suggestions for riders, not medical advice. All exercises are
-          conservative and gentle. If you have existing injuries, chronic
-          conditions, or physical limitations, please consult your physician,
-          physical therapist, or qualified healthcare provider before beginning
-          any new exercise program. Stop any exercise immediately if you
-          experience pain.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-// ─── Pattern Analysis Section ──────────────────────────────────────
-
-function PatternAnalysisSection({ analysis }) {
-  if (!analysis) return <p className="pg-empty">No pattern analysis available.</p>;
-
-  return (
-    <div className="pg-patterns">
-      {/* Physical Patterns */}
-      {analysis.physical_patterns?.length > 0 && (
-        <div className="pg-patterns__group">
-          <h4>Key Physical Patterns</h4>
-          {analysis.physical_patterns.map((p, i) => (
-            <div key={i} className={`pg-pattern-card pg-pattern-card--${p.severity}`}>
-              <div className="pg-pattern-card__header">
-                <span className="pg-pattern-card__name">{p.pattern}</span>
-                <span className={`pg-pattern-card__badge pg-pattern-card__badge--${p.severity}`}>
-                  {p.severity}
-                </span>
-              </div>
-              <p className="pg-pattern-card__impact">{p.riding_impact}</p>
-              {p.evidence?.length > 0 && (
-                <ul className="pg-pattern-card__evidence">
-                  {p.evidence.map((e, j) => <li key={j}>{e}</li>)}
-                </ul>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Tension Comparison */}
-      {analysis.riding_tension_vs_daily && (
-        <div className="pg-patterns__group">
-          <h4>Tension: Daily Life vs Riding</h4>
-          <div className="pg-tension-comparison">
-            {analysis.riding_tension_vs_daily.overlap_areas?.length > 0 && (
-              <div className="pg-tension-column">
-                <h5>Both</h5>
-                {analysis.riding_tension_vs_daily.overlap_areas.map((a, i) => (
-                  <span key={i} className="pg-tension-tag pg-tension-tag--overlap">{a}</span>
-                ))}
-              </div>
-            )}
-            {analysis.riding_tension_vs_daily.riding_only_areas?.length > 0 && (
-              <div className="pg-tension-column">
-                <h5>Riding Only</h5>
-                {analysis.riding_tension_vs_daily.riding_only_areas.map((a, i) => (
-                  <span key={i} className="pg-tension-tag pg-tension-tag--riding">{a}</span>
-                ))}
-              </div>
-            )}
-            {analysis.riding_tension_vs_daily.daily_only_areas?.length > 0 && (
-              <div className="pg-tension-column">
-                <h5>Daily Only</h5>
-                {analysis.riding_tension_vs_daily.daily_only_areas.map((a, i) => (
-                  <span key={i} className="pg-tension-tag pg-tension-tag--daily">{a}</span>
-                ))}
-              </div>
-            )}
-          </div>
-          {analysis.riding_tension_vs_daily.interpretation && (
-            <p className="pg-tension-interpretation">
-              {analysis.riding_tension_vs_daily.interpretation}
-            </p>
-          )}
-        </div>
-      )}
-
-      {/* Asymmetries */}
-      {analysis.asymmetries?.length > 0 && (
-        <div className="pg-patterns__group">
-          <h4>Asymmetries</h4>
-          {analysis.asymmetries.map((a, i) => (
-            <div key={i} className="pg-asymmetry-item">
-              <strong>{a.description}</strong>
-              <p>{a.riding_manifestation}</p>
-              <span className="pg-asymmetry-sources">
-                Sources: {a.sources?.join(', ')}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Kinesthetic Calibration */}
-      {analysis.kinesthetic_calibration && (
-        <div className="pg-patterns__group">
-          <h4>Your Body Awareness Profile</h4>
-          <div className="pg-kinesthetic">
-            <div className="pg-kinesthetic__level">
-              Level {analysis.kinesthetic_calibration.rated_level}/10
-            </div>
-            <p>{analysis.kinesthetic_calibration.observed_accuracy}</p>
-            {analysis.kinesthetic_calibration.blind_spots?.length > 0 && (
-              <div className="pg-kinesthetic__section">
-                <h5>Blind Spots to Watch</h5>
-                <ul>
-                  {analysis.kinesthetic_calibration.blind_spots.map((b, i) => (
-                    <li key={i}>{b}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {analysis.kinesthetic_calibration.strengths?.length > 0 && (
-              <div className="pg-kinesthetic__section">
-                <h5>Awareness Strengths</h5>
-                <ul>
-                  {analysis.kinesthetic_calibration.strengths.map((s, i) => (
-                    <li key={i}>{s}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── Exercise List Section ─────────────────────────────────────────
-
-function ExerciseListSection({ exercises }) {
-  if (!exercises?.length) return <p className="pg-empty">No exercises prescribed.</p>;
-
-  return (
-    <div className="pg-exercises">
-      {exercises.map((ex, i) => {
-        const voiceMeta = ex.coach_snippet
-          ? VOICE_LOOKUP[ex.coach_snippet.voice]
-          : null;
-        return (
-          <div key={i} className="pg-exercise-card">
-            <div className="pg-exercise-card__header">
-              <h4>{ex.name}</h4>
-              <div className="pg-exercise-card__meta">
-                <span className={`pg-difficulty pg-difficulty--${ex.difficulty}`}>
-                  {ex.difficulty}
-                </span>
-                <span className="pg-exercise-card__frequency">{ex.frequency}</span>
-                <span className="pg-exercise-card__duration">{ex.duration}</span>
-              </div>
-            </div>
-            <p className="pg-exercise-card__target">Targets: {ex.target_pattern}</p>
-            <p className="pg-exercise-card__description">{ex.description}</p>
-            <div className="pg-exercise-card__riding-connection">
-              <strong>Why this helps your riding:</strong> {ex.riding_connection}
-            </div>
-            {ex.coach_snippet && (
-              <div
-                className="gpt-coach-perspective"
-                style={voiceMeta ? { borderLeftColor: voiceMeta.color } : undefined}
-              >
-                <span className="gpt-coach-perspective__voice">
-                  {voiceMeta?.icon} {ex.coach_snippet.voice}:
-                </span>{' '}
-                <span className="gpt-coach-perspective__note">
-                  {ex.coach_snippet.note}
-                </span>
-              </div>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ─── Warm-Up Section ───────────────────────────────────────────────
-
-function WarmUpSection({ warmUp }) {
-  if (!warmUp) return <p className="pg-empty">No warm-up routine generated.</p>;
-
-  return (
-    <div className="pg-warmup">
-      <div className="pg-warmup__meta">
-        <span className="pg-warmup__time">{warmUp.total_time}</span>
-        <span className="pg-warmup__context">{warmUp.context}</span>
-      </div>
-      <ol className="pg-warmup__steps">
-        {(warmUp.steps || []).map((step, i) => (
-          <li key={i} className="pg-warmup__step">
-            <div className="pg-warmup__step-name">{step.name}</div>
-            <p className="pg-warmup__step-instruction">{step.instruction}</p>
-            <div className="pg-warmup__step-meta">
-              <span className="pg-warmup__step-purpose">{step.purpose}</span>
-              <span className="pg-warmup__step-duration">{step.duration}</span>
-            </div>
-          </li>
-        ))}
-      </ol>
-    </div>
-  );
-}
-
-// ─── Body Awareness Cues Section ───────────────────────────────────
-
-function BodyAwarenessCuesSection({ cues }) {
-  if (!cues?.length) return <p className="pg-empty">No body awareness cues generated.</p>;
-
-  return (
-    <div className="pg-cues">
-      {cues.map((cue, i) => (
-        <div key={i} className="pg-cue-card">
-          <div className="pg-cue-card__trigger">{cue.trigger}</div>
-          <div className="pg-cue-card__cue">{cue.cue}</div>
-          <div className="pg-cue-card__meta">
-            <span className="pg-cue-card__target">For: {cue.target_pattern}</span>
-            <span className="pg-cue-card__check">{cue.check_method}</span>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ─── Main Panel ────────────────────────────────────────────────────
-
+/**
+ * Physical Guidance — 30-Day Cycle Architecture (April 2026)
+ *
+ * Two-tab layout:
+ *   Body Awareness (Monthly): 4-week program with pattern cards, week navigation
+ *   Exercise Protocol (Monthly): Exercises, pre-ride ritual, body awareness profile
+ *
+ * Hard Rules:
+ *   - Body Awareness receives Exercise Protocol as input context
+ *   - Both receive active GPT trajectory as input context
+ *   - weeklyFocusItems extracted server-side, never AI-generated
+ */
 export default function PhysicalGuidancePanel() {
+  const { currentUser } = useAuth();
+  const [activeTab, setActiveTab] = useState('awareness');
+
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -272,6 +31,71 @@ export default function PhysicalGuidancePanel() {
   const [insufficientData, setInsufficientData] = useState(null);
   const [loadStartedAt, setLoadStartedAt] = useState(null);
   const [isStale, setIsStale] = useState(false);
+
+  // Cycle state
+  const [cycleState, setCycleState] = useState(null);
+  const [activeWeek, setActiveWeek] = useState(1);
+
+  // Pattern card expansion
+  const [openPatterns, setOpenPatterns] = useState(new Set());
+
+  // Exercise card expansion
+  const [openExercises, setOpenExercises] = useState(new Set());
+
+  // Collapsible cards in Exercise Protocol tab
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [promptsOpen, setPromptsOpen] = useState(false);
+
+  // Pre-ride checklist (NOT persisted — resets on load)
+  const [preRideChecks, setPreRideChecks] = useState({});
+
+  // Modals
+  const [showRegenModal, setShowRegenModal] = useState(null);
+
+  // Rider info
+  const [riderInfo, setRiderInfo] = useState({ name: '', horse: '', level: '' });
+
+  useEffect(() => {
+    if (!currentUser) return;
+    (async () => {
+      try {
+        const riderSnap = await getDoc(doc(db, 'riderProfiles', currentUser.uid));
+        const rd = riderSnap.data();
+        setRiderInfo({
+          name: rd?.firstName || currentUser.displayName || '',
+          horse: rd?.primaryHorseName || '',
+          level: rd?.currentLevel || '',
+        });
+      } catch { /* silently fail */ }
+    })();
+  }, [currentUser]);
+
+  // Read cycle state on mount
+  useEffect(() => {
+    if (!currentUser) return;
+    (async () => {
+      const cs = await readCycleState(currentUser.uid, 'physical');
+      if (cs) {
+        setCycleState(cs);
+        setActiveWeek(cs.currentWeek || 1);
+      }
+    })();
+  }, [currentUser]);
+
+  const cycleInfo = cycleState ? {
+    startDate: cycleState.cycleStartDate ? new Date(cycleState.cycleStartDate) : null,
+    currentWeek: cycleState.currentWeek || 1,
+    status: cycleState.status || 'active',
+    tier: cycleState.tier || 'standard',
+    maxWeeks: cycleState.status === 'truncated' ? 2 : 4,
+    expiresAt: cycleState.cycleStartDate
+      ? new Date(new Date(cycleState.cycleStartDate).getTime() + 30 * 24 * 60 * 60 * 1000)
+      : null,
+  } : null;
+
+  const daysUntilRefresh = cycleInfo?.expiresAt
+    ? Math.max(0, Math.ceil((cycleInfo.expiresAt - new Date()) / (1000 * 60 * 60 * 24)))
+    : null;
 
   const fetchData = useCallback(async ({ forceRefresh = false, staleOk = false } = {}) => {
     if ((forceRefresh || (data && !staleOk)) && data) {
@@ -289,11 +113,12 @@ export default function PhysicalGuidancePanel() {
       const result = await getPhysicalGuidance({ forceRefresh, staleOk });
 
       if (!result.success) {
-        if (
-          result.error === 'insufficient_data' ||
-          result.error === 'missing_assessment'
-        ) {
+        if (result.error === 'insufficient_data' || result.error === 'missing_assessment') {
           setInsufficientData(result);
+        } else if (result.error === 'regen_blocked') {
+          if (result.reason === 'standard_tier_active_cycle') {
+            setShowRegenModal('upgrade');
+          }
         } else if (!staleOk) {
           setError({ message: 'Failed to generate your Physical Guidance.' });
         }
@@ -303,7 +128,11 @@ export default function PhysicalGuidancePanel() {
       setData(result);
       setIsStale(!!result.stale);
 
-      // If stale data returned from fast path, trigger background refresh
+      if (result.cycleState) {
+        setCycleState(result.cycleState);
+        setActiveWeek(result.cycleState.currentWeek || 1);
+      }
+
       if (result.stale && staleOk) {
         fetchData({ forceRefresh: false });
       }
@@ -313,20 +142,10 @@ export default function PhysicalGuidancePanel() {
         return;
       }
       console.error('Physical Guidance error:', err);
-      const details = err?.details || err?.customData || {};
-      const rawMessage = err?.message;
-      const parsed = {
-        category: details.category || 'unknown',
-        retryable: details.retryable !== false,
-        message: (typeof rawMessage === 'string' ? rawMessage : null) || 'An error occurred.',
-      };
       if (data) {
-        setError({
-          ...parsed,
-          message: 'Could not refresh. Showing previous results.',
-        });
+        setError({ message: 'Could not refresh. Showing previous results.' });
       } else {
-        setError(parsed);
+        setError({ message: err?.message || 'An error occurred.' });
       }
     } finally {
       if (!staleOk) {
@@ -336,181 +155,471 @@ export default function PhysicalGuidancePanel() {
     }
   }, [data]);
 
-  // Phase 1: Fast cache fetch on mount
   useEffect(() => {
     fetchData({ staleOk: true });
-  }, []);  // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
-  // --- Insufficient Data State ---
+  const handleRegenerate = async () => {
+    setShowRegenModal(null);
+    await fetchData({ forceRefresh: true });
+  };
+
+  const handleRegenClick = () => {
+    if (cycleInfo?.tier === 'top') {
+      setShowRegenModal('warning');
+    } else {
+      setShowRegenModal('upgrade');
+    }
+  };
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+  };
+
+  const togglePattern = (id) => {
+    setOpenPatterns(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const toggleExercise = (idx) => {
+    setOpenExercises(prev => {
+      const next = new Set(prev);
+      next.has(idx) ? next.delete(idx) : next.add(idx);
+      return next;
+    });
+  };
+
+  // ─── Insufficient Data ──
   if (insufficientData) {
     const isMissingAssessment = insufficientData.error === 'missing_assessment';
     return (
-      <div className="panel-insufficient">
-        <div className="panel-insufficient__icon">
-          <span role="img" aria-label="body">&#x1F9D8;</span>
+      <div className="phys-redesign">
+        <div className="phys-hero">
+          <div className="hero-eyebrow">Your Dressage Journey</div>
+          <div className="hero-title">Physical Guidance</div>
         </div>
-        <h3>
-          {isMissingAssessment
-            ? 'Complete Your Physical Self-Assessment'
-            : 'Your Physical Guidance Awaits'}
-        </h3>
-        <p>{insufficientData.message}</p>
-        <div className="panel-insufficient__checklist">
-          <p>To unlock Physical Guidance, you need:</p>
-          <ul>
-            <li>A completed Physical Self-Assessment</li>
-            <li>A completed rider profile</li>
-            <li>At least one horse profile</li>
-            <li>At least 3 post-ride debriefs</li>
-          </ul>
+        <div className="panel-insufficient">
+          <h3>{isMissingAssessment ? 'Complete Your Physical Self-Assessment' : 'Your Physical Guidance Awaits'}</h3>
+          <p>{insufficientData.message}</p>
         </div>
       </div>
     );
   }
 
-  // --- Loading State ---
+  // ─── Loading ──
   if (loading && !data) {
     return (
-      <div className="pg-panel pg-panel--loading">
-        <div className="pg-panel__header">
-          <h2>Physical Guidance</h2>
-          <p>
-            Analyzing your body patterns and creating personalized exercises...
-          </p>
+      <div className="phys-redesign">
+        <div className="phys-hero">
+          <div className="hero-eyebrow">Your Dressage Journey</div>
+          <div className="hero-title">Physical Guidance</div>
         </div>
         <div className="panel-loading-spinner">
           <div className="spinner" />
-          <p>
-            Cross-referencing your physical assessment with your ride data...
-          </p>
+          <p>Cross-referencing your physical assessment with your ride data...</p>
           <ElapsedTimer startedAt={loadStartedAt} />
         </div>
       </div>
     );
   }
 
-  // --- Error State (no prior data) ---
   if (error && !data) {
     return (
-      <div className="pg-panel">
-        <div className="pg-panel__header">
-          <h2>Physical Guidance</h2>
+      <div className="phys-redesign">
+        <div className="phys-hero">
+          <div className="hero-eyebrow">Your Dressage Journey</div>
+          <div className="hero-title">Physical Guidance</div>
         </div>
-        <ErrorDisplay
-          message={error.message}
-          category={error.category}
-          retryable={error.retryable !== false}
-          onRetry={() => fetchData({ forceRefresh: true })}
-          retrying={loading}
-        />
+        <ErrorDisplay message={error.message} onRetry={() => fetchData({ forceRefresh: true })} />
       </div>
     );
   }
 
   if (!data) return null;
 
-  const { patternAnalysis, exercisePrescription } = data;
+  const weeks = data.weeks || [];
+  const currentWeekData = weeks[activeWeek - 1];
+  const exerciseProtocol = data.exerciseProtocol || data.exercisePrescription || {};
+  const bodyProfile = data.bodyAwarenessProfile || {};
 
-  return (
-    <div className="pg-panel">
-      {/* Medical Disclaimer — persistent at top */}
-      <MedicalDisclaimer />
+  function renderCycleBar() {
+    if (!cycleInfo) return null;
 
-      <div className="pg-panel__header">
-        <div>
-          <h2>Physical Guidance</h2>
-          <p>Personalized exercises and body awareness cues for your riding</p>
+    if (cycleInfo.status === 'health_hold') {
+      return (
+        <div className="cycle-bar cycle-bar--hold">
+          <span>Program paused — resume when cleared by your veterinarian or healthcare provider.</span>
         </div>
-        <div className="pg-panel__actions">
-          {data.generatedAt && (
-            <span className={`panel-timestamp${isStale ? ' panel-timestamp--stale' : ''}`}>
-              {isStale && refreshing ? 'Updating... \u00B7 ' : ''}
-              {isStale && !refreshing ? 'Updated ' : ''}
-              {new Date(data.generatedAt).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-              })}
-            </span>
-          )}
-          <button
-            className="btn-refresh"
-            onClick={() => fetchData({ forceRefresh: true })}
-            disabled={loading || refreshing}
-          >
-            {refreshing ? 'Regenerating...' : 'Regenerate'}
+      );
+    }
+    if (cycleInfo.status === 'extended') {
+      return (
+        <div className="cycle-bar cycle-bar--extended">
+          <span>Cycle extended — Log 5+ rides to unlock your next program</span>
+        </div>
+      );
+    }
+    if (cycleInfo.status === 'expired') {
+      return (
+        <div className="cycle-bar cycle-bar--expired" onClick={handleRegenerate}>
+          <span>New cycle ready — tap to generate your next program.</span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="cycle-bar">
+        <div className="cycle-seg">
+          <span className="cycle-label">Cycle started</span>
+          <span className="cycle-value">{formatDate(cycleInfo.startDate)}</span>
+        </div>
+        <div className="cycle-seg">
+          <span className="cycle-label">Current</span>
+          <span className="cycle-value highlight">Week {cycleInfo.currentWeek} of {cycleInfo.maxWeeks}</span>
+        </div>
+        <div className="cycle-seg">
+          <span className="cycle-label">Next refresh</span>
+          <span className="cycle-value">
+            {cycleInfo.expiresAt ? formatDate(cycleInfo.expiresAt) : '—'}
+            {daysUntilRefresh != null && ` · ${daysUntilRefresh} days`}
+          </span>
+        </div>
+        <button className="cycle-regen" onClick={handleRegenClick}>↺ Regenerate early</button>
+      </div>
+    );
+  }
+
+  function renderHero() {
+    return (
+      <div className="phys-hero">
+        <div className="hero-eyebrow">Your Dressage Journey</div>
+        <div className="hero-title">Physical Guidance</div>
+        {riderInfo.name && (
+          <div className="hero-sub">
+            {riderInfo.name}{riderInfo.horse && <> · <strong>{riderInfo.horse}</strong></>}{riderInfo.level && <> · {riderInfo.level}</>}
+          </div>
+        )}
+        {renderCycleBar()}
+        <div className="tab-row">
+          <button className={`tab-chip ${activeTab === 'awareness' ? 'active' : ''}`} onClick={() => setActiveTab('awareness')}>
+            Body Awareness <span className="chip-badge">Monthly</span>
+          </button>
+          <button className={`tab-chip ${activeTab === 'protocol' ? 'active' : ''}`} onClick={() => setActiveTab('protocol')}>
+            Exercise Protocol <span className="chip-badge">Monthly</span>
           </button>
         </div>
       </div>
+    );
+  }
 
-      {/* Refreshing banner */}
-      {refreshing && (
-        <div className="panel-refreshing">
-          <div className="spinner spinner--small" />
-          <span>Refreshing with your latest data...</span>
+  function renderAwarenessTab() {
+    const maxWeeks = cycleInfo?.maxWeeks || 4;
+    const currentWeek = cycleInfo?.currentWeek || 1;
+    const patterns = currentWeekData?.patterns || [];
+
+    return (
+      <div className="tab-panel active phys-fade-up">
+        {refreshing && (
+          <div className="gpt-gen-refreshing-bar">
+            <div className="spinner spinner--small" /> Refreshing...
+          </div>
+        )}
+
+        <div className="section-label-row">
+          <span className="section-pill pill-body">
+            <span className="pill-dot dot-body" />
+            Body Awareness
+          </span>
+          <span className="section-note">{maxWeeks}-week program</span>
         </div>
-      )}
 
-      {/* Error with existing data */}
-      {error && !refreshing && (
-        <ErrorDisplay
-          message={error.message}
-          category={error.category}
-          retryable={error.retryable !== false}
-          onRetry={() => fetchData({ forceRefresh: true })}
-          retrying={loading}
-          compact
-        />
-      )}
-
-      {/* Personalization Summary */}
-      {exercisePrescription?.personalization_summary && (
-        <div className="pg-personalization-summary">
-          {exercisePrescription.personalization_summary}
+        {/* Week Nav */}
+        <div className="week-nav-row">
+          <span className="week-nav-label">Week</span>
+          {Array.from({ length: maxWeeks }, (_, i) => i + 1).map(n => (
+            <button
+              key={n}
+              className={`wk-chip ${activeWeek === n ? 'active' : ''} ${n > currentWeek ? 'upcoming' : ''}`}
+              onClick={() => setActiveWeek(n)}
+            >
+              Week {n}
+            </button>
+          ))}
         </div>
-      )}
 
-      {/* Section 1: Position Pattern Analysis */}
-      <CollapsibleSection
-        title="Position Pattern Analysis"
-        icon="&#x1F50D;"
-        defaultOpen
-      >
-        <PatternAnalysisSection analysis={patternAnalysis} />
-      </CollapsibleSection>
+        {/* Week Theme */}
+        {currentWeekData?.theme && (
+          <div className="week-theme">
+            <span className="week-num-badge">{activeWeek}</span>
+            <div>
+              <div className="week-theme-label">Week {activeWeek}</div>
+              <div className="week-theme-title">{currentWeekData.theme.title}</div>
+              {currentWeekData.theme.subtitle && (
+                <div className="week-theme-sub">{currentWeekData.theme.subtitle}</div>
+              )}
+            </div>
+          </div>
+        )}
 
-      {/* Section 2: Off-Horse Exercises */}
-      <CollapsibleSection
-        title="Off-Horse Exercises"
-        icon="&#x1F4AA;"
-        defaultOpen
-      >
-        <ExerciseListSection exercises={exercisePrescription?.exercises} />
-      </CollapsibleSection>
+        {/* Pattern Cards */}
+        {patterns.map((p, i) => {
+          const isOpen = openPatterns.has(p.id || i);
+          const isHorse = p.isHorseHealth;
 
-      {/* Section 3: Pre-Ride Warm-Up */}
-      <CollapsibleSection
-        title="Pre-Ride Preparation"
-        icon="&#x2600;&#xFE0F;"
-        defaultOpen
-      >
-        <WarmUpSection warmUp={exercisePrescription?.warm_up_routine} />
-      </CollapsibleSection>
+          return (
+            <div key={p.id || i} className={`pattern-card ${isHorse ? 'horse' : ''} ${isOpen ? 'open' : ''}`}>
+              <div className="pattern-header">
+                <div className="p-icon">{isHorse ? '🐴' : '🧘'}</div>
+                <div className="p-title-block">
+                  <div className="p-title">{p.title}</div>
+                  <div className="p-source">{p.source}</div>
+                </div>
+                <span className="p-badge">{p.badge || (isHorse ? 'Horse Health' : 'Primary · Rider')}</span>
+              </div>
 
-      {/* Section 4: In-Ride Body Awareness Cues */}
-      <CollapsibleSection title="Body Awareness Prompts" icon="&#x1F9E0;">
-        <BodyAwarenessCuesSection
-          cues={exercisePrescription?.body_awareness_cues}
-        />
-      </CollapsibleSection>
+              <div className="pattern-body">
+                <div className="pattern-desc">{p.description}</div>
+                <div className="noticing-block">
+                  <div className="noticing-label">What to notice this week</div>
+                  <div className="noticing-item">
+                    <span className="n-dot" />
+                    <span><strong>{p.noticingCuePrimary}</strong></span>
+                  </div>
+                  {p.noticingCues?.map((cue, j) => (
+                    <div key={j} className="noticing-item">
+                      <span className="n-dot" />
+                      <span>{cue}</span>
+                    </div>
+                  ))}
+                  {p.debriefPrompt && (
+                    <div className="debrief-prompt">{p.debriefPrompt}</div>
+                  )}
+                </div>
+              </div>
 
-      {/* PT Integration Notes */}
-      {exercisePrescription?.pt_integration_notes && (
-        <div className="pg-pt-notes">
-          <strong>Working with your therapist/trainer:</strong>{' '}
-          {exercisePrescription.pt_integration_notes}
+              <div
+                className={`p-toggle-row ${p.feedsWeeklyFocus ? 'weekly-focus-item' : ''}`}
+                onClick={() => togglePattern(p.id || i)}
+              >
+                <span className="p-toggle-label">
+                  {p.feedsWeeklyFocus ? 'Feeds Weekly Focus · expand for full pattern' : 'Expand for full pattern'}
+                </span>
+                {p.feedsWeeklyFocus && <span className="wf-pin">Weekly Focus</span>}
+                <span className="p-arrow">▼</span>
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Success Block */}
+        {currentWeekData?.successMetric && (
+          <div className="success-block">
+            <span className="success-icon">✓</span>
+            <div>
+              <div className="success-label">This week looks like success when...</div>
+              <div className="success-text">{currentWeekData.successMetric}</div>
+            </div>
+          </div>
+        )}
+
+        {/* Reflection Nudge */}
+        {currentWeekData?.reflectionNudge && (
+          <div className="reflection-nudge">{currentWeekData.reflectionNudge}</div>
+        )}
+
+        {/* Weekly Focus Callout */}
+        <div className="wf-callout">
+          <span>📌</span>
+          <div className="wf-callout-text">
+            <strong>Weekly Focus</strong> pulls your current patterns into a single view alongside coaching and mental performance work.
+            <br />
+            <a className="wf-link" href="/weekly-focus">View full Physical Guidance →</a>
+          </div>
         </div>
-      )}
+      </div>
+    );
+  }
+
+  function renderProtocolTab() {
+    const exercises = exerciseProtocol.exercises || data.exercisePrescription?.exercises || [];
+    const preRideRitual = exerciseProtocol.preRideRitual || exerciseProtocol.pre_ride_ritual || data.exercisePrescription?.warm_up_routine?.steps || [];
+
+    return (
+      <div className="tab-panel active phys-fade-up">
+        {/* Cadence card */}
+        <div className="cadence-card">
+          <span>📋</span>
+          <div className="cadence-text">
+            <strong>Updated monthly.</strong> Your Exercise Protocol is stable for the full 30-day cycle. Body Awareness noticing cues in the other tab are designed to reinforce these exercises.
+            {data.generatedAt && <em> Generated: {formatDate(data.generatedAt)}.</em>}
+          </div>
+        </div>
+
+        {/* Section label */}
+        <div className="section-label-row">
+          <span className="section-pill pill-body">
+            <span className="pill-dot dot-body" />
+            Exercise Protocol
+          </span>
+          <span className="section-note">{exercises.length} exercises prescribed</span>
+        </div>
+
+        {/* Body Awareness Profile (collapsed) */}
+        {bodyProfile.level && (
+          <div className={`collapse-card ${profileOpen ? 'open' : ''}`}>
+            <div className="collapse-card-header" onClick={() => setProfileOpen(!profileOpen)}>
+              <span className="collapse-card-icon">🧠</span>
+              <span className="collapse-card-title">Body Awareness Profile</span>
+              <span className="collapse-card-sub">Level {bodyProfile.level}/10</span>
+              <span className="collapse-card-arrow">▼</span>
+            </div>
+            <div className="collapse-card-body">
+              {bodyProfile.blindSpots?.length > 0 && (
+                <div className="profile-section">
+                  <h5>Blind Spots</h5>
+                  <ul>{bodyProfile.blindSpots.map((b, i) => <li key={i}>{b}</li>)}</ul>
+                </div>
+              )}
+              {bodyProfile.strengths?.length > 0 && (
+                <div className="profile-section">
+                  <h5>Strengths</h5>
+                  <ul>{bodyProfile.strengths.map((s, i) => <li key={i}>{s}</li>)}</ul>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Priority Tier Display */}
+        {exerciseProtocol.priorityTier && (
+          <div className="priority-tier-display">
+            <span className="priority-label">Priority tier:</span>
+            <span className="priority-value">{exerciseProtocol.priorityTier}</span>
+          </div>
+        )}
+
+        {/* Exercises (all collapsed) */}
+        {exercises.map((ex, i) => {
+          const isOpen = openExercises.has(i);
+          return (
+            <div key={i} className={`collapse-card ${isOpen ? 'open' : ''}`}>
+              <div className="collapse-card-header" onClick={() => toggleExercise(i)}>
+                <span className="collapse-card-icon">💪</span>
+                <span className="collapse-card-title">{ex.name}</span>
+                <span className="collapse-card-sub">{ex.frequency || ex.duration || ''}</span>
+                <span className="collapse-card-arrow">▼</span>
+              </div>
+              <div className="collapse-card-body">
+                <p className="ex-target">Targets: {ex.target_pattern}</p>
+                <p className="ex-desc">{ex.description}</p>
+                <div className="ex-riding-connection">
+                  <strong>Why this helps your riding:</strong> {ex.riding_connection}
+                </div>
+                {ex.coach_snippet && (
+                  <div className="ex-coach-snippet">
+                    <em>{ex.coach_snippet.voice}:</em> {ex.coach_snippet.note}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Pre-Ride Ritual (open by default) */}
+        {preRideRitual.length > 0 && (
+          <>
+            <div className="section-label-row" style={{ marginTop: 20 }}>
+              <span className="section-pill pill-gold">
+                <span className="pill-dot dot-gold" />
+                Pre-Ride Ritual
+              </span>
+            </div>
+            <div className="pre-ride-checklist">
+              {preRideRitual.map((step, i) => {
+                const stepName = step.name || step.instruction || step;
+                const stepDetail = typeof step === 'object' ? (step.instruction || step.purpose || '') : '';
+                return (
+                  <div key={i} className="pre-ride-item">
+                    <div
+                      className={`pre-ride-check ${preRideChecks[i] ? 'checked' : ''}`}
+                      onClick={() => setPreRideChecks(prev => ({ ...prev, [i]: !prev[i] }))}
+                    >
+                      {preRideChecks[i] ? '✓' : ''}
+                    </div>
+                    <div className="pre-ride-text">
+                      <strong>{typeof step === 'string' ? step : stepName}</strong>
+                      {stepDetail && <span className="pre-ride-detail"> — {stepDetail}</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {/* Body Awareness Prompts / Trainer Coordination (collapsed) */}
+        <div className={`collapse-card ${promptsOpen ? 'open' : ''}`} style={{ marginTop: 16 }}>
+          <div className="collapse-card-header" onClick={() => setPromptsOpen(!promptsOpen)}>
+            <span className="collapse-card-icon">📋</span>
+            <span className="collapse-card-title">Trainer Coordination & Disclaimer</span>
+            <span className="collapse-card-arrow">▼</span>
+          </div>
+          <div className="collapse-card-body">
+            {data.exercisePrescription?.pt_integration_notes && (
+              <p><strong>Working with your therapist/trainer:</strong> {data.exercisePrescription.pt_integration_notes}</p>
+            )}
+            <div className="pg-medical-disclaimer" style={{ marginTop: 12 }}>
+              <strong>Important Notice:</strong> The exercises and body awareness suggestions provided here are general fitness suggestions for riders, not medical advice. Consult your physician or healthcare provider before beginning any new exercise program. Stop any exercise immediately if you experience pain.
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function renderRegenModal() {
+    if (!showRegenModal) return null;
+
+    if (showRegenModal === 'upgrade') {
+      return (
+        <div className="gpt-modal-overlay" onClick={() => setShowRegenModal(null)}>
+          <div className="gpt-modal" onClick={e => e.stopPropagation()}>
+            <h3>Early Regeneration</h3>
+            <p>Early regeneration is available on the Top tier plan. Your current cycle runs until {cycleInfo?.expiresAt ? formatDate(cycleInfo.expiresAt) : 'the end of this month'}.</p>
+            <button className="gpt-modal-btn" onClick={() => setShowRegenModal(null)}>Got it</button>
+          </div>
+        </div>
+      );
+    }
+
+    if (showRegenModal === 'warning') {
+      return (
+        <div className="gpt-modal-overlay" onClick={() => setShowRegenModal(null)}>
+          <div className="gpt-modal" onClick={e => e.stopPropagation()}>
+            <h3>Regenerate Early?</h3>
+            <p>This will start a new 30-day cycle and reset to Week 1.</p>
+            <div className="gpt-modal-actions">
+              <button className="gpt-modal-btn gpt-modal-btn--secondary" onClick={() => setShowRegenModal(null)}>Cancel</button>
+              <button className="gpt-modal-btn" onClick={handleRegenerate}>Regenerate</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  }
+
+  return (
+    <div className="phys-redesign">
+      {renderHero()}
+      {activeTab === 'awareness' && renderAwarenessTab()}
+      {activeTab === 'protocol' && renderProtocolTab()}
+      {renderRegenModal()}
     </div>
   );
 }
