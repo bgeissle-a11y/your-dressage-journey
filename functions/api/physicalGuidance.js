@@ -58,6 +58,8 @@ async function handler(request) {
       return { success: true, ...result, cycleState };
     }
 
+    console.log(`[physical] forceRefresh=${forceRefresh}, staleOk=${staleOk}`);
+
     // Fast path: return cached data immediately
     if (staleOk && !forceRefresh) {
       const cached = await getStaleCache(uid, OUTPUT_TYPE, { maxAgeDays: 60 });
@@ -113,20 +115,12 @@ async function handler(request) {
       await advanceWeekAndExtract(uid, "physical");
     }
 
-    // Tier enforcement for regeneration
-    if (forceRefresh) {
-      const regenCheck = await checkRegenPermission(uid, "physical", { tier });
-      if (!regenCheck.allowed) {
-        return {
-          success: false,
-          error: "regen_blocked",
-          reason: regenCheck.reason,
-          cycleExpiresAt: regenCheck.cycleExpiresAt,
-          cooldownMinutesRemaining: regenCheck.cooldownMinutesRemaining,
-          cycleState: regenCheck.cycleState,
-        };
-      }
-    }
+    // Tier enforcement for regeneration — DISABLED during pilot
+    // TODO: Re-enable after pilot when Stripe billing is live
+    // if (forceRefresh) {
+    //   const regenCheck = await checkRegenPermission(uid, "physical", { tier });
+    //   if (!regenCheck.allowed) { ... }
+    // }
 
     // Check cache (30-day cycle)
     if (!forceRefresh) {

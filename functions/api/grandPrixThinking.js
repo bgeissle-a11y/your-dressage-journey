@@ -548,19 +548,12 @@ async function handler(request) {
       };
     }
 
-    // Tier enforcement for mental layer regeneration
-    if (layer === "mental" && forceRefresh) {
-      const regenCheck = await checkRegenPermission(uid, "gpt");
-      if (!regenCheck.allowed) {
-        return {
-          success: false,
-          error: "regen_blocked",
-          reason: regenCheck.reason,
-          cycleExpiresAt: regenCheck.cycleExpiresAt,
-          cooldownMinutesRemaining: regenCheck.cooldownMinutesRemaining,
-          cycleState: regenCheck.cycleState,
-        };
-      }
+    // Tier enforcement for mental layer regeneration — DISABLED during pilot
+    // TODO: Re-enable after pilot when Stripe billing is live
+    // if (layer === "mental" && forceRefresh) {
+    //   const regenCheck = await checkRegenPermission(uid, "gpt");
+    //   if (!regenCheck.allowed) { ... }
+    // }
     }
 
     // Build condensed cross-layer summary
