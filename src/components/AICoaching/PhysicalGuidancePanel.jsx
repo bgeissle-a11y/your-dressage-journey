@@ -254,6 +254,10 @@ export default function PhysicalGuidancePanel() {
   const exerciseProtocol = data.exerciseProtocol || data.exercisePrescription || {};
   const bodyProfile = data.bodyAwarenessProfile || {};
 
+  // Temporary debug — remove after confirming data flow
+  console.log('[Physical DEBUG] data keys:', Object.keys(data));
+  console.log('[Physical DEBUG] weeks:', weeks.length, 'exerciseProtocol keys:', Object.keys(exerciseProtocol), 'exercises:', exerciseProtocol.exercises?.length);
+
   function renderCycleBar() {
     if (!cycleInfo) return null;
 
