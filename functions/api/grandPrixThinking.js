@@ -554,7 +554,6 @@ async function handler(request) {
     //   const regenCheck = await checkRegenPermission(uid, "gpt");
     //   if (!regenCheck.allowed) { ... }
     // }
-    }
 
     // Build condensed cross-layer summary
     const crossLayerContext = buildCrossLayerSummary(
