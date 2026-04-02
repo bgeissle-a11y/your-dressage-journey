@@ -193,12 +193,6 @@ async function handler(request) {
       uid,
     });
 
-    // Log Call 1 output structure for debugging
-    console.log("[physical] Call 1 output keys:", Object.keys(exerciseProtocol));
-    console.log("[physical] Call 1 has exercises:", exerciseProtocol.exercises?.length || 0);
-    console.log("[physical] Call 1 has preRideRitual:", (exerciseProtocol.preRideRitual || exerciseProtocol.pre_ride_ritual)?.length || 0);
-    console.log("[physical] Call 1 priorityTier:", exerciseProtocol.priorityTier || exerciseProtocol.priority_tier || "missing");
-
     // --- Call 2: Body Awareness (4-Week Program) ---
     // Receives Exercise Protocol from Call 1 as input context (Hard Rule 1)
     const awarenessMaxTokens = tier === "top"
@@ -266,14 +260,6 @@ async function handler(request) {
       patternAnalysisLegacy: exerciseProtocol,
       exercisePrescription: exerciseProtocol,
     };
-
-    // Log merged result for debugging
-    console.log("[physical] Merged result keys:", Object.keys(result));
-    console.log("[physical] Merged exercises:", result.exerciseProtocol?.exercises?.length || 0);
-    console.log("[physical] Merged weeks:", result.weeks?.length || 0);
-    console.log("[physical] Merged weeklyFocusItems:", result.weeklyFocusItems?.length || 0);
-    console.log("[physical] Call 2 output keys:", Object.keys(bodyAwareness));
-    console.log("[physical] Call 2 weeks:", bodyAwareness.weeks?.length || 0);
 
     // Cache
     await setCache(uid, OUTPUT_TYPE, result, {

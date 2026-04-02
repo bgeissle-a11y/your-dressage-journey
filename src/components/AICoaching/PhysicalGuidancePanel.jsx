@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getPhysicalGuidance, advanceWeekPointer } from '../../services/aiService';
 import { readCycleState } from '../../services/weeklyFocusService';
 import { useAuth } from '../../contexts/AuthContext';
@@ -254,9 +254,6 @@ export default function PhysicalGuidancePanel() {
   const exerciseProtocol = data.exerciseProtocol || data.exercisePrescription || {};
   const bodyProfile = data.bodyAwarenessProfile || {};
 
-  // Temporary debug — remove after confirming data flow
-  console.log('[Physical DEBUG] data keys:', Object.keys(data));
-  console.log('[Physical DEBUG] weeks:', weeks.length, 'exerciseProtocol keys:', Object.keys(exerciseProtocol), 'exercises:', exerciseProtocol.exercises?.length);
 
   function renderCycleBar() {
     if (!cycleInfo) return null;
@@ -320,7 +317,7 @@ export default function PhysicalGuidancePanel() {
         {renderCycleBar()}
         <div className="tab-row">
           <button className={`tab-chip ${activeTab === 'awareness' ? 'active' : ''}`} onClick={() => setActiveTab('awareness')}>
-            Body Awareness <span className="chip-badge">Monthly</span>
+            Body Awareness <span className="chip-badge">4-Week Program</span>
           </button>
           <button className={`tab-chip ${activeTab === 'protocol' ? 'active' : ''}`} onClick={() => setActiveTab('protocol')}>
             Exercise Protocol <span className="chip-badge">Monthly</span>
@@ -508,13 +505,42 @@ export default function PhysicalGuidancePanel() {
           </div>
         )}
 
-        {/* Priority Tier Display */}
-        {exerciseProtocol.priorityTier && (
-          <div className="priority-tier-display">
-            <span className="priority-label">Priority tier:</span>
-            <span className="priority-value">{exerciseProtocol.priorityTier}</span>
-          </div>
-        )}
+        {/* Priority Hierarchy */}
+        <div className="section-label-row" style={{ marginTop: 4 }}>
+          <span className="section-pill pill-body">
+            <span className="pill-dot dot-body" />
+            Priority Hierarchy
+          </span>
+          <span className="section-note">Work upstream before downstream</span>
+        </div>
+        {(() => {
+          const activeTier = exerciseProtocol.priorityTier || 'proprioceptive';
+          const tiers = [
+            { id: 'neurological', label: 'Neurological', sublabel: 'VOR / vision' },
+            { id: 'proprioceptive', label: 'Proprioceptive', sublabel: 'Calibrate feel' },
+            { id: 'structural', label: 'Structural', sublabel: 'Build capacity' },
+            { id: 'tension', label: 'Tension', sublabel: 'Manage symptoms' },
+          ];
+          const activeIndex = tiers.findIndex(t => t.id === activeTier);
+          return (
+            <div className="tier-row">
+              {tiers.map((t, i) => {
+                const isActive = i === activeIndex;
+                const isPending = i < activeIndex;
+                const isFuture = i > activeIndex;
+                return (
+                  <React.Fragment key={t.id}>
+                    {i > 0 && <div className="tier-sep">→</div>}
+                    <div className={`tier-seg ${isActive ? 'active' : ''} ${isPending ? 'pending' : ''} ${isFuture ? 'future' : ''}`}>
+                      <div className="tier-number">{isActive ? 'Current' : isPending ? 'Unlock first' : 'Last'}</div>
+                      <div className="tier-name">{t.label}</div>
+                    </div>
+                  </React.Fragment>
+                );
+              })}
+            </div>
+          );
+        })()}
 
         {/* Exercises (all collapsed) */}
         {exercises.map((ex, i) => {
@@ -575,19 +601,40 @@ export default function PhysicalGuidancePanel() {
           </>
         )}
 
-        {/* Body Awareness Prompts / Trainer Coordination (collapsed) */}
+        {/* Body Awareness Prompts — Trainer & PT Coordination (collapsed) */}
         <div className={`collapse-card ${promptsOpen ? 'open' : ''}`} style={{ marginTop: 16 }}>
           <div className="collapse-card-header" onClick={() => setPromptsOpen(!promptsOpen)}>
-            <span className="collapse-card-icon">📋</span>
-            <span className="collapse-card-title">Trainer Coordination & Disclaimer</span>
+            <span className="collapse-card-icon">💬</span>
+            <span className="collapse-card-title">Body Awareness Prompts — Trainer & PT Coordination</span>
+            <span className="collapse-card-sub">Working with your support team</span>
             <span className="collapse-card-arrow">▼</span>
           </div>
           <div className="collapse-card-body">
-            {data.exercisePrescription?.pt_integration_notes && (
-              <p><strong>Working with your therapist/trainer:</strong> {data.exercisePrescription.pt_integration_notes}</p>
-            )}
-            <div className="pg-medical-disclaimer" style={{ marginTop: 12 }}>
-              <strong>Important Notice:</strong> The exercises and body awareness suggestions provided here are general fitness suggestions for riders, not medical advice. Consult your physician or healthcare provider before beginning any new exercise program. Stop any exercise immediately if you experience pain.
+            <div className="bap-body">
+              {(data.exercisePrescription?.pt_integration_notes || data.patternAnalysisLegacy?.pt_integration_notes) && (
+                <div className="bap-section">
+                  <div className="bap-section-title">Working with your therapist and trainer</div>
+                  <div className="bap-text">
+                    {data.exercisePrescription?.pt_integration_notes || data.patternAnalysisLegacy?.pt_integration_notes}
+                  </div>
+                </div>
+              )}
+              {data.exercisePrescription?.body_awareness_cues?.length > 0 && (
+                <div className="bap-section">
+                  <div className="bap-section-title">In-ride body awareness cues</div>
+                  {data.exercisePrescription.body_awareness_cues.map((cue, i) => (
+                    <div key={i} className="bap-cue">
+                      <strong>{cue.trigger}:</strong> {cue.cue}
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="bap-section">
+                <div className="bap-section-title">Important notice</div>
+                <div className="bap-text">
+                  These exercises are general fitness suggestions for riders, not medical advice. If you have existing injuries, chronic conditions, or physical limitations, consult your physician or PT before beginning. Stop any exercise immediately if you experience pain.
+                </div>
+              </div>
             </div>
           </div>
         </div>
