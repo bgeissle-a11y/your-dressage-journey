@@ -165,12 +165,8 @@ export default function PhysicalGuidancePanel() {
   };
 
   const handleRegenClick = () => {
-    // During pilot or if no cycle state exists yet, regenerate directly
-    if (!cycleInfo || cycleInfo.tier === 'top') {
-      setShowRegenModal('warning');
-    } else {
-      setShowRegenModal('upgrade');
-    }
+    // During pilot: regenerate directly, no modal needed
+    handleRegenerate();
   };
 
   const formatDate = (dateStr) => {
