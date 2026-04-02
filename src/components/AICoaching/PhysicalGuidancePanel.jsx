@@ -437,7 +437,7 @@ export default function PhysicalGuidancePanel() {
           <div className="wf-callout-text">
             <strong>Weekly Focus</strong> pulls your current patterns into a single view alongside coaching and mental performance work.
             <br />
-            <a className="wf-link" href="/weekly-focus">View full Physical Guidance →</a>
+            <a className="wf-link" href="/dashboard">View in This Week →</a>
           </div>
         </div>
       </div>

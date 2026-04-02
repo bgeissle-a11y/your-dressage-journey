@@ -182,8 +182,8 @@ async function handler(request) {
 
     // --- Call 1: Exercise Protocol ---
     const protocolMaxTokens = tier === "top"
-      ? (parseInt(process.env.PHYSICAL_PROTOCOL_TOP_TIER_MAX_TOKENS, 10) || 4500)
-      : 3000;
+      ? (parseInt(process.env.PHYSICAL_PROTOCOL_TOP_TIER_MAX_TOKENS, 10) || 8192)
+      : 8192;
 
     console.log("[physical] Starting Call 1: Exercise Protocol");
     const { system: sys1, userMessage: msg1 } = buildPhysicalGuidancePrompt(

@@ -592,7 +592,7 @@ export default function GrandPrixPanel({ generationStatus }) {
           <div className="wf-callout-text">
             <strong>Weekly Focus</strong> pulls your current week's assignments into a single view alongside coaching and physical guidance.
             <br />
-            <a className="wf-link" href="/weekly-focus">View in This Week →</a>
+            <a className="wf-link" href="/dashboard">View in This Week →</a>
           </div>
         </div>
       </div>

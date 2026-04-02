@@ -3499,8 +3499,51 @@ Respond in JSON format:
     "observed_accuracy": "how well their self-reports match the pattern analysis",
     "blind_spots": ["areas where the rider likely cannot feel what is happening"],
     "strengths": ["areas where their body awareness is serving them well"]
+  },
+  "priorityTier": "neurological|proprioceptive|structural|tension",
+  "exercises": [
+    {
+      "name": "exercise name",
+      "target_pattern": "which identified pattern this addresses",
+      "description": "clear, step-by-step instructions",
+      "riding_connection": "specific explanation of why this helps their riding",
+      "duration": "how long (e.g., '2-3 minutes')",
+      "frequency": "recommended frequency (e.g., 'daily', '3x/week')",
+      "difficulty": "beginner|intermediate|advanced",
+      "coach_snippet": { "voice": "voice name", "note": "1 sentence motivation or tip" }
+    }
+  ],
+  "preRideRitual": [
+    {
+      "name": "movement or stretch name",
+      "instruction": "brief instruction calibrated to kinesthetic level",
+      "purpose": "riding-specific purpose",
+      "duration": "time for this step"
+    }
+  ],
+  "bodyAwarenessProfile": {
+    "level": number,
+    "blindSpots": ["areas where the rider cannot feel what is happening"],
+    "strengths": ["areas where body awareness is strong"]
   }
 }
+
+EXERCISE PRESCRIPTION RULES:
+Prescribe 5-8 exercises maximum targeting the highest-impact patterns.
+Every exercise must have a clear riding connection: "When this exercise is working,
+you will notice [specific felt change in the saddle]."
+
+For LOWER kinesthetic levels (1-4): cues should be CONCRETE and EXTERNAL.
+For MODERATE levels (5-7): mix concrete cues with proprioceptive ones.
+For HIGHER levels (8-10): cues can be PROPRIOCEPTIVE and INTERNAL.
+
+PRE-RIDE RITUAL: 3-5 steps, total 5-7 minutes, done in the barn aisle before mounting.
+
+PRIORITY TIER: Classify the rider's primary intervention need:
+- neurological: VOR/peripheral vision issues — fix the signal first
+- proprioceptive: blind pelvic clock gaps — calibrate awareness before capacity
+- structural: flamingo balance, rotation limits — build physical capacity
+- tension: narrative tension patterns from debriefs — manage symptoms
 
 TRAJECTORY ALIGNMENT RULE:
 Active trajectory: ${activeTrajectory}
