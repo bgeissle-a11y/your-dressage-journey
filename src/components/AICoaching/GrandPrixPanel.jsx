@@ -229,16 +229,26 @@ export default function GrandPrixPanel({ generationStatus }) {
     }
   }, [generationStatus?.justCompleted]);
 
-  // Handle regenerate
+  // Handle regenerate — direct call, visible loading state
   const handleRegenerate = async () => {
     setShowRegenModal(null);
-    await fetchMental({ forceRefresh: true });
-  };
-
-  // Handle regen button click
-  const handleRegenClick = () => {
-    // During pilot: regenerate directly, no modal needed
-    handleRegenerate();
+    setMentalRefreshing(true);
+    try {
+      const result = await getGrandPrixThinking({ forceRefresh: true, layer: 'mental' });
+      if (result.success) {
+        setMentalData(result);
+        setMentalStale(false);
+        if (result.cycleState) {
+          setCycleState(result.cycleState);
+          setActiveWeek(result.cycleState.currentWeek || 1);
+        }
+      }
+    } catch (err) {
+      console.error('[GPT] Regenerate error:', err);
+      setMentalError({ message: 'Regeneration failed. Please try again.' });
+    } finally {
+      setMentalRefreshing(false);
+    }
   };
 
   // Toggle assignment accordion
@@ -351,8 +361,8 @@ export default function GrandPrixPanel({ generationStatus }) {
             {daysUntilRefresh != null && ` · ${daysUntilRefresh} days`}
           </span>
         </div>
-        <button className="cycle-regen" onClick={handleRegenClick}>
-          ↺ Regenerate early
+        <button className="cycle-regen" onClick={handleRegenerate} disabled={mentalRefreshing}>
+          {mentalRefreshing ? '⏳ Regenerating...' : '↺ Regenerate early'}
         </button>
       </div>
     );
@@ -763,6 +773,12 @@ export default function GrandPrixPanel({ generationStatus }) {
   return (
     <div className="gpt-redesign">
       {renderHero()}
+      {mentalRefreshing && (
+        <div className="gpt-gen-refreshing-bar">
+          <div className="spinner spinner--small" />
+          <span>Regenerating your Mental Performance program — this takes about 2 minutes...</span>
+        </div>
+      )}
       {activeTab === 'mental' && renderMentalTab()}
       {activeTab === 'trajectory' && renderTrajectoryTab()}
       {renderRegenModal()}

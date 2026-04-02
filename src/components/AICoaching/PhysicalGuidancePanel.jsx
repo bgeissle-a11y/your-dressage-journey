@@ -161,12 +161,23 @@ export default function PhysicalGuidancePanel() {
 
   const handleRegenerate = async () => {
     setShowRegenModal(null);
-    await fetchData({ forceRefresh: true });
-  };
-
-  const handleRegenClick = () => {
-    // During pilot: regenerate directly, no modal needed
-    handleRegenerate();
+    setRefreshing(true);
+    try {
+      const result = await getPhysicalGuidance({ forceRefresh: true });
+      if (result.success) {
+        setData(result);
+        setIsStale(false);
+        if (result.cycleState) {
+          setCycleState(result.cycleState);
+          setActiveWeek(result.cycleState.currentWeek || 1);
+        }
+      }
+    } catch (err) {
+      console.error('[Physical] Regenerate error:', err);
+      setError({ message: 'Regeneration failed. Please try again.' });
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const formatDate = (dateStr) => {
@@ -285,7 +296,9 @@ export default function PhysicalGuidancePanel() {
             {daysUntilRefresh != null && ` · ${daysUntilRefresh} days`}
           </span>
         </div>
-        <button className="cycle-regen" onClick={handleRegenClick}>↺ Regenerate early</button>
+        <button className="cycle-regen" onClick={handleRegenerate} disabled={refreshing}>
+          {refreshing ? '⏳ Regenerating...' : '↺ Regenerate early'}
+        </button>
       </div>
     );
   }
@@ -614,6 +627,12 @@ export default function PhysicalGuidancePanel() {
   return (
     <div className="phys-redesign">
       {renderHero()}
+      {refreshing && (
+        <div className="gpt-gen-refreshing-bar">
+          <div className="spinner spinner--small" />
+          <span>Regenerating your Physical Guidance — this takes about 2 minutes...</span>
+        </div>
+      )}
       {activeTab === 'awareness' && renderAwarenessTab()}
       {activeTab === 'protocol' && renderProtocolTab()}
       {renderRegenModal()}
