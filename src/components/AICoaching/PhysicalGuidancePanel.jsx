@@ -165,7 +165,8 @@ export default function PhysicalGuidancePanel() {
   };
 
   const handleRegenClick = () => {
-    if (cycleInfo?.tier === 'top') {
+    // During pilot or if no cycle state exists yet, regenerate directly
+    if (!cycleInfo || cycleInfo.tier === 'top') {
       setShowRegenModal('warning');
     } else {
       setShowRegenModal('upgrade');

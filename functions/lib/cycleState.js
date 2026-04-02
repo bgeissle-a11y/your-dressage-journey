@@ -343,9 +343,12 @@ function shouldTruncateFirstCycle() {
  * @returns {Promise<string>} "standard" | "top"
  */
 async function getUserTier(userId) {
+  // During pilot (through mid-May 2026), all users have full access.
+  // Treat everyone as "top" tier for regeneration purposes.
+  // TODO: Read from user profile after pilot ends and Stripe billing is live.
   const userSnap = await db.collection("users").doc(userId).get();
-  if (!userSnap.exists) return "standard";
-  return userSnap.data()?.tier || "standard";
+  if (!userSnap.exists) return "top";
+  return userSnap.data()?.tier || "top";
 }
 
 module.exports = {
