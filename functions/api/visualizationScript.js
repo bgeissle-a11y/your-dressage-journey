@@ -128,7 +128,8 @@ async function handler(request) {
     const riderContext = await fetchVisualizationContext(uid, formData);
 
     // Build prompt
-    const { system, userMessage } = buildVisualizationScriptPrompt(formData, riderContext);
+    const isWarmupScript = formData.movement === 'warm-up';
+    const { system, userMessage } = buildVisualizationScriptPrompt(formData, riderContext, isWarmupScript);
 
     // Call Claude
     const scriptLength = formData.scriptLength || "standard";

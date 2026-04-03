@@ -311,6 +311,10 @@
 
         .aspiration-note.visible { display: block; }
 
+        .context-card.hidden-for-movement {
+            display: none;
+        }
+
         .aspiration-note p {
             font-size: 0.85em;
             color: var(--color-text);
@@ -1037,6 +1041,7 @@
                 <div class="movement-group">
                     <div class="movement-group-label">Foundation & Balance</div>
                     <div class="movement-grid">
+                        <button class="movement-chip" data-movement="warm-up" onclick="selectMovement(this)">Warm-up</button>
                         <button class="movement-chip" data-movement="sitting-trot" onclick="selectMovement(this)">Sitting trot</button>
                         <button class="movement-chip" data-movement="stretchy-circle" onclick="selectMovement(this)">Stretchy circle</button>
                     </div>
@@ -1190,6 +1195,51 @@
                     </label>
 
                 </div>
+
+                <!-- Warm-up specific problem options — shown only when warm-up is selected -->
+                <div class="radio-cards" id="warmup-problem-cards" style="display:none;">
+
+                    <label class="radio-card" onclick="selectCard(this, 'warmup-problem-cards')">
+                        <input type="radio" name="problem" value="warmup-presence">
+                        <div>
+                            <div class="radio-card-label">🧘 Getting present — transitioning into riding mode</div>
+                            <div class="radio-card-desc">My mind is still in my day. I want to rehearse the mental shift from person to rider before I ever mount.</div>
+                        </div>
+                    </label>
+
+                    <label class="radio-card" onclick="selectCard(this, 'warmup-problem-cards')">
+                        <input type="radio" name="problem" value="warmup-horse">
+                        <div>
+                            <div class="radio-card-label">🐴 Meeting the horse where he is</div>
+                            <div class="radio-card-desc">Some days he's fresh, stiff, or tense. I want to rehearse reading him and adapting rather than pushing past what he's offering.</div>
+                        </div>
+                    </label>
+
+                    <label class="radio-card" onclick="selectCard(this, 'warmup-problem-cards')">
+                        <input type="radio" name="problem" value="warmup-rushing">
+                        <div>
+                            <div class="radio-card-label">⏩ I rush through it</div>
+                            <div class="radio-card-desc">I get to business too quickly. The warm-up becomes a formality rather than a conversation. I want to rehearse patience and listening.</div>
+                        </div>
+                    </label>
+
+                    <label class="radio-card" onclick="selectCard(this, 'warmup-problem-cards')">
+                        <input type="radio" name="problem" value="warmup-throughness">
+                        <div>
+                            <div class="radio-card-label">🌊 Finding the swing and throughness</div>
+                            <div class="radio-card-desc">I want to feel and rehearse the moment when his back comes up, the contact goes alive, and the horse is genuinely with me — not just going around.</div>
+                        </div>
+                    </label>
+
+                    <label class="radio-card" onclick="selectCard(this, 'warmup-problem-cards')">
+                        <input type="radio" name="problem" value="warmup-show">
+                        <div>
+                            <div class="radio-card-label">🏟 Managing show warm-up chaos</div>
+                            <div class="radio-card-desc">Other horses, noise, ring traffic, time pressure. I tighten up or get reactive instead of staying focused and soft.</div>
+                        </div>
+                    </label>
+
+                </div>
                 <div class="validation-hint" id="hint-problem">Please select the challenge you're working on.</div>
             </div>
         </div>
@@ -1275,7 +1325,7 @@
                         <div class="context-desc">Other horses, noise, limited space. Staying focused under distraction.</div>
                     </label>
 
-                    <label class="context-card" onclick="selectContext(this)">
+                    <label class="context-card" id="context-test-card" onclick="selectContext(this)">
                         <input type="radio" name="context" value="test">
                         <div class="context-icon">🏟</div>
                         <div class="context-label">Competition test</div>
@@ -1474,8 +1524,37 @@
             if (panel) panel.classList.add('visible');
         }
 
+        // Aspiration note — not shown for warm-up
         const aspNote = document.getElementById('aspiration-note');
-        aspNote.classList.toggle('visible', aspirationalMovements.includes(selectedMovement));
+        aspNote.classList.toggle('visible',
+            aspirationalMovements.includes(selectedMovement) && selectedMovement !== 'warm-up');
+
+        // Warm-up: swap problem cards, hide test context option
+        const isWarmup = selectedMovement === 'warm-up';
+
+        document.getElementById('problem-cards').style.display = isWarmup ? 'none' : 'flex';
+        document.getElementById('warmup-problem-cards').style.display = isWarmup ? 'flex' : 'none';
+
+        // Clear any selected problem card in the set being hidden
+        if (isWarmup) {
+            document.querySelectorAll('#problem-cards .radio-card').forEach(c => c.classList.remove('selected'));
+        } else {
+            document.querySelectorAll('#warmup-problem-cards .radio-card').forEach(c => c.classList.remove('selected'));
+        }
+
+        // Hide/show the competition test context card
+        const testCard = document.getElementById('context-test-card');
+        if (isWarmup) {
+            testCard.classList.add('hidden-for-movement');
+            // If test was previously selected, deselect it
+            if (testCard.classList.contains('selected')) {
+                testCard.classList.remove('selected');
+                testCard.querySelector('input').checked = false;
+            }
+        } else {
+            testCard.classList.remove('hidden-for-movement');
+        }
+
         document.getElementById('hint-movement').classList.remove('visible');
     }
 
@@ -1538,7 +1617,8 @@
             document.getElementById('hint-movement').classList.add('visible');
             valid = false;
         }
-        if (!document.querySelector('#problem-cards .radio-card.selected')) {
+        const activeProblemCards = selectedMovement === 'warm-up' ? '#warmup-problem-cards' : '#problem-cards';
+        if (!document.querySelector(`${activeProblemCards} .radio-card.selected`)) {
             document.getElementById('hint-problem').classList.add('visible');
             valid = false;
         }
@@ -1583,6 +1663,7 @@
     function buildMovementLabel(fd) {
         function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
         const labels = {
+            'warm-up': 'Warm-Up',
             'sitting-trot': 'Sitting Trot', 'stretchy-circle': 'Stretchy Circle',
             'leg-yield': 'Leg Yield', 'shoulder-in': 'Shoulder-In',
             'travers': 'Travers', 'renvers': 'Renvers',

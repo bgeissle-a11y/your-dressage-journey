@@ -3710,8 +3710,8 @@ Generate the ${weekCount}-week Body Awareness program. Each pattern must connect
 
 // ─── Visualization Script Builder ─────────────────────────────────
 
-function buildVisualizationScriptSystemPrompt() {
-  return `You are generating a personalized mental rehearsal (visualization) script for an adult amateur dressage rider. Your script follows the PETTLEP model (Holmes & Collins, 2001): Physical setup, Environment, Task specificity, Timing (real-time pacing), Learning (appropriate to skill level), Emotion (authentic feeling states), and Perspective (first-person internal throughout).
+function buildVisualizationScriptSystemPrompt(isWarmupScript = false) {
+  const basePrompt = `You are generating a personalized mental rehearsal (visualization) script for an adult amateur dressage rider. Your script follows the PETTLEP model (Holmes & Collins, 2001): Physical setup, Environment, Task specificity, Timing (real-time pacing), Learning (appropriate to skill level), Emotion (authentic feeling states), and Perspective (first-person internal throughout).
 
 SCRIPT PHILOSOPHY:
 - This is a felt-sense practice, not a performance checklist. Language should evoke sensation, rhythm, and presence — not instruct or evaluate.
@@ -3746,6 +3746,56 @@ Return valid JSON only. No preamble, no explanation, no markdown fences. Structu
   "reflectionPrompt": "string — the single question for the rider to answer after the session",
   "recordingTip": "string | null — optional single sentence of recording guidance specific to this movement/problem"
 }`;
+
+  if (!isWarmupScript) return basePrompt;
+
+  return basePrompt + `
+
+WARM-UP SCRIPT — SPECIAL GENERATION RULES:
+The rider has selected "Warm-Up" as their movement. This is not a discrete movement — it is a phase of riding with its own arc. Apply all of the following instead of the standard script structure.
+
+STRUCTURE FOR WARM-UP SCRIPTS:
+Do NOT generate a "Warm-Up" block followed by a "The Work" block. The warm-up IS the work. Use this block structure:
+
+1. settle — "Arriving in your body" (2 min, standard — no changes)
+2. arrive — "Coming to the barn" (2 min, standard — no changes)
+3. mount — "The first moment in the saddle" (2 min)
+   - The moment of contact between rider and horse — seat bones landing, reins taken up, the first breath together
+   - Establish the emotional and physical baseline: what does the horse feel like right now? What does the rider feel like?
+   - Rider scans for their own tension without fixing it — just noticing
+4. warmup-arc — "The arc of the warm-up" (5–8 min depending on script length)
+   - This is the central and longest block
+   - Move through the full warm-up arc: walk on a loose rein → rhythmic working walk → first trot → establishing rhythm → suppleness work → the moment throughness arrives
+   - The arc ends at the felt threshold: the moment the horse's back comes up, the contact becomes alive, and both athlete feel ready to work
+   - Tailor this block to the rider's stated problem focus (see problem focus below)
+   - Use the horse's name throughout — the horse is an active participant in every sentence
+5. threshold — "The moment of readiness" (2 min)
+   - The transition from warm-up into work — not a movement, but a feeling state
+   - What does "ready" feel like in this horse? What does the rider's body feel like when the warm-up has done its job?
+   - This is the goal state the script is training the rider to recognize and recreate
+6. reflect — standard, but with a warm-up-specific reflection prompt
+
+PROBLEM FOCUS SHAPING:
+The rider's stated problem focus determines the emphasis of block 4 (warmup-arc):
+- warmup-presence: weight the settle and mount blocks heavily; the arc begins with the rider's own nervous system regulation before asking anything of the horse
+- warmup-horse: the arc centers on reading and responding — the imagery includes multiple "what is he telling me right now?" check-ins
+- warmup-rushing: the arc is deliberately slow; include explicit imagery of the rider choosing to do less, wait longer, listen before asking
+- warmup-throughness: the arc builds explicitly toward the moment of throughness — describe the felt sequence: rhythm first, then relaxation, then the back swings, then the contact softens, then connection
+- warmup-show: the arrive block becomes the show grounds; the arc includes external distractions the rider practices staying soft through
+
+CONTEXT SHAPING:
+- training: quiet home arena, no audience, full time available — the focus is quality of conversation
+- warmup (show warm-up): busy ring, other horses, limited time, judge nearby — the focus is maintaining softness under pressure; the threshold moment includes imagery of the transition from warm-up ring to arena entrance
+
+REFLECTION PROMPT FOR WARM-UP:
+Do not use the standard "What did my body want to do?" prompt. Use instead:
+"What does 'ready' feel like — in your body and in his — on a good day?"
+This builds the rider's internal reference for readiness, which is more useful for a warm-up script than a pattern-interruption prompt.
+
+TIMING (for max_tokens and block structure):
+- short (~8 min): settle 2 + arrive 1.5 + mount 1.5 + warmup-arc 3 = no threshold block
+- standard (~12 min): settle 2 + arrive 2 + mount 2 + warmup-arc 4 + threshold 2
+- extended (~18 min): settle 2 + arrive 2 + mount 2 + warmup-arc 8 + threshold 2 + extended reflect 2`;
 }
 
 function buildMovementLabel(formData) {
@@ -3777,6 +3827,7 @@ function buildMovementLabel(formData) {
   }
 
   const labels = {
+    "warm-up": "Warm-Up",
     "sitting-trot": "Sitting Trot",
     "stretchy-circle": "Stretchy Circle",
     "leg-yield": "Leg Yield",
@@ -3809,6 +3860,11 @@ function formatProblem(problemFocus) {
     "anticipation": "Horse anticipates or rushes — rider needs to rehearse staying quiet and unreadable",
     "mental": "Mental freeze or confidence loss — rider hesitates, second-guesses, or holds breath",
     "unfamiliar": "Building from scratch — no physical reference for this movement yet",
+    "warmup-presence": "Getting present — rider mind is still in daily life; needs to rehearse the mental transition into riding mode before mounting",
+    "warmup-horse": "Meeting the horse where he is — rehearsing how to read, adapt to, and work with whatever state the horse presents that day",
+    "warmup-rushing": "Rushing through it — rider moves to work too quickly; needs to rehearse patience, listening, and conversation before asking",
+    "warmup-throughness": "Finding swing and throughness — rehearsing the felt moment when the horse's back comes up and the contact becomes alive",
+    "warmup-show": "Show warm-up management — rehearsing focus and softness under the distraction of ring traffic, noise, time pressure, and competition nerves",
   };
   return map[problemFocus] || problemFocus;
 }
@@ -3905,9 +3961,9 @@ Generate a ${formData.scriptLength} visualization script following the output fo
  * @param {object} riderContext - Fetched rider context from Firestore
  * @returns {{ system: string, userMessage: string }}
  */
-function buildVisualizationScriptPrompt(formData, riderContext) {
+function buildVisualizationScriptPrompt(formData, riderContext, isWarmupScript = false) {
   return {
-    system: buildVisualizationScriptSystemPrompt(),
+    system: buildVisualizationScriptSystemPrompt(isWarmupScript),
     userMessage: buildVisualizationScriptUserMessage(formData, riderContext),
   };
 }
@@ -3918,6 +3974,13 @@ function buildVisualizationScriptPrompt(formData, riderContext) {
 // RECENT VISUALIZATION PRACTICE:
 // - [Movement]: [sessionCount] sessions. Recent reflections: "[response1]", "[response2]"
 // This adds ~100-150 tokens and allows coaching voices to reference between-ride practice.
+//
+// TODO: Visualization session integration
+// When adding visualization session data to weekly coaching context:
+// - Movement scripts: surface recurring reflection patterns as body-awareness observations
+// - Warm-up scripts: surface 'threshold' reflections as self-efficacy reference points
+//   ("What does ready feel like?" answers inform GPT Mental Performance path language)
+// - Keep warm-up and movement session data semantically separate in the context bundle
 
 module.exports = {
   BASE_CONTEXT,
