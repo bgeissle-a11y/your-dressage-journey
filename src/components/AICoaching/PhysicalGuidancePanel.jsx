@@ -463,10 +463,14 @@ export default function PhysicalGuidancePanel() {
       <div className="tab-panel active phys-fade-up">
         {/* Cadence card */}
         <div className="cadence-card">
-          <span>📋</span>
-          <div className="cadence-text">
-            <strong>Updated monthly.</strong> Your Exercise Protocol is stable for the full 30-day cycle. Body Awareness noticing cues in the other tab are designed to reinforce these exercises.
-            {data.generatedAt && <em> Generated: {formatDate(data.generatedAt)}.</em>}
+          <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>🗓</span>
+          <div>
+            <div className="cadence-text">
+              <strong>This protocol was generated {formatDate(data.generatedAt)} and is stable for 30 days.</strong> It is based on your current body mapping results and your primary patterns. Exercises don't change week to week — your awareness of what they're training does.
+            </div>
+            <button className="regen-btn-sm" onClick={handleRegenerate} disabled={refreshing}>
+              {refreshing ? '⏳ Regenerating...' : '↺ Regenerate protocol early'}
+            </button>
           </div>
         </div>
 
@@ -476,34 +480,49 @@ export default function PhysicalGuidancePanel() {
             <span className="pill-dot dot-body" />
             Exercise Protocol
           </span>
-          <span className="section-note">{exercises.length} exercises prescribed</span>
+          <span className="section-note">Off-horse · Stable for 30 days</span>
         </div>
 
-        {/* Body Awareness Profile (collapsed) */}
-        {bodyProfile.level && (
-          <div className={`collapse-card ${profileOpen ? 'open' : ''}`}>
-            <div className="collapse-card-header" onClick={() => setProfileOpen(!profileOpen)}>
-              <span className="collapse-card-icon">🧠</span>
-              <span className="collapse-card-title">Body Awareness Profile</span>
-              <span className="collapse-card-sub">Level {bodyProfile.level}/10</span>
-              <span className="collapse-card-arrow">▼</span>
-            </div>
-            <div className="collapse-card-body">
-              {bodyProfile.blindSpots?.length > 0 && (
-                <div className="profile-section">
-                  <h5>Blind Spots</h5>
-                  <ul>{bodyProfile.blindSpots.map((b, i) => <li key={i}>{b}</li>)}</ul>
+        {/* Body Awareness Profile (collapsed by default) */}
+        {(bodyProfile.level || data.exercisePrescription?.kinesthetic_calibration) && (() => {
+          const kcal = data.exercisePrescription?.kinesthetic_calibration || {};
+          const level = bodyProfile.level || kcal.rated_level || 5;
+          const blindSpots = bodyProfile.blindSpots || kcal.blind_spots || [];
+          const strengths = bodyProfile.strengths || kcal.strengths || [];
+          const accuracy = kcal.observed_accuracy || '';
+          return (
+            <div className={`collapse-card ${profileOpen ? 'open' : ''}`}>
+              <div className="collapse-card-header" onClick={() => setProfileOpen(!profileOpen)}>
+                <span className="collapse-card-icon">🪞</span>
+                <span className="collapse-card-title">Body Awareness Profile</span>
+                <span className="collapse-card-sub">Level {level}/10 · {blindSpots.length} blind spots · {strengths.length} strengths</span>
+                <span className="collapse-card-arrow">▾</span>
+              </div>
+              <div className="collapse-card-body">
+                <div className="bap-body">
+                  {accuracy && (
+                    <div className="bap-section">
+                      <div className="bap-section-title">Awareness Level: {level}/10</div>
+                      <div className="bap-text">{accuracy}</div>
+                    </div>
+                  )}
+                  {blindSpots.length > 0 && (
+                    <div className="bap-section">
+                      <div className="bap-section-title">Blind Spots</div>
+                      <div className="bap-text">{blindSpots.join('. ')}.</div>
+                    </div>
+                  )}
+                  {strengths.length > 0 && (
+                    <div className="bap-section">
+                      <div className="bap-section-title">Awareness Strengths</div>
+                      <div className="bap-text">{strengths.join('. ')}.</div>
+                    </div>
+                  )}
                 </div>
-              )}
-              {bodyProfile.strengths?.length > 0 && (
-                <div className="profile-section">
-                  <h5>Strengths</h5>
-                  <ul>{bodyProfile.strengths.map((s, i) => <li key={i}>{s}</li>)}</ul>
-                </div>
-              )}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Priority Hierarchy */}
         <div className="section-label-row" style={{ marginTop: 4 }}>
