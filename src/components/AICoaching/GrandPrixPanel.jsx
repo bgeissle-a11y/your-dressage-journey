@@ -374,13 +374,13 @@ export default function GrandPrixPanel({ generationStatus }) {
 
     return (
       <div className="gpt-hero">
-        <div className="hero-eyebrow">Your Dressage Journey</div>
-        <div className="hero-title">Grand Prix Thinking</div>
-        {heroSub && (
-          <div className="hero-sub">
-            {riderInfo.name}{riderInfo.horse && <> · <strong>{riderInfo.horse}</strong></>}{riderInfo.level && <> · {riderInfo.level}</>}
-          </div>
-        )}
+        <div className="hero-eyebrow">Grand Prix Thinking</div>
+        <div className="hero-title">The mental game behind the movement</div>
+        <div className="hero-sub">
+          {mentalData?.generatedAt && <>Generated {formatDate(mentalData.generatedAt)}</>}
+          {mentalData?.selectedPath?.title && <> · Path selected: <strong>{mentalData.selectedPath.title}</strong></>}
+          {' · '}{cycleInfo?.maxWeeks || 4}-week program active
+        </div>
         {renderCycleBar()}
         <div className="tab-row">
           <button
@@ -388,7 +388,7 @@ export default function GrandPrixPanel({ generationStatus }) {
             onClick={() => setActiveTab('mental')}
           >
             Mental Performance
-            <span className="chip-badge">Monthly</span>
+            <span className="chip-badge">4-Week Program</span>
           </button>
           <button
             className={`tab-chip ${activeTab === 'trajectory' ? 'active' : ''}`}
@@ -632,14 +632,39 @@ export default function GrandPrixPanel({ generationStatus }) {
       { id: 'curious_explorer', name: 'Curious Explorer', icon: '🌿', iconClass: 'gpt-icon-forest', subtitle: 'Joy-centered. Breadth over timeline. Partnership first.' },
     ];
 
+    // Separate active from alternatives
+    const activeCard = TRAJ_CARDS.find(c => c.id === activePath);
+    const altCards = TRAJ_CARDS.filter(c => c.id !== activePath);
+
+    const findPathData = (cardId, cardName) => paths.find(p =>
+      p.name?.toLowerCase().replace(/\s+/g, '_') === cardId || p.name === cardName
+    );
+    const findNarrative = (cardId, cardName) => narratives.find(n =>
+      n.path_name?.toLowerCase().replace(/\s+/g, '_') === cardId || n.path_name === cardName
+    );
+
     return (
       <div className="tab-panel active gpt-fade-up">
+        {/* Section label */}
+        <div className="section-label-row">
+          <span className="section-pill pill-gold">
+            <span className="pill-dot dot-gold" />
+            Training Trajectory
+          </span>
+          <span className="section-note">Monthly · 3 paths · Choose your direction</span>
+        </div>
+
         {/* Cadence card */}
         <div className="cadence-card">
-          <span>🗓</span>
-          <div className="cadence-text">
-            <strong>Updated monthly.</strong> Training Trajectory looks further out than your monthly mental performance work — it updates when your data changes significantly or 30 days have passed.
-            {trajectoryData.generatedAt && <em> Last generated: {formatDate(trajectoryData.generatedAt)}.</em>}
+          <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>🗓</span>
+          <div>
+            <div className="cadence-text">
+              <strong>Training Trajectory looks further out than weekly mental performance work.</strong> It updates when your data changes significantly, you add a new horse, reach a major milestone, or 30 days have passed. The active path informs which mental performance path is selected above.
+              {trajectoryData.generatedAt && <em> Last generated: {formatDate(trajectoryData.generatedAt)}.</em>}
+            </div>
+            <button className="regen-btn-sm" onClick={() => fetchTrajectory({ forceRefresh: true })}>
+              ↺ Refresh trajectory
+            </button>
           </div>
         </div>
 
@@ -649,58 +674,58 @@ export default function GrandPrixPanel({ generationStatus }) {
           </div>
         )}
 
+        {/* Active Path section */}
         <div className="section-label-row">
-          <span className="section-pill pill-gold">
-            <span className="pill-dot dot-gold" />
-            Training Trajectory
+          <span className="section-pill pill-mental">
+            <span className="pill-dot dot-mental" />
+            Active Path
           </span>
-          <span className="section-note">3 paths · choose your direction</span>
+          <span className="section-note">Informing Mental Performance this cycle</span>
         </div>
 
-        {TRAJ_CARDS.map(card => {
-          const isBestFit = activePath === card.id;
-          const isOpen = openTrajCard === card.id;
-          const pathData = paths.find(p =>
-            p.name?.toLowerCase().replace(/\s+/g, '_') === card.id || p.name === card.name
-          );
-          const narrative = narratives.find(n =>
-            n.path_name?.toLowerCase().replace(/\s+/g, '_') === card.id || n.path_name === card.name
-          );
+        {activeCard && (() => {
+          const pathData = findPathData(activeCard.id, activeCard.name);
+          const narrative = findNarrative(activeCard.id, activeCard.name);
+          const isOpen = openTrajCard === activeCard.id;
 
           return (
-            <div key={card.id} className={`traj-card ${isBestFit ? 'active-path' : ''}`}>
-              <div className="traj-header" onClick={() => toggleTrajCard(card.id)}>
-                <div className={`traj-icon ${card.iconClass}`}>{card.icon}</div>
+            <div className={`traj-card active-path ${isOpen ? 'open' : ''}`}>
+              <div className="traj-header" onClick={() => toggleTrajCard(activeCard.id)}>
+                <div className={`traj-icon ${activeCard.iconClass}`}>{activeCard.icon}</div>
                 <div className="traj-header-text">
-                  <div className="traj-title">{card.name}</div>
-                  <div className="traj-subtitle">{pathData?.subtitle || card.subtitle}</div>
+                  <div className="traj-title">{pathData?.name || activeCard.name}</div>
+                  <div className="traj-subtitle">{pathData?.subtitle || activeCard.subtitle}</div>
                 </div>
-                {isBestFit && <span className="gpt-primary-badge">Best Fit</span>}
-                <button className={`gpt-collapse-icon ${isOpen ? 'open' : ''}`}>▼</button>
+                <span className="traj-badge badge-active">Active Path</span>
+                <span className="traj-arrow">▾</span>
               </div>
 
               {isOpen && (
-                <div className="traj-body open">
-                  <div className="traj-row">
-                    <div className="traj-stat">
-                      <div className="traj-stat-label">Where you are now</div>
-                      <div className="traj-stat-value">
-                        {pathData?.philosophy || trajectoryData.currentStateAnalysis?.trajectory || ''}
-                      </div>
-                    </div>
-                    <div className="traj-stat">
-                      <div className="traj-stat-label">What this path prioritizes</div>
-                      <div className="traj-stat-value">{pathData?.year1?.focus || ''}</div>
-                    </div>
-                  </div>
+                <div className="traj-body">
+                  {/* Why this trajectory */}
+                  {pathData?.philosophy && (
+                    <>
+                      <div className="traj-section-label">Why this trajectory</div>
+                      <div className="traj-why-text">{pathData.philosophy}</div>
+                    </>
+                  )}
 
+                  {/* Where you are now */}
+                  {pathData?.year1?.training_emphasis && (
+                    <>
+                      <div className="traj-section-label">Where you are now</div>
+                      <div className="traj-why-text">{pathData.year1.training_emphasis}</div>
+                    </>
+                  )}
+
+                  {/* Milestones */}
                   {pathData?.year1?.milestones?.length > 0 && (
                     <>
-                      <div className="gpt-milestones-label">3-6 Month Milestones</div>
-                      <div className="gpt-milestone-list">
+                      <div className="traj-section-label">3-month milestones</div>
+                      <div className="milestones-block">
                         {pathData.year1.milestones.map((m, i) => (
-                          <div key={i} className="gpt-milestone-item">
-                            <div className={`gpt-milestone-dot ${card.id === 'steady_builder' ? 'sky' : card.id === 'curious_explorer' ? 'forest' : ''}`} />
+                          <div key={i} className="milestone-item">
+                            <div className={`m-dot ${i === 0 ? 'done' : i === 1 ? 'current' : ''}`} />
                             <span>{m}</span>
                           </div>
                         ))}
@@ -708,23 +733,65 @@ export default function GrandPrixPanel({ generationStatus }) {
                     </>
                   )}
 
+                  {/* Trajectory projection / position */}
                   {narrative?.narrative && (
-                    <div className="gpt-traj-timeline">
-                      <strong>Trajectory projection:</strong> {narrative.narrative.substring(0, 300)}
-                      {narrative.narrative.length > 300 ? '...' : ''}
-                    </div>
-                  )}
-
-                  {!isBestFit && narrative?.why_not_selected && (
-                    <div className="traj-why-not">
-                      <strong>Why not selected this cycle:</strong> {narrative.why_not_selected}
+                    <div className="traj-position-block">
+                      <div className="traj-position-label">Current position in trajectory</div>
+                      <div className="traj-position-text">{narrative.narrative}</div>
                     </div>
                   )}
                 </div>
               )}
             </div>
           );
-        })}
+        })()}
+
+        {/* Other Paths Available */}
+        {altCards.length > 0 && (
+          <>
+            <div className="section-label-row" style={{ marginTop: 8 }}>
+              <span className="section-pill pill-body">
+                <span className="pill-dot dot-body" />
+                Other Paths Available
+              </span>
+              <span className="section-note">Tap to explore</span>
+            </div>
+
+            {altCards.map(card => {
+              const pathData = findPathData(card.id, card.name);
+              const narrative = findNarrative(card.id, card.name);
+              const isOpen = openTrajCard === card.id;
+
+              return (
+                <div key={card.id} className={`traj-card ${isOpen ? 'open' : ''}`}>
+                  <div className="traj-header" onClick={() => toggleTrajCard(card.id)}>
+                    <div className={`traj-icon ${card.iconClass}`}>{card.icon}</div>
+                    <div className="traj-header-text">
+                      <div className="traj-title">{pathData?.name || card.name}</div>
+                      <div className="traj-subtitle">{pathData?.subtitle || card.subtitle}</div>
+                    </div>
+                    <span className="traj-badge badge-alt">Alternative</span>
+                    <span className="traj-arrow">▾</span>
+                  </div>
+
+                  {isOpen && (
+                    <div className="traj-body">
+                      {pathData?.philosophy && (
+                        <div className="traj-why-text">{pathData.philosophy}</div>
+                      )}
+                      {narrative?.narrative && (
+                        <div className="traj-position-block">
+                          <div className="traj-position-label">Why not selected this cycle</div>
+                          <div className="traj-position-text">{narrative.narrative}</div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </>
+        )}
       </div>
     );
   }

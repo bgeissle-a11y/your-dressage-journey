@@ -2461,6 +2461,161 @@
 }
 
 
+/* ── TRAJECTORY CARDS (matching gpt-v2.html prototype) ── */
+.traj-card {
+  background: white;
+  border: 1.5px solid var(--parchment-dark);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 6px rgba(44,31,20,.04);
+}
+.traj-card.active-path {
+  border-color: var(--primary-border);
+  box-shadow: 0 2px 12px rgba(46,92,130,.10);
+}
+.traj-header {
+  padding: 15px 18px 13px;
+  border-bottom: 1px solid var(--parchment-dark);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: background .15s;
+}
+.traj-card.active-path .traj-header {
+  border-bottom-color: var(--primary-border);
+  background: linear-gradient(135deg, rgba(46,92,130,.05) 0%, rgba(46,92,130,.02) 100%);
+}
+.traj-header:hover { background: var(--parchment-off); }
+.traj-card.active-path .traj-header:hover { background: rgba(46,92,130,.07); }
+.traj-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  background: var(--parchment);
+}
+.traj-card.active-path .traj-icon { background: var(--primary-bg); }
+.traj-header-text { flex: 1; }
+.traj-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 3px;
+}
+.traj-subtitle {
+  font-size: 12px;
+  color: var(--ink-light);
+}
+.traj-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  align-self: flex-start;
+  white-space: nowrap;
+}
+.badge-active {
+  background: var(--primary-bg);
+  color: var(--primary);
+  border: 1px solid var(--primary-border);
+}
+.badge-alt {
+  background: var(--parchment);
+  color: var(--ink-light);
+  border: 1px solid var(--parchment-dark);
+}
+.traj-arrow {
+  font-size: 11px;
+  color: var(--ink-light);
+  transition: transform .2s;
+  margin-left: 6px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+.traj-card.open .traj-arrow { transform: rotate(180deg); }
+.traj-body {
+  display: none;
+  padding: 15px 18px 18px;
+  animation: fadeUp .25s ease both;
+}
+.traj-card.open .traj-body { display: block; }
+.traj-section-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--track);
+  margin-bottom: 6px;
+}
+.traj-why-text {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--ink-mid);
+  font-style: italic;
+  border-left: 3px solid var(--gold-pale);
+  padding-left: 12px;
+  margin-bottom: 14px;
+}
+.traj-why-text strong {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--ink);
+}
+.milestones-block { margin-bottom: 14px; }
+.milestone-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-bottom: 8px;
+  font-size: 12.5px;
+  color: var(--ink-mid);
+  line-height: 1.5;
+}
+.milestone-item:last-child { margin-bottom: 0; }
+.m-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.m-dot.done { background: var(--primary); }
+.m-dot.current {
+  background: white;
+  box-shadow: 0 0 0 3px rgba(46,92,130,.25);
+}
+.traj-position-block {
+  padding: 9px 13px;
+  border-radius: 9px;
+  background: var(--primary-bg);
+  border: 1px solid var(--primary-border);
+}
+.traj-position-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--primary);
+  margin-bottom: 3px;
+}
+.traj-position-text {
+  font-size: 12px;
+  color: var(--ink-mid);
+  line-height: 1.5;
+}
+
 /* ── EXERCISE CARDS (accordion, matching prototype) ── */
 .ex-card {
   background: white;
