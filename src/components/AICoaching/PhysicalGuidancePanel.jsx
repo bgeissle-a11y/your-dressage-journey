@@ -542,25 +542,65 @@ export default function PhysicalGuidancePanel() {
           );
         })()}
 
-        {/* Exercises (all collapsed) */}
+        {/* Prescribed Exercises */}
+        <div className="section-label-row">
+          <span className="section-pill pill-body">
+            <span className="pill-dot dot-body" />
+            Prescribed Exercises
+          </span>
+          <span className="section-note">Tap to expand · All {exercises.length} exercises</span>
+        </div>
+
         {exercises.map((ex, i) => {
           const isOpen = openExercises.has(i);
+          const tierTag = (exerciseProtocol.priorityTier || 'proprioceptive').toLowerCase();
+          const tierClass = tierTag === 'proprioceptive' ? 'tag-propr' :
+            tierTag === 'structural' ? 'tag-struct' :
+            tierTag === 'tension' ? 'tag-tension' : 'tag-propr';
+          const iconMap = { 0: '🪑', 1: '🦩', 2: '🧘', 3: '💆', 4: '🫁', 5: '🦶', 6: '🪞', 7: '🧍' };
           return (
-            <div key={i} className={`collapse-card ${isOpen ? 'open' : ''}`}>
-              <div className="collapse-card-header" onClick={() => toggleExercise(i)}>
-                <span className="collapse-card-icon">💪</span>
-                <span className="collapse-card-title">{ex.name}</span>
-                <span className="collapse-card-sub">{ex.frequency || ex.duration || ''}</span>
-                <span className="collapse-card-arrow">▼</span>
-              </div>
-              <div className="collapse-card-body">
-                <p className="ex-target">Targets: {ex.target_pattern}</p>
-                <p className="ex-desc">{ex.description}</p>
-                <div className="ex-riding-connection">
-                  <strong>Why this helps your riding:</strong> {ex.riding_connection}
+            <div key={i} className={`ex-card ${isOpen ? 'open' : ''}`}>
+              <div className="ex-header" onClick={() => toggleExercise(i)}>
+                <div className="ex-icon">{iconMap[i] || '💪'}</div>
+                <div className="ex-title-block">
+                  <div className="ex-title">{ex.name}</div>
+                  <div className="ex-meta">{ex.frequency}{ex.duration ? ` · ${ex.duration}` : ''}</div>
                 </div>
+                <div className="ex-tags">
+                  <span className={`ex-tier-tag ${tierClass}`}>{exerciseProtocol.priorityTier || 'Proprioceptive'}</span>
+                  {ex.difficulty && <span className="ex-tier-tag tag-diff">{ex.difficulty}</span>}
+                </div>
+                <span className="ex-arrow">▾</span>
+              </div>
+              <div className="ex-body">
+                {/* Numbered steps if description has multiple sentences */}
+                {(() => {
+                  const steps = ex.description?.split(/(?<=\.)\s+/).filter(Boolean) || [];
+                  if (steps.length > 1) {
+                    return (
+                      <ol className="ex-steps">
+                        {steps.map((step, j) => (
+                          <li key={j} className="ex-step">
+                            <div className="step-num">{j + 1}</div>
+                            <span>{step}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    );
+                  }
+                  return <p className="ex-desc">{ex.description}</p>;
+                })()}
+
+                {/* Saddle outcome callout */}
+                {ex.riding_connection && (
+                  <div className="saddle-block">
+                    <div className="saddle-label">What to notice in the saddle</div>
+                    <div className="saddle-text">{ex.riding_connection}</div>
+                  </div>
+                )}
+
                 {ex.coach_snippet && (
-                  <div className="ex-coach-snippet">
+                  <div className="ex-coach-snippet" style={{ marginTop: 10 }}>
                     <em>{ex.coach_snippet.voice}:</em> {ex.coach_snippet.note}
                   </div>
                 )}
@@ -569,7 +609,7 @@ export default function PhysicalGuidancePanel() {
           );
         })}
 
-        {/* Pre-Ride Ritual (open by default) */}
+        {/* Pre-Ride Ritual */}
         {preRideRitual.length > 0 && (
           <>
             <div className="section-label-row" style={{ marginTop: 20 }}>
@@ -577,26 +617,36 @@ export default function PhysicalGuidancePanel() {
                 <span className="pill-dot dot-gold" />
                 Pre-Ride Ritual
               </span>
+              <span className="section-note">{preRideRitual.reduce((t, s) => t + (parseInt(s.duration) || 1), 0)}–{preRideRitual.reduce((t, s) => t + (parseInt(s.duration) || 2), 0)} min · After tacking up · Before any horse</span>
             </div>
-            <div className="pre-ride-checklist">
-              {preRideRitual.map((step, i) => {
-                const stepName = step.name || step.instruction || step;
-                const stepDetail = typeof step === 'object' ? (step.instruction || step.purpose || '') : '';
-                return (
-                  <div key={i} className="pre-ride-item">
+            <div className="preride-card">
+              <div className="preride-header">
+                <span style={{ fontSize: 16 }}>🌅</span>
+                <span className="preride-title">Barn Aisle Preparation</span>
+                <span className="preride-meta">Reset daily · In order</span>
+              </div>
+              <div className="preride-items">
+                {preRideRitual.map((step, i) => {
+                  const stepName = typeof step === 'string' ? step : (step.name || step.instruction || '');
+                  const stepDesc = typeof step === 'object' ? (step.instruction || step.purpose || '') : '';
+                  const stepTime = typeof step === 'object' ? (step.duration || '') : '';
+                  const isDone = preRideChecks[i];
+                  return (
                     <div
-                      className={`pre-ride-check ${preRideChecks[i] ? 'checked' : ''}`}
+                      key={i}
+                      className={`pr-item ${isDone ? 'done' : ''}`}
                       onClick={() => setPreRideChecks(prev => ({ ...prev, [i]: !prev[i] }))}
                     >
-                      {preRideChecks[i] ? '✓' : ''}
+                      <div className="pr-check">{isDone ? '✓' : ''}</div>
+                      <div className="pr-text-block">
+                        <div className="pr-name">{stepName}</div>
+                        {stepDesc && <div className="pr-desc">{stepDesc}</div>}
+                      </div>
+                      {stepTime && <span className="pr-time">{stepTime}</span>}
                     </div>
-                    <div className="pre-ride-text">
-                      <strong>{typeof step === 'string' ? step : stepName}</strong>
-                      {stepDetail && <span className="pre-ride-detail"> — {stepDetail}</span>}
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           </>
         )}
