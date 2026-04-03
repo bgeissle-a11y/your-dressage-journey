@@ -7,6 +7,7 @@ import {
   readCoachingCaches, readGPTCache, readPhysicalCache, readShowPlanCache,
   readVisualizationSuggestionCache, readCycleState,
 } from '../services/weeklyFocusService';
+import { advanceWeekPointer } from '../services/aiService';
 import {
   extractCoachingSnapshot, extractGPTSnapshot, extractPhysicalSnapshot,
   buildShowSnapshot, selectCelebration,
@@ -238,11 +239,20 @@ export default function useWeeklyFocus() {
       const uid = currentUser.uid;
 
       try {
-        // Read week state + supporting data in parallel
+        // Advance week pointers for 30-day cycle outputs (if needed).
+        // This ensures weeklyAssignments/weeklyFocusItems in analysisCache
+        // match the current week before we read them.
+        // Run in parallel with initial data reads — both complete before
+        // we read fresh content from analysisCache.
         const [weekStateRes, reflRes, showRes] = await Promise.all([
           getWeekState(uid, weekId),
           getAllReflections(uid),
           getAllShowPreparations(uid),
+          // Week advancement: lightweight Cloud Function calls that update
+          // Firestore if the computed week differs from stored currentWeek.
+          // Silently ignored if cycle state doesn't exist yet.
+          advanceWeekPointer('mental').catch(() => null),
+          advanceWeekPointer('physical').catch(() => null),
         ]);
 
         if (cancelled) return;

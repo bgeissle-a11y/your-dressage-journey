@@ -39,7 +39,8 @@ export function deriveWeeklyAssignments(gptResult, cycleWeek) {
 
   // New structure fallback: derive from selectedPath.weeks
   if (gptResult?.selectedPath?.weeks?.length) {
-    const weekData = gptResult.selectedPath.weeks.find(w => w.week === cycleWeek)
+    const weekData = gptResult.selectedPath.weeks.find(w => w.number === cycleWeek || w.week === cycleWeek)
+      || gptResult.selectedPath.weeks[cycleWeek - 1]
       || gptResult.selectedPath.weeks[0];
     const assignments = weekData?.assignments || [];
     return assignments.length ? assignments.map(a => ({

@@ -262,6 +262,8 @@ async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerConte
   const truncated = isFirstGen && shouldTruncateFirstCycle();
 
   // Determine max tokens based on tier
+  // Standard 8192: full 4-week program with 3 assignments/week, check-ins, success metrics
+  // (4000 was too low for a complete 4-week program — truncated mid-generation)
   const topTierMaxTokens = parseInt(process.env.PHYSICAL_GPT_TOP_TIER_MAX_TOKENS, 10) || 8192;
   const maxTokens = tier === "top" ? topTierMaxTokens : 8192;
 

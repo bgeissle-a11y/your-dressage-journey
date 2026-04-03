@@ -58,8 +58,6 @@ async function handler(request) {
       return { success: true, ...result, cycleState };
     }
 
-    console.log(`[physical] forceRefresh=${forceRefresh}, staleOk=${staleOk}`);
-
     // Fast path: return cached data immediately
     if (staleOk && !forceRefresh) {
       const cached = await getStaleCache(uid, OUTPUT_TYPE, { maxAgeDays: 60 });
@@ -174,7 +172,9 @@ async function handler(request) {
     const isFirstGen = !cycleState;
     const truncated = isFirstGen && shouldTruncateFirstCycle();
 
-    // --- Call 1: Exercise Protocol ---
+    // --- Call 1: Exercise Protocol (pattern analysis + exercises + pre-ride ritual) ---
+    // Standard 8192: pattern analysis + 5-8 exercises + pre-ride ritual + body awareness profile
+    // Top tier: configurable via env var, defaults to 8192
     const protocolMaxTokens = tier === "top"
       ? (parseInt(process.env.PHYSICAL_PROTOCOL_TOP_TIER_MAX_TOKENS, 10) || 8192)
       : 8192;
@@ -195,6 +195,8 @@ async function handler(request) {
 
     // --- Call 2: Body Awareness (4-Week Program) ---
     // Receives Exercise Protocol from Call 1 as input context (Hard Rule 1)
+    // Standard 8192: full 4-week program with patterns, noticing cues, debrief prompts
+    // (4000 was too low — truncated at ~2 weeks; 8192 fits full 4 weeks comfortably)
     const awarenessMaxTokens = tier === "top"
       ? (parseInt(process.env.PHYSICAL_AWARENESS_TOP_TIER_MAX_TOKENS, 10) || 8192)
       : 8192;
