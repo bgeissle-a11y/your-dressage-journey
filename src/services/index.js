@@ -184,7 +184,10 @@ export {
   TOOLKIT_STATUSES,
   BODY_TAGS,
   CATEGORY_LABELS,
-  STATUS_LABELS
+  STATUS_LABELS,
+  createVisualizationScript,
+  getVisualizationScriptEntry,
+  saveVisualizationSession
 } from './riderToolkitService';
 
 // Settings (preferences, notifications, privacy, coaches)

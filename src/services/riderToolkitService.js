@@ -1,4 +1,9 @@
 import { createBaseService } from './baseService';
+import { db } from '../firebase-config';
+import {
+  doc, collection, addDoc, updateDoc, getDoc,
+  serverTimestamp, increment,
+} from 'firebase/firestore';
 
 const COLLECTION = 'riderToolkitEntries';
 const base = createBaseService(COLLECTION);
@@ -100,4 +105,86 @@ export async function updateToolkitEntry(docId, data) {
  */
 export async function deleteToolkitEntry(docId) {
   return base.delete(docId);
+}
+
+// ═══════════════════════════════════════════════
+// Visualization Script — specialized CRUD
+// ═══════════════════════════════════════════════
+
+/**
+ * Create a visualization script toolkit entry with the full data shape
+ * that the standalone HTML form used (movement, scriptContent, etc.).
+ */
+export async function createVisualizationScript(userId, formData, script, movementLabel) {
+  try {
+    const docRef = await addDoc(collection(db, COLLECTION), {
+      userId,
+      entryType: 'visualization-script',
+      movement: formData.movement,
+      movementSub: formData.movementSub || null,
+      movementSub2: formData.movementSub2 || null,
+      movementLabel,
+      problemFocus: formData.problemFocus,
+      referenceType: formData.referenceType,
+      referenceText: formData.referenceText || null,
+      context: formData.context,
+      sensoryPreference: formData.sensoryPreference || null,
+      scriptLength: formData.scriptLength || 'standard',
+      scriptContent: JSON.stringify(script),
+      category: 'mental',
+      status: 'currently-using',
+      name: `Visualization: ${movementLabel}`,
+      sessionCount: 0,
+      lastSessionDate: null,
+      isDeleted: false,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+    return { success: true, data: { id: docRef.id } };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Load an existing visualization script by its toolkit entry ID.
+ */
+export async function getVisualizationScriptEntry(docId) {
+  try {
+    const snap = await getDoc(doc(db, COLLECTION, docId));
+    if (!snap.exists()) return { success: false, error: 'Not found' };
+    return { success: true, data: { id: snap.id, ...snap.data() } };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Save a visualization session to the sessions subcollection
+ * and bump sessionCount / lastSessionDate on the parent entry.
+ */
+export async function saveVisualizationSession(scriptId, sessionData) {
+  try {
+    const parentRef = doc(db, COLLECTION, scriptId);
+    const sessionsRef = collection(parentRef, 'sessions');
+    const today = new Date().toISOString().split('T')[0];
+
+    await addDoc(sessionsRef, {
+      sessionDate: today,
+      reflectionResponse: sessionData.reflectionText || '',
+      completedBlocks: sessionData.completedBlocks || [],
+      sessionLength: sessionData.scriptLength || 'standard',
+      createdAt: serverTimestamp(),
+    });
+
+    await updateDoc(parentRef, {
+      sessionCount: increment(1),
+      lastSessionDate: today,
+      updatedAt: serverTimestamp(),
+    });
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
 }

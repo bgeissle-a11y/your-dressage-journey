@@ -56,6 +56,9 @@ import PracticeCard from './components/PracticeCard/PracticeCard';
 import ToolkitList from './components/RiderToolkit/ToolkitList';
 import ToolkitForm from './components/RiderToolkit/ToolkitForm';
 
+// Visualization
+import VisualizationPage from './components/Visualization/VisualizationPage';
+
 // Settings
 import Settings from './components/Settings/Settings';
 
@@ -142,6 +145,8 @@ function App() {
             <Route path="/toolkit" element={<ToolkitList />} />
             <Route path="/toolkit/new" element={<ToolkitForm />} />
             <Route path="/toolkit/:id/edit" element={<ToolkitForm />} />
+            <Route path="/toolkit/visualization/new" element={<VisualizationPage />} />
+            <Route path="/toolkit/visualization/:id" element={<VisualizationPage />} />
 
             {/* Show Prep */}
             <Route path="/show-prep" element={<ShowPrepList />} />

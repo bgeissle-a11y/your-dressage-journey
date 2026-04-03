@@ -98,6 +98,7 @@ const NAV_GROUPS = [
         heading: 'Practice',
         links: [
           { icon: '\uD83E\uDDF0', label: "Rider\u2019s Toolkit", to: '/toolkit/new' },
+          { icon: '\uD83E\uDDE0', label: 'Visualization Script', to: '/toolkit/visualization/new' },
         ],
       },
     ],

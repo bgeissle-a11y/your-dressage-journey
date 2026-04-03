@@ -19,6 +19,11 @@ const PROBLEM_LABELS = {
   anticipation: 'Horse anticipates or rushes',
   mental: 'Mental freeze or confidence loss',
   unfamiliar: 'Building from scratch',
+  'warmup-presence': 'Getting present',
+  'warmup-horse': 'Meeting the horse where he is',
+  'warmup-rushing': 'Rushing through it',
+  'warmup-throughness': 'Finding the swing',
+  'warmup-show': 'Show warm-up chaos',
 };
 
 const FILTERS = [
@@ -109,7 +114,7 @@ export default function ToolkitList() {
             </>
           )}
           <Link to="/toolkit/new" className="btn-new">+ New Entry</Link>
-          <a href="/ydj-visualization-form.html" className="btn-new tk-viz-btn">Build Visualization Script</a>
+          <Link to="/toolkit/visualization/new" className="btn-new tk-viz-btn">Build Visualization Script</Link>
         </div>
       </div>
 
@@ -195,12 +200,12 @@ export default function ToolkitList() {
                 )}
 
                 <div className="tk-entry-actions">
-                  <a
-                    href={`/ydj-visualization-form.html?scriptId=${entry.id}`}
+                  <Link
+                    to={`/toolkit/visualization/${entry.id}`}
                     className="tk-entry-btn tk-viz-open-btn"
                   >
                     Open Script
-                  </a>
+                  </Link>
                   <button className="tk-entry-btn" onClick={() => handleCycleStatus(entry.id)}>
                     Change status
                   </button>

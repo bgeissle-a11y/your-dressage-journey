@@ -22,7 +22,7 @@ export default function WFVisualizationCard({ visualization }) {
     suggestedLength,
   } = visualization;
 
-  const vizUrl = `/riders-toolkit/visualization?movement=${encodeURIComponent(movementKey || '')}&problem=${encodeURIComponent(problemFocus || '')}&context=${encodeURIComponent(context || '')}&length=${encodeURIComponent(suggestedLength || '')}`;
+  const vizUrl = `/toolkit/visualization/new?movement=${encodeURIComponent(movementKey || '')}&problem=${encodeURIComponent(problemFocus || '')}&context=${encodeURIComponent(context || '')}&length=${encodeURIComponent(suggestedLength || '')}`;
 
   return (
     <div className="insight-card">
