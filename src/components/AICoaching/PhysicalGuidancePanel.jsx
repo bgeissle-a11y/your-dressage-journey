@@ -22,7 +22,9 @@ import './ThirtyDayCycle.css';
  */
 export default function PhysicalGuidancePanel() {
   const { currentUser } = useAuth();
-  const [activeTab, setActiveTab] = useState('awareness');
+  // Auto-switch to protocol tab when #barn-aisle-prep anchor is in the URL
+  const initialTab = window.location.hash === '#barn-aisle-prep' ? 'protocol' : 'awareness';
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -48,6 +50,17 @@ export default function PhysicalGuidancePanel() {
 
   // Pre-ride checklist (NOT persisted — resets on load)
   const [preRideChecks, setPreRideChecks] = useState({});
+
+  // Scroll to anchor after protocol tab renders
+  useEffect(() => {
+    if (activeTab === 'protocol' && window.location.hash === '#barn-aisle-prep') {
+      const timer = setTimeout(() => {
+        const el = document.getElementById('barn-aisle-prep');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [activeTab, data]);
 
   // Modals
   const [showRegenModal, setShowRegenModal] = useState(null);
