@@ -638,7 +638,7 @@ export default function PhysicalGuidancePanel() {
               </span>
               <span className="section-note">{preRideRitual.reduce((t, s) => t + (parseInt(s.duration) || 1), 0)}–{preRideRitual.reduce((t, s) => t + (parseInt(s.duration) || 2), 0)} min · After tacking up · Before any horse</span>
             </div>
-            <div className="preride-card">
+            <div className="preride-card" id="barn-aisle-prep">
               <div className="preride-header">
                 <span style={{ fontSize: 16 }}>🌅</span>
                 <span className="preride-title">Barn Aisle Preparation</span>

@@ -51,6 +51,7 @@ import TechnicalPhilosophicalList from './components/TechnicalPhilosophical/Tech
 import TechnicalPhilosophicalForm from './components/TechnicalPhilosophical/TechnicalPhilosophicalForm';
 
 import PracticeCard from './components/PracticeCard/PracticeCard';
+import PreRideRitual from './components/PreRideRitual/PreRideRitual';
 
 // Toolkit
 import ToolkitList from './components/RiderToolkit/ToolkitList';
@@ -140,6 +141,9 @@ function App() {
 
             {/* Practice Card */}
             <Route path="/practice-card" element={<PracticeCard />} />
+
+            {/* Pre-Ride Ritual */}
+            <Route path="/pre-ride-ritual" element={<PreRideRitual />} />
 
             {/* Toolkit */}
             <Route path="/toolkit" element={<ToolkitList />} />

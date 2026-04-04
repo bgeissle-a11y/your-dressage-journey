@@ -39,6 +39,12 @@ const NAV_GROUPS = [
     label: 'Plan',
     sections: [
       {
+        heading: 'Every Ride',
+        links: [
+          { icon: '\uD83C\uDF05', label: 'Pre-Ride Ritual', to: '/pre-ride-ritual', desc: 'Your consistent pre-ride sequence' },
+        ],
+      },
+      {
         heading: 'Competitions',
         links: [
           { icon: '\uD83C\uDFDF', label: 'Show Preparation', to: '/show-prep/new' },
