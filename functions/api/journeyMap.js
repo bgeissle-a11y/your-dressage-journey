@@ -19,8 +19,53 @@ const { callClaude } = require("../lib/claudeCall");
 const { buildJourneyMapPrompt } = require("../lib/promptBuilder");
 const { getCache, setCache, getStaleCache } = require("../lib/cacheManager");
 const { getStatus: getGenStatus } = require("../lib/generationStatus");
+const { db } = require("../lib/firebase");
+const { FieldValue } = require("firebase-admin/firestore");
 
 const OUTPUT_TYPE = "journeyMap";
+
+// ── Dashboard Summary validation ──
+
+const VALID_DIRECTIONS = [
+  "Ascending",
+  "Productive Stability",
+  "Stretching",
+  "Plateauing",
+  "Struggling",
+  "Recalibrating",
+];
+
+function validateDashboardSummary(summary) {
+  if (!summary || typeof summary !== "object") return false;
+  if (!VALID_DIRECTIONS.includes(summary.trajectoryDirection)) return false;
+  if (!Array.isArray(summary.emergingThemes) || summary.emergingThemes.length === 0 || summary.emergingThemes.length > 3) return false;
+  if (typeof summary.excerpt !== "string" || summary.excerpt.trim() === "") return false;
+  return true;
+}
+
+/**
+ * Write dashboardSummary to analysis/journeyMap/{uid} after generation.
+ * Failures are logged but do not block the Journey Map response.
+ */
+async function writeDashboardSummary(uid, summary) {
+  try {
+    if (!validateDashboardSummary(summary)) {
+      console.warn("[journeyMap] dashboardSummary validation failed — skipping write", summary);
+      return;
+    }
+    await db.collection("analysis").doc("journeyMap").collection("users").doc(uid).set({
+      dashboardSummary: {
+        trajectoryDirection: summary.trajectoryDirection,
+        emergingThemes: summary.emergingThemes,
+        excerpt: summary.excerpt,
+        generatedAt: FieldValue.serverTimestamp(),
+      },
+    }, { merge: true });
+    console.log(`[journeyMap] dashboardSummary written for ${uid}`);
+  } catch (err) {
+    console.error("[journeyMap] Failed to write dashboardSummary:", err.message);
+  }
+}
 
 /**
  * Cloud Function handler for Journey Map generation.
@@ -113,6 +158,11 @@ async function handler(request) {
       context: "journey-map-synthesis",
       uid,
     });
+
+    // Write dashboardSummary to analysis doc (fire-and-forget alongside Calls 2 & 3)
+    if (synthesis?.dashboardSummary) {
+      writeDashboardSummary(uid, synthesis.dashboardSummary);
+    }
 
     // --- Calls 2 & 3 in parallel (both depend on Call 1, not each other) ---
     const { system: sys2, userMessage: msg2 } = buildJourneyMapPrompt(

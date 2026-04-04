@@ -20,6 +20,7 @@ export default function CoachBriefPreview({ briefData }) {
     activePathClass,
     trajectorySnippet,
     growthEdge,
+    journeyTrajectory,
     aiCoachInsight,
     showPrepData,
     lessonTakeaways = [],
@@ -99,6 +100,36 @@ export default function CoachBriefPreview({ briefData }) {
         )}
 
         <div className="cb-sections">
+          {/* Journey Snapshot */}
+          {journeyTrajectory && (
+            <div className="cb-section cb-journey-snapshot">
+              <div className="cb-section-label">Journey Snapshot</div>
+              <div className="cb-journey-direction-row">
+                <span className={`cb-direction-chip cb-direction--${(journeyTrajectory.direction || '').toLowerCase().replace(/\s+/g, '-')}`}>
+                  {journeyTrajectory.direction}
+                </span>
+                {journeyTrajectory.themes?.length > 0 && (
+                  <span className="cb-journey-themes">
+                    {journeyTrajectory.themes.join(' · ')}
+                  </span>
+                )}
+              </div>
+              {journeyTrajectory.excerpt && (
+                <p className="cb-journey-excerpt">"{journeyTrajectory.excerpt}"</p>
+              )}
+              {journeyTrajectory.asOf && (
+                <div className="cb-journey-as-of">
+                  As of {(() => {
+                    const d = journeyTrajectory.asOf?.toDate
+                      ? journeyTrajectory.asOf.toDate()
+                      : new Date(journeyTrajectory.asOf);
+                    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                  })()}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Growth Edge */}
           {growthEdge && (
             <div className="cb-section cb-growth-edge">

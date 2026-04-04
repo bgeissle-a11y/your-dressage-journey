@@ -1357,7 +1357,42 @@ If Horse Health & Soundness records are present in the data, include them in the
 2. Include health context in the JSON themes and patterns output where relevant:
    { "health_correlations": [{ "horse": "[horse name]", "health_event": "[issue title, date]", "training_pattern": "[what changed in training data around this period]", "direction": "explains_dip | explains_improvement | ongoing_constraint" }] }
 
-3. Flag any ongoing concerns or emergencies as active constraints to carry forward into the Journey Narrative and Visualization Data calls.`;
+3. Flag any ongoing concerns or emergencies as active constraints to carry forward into the Journey Narrative and Visualization Data calls.
+
+DASHBOARD SUMMARY EXTRACTION
+
+After completing your standard analysis (themes, milestones, patterns, goal_progress),
+add a "dashboardSummary" object to your JSON output:
+
+{
+  "dashboardSummary": {
+    "trajectoryDirection": "[one value from the controlled vocabulary below]",
+    "emergingThemes": ["[theme 1]", "[theme 2]", "[theme 3]"],
+    "excerpt": "[one sentence — the single most meaningful observation about where this rider is right now]"
+  }
+}
+
+TRAJECTORY DIRECTION — controlled vocabulary (use exactly one):
+  "Ascending"            — consistent forward movement, scores/feel trending upward
+  "Productive Stability" — gains holding, not yet deepening; consistency before the next step
+  "Stretching"           — working at the edge of capability; high effort, some inconsistency
+  "Plateauing"           — flat data, same challenges recurring without resolution
+  "Struggling"           — declining confidence or feel, OR same obstacle repeating 3+ sessions without resolution
+  "Recalibrating"        — meaningful context shift (new horse, trainer, level, injury return, extended break)
+
+EMERGING THEMES — rules:
+  - Maximum 3 themes
+  - Each theme is a short noun phrase, 2–5 words (e.g., "timing precision", "throughness under pressure", "left-lead tension")
+  - Themes must emerge from the data in this generation — do not carry forward themes from prior outputs
+  - Order by salience (most prominent first)
+
+EXCERPT — rules:
+  - Exactly one sentence
+  - Must be specific to this rider's data — never generic
+  - Should feel like the opening line of a coaching conversation, not a report summary
+  - Do not begin with "You" or "Your" — vary the construction
+  - Do not state the trajectory direction explicitly (the direction label already appears in the UI)
+  - Classical Master voice: precise, grounded, occasionally poetic`;
 
     userMessage = `Here is the complete rider data:
 

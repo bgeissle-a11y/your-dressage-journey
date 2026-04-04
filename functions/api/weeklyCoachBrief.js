@@ -283,6 +283,7 @@ async function handler(request) {
       riderAssessments,
       gptTrajectorySnap,
       coachingInsightsSnap,
+      journeyMapSnap,
     ] = await Promise.all([
       fetchCollection("riderProfiles", uid),
       fetchCollection("horseProfiles", uid),
@@ -293,6 +294,7 @@ async function handler(request) {
       fetchCollection("riderAssessments", uid),
       db.collection("analysisCache").doc(`${uid}_grandPrixTrajectory`).get(),
       db.collection("analysisCache").doc(`${uid}_coaching_insights`).get(),
+      db.collection("analysis").doc("journeyMap").collection("users").doc(uid).get(),
     ]);
 
     // 3. Process each data source
@@ -396,6 +398,28 @@ async function handler(request) {
       }
     }
     // If null, omit the growth edge section entirely — no fallback
+
+    // -- Journey Trajectory (from Journey Map dashboardSummary)
+    const JOURNEY_STALE_DAYS = 14;
+    let journeyTrajectory = null;
+
+    if (journeyMapSnap.exists) {
+      const jmData = journeyMapSnap.data();
+      const ds = jmData?.dashboardSummary;
+      if (ds && ds.generatedAt) {
+        const generatedAt = ds.generatedAt.toDate ? ds.generatedAt.toDate() : new Date(ds.generatedAt);
+        const ageMs = Date.now() - generatedAt.getTime();
+        const ageDays = ageMs / (1000 * 60 * 60 * 24);
+        if (ageDays <= JOURNEY_STALE_DAYS) {
+          journeyTrajectory = {
+            direction: ds.trajectoryDirection,
+            themes: ds.emergingThemes || [],
+            excerpt: ds.excerpt || null,
+            asOf: ds.generatedAt,
+          };
+        }
+      }
+    }
 
     // -- AI Coach Insight (§2.1) — extract from cached multi-voice coaching
     //
@@ -562,6 +586,9 @@ async function handler(request) {
 
       // Growth edge
       growthEdge,
+
+      // Journey trajectory (from Journey Map dashboardSummary, omitted if stale/absent)
+      journeyTrajectory,
 
       // AI coach insight
       aiCoachInsight,

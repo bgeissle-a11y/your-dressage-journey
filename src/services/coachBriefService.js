@@ -110,6 +110,24 @@ export function buildPlainTextBrief(briefData) {
   }
   lines.push('');
 
+  // Journey trajectory
+  if (briefData.journeyTrajectory) {
+    const jt = briefData.journeyTrajectory;
+    lines.push('JOURNEY SNAPSHOT');
+    lines.push(`  Direction: ${jt.direction}`);
+    if (jt.themes?.length > 0) {
+      lines.push(`  Themes: ${jt.themes.join(' · ')}`);
+    }
+    if (jt.excerpt) {
+      lines.push(`  "${jt.excerpt}"`);
+    }
+    if (jt.asOf) {
+      const asOfDate = jt.asOf?.toDate ? jt.asOf.toDate() : new Date(jt.asOf);
+      lines.push(`  As of ${asOfDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`);
+    }
+    lines.push('');
+  }
+
   // Growth edge
   if (briefData.growthEdge) {
     lines.push(`RIDER'S GROWTH EDGE`);

@@ -9,6 +9,7 @@ import WeeklyFocusContent from '../components/WeeklyFocus/WeeklyFocusContent';
 import { PracticeCardCompact } from '../components/PracticeCard/PracticeCard';
 import MovementCoverageHeatmap from '../components/Dashboard/MovementCoverageHeatmap';
 import ProcessGoalBars from '../components/Dashboard/ProcessGoalBars';
+import JourneySnapshot from '../components/Dashboard/JourneySnapshot';
 import {
   getAllDebriefs,
   getAllReflections,
@@ -350,6 +351,8 @@ export default function Dashboard() {
               </div>
             </div>
           )}
+
+          <JourneySnapshot />
         </div>
 
         {/* Viz panel — movement coverage + process goals */}
