@@ -45,6 +45,17 @@ export default function GrandPrixPanel({ generationStatus }) {
   // Assignment accordion state
   const [openAssignments, setOpenAssignments] = useState(new Set());
 
+  // Scroll to week section when navigated from Pre-Ride Ritual
+  useEffect(() => {
+    if (window.location.hash === '#gpt-this-week') {
+      const timer = setTimeout(() => {
+        const el = document.getElementById('gpt-this-week');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [mentalData]);
+
   // Check-in card open state
   const [checkInOpen, setCheckInOpen] = useState(false);
 
@@ -407,7 +418,7 @@ export default function GrandPrixPanel({ generationStatus }) {
     const currentWeek = cycleInfo?.currentWeek || 1;
 
     return (
-      <div className="week-nav-row">
+      <div className="week-nav-row" id="gpt-this-week">
         <span className="week-nav-label">Week</span>
         {Array.from({ length: maxWeeks }, (_, i) => i + 1).map(n => (
           <button

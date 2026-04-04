@@ -25,7 +25,7 @@ const BLOCK_META = {
     iconFg: '#1e5080',
     desc: "Review this week's Grand Prix Thinking assignment.",
     linkLabel: 'This Week in GPT',
-    route: '/insights?tab=grandprix',
+    route: '/insights?tab=grandprix#gpt-this-week',
   },
   practice: {
     icon: '\uD83D\uDCCB',
