@@ -119,6 +119,11 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
+    // Pre-Ride Ritual subcollection
+    match /riders/{userId}/preRideRitual/{docId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
     // Rider coaches subcollection
     match /riders/{userId}/coaches/{coachId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
@@ -133,6 +138,12 @@ service cloud.firestore {
     // read-only by the authenticated user for weekly focus snapshots
     match /analysisCache/{docId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+
+    // Journey Map dashboard summary — written by Cloud Function,
+    // read-only by the authenticated user for the dashboard snapshot card
+    match /analysis/journeyMap/users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
     }
 
     // Cycle state — written by Cloud Functions (admin SDK bypasses rules),

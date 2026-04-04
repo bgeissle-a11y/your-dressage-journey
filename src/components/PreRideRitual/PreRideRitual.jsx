@@ -80,6 +80,9 @@ export default function PreRideRitual() {
         setBlocks(result.data.blocks);
         setResearchHidden(result.data.researchHidden);
         setDocExists(result.exists);
+      } else {
+        // Firestore read failed (e.g. permissions) — use defaults so page is usable
+        setBlocks(DEFAULT_BLOCKS.map(b => ({ ...b })));
       }
       setLoading(false);
     }
