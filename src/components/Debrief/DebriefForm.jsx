@@ -73,9 +73,9 @@ export default function DebriefForm() {
     horseName: '',
     sessionType: '',
     overallQuality: 5,
-    confidenceLevel: 5,
-    riderEffort: 5,
-    horseEffort: 5,
+    confidenceLevel: null,
+    riderEffort: null,
+    horseEffort: null,
     riderEnergy: '',
     horseEnergy: '',
     mentalState: '',
@@ -102,6 +102,9 @@ export default function DebriefForm() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [overallQualityTouched, setOverallQualityTouched] = useState(false);
+  const [confidenceTouched, setConfidenceTouched] = useState(false);
+  const [riderEffortTouched, setRiderEffortTouched] = useState(false);
+  const [horseEffortTouched, setHorseEffortTouched] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
 
   const { hasRecovery, applyRecovery, dismissRecovery, clearRecovery } = useFormRecovery(
@@ -166,9 +169,9 @@ export default function DebriefForm() {
         horseName: d.horseName || '',
         sessionType: d.sessionType || '',
         overallQuality: d.overallQuality || 5,
-        confidenceLevel: d.confidenceLevel || 5,
-        riderEffort: d.riderEffort || 5,
-        horseEffort: d.horseEffort || 5,
+        confidenceLevel: d.confidenceLevel ?? null,
+        riderEffort: d.riderEffort ?? null,
+        horseEffort: d.horseEffort ?? null,
         riderEnergy: d.riderEnergy || '',
         horseEnergy: d.horseEnergy || '',
         mentalState: d.mentalState || '',
@@ -190,6 +193,9 @@ export default function DebriefForm() {
         workFocus: d.workFocus || ''
       });
       if (d.overallQuality != null) setOverallQualityTouched(true);
+      if (d.confidenceLevel != null) setConfidenceTouched(true);
+      if (d.riderEffort != null) setRiderEffortTouched(true);
+      if (d.horseEffort != null) setHorseEffortTouched(true);
       // Load confirmed goals snapshot if stored
       if (d.confirmedGoalsSnapshot) {
         const goals = [
@@ -234,6 +240,7 @@ export default function DebriefForm() {
     if (!formData.horseName.trim()) newErrors.horseName = 'Horse name is required';
     if (!formData.sessionType) newErrors.sessionType = 'Please select session type';
     if (!formData.rideArc) newErrors.rideArc = 'Please select how your ride unfolded.';
+    if (!overallQualityTouched) newErrors.overallQuality = 'Please rate your overall ride quality.';
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) {
       // Scroll to first error field so user sees what needs fixing (critical on mobile)
@@ -294,9 +301,9 @@ export default function DebriefForm() {
       horseName: formData.horseName,
       sessionType: formData.sessionType,
       overallQuality: overallQualityTouched ? formData.overallQuality : null,
-      confidenceLevel: formData.confidenceLevel,
-      riderEffort: formData.riderEffort,
-      horseEffort: formData.horseEffort,
+      confidenceLevel: confidenceTouched ? formData.confidenceLevel : null,
+      riderEffort: riderEffortTouched ? formData.riderEffort : null,
+      horseEffort: horseEffortTouched ? formData.horseEffort : null,
       riderEnergy: formData.riderEnergy,
       horseEnergy: formData.horseEnergy,
       mentalState: formData.mentalState,
@@ -400,7 +407,7 @@ export default function DebriefForm() {
 
           {/* Section 2: Quick Ratings */}
           <FormSection title="Quick Ratings" description="Your immediate impressions -- there are no wrong answers.">
-            <FormField label={`Overall Ride Quality: ${formData.overallQuality}/10`} optional>
+            <FormField label={overallQualityTouched ? `Overall Ride Quality: ${formData.overallQuality}/10` : 'Overall Ride Quality'} error={errors.overallQuality}>
               <input
                 type="range"
                 name="overallQuality"
@@ -414,8 +421,12 @@ export default function DebriefForm() {
                 disabled={loading}
                 style={{ width: '100%', accentColor: '#8B7355' }}
               />
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#7A7A7A' }}>
-                <span>Challenging/Frustrating</span><span>Excellent/Breakthrough</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: '#7A7A7A', marginTop: '0.4rem', lineHeight: '1.3' }}>
+                <span style={{ width: '18%', textAlign: 'left' }}>1–2<br/>Survival mode</span>
+                <span style={{ width: '18%', textAlign: 'center' }}>3–4<br/>Below where I want to be</span>
+                <span style={{ width: '18%', textAlign: 'center' }}>5–6<br/>Solid working session</span>
+                <span style={{ width: '18%', textAlign: 'center' }}>7–8<br/>Better than typical</span>
+                <span style={{ width: '18%', textAlign: 'right' }}>9–10<br/>Breakthrough quality</span>
               </div>
             </FormField>
 
@@ -460,7 +471,7 @@ export default function DebriefForm() {
             </FormField>
 
             {/* Estimation prompt + Confidence slider */}
-            <FormField label={`Confidence in Your Ability to Execute: ${formData.confidenceLevel}/10`} optional helpText="Your in-session sense of whether you could perform the technical work you were attempting — distinct from how good the ride felt overall.">
+            <FormField label={confidenceTouched ? `Confidence in Your Ability to Execute: ${formData.confidenceLevel}/10` : 'Confidence in Your Ability to Execute'} optional helpText="Your in-session sense of whether you could perform the technical work you were attempting — distinct from how good the ride felt overall.">
               <div className="prompt-box" style={{ marginBottom: '0.75rem' }}>
                 <div className="prompt-box-content">
                   Before you rate: if someone had filmed this ride, what would they have seen?
@@ -471,13 +482,20 @@ export default function DebriefForm() {
                 name="confidenceLevel"
                 min="1"
                 max="10"
-                value={formData.confidenceLevel}
-                onChange={e => setFormData(prev => ({ ...prev, confidenceLevel: parseInt(e.target.value, 10) }))}
+                value={formData.confidenceLevel ?? 5}
+                onChange={e => {
+                  setConfidenceTouched(true);
+                  setFormData(prev => ({ ...prev, confidenceLevel: parseInt(e.target.value, 10) }));
+                }}
                 disabled={loading}
-                style={{ width: '100%', accentColor: '#8B7355' }}
+                style={{ width: '100%', accentColor: '#8B7355', opacity: confidenceTouched ? 1 : 0.35 }}
               />
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#7A7A7A' }}>
-                <span>Hesitant / unsure</span><span>Clear and committed</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: '#7A7A7A', marginTop: '0.4rem', lineHeight: '1.3' }}>
+                <span style={{ width: '18%', textAlign: 'left' }}>1–2<br/>Guessing / uncertain</span>
+                <span style={{ width: '18%', textAlign: 'center' }}>3–4<br/>Doubting</span>
+                <span style={{ width: '18%', textAlign: 'center' }}>5–6<br/>Reasonably clear</span>
+                <span style={{ width: '18%', textAlign: 'center' }}>7–8<br/>Mostly clear</span>
+                <span style={{ width: '18%', textAlign: 'right' }}>9–10<br/>Committed and present</span>
               </div>
             </FormField>
 
@@ -485,17 +503,20 @@ export default function DebriefForm() {
               <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
                 <div style={{ flex: 1, minWidth: '200px' }}>
                   <label style={{ fontSize: '0.92rem', fontWeight: 500, marginBottom: '0.5rem', display: 'block' }}>
-                    Rider Effort: {formData.riderEffort}/10
+                    {riderEffortTouched ? `Rider Effort: ${formData.riderEffort}/10` : 'Rider Effort'}
                   </label>
                   <input
                     type="range"
                     name="riderEffort"
                     min="1"
                     max="10"
-                    value={formData.riderEffort}
-                    onChange={e => setFormData(prev => ({ ...prev, riderEffort: parseInt(e.target.value, 10) }))}
+                    value={formData.riderEffort ?? 5}
+                    onChange={e => {
+                      setRiderEffortTouched(true);
+                      setFormData(prev => ({ ...prev, riderEffort: parseInt(e.target.value, 10) }));
+                    }}
                     disabled={loading}
-                    style={{ width: '100%', accentColor: '#8B7355' }}
+                    style={{ width: '100%', accentColor: '#8B7355', opacity: riderEffortTouched ? 1 : 0.35 }}
                   />
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#7A7A7A' }}>
                     <span>Minimal</span><span>Maximum</span>
@@ -503,17 +524,20 @@ export default function DebriefForm() {
                 </div>
                 <div style={{ flex: 1, minWidth: '200px' }}>
                   <label style={{ fontSize: '0.92rem', fontWeight: 500, marginBottom: '0.5rem', display: 'block' }}>
-                    Horse Effort: {formData.horseEffort}/10
+                    {horseEffortTouched ? `Horse Effort: ${formData.horseEffort}/10` : 'Horse Effort'}
                   </label>
                   <input
                     type="range"
                     name="horseEffort"
                     min="1"
                     max="10"
-                    value={formData.horseEffort}
-                    onChange={e => setFormData(prev => ({ ...prev, horseEffort: parseInt(e.target.value, 10) }))}
+                    value={formData.horseEffort ?? 5}
+                    onChange={e => {
+                      setHorseEffortTouched(true);
+                      setFormData(prev => ({ ...prev, horseEffort: parseInt(e.target.value, 10) }));
+                    }}
                     disabled={loading}
-                    style={{ width: '100%', accentColor: '#8B7355' }}
+                    style={{ width: '100%', accentColor: '#8B7355', opacity: horseEffortTouched ? 1 : 0.35 }}
                   />
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#7A7A7A' }}>
                     <span>Minimal</span><span>Maximum</span>
