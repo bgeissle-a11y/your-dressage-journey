@@ -267,6 +267,17 @@ function extractJSON(text, context, wasTruncated = false) {
     }
   }
 
+  // Handle unclosed fence (truncated response starting with ```json)
+  const unclosedFence = text.match(/^```(?:json)?\s*\n?([\s\S]+)$/);
+  if (unclosedFence) {
+    const stripped = unclosedFence[1].trim();
+    try {
+      return JSON.parse(stripped);
+    } catch {
+      // Will fall through to JSON boundary extraction below
+    }
+  }
+
   // Try finding JSON object/array boundaries
   const jsonStart = text.indexOf("{");
   const jsonEnd = text.lastIndexOf("}");
