@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import MultiVoicePanel from '../components/AICoaching/MultiVoicePanel';
 import JourneyMapPanel from '../components/AICoaching/JourneyMapPanel';
 import GrandPrixPanel from '../components/AICoaching/GrandPrixPanel';
-import DataVisualizationsPanel from '../components/AICoaching/DataVisualizationsPanel';
+
 import PhysicalGuidancePanel from '../components/AICoaching/PhysicalGuidancePanel';
 import useGenerationStatus from '../hooks/useGenerationStatus';
 import './Insights.css';
@@ -12,7 +12,6 @@ const TABS = [
   { id: 'coaching', label: 'Coaching Voices', icon: '\ud83c\udf99\ufe0f' },
   { id: 'journey', label: 'Journey Map', icon: '\ud83d\uddfa\ufe0f' },
   { id: 'grandprix', label: 'Grand Prix Thinking', icon: '\ud83e\udde0' },
-  { id: 'dataviz', label: 'Data Visualizations', icon: '\ud83d\udcca' },
   { id: 'physical', label: 'Physical Guidance', icon: '\ud83e\uddd8' },
 ];
 
@@ -72,7 +71,6 @@ export default function Insights() {
         {activeTab === 'coaching' && <MultiVoicePanel generationStatus={generationStatus} />}
         {activeTab === 'journey' && <JourneyMapPanel generationStatus={generationStatus} />}
         {activeTab === 'grandprix' && <GrandPrixPanel generationStatus={generationStatus} />}
-        {activeTab === 'dataviz' && <DataVisualizationsPanel generationStatus={generationStatus} />}
         {activeTab === 'physical' && <PhysicalGuidancePanel />}
       </div>
     </div>

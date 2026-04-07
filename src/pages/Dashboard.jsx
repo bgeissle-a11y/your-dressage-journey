@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { doc, getDoc, updateDoc, collection, getDocs } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
@@ -31,7 +31,6 @@ const DEFAULT_ORDER = ['stats', 'focus', 'data'];
 const DM_LEARN = [
   { icon: '\uD83D\uDCD0', label: 'Arena Geometry Trainer', desc: 'Letters, lines, geometry', href: '/arena-geometry-trainer.html' },
   { icon: '\uD83D\uDDD2', label: 'Test Explorer', desc: 'Browse test movements & scores', to: '/learn/test-explorer' },
-  { icon: '\uD83C\uDFA4', label: 'PSG Step-Through', desc: 'Voice-guided test practice', to: '/learn/psg-stepthrough' },
   { icon: '\uD83D\uDD2C', label: 'Science & Research', desc: 'Learning theory behind YDJ', to: '/learn/science' },
 ];
 
@@ -54,6 +53,7 @@ const DM_ASSESS = [
   { icon: '\uD83E\uDDF0', label: "Rider\u2019s Toolkit", desc: 'Off-horse discoveries & practices', to: '/toolkit/new' },
 ];
 const DM_REVIEW = [
+  { icon: '\uD83D\uDCCA', label: 'Insights', desc: 'Quality patterns, training themes, goal progress, and your journey over time.', to: '/data-insights' },
   { icon: '\uD83D\uDCCB', label: 'All Debriefs', desc: 'Browse your ride history', to: '/debriefs' },
   { icon: '\u25C7', label: 'All Reflections', desc: 'Your reflection library', to: '/reflections' },
   { icon: '\u25CE', label: 'Observations', desc: 'Your observation notes', to: '/observations' },
@@ -527,7 +527,7 @@ export default function Dashboard() {
 
       {/* Blocks */}
       <div className="block-container">
-        {blockOrder.map(id => blockRenderers[id] ? blockRenderers[id]() : null)}
+        {blockOrder.map(id => blockRenderers[id] ? <React.Fragment key={id}>{blockRenderers[id]()}</React.Fragment> : null)}
       </div>
 
       {/* Admin Stats */}

@@ -251,6 +251,11 @@ export default function AppLayout() {
           <Link to="/quickstart" className={`nav-btn nav-special${isActive('/quickstart') ? ' active' : ''}`}>&#9672; Quick Start</Link>
         </div>
 
+        {/* Insights — direct link */}
+        <div className="nav-item">
+          <Link to="/data-insights" className={`nav-btn nav-special${isActive('/data-insights') ? ' active' : ''}`}>&#10022; Insights</Link>
+        </div>
+
         <div className="nav-spacer" />
 
         {/* Help — direct link */}

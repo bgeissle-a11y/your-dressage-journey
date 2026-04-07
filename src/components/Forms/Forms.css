@@ -148,6 +148,20 @@
   padding-right: 2.5rem;
 }
 
+/* Field warning nudge */
+.form-field-warning {
+  font-size: 0.82rem;
+  color: #B8862A;
+  margin-top: 0.4rem;
+  line-height: 1.4;
+}
+
+.form-field-warning a {
+  color: #8B7355;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
 /* Field help text */
 .field-help {
   font-size: 0.85rem;

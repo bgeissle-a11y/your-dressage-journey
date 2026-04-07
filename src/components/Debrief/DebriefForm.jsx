@@ -388,15 +388,20 @@ export default function DebriefForm() {
                     ))}
                   </select>
                 ) : (
-                  <input
-                    type="text"
-                    name="horseName"
-                    value={formData.horseName}
-                    onChange={handleChange}
-                    disabled={loading}
-                    className={errors.horseName ? 'error' : ''}
-                    placeholder="Horse name"
-                  />
+                  <>
+                    <input
+                      type="text"
+                      name="horseName"
+                      value={formData.horseName}
+                      onChange={handleChange}
+                      disabled={loading}
+                      className={errors.horseName ? 'error' : ''}
+                      placeholder="Horse name"
+                    />
+                    <p className="form-field-warning">
+                      Tip: <a href="/horses/new">Create a horse profile</a> first to ensure consistent naming across all your entries.
+                    </p>
+                  </>
                 )}
               </FormField>
             </div>

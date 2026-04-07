@@ -1,0 +1,419 @@
+/* ============================================
+   Insights Page — Dedicated Data Insights
+   ============================================ */
+
+.ip-page {
+  max-width: 960px;
+  margin: 0 auto;
+  background: var(--parchment-off, #FAF8F5);
+  min-height: 100vh;
+}
+
+/* ── Sticky Header ── */
+.ip-header {
+  background: #fff;
+  border-bottom: 1px solid var(--border, #E0D5C7);
+  padding: 24px 24px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.ip-header__title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  color: var(--ink, #3D3024);
+  margin: 0 0 4px;
+}
+
+.ip-header__subtitle {
+  font-size: 12.5px;
+  color: var(--ink-light, #999);
+  margin: 0;
+}
+
+/* ── Section Tab Nav ── */
+.ip-section-nav {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border, #E0D5C7);
+  background: #fff;
+  padding: 0 24px;
+  position: sticky;
+  top: 70px;
+  z-index: 9;
+}
+
+.ip-section-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.9rem;
+  color: #999;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.ip-section-tab:hover {
+  color: var(--ink, #3D3024);
+}
+
+.ip-section-tab--active {
+  color: var(--ink, #3D3024);
+  font-weight: 600;
+  border-bottom-color: var(--gold, #B8862A);
+}
+
+.ip-section-tab__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--border, #E0D5C7);
+  color: #999;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 1px 7px;
+  border-radius: 10px;
+  min-width: 18px;
+}
+
+.ip-section-tab--active .ip-section-tab__count {
+  background: var(--gold, #B8862A);
+  color: #fff;
+}
+
+/* ── Content Area ── */
+.ip-content {
+  padding: 24px;
+}
+
+/* ── Section ── */
+.ip-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ip-section__intro h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3em;
+  color: var(--ink, #3D3024);
+  margin: 0 0 6px;
+}
+
+.ip-section__intro p {
+  font-size: 0.9rem;
+  color: var(--ink-light, #999);
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+
+/* ── Chart Card ── */
+.ip-chart-card {
+  background: #fff;
+  border: 1px solid var(--border, #E0D5C7);
+  border-radius: 10px;
+  padding: 20px 24px;
+}
+
+.ip-chart-card__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.ip-chart-card__icon {
+  font-size: 1.2em;
+  flex-shrink: 0;
+}
+
+.ip-chart-card__title {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink, #3D3024);
+  margin: 0;
+}
+
+.ip-chart-card__subtitle {
+  font-size: 0.82rem;
+  color: var(--ink-light, #999);
+  margin: 4px 0 0;
+  line-height: 1.4;
+}
+
+.ip-chart-card__chart {
+  margin: 12px 0;
+}
+
+.ip-chart-card__annotation {
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--ink-light, #999);
+  margin: 4px 0 8px;
+  text-align: center;
+}
+
+.ip-chart-card__narrative {
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--ink-light, #666);
+  margin: 12px 0 0;
+}
+
+/* ── Voice Callout ── */
+.ip-voice-callout {
+  border-left: 3px solid var(--gold, #B8862A);
+  margin: 12px 0 0;
+  padding: 10px 16px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink, #3D3024);
+  font-style: italic;
+  background: rgba(184, 134, 42, 0.04);
+  border-radius: 0 6px 6px 0;
+}
+
+/* ── Tooltip ── */
+.ip-tooltip {
+  background: #fff;
+  border: 1px solid var(--border, #E0D5C7);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ip-tooltip p {
+  margin: 2px 0;
+}
+
+/* ── Empty State ── */
+.ip-empty-state {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--ink-light, #999);
+}
+
+.ip-empty-state p {
+  margin: 4px 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.ip-empty-state__sub {
+  font-size: 0.82rem;
+  color: #bbb;
+}
+
+.ip-no-data {
+  text-align: center;
+  color: var(--ink-light, #999);
+  font-size: 0.85rem;
+  padding: 24px 8px;
+}
+
+/* ── Loading ── */
+.ip-loading {
+  padding: 24px;
+}
+
+.ip-skeleton-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ip-skeleton-card {
+  background: #fff;
+  border: 1px solid var(--border, #E0D5C7);
+  border-radius: 10px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ip-skeleton-chart {
+  height: 200px;
+  background: linear-gradient(90deg, #F5F1EB 25%, #E8E0D5 50%, #F5F1EB 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+
+.ip-error {
+  text-align: center;
+  padding: 48px 24px;
+  color: #C45252;
+}
+
+/* ── Milestone Path ── */
+.ip-milestone-path {
+  margin: 8px auto;
+}
+
+.ip-milestone-legend {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 6px;
+  font-size: 11px;
+  color: #999;
+}
+
+.ip-milestone-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ip-milestone-list {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ip-milestone-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--ink, #3D3024);
+}
+
+.ip-milestone-marker {
+  font-size: 0.9rem;
+}
+
+.ip-next-steps {
+  margin-top: 12px;
+  font-size: 0.85rem;
+  color: var(--ink, #3D3024);
+}
+
+.ip-next-steps ul {
+  margin: 4px 0 0;
+  padding-left: 20px;
+}
+
+.ip-next-steps li {
+  margin-bottom: 4px;
+  line-height: 1.5;
+}
+
+/* ── Reflection Heatmap ── */
+.ip-heatmap-wrapper {
+  width: 100%;
+}
+
+.ip-heatmap-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ip-heatmap {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  min-width: 400px;
+}
+
+.ip-heatmap th {
+  padding: 6px 8px;
+  text-align: center;
+  font-weight: 500;
+  color: #999;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.ip-heatmap__label-col {
+  text-align: left !important;
+  min-width: 120px;
+}
+
+.ip-heatmap__week-col {
+  min-width: 44px;
+}
+
+.ip-heatmap__total-col {
+  min-width: 44px;
+}
+
+.ip-heatmap__label {
+  padding: 6px 8px;
+  font-weight: 600;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.ip-heatmap__cell {
+  text-align: center;
+  padding: 6px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  border-radius: 3px;
+  min-width: 32px;
+}
+
+.ip-heatmap__total {
+  text-align: center;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .ip-header {
+    padding: 16px 16px 12px;
+  }
+
+  .ip-section-nav {
+    padding: 0 12px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ip-section-tab {
+    padding: 10px 14px;
+    font-size: 0.82rem;
+  }
+
+  .ip-content {
+    padding: 16px;
+  }
+
+  .ip-chart-card {
+    padding: 16px;
+  }
+
+  .ip-header__title {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 375px) {
+  .ip-section-tab {
+    padding: 8px 10px;
+    font-size: 0.78rem;
+  }
+
+  .ip-chart-card {
+    padding: 12px;
+  }
+
+  .ip-header__title {
+    font-size: 18px;
+  }
+}

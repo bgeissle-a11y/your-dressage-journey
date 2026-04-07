@@ -10,6 +10,7 @@ import SignIn from './components/Auth/SignIn';
 import ForgotPassword from './components/Auth/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import Insights from './pages/Insights';
+import InsightsPage from './components/insights/InsightsPage';
 
 import TipsAndFaq from './pages/TipsAndFaq';
 import OutputsTipsAndFaq from './pages/OutputsTipsAndFaq';
@@ -98,6 +99,7 @@ function App() {
           <Route element={<PrivateRoute><AppLayout /></PrivateRoute>}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/insights" element={<Insights />} />
+            <Route path="/data-insights" element={<InsightsPage />} />
 
             <Route path="/tips-and-faq" element={<TipsAndFaq />} />
             <Route path="/outputs-tips-and-faq" element={<OutputsTipsAndFaq />} />

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getGrandPrixThinking, advanceWeekPointer } from '../../services/aiService';
 import { useAuth } from '../../contexts/AuthContext';
+import { getRiderProfile } from '../../services';
 import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { db } from '../../firebase-config';
 import { readCycleState } from '../../services/weeklyFocusService';
@@ -81,14 +82,16 @@ export default function GrandPrixPanel({ generationStatus }) {
     if (!currentUser) return;
     (async () => {
       try {
-        const riderSnap = await getDoc(doc(db, 'riderProfiles', currentUser.uid));
-        const riderData = riderSnap.data();
-        const displayName = riderData?.firstName || currentUser.displayName || '';
-        const horseName = riderData?.primaryHorseName || '';
-        const level = riderData?.currentLevel || '';
-        setRiderInfo({ name: displayName, horse: horseName, level });
-      } catch {
-        // Silently fail
+        const result = await getRiderProfile(currentUser.uid);
+        if (result.success && result.data) {
+          const riderData = result.data;
+          const displayName = riderData.firstName || riderData.name || currentUser.displayName || '';
+          const horseName = riderData.primaryHorseName || '';
+          const level = riderData.currentLevel || '';
+          setRiderInfo({ name: displayName, horse: horseName, level });
+        }
+      } catch (err) {
+        console.error('[GPT] Failed to load rider info:', err.message);
       }
     })();
   }, [currentUser]);
@@ -102,8 +105,8 @@ export default function GrandPrixPanel({ generationStatus }) {
         if (snap.exists()) {
           setCheckedAssignments(snap.data()?.checked || {});
         }
-      } catch {
-        // Silently fail
+      } catch (err) {
+        console.error('[GPT] Failed to load checkbox state:', err.message);
       }
     })();
   }, [currentUser, mentalData?.selectedPath?.id]);
@@ -161,7 +164,11 @@ export default function GrandPrixPanel({ generationStatus }) {
           if (result.reason === 'standard_tier_active_cycle') {
             setShowRegenModal('upgrade');
           }
-        } else if (!staleOk) {
+        } else if (staleOk) {
+          // No cache available — trigger full load with loading UI
+          fetchMental({ forceRefresh: false });
+          return;
+        } else {
           setMentalError({ message: 'Failed to generate your Mental Performance output.' });
         }
         return;
@@ -175,13 +182,28 @@ export default function GrandPrixPanel({ generationStatus }) {
         setCycleState(result.cycleState);
         setActiveWeek(result.cycleState.currentWeek || 1);
       }
+
+      // If stale cache returned from fast path, trigger background refresh
+      if (result.stale && staleOk) {
+        fetchMental({ forceRefresh: false });
+      }
     } catch (err) {
-      if (!staleOk) {
+      // On staleOk error (e.g. timeout), fall through to full load
+      if (staleOk) {
+        fetchMental({ forceRefresh: false });
+        return;
+      }
+      console.error('Grand Prix Thinking mental error:', err);
+      if (mentalData) {
+        setMentalError({ message: 'Could not refresh. Showing previous results.' });
+      } else {
         setMentalError({ message: typeof err.message === 'string' ? err.message : 'Something went wrong.' });
       }
     } finally {
-      setMentalLoading(false);
-      setMentalRefreshing(false);
+      if (!staleOk) {
+        setMentalLoading(false);
+        setMentalRefreshing(false);
+      }
     }
   }, [mentalData]);
 
@@ -196,9 +218,16 @@ export default function GrandPrixPanel({ generationStatus }) {
       const result = await getGrandPrixThinking({ forceRefresh, staleOk, layer: 'trajectory' });
 
       if (!result.success) {
-        if (!staleOk) {
-          setTrajectoryError({ message: 'Failed to generate Training Trajectory.' });
+        if (result.error === 'insufficient_data') {
+          // Insufficient data is not an error for trajectory — mental tab handles it
+          return;
         }
+        if (staleOk) {
+          // No cache — trigger full load with loading UI
+          fetchTrajectory({ forceRefresh: false });
+          return;
+        }
+        setTrajectoryError({ message: 'Failed to generate Training Trajectory.' });
         return;
       }
 
@@ -208,25 +237,35 @@ export default function GrandPrixPanel({ generationStatus }) {
       if (result.activePath) {
         setOpenTrajCard(result.activePath);
       }
-    } catch (err) {
-      if (!staleOk) {
-        setTrajectoryError({ message: typeof err.message === 'string' ? err.message : 'Something went wrong.' });
+
+      // If stale cache returned from fast path, trigger background refresh
+      if (result.stale && staleOk) {
+        fetchTrajectory({ forceRefresh: false });
       }
+    } catch (err) {
+      if (staleOk) {
+        fetchTrajectory({ forceRefresh: false });
+        return;
+      }
+      console.error('Grand Prix Thinking trajectory error:', err);
+      setTrajectoryError({ message: typeof err.message === 'string' ? err.message : 'Something went wrong.' });
     } finally {
-      setTrajectoryLoading(false);
+      if (!staleOk) {
+        setTrajectoryLoading(false);
+      }
     }
   }, []);
 
-  // Initial load
+  // Initial load — staleOk fast path handles its own follow-up via self-healing
   useEffect(() => {
-    fetchMental({ staleOk: true }).then(() => fetchMental());
-  }, []);
+    fetchMental({ staleOk: true });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Lazy-load trajectory on first tab switch
   useEffect(() => {
     if (activeTab === 'trajectory' && !trajectoryLoaded.current) {
       trajectoryLoaded.current = true;
-      fetchTrajectory({ staleOk: true }).then(() => fetchTrajectory());
+      fetchTrajectory({ staleOk: true });
     }
   }, [activeTab]);
 
@@ -283,8 +322,8 @@ export default function GrandPrixPanel({ generationStatus }) {
         await updateDoc(ref, { checked: newChecked }).catch(() => {
           setDoc(ref, { checked: newChecked });
         });
-      } catch {
-        // Silently fail
+      } catch (err) {
+        console.error('[GPT] Failed to save checkbox state:', err.message);
       }
     }
   };
@@ -448,7 +487,16 @@ export default function GrandPrixPanel({ generationStatus }) {
       return <ErrorDisplay message={mentalError?.message} onRetry={() => fetchMental({ forceRefresh: true })} />;
     }
 
-    if (!mentalData?.selectedPath) return null;
+    if (!mentalData?.selectedPath) {
+      return (
+        <div className="tab-panel active gpt-fade-up">
+          <div className="gpt-insufficient">
+            <h3>Generating your program...</h3>
+            <p>Your Mental Performance program is being prepared. Please check back in a few minutes.</p>
+          </div>
+        </div>
+      );
+    }
 
     const sp = mentalData.selectedPath;
     const weeks = sp.weeks || [];
@@ -631,7 +679,16 @@ export default function GrandPrixPanel({ generationStatus }) {
       return <ErrorDisplay message={trajectoryError?.message} onRetry={() => fetchTrajectory({ forceRefresh: true })} />;
     }
 
-    if (!trajectoryData) return null;
+    if (!trajectoryData) {
+      return (
+        <div className="tab-panel active gpt-fade-up">
+          <div className="gpt-insufficient">
+            <h3>Generating your trajectories...</h3>
+            <p>Your Training Trajectory is being prepared. Please check back in a few minutes.</p>
+          </div>
+        </div>
+      );
+    }
 
     const paths = trajectoryData.trajectoryPaths?.paths || [];
     const narratives = trajectoryData.pathNarratives?.path_narratives || [];

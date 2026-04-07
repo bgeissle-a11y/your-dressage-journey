@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { getPhysicalGuidance, advanceWeekPointer } from '../../services/aiService';
 import { readCycleState } from '../../services/weeklyFocusService';
 import { useAuth } from '../../contexts/AuthContext';
+import { getRiderProfile } from '../../services';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase-config';
 import ErrorDisplay from './ErrorDisplay';
@@ -72,14 +73,16 @@ export default function PhysicalGuidancePanel() {
     if (!currentUser) return;
     (async () => {
       try {
-        const riderSnap = await getDoc(doc(db, 'riderProfiles', currentUser.uid));
-        const rd = riderSnap.data();
-        setRiderInfo({
-          name: rd?.firstName || currentUser.displayName || '',
-          horse: rd?.primaryHorseName || '',
-          level: rd?.currentLevel || '',
-        });
-      } catch { /* silently fail */ }
+        const result = await getRiderProfile(currentUser.uid);
+        if (result.success && result.data) {
+          const rd = result.data;
+          setRiderInfo({
+            name: rd.firstName || rd.name || currentUser.displayName || '',
+            horse: rd.primaryHorseName || '',
+            level: rd.currentLevel || '',
+          });
+        }
+      } catch (err) { console.error('[Physical] Failed to load rider info:', err.message); }
     })();
   }, [currentUser]);
 
@@ -132,7 +135,10 @@ export default function PhysicalGuidancePanel() {
           if (result.reason === 'standard_tier_active_cycle') {
             setShowRegenModal('upgrade');
           }
-        } else if (!staleOk) {
+        } else if (staleOk) {
+          // No cache available — trigger full load with loading UI
+          fetchData({ forceRefresh: false });
+        } else {
           setError({ message: 'Failed to generate your Physical Guidance.' });
         }
         return;
@@ -260,7 +266,20 @@ export default function PhysicalGuidancePanel() {
     );
   }
 
-  if (!data) return null;
+  if (!data) {
+    return (
+      <div className="phys-redesign">
+        <div className="phys-hero">
+          <div className="hero-eyebrow">Your Dressage Journey</div>
+          <div className="hero-title">Physical Guidance</div>
+        </div>
+        <div className="gpt-insufficient">
+          <h3>Generating your program...</h3>
+          <p>Your Physical Guidance program is being prepared. Please check back in a few minutes.</p>
+        </div>
+      </div>
+    );
+  }
 
   const weeks = data.weeks || [];
   const currentWeekData = weeks[activeWeek - 1];
