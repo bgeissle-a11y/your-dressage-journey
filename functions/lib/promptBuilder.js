@@ -528,7 +528,22 @@ RESOLVED ENTRIES: HISTORICAL CONTEXT, NOT CURRENT CONCERN
 - Use resolved entries to explain past training data, not to constrain current recommendations.
 
 WHEN NO HEALTH DATA IS PRESENT
-- If no health records exist for a horse, do not assume good health or poor health. Simply analyze the training data without health context. Do not prompt the rider to submit health records within a coaching output.`;
+- If no health records exist for a horse, do not assume good health or poor health. Simply analyze the training data without health context. Do not prompt the rider to submit health records within a coaching output.
+
+DATA INTEGRITY GUARDRAIL — NON-NEGOTIABLE:
+Every horse name, person name, movement, exercise, and specific observation in your
+output MUST be traceable to the rider data provided in this context.
+
+- Never reference a horse by a name that does not appear in the rider's Horse Profile
+  data. If you find yourself writing a horse name, stop and verify it exists in the
+  provided profiles.
+- Never suggest a movement for a specific horse (flying changes, tempis, piaffe,
+  passage, one-tempis, etc.) unless that movement has been explicitly mentioned in
+  the debrief, lesson notes, or observation data provided for that horse.
+- Never reference a trainer, facility, or location that does not appear in the rider's
+  profile or submitted data.
+- When in doubt, be general rather than specific. A hallucinated specific is more
+  harmful than a useful general observation.`;
 
 // ─── Voice Metadata ─────────────────────────────────────────────────
 
@@ -624,6 +639,12 @@ ANALYTICAL APPROACH:
 - Celebrate moments of genuine understanding — when the rider's "Aha Moments" align with classical insight
 - When the rider's goals include level advancement, evaluate whether the timeline respects classical development principles. If debriefs show the rider pushing movements before foundations are solid, this is a moment for "Why not the first time?" — correct preparation from the start would have arrived at the goal sooner than rushing and backtracking.
 - Apply the Training Scale as a diagnostic tool: When the rider struggles with a movement, systematically work down the pyramid. A rider struggling with collection (level 6) may actually have a straightness problem (level 5), which may be rooted in an impulsion deficit (level 4). Find the lowest level where the weakness originates and address that — the upper levels will improve as a consequence. Reference the Core Dressage Principles for specific movement execution standards when evaluating the rider's descriptions of their work.
+
+MOVEMENT ACCURACY RULE:
+Never recommend or reference one-tempi changes for a rider/horse combination unless
+one-tempi changes appear explicitly in the rider's submitted data. One-tempis are
+first introduced at Intermediate II — they do not appear at PSG or Inter I.
+Recommending them for a horse not at confirmed Inter II level is a factual error.
 
 TONE CALIBRATION:
 PITHINESS AS CRAFT:
@@ -977,6 +998,13 @@ ANALYTICAL APPROACH:
 - Calculate realistic timelines based on current rate of progress, available training time, AND the Level Progression Guardrails minimum timelines. Cross-reference the rider's stated goals against realistic progression rates. If a rider at Inter I mentions GP goals for the same calendar year, this is a "Be accurate!" moment — help them build a realistic multi-year plan that includes Inter II as a distinct, significant stage. Always show what the Steady Builder, Ambitious Competitor, and Curious Explorer paces would look like for their specific situation.
 - Notice when journey events disrupt training and assess how quickly the rider recovers structured work
 - Flag when goal-setting is aspirational without a supporting plan
+
+MOVEMENT ACCURACY RULE:
+Never recommend or reference one-tempi changes for a rider/horse combination unless
+one-tempi changes appear explicitly in the rider's submitted data. One-tempis are
+first introduced at Intermediate II — they do not appear at PSG or Inter I.
+Recommending them for a horse not at confirmed Inter II level is a factual error.
+
 - Apply the "correction principle" to planning: If a movement has been a recurring challenge (appearing in debriefs across multiple weeks), do not recommend "keep working on it." Instead, recommend a structured step-back plan: Week 1-2 focus on [specific foundation exercise], Week 3 reintroduce [simplified version of the movement], Week 4 attempt the full movement with the improved foundation. Be accurate about what it will take — "just keep trying" is not a plan.
 - PRACTICE DISTRIBUTION: When sufficient debrief history exists (5+ debriefs), assess
   how rides are distributed across time, not just how many there are. Clustered

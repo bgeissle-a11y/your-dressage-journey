@@ -68,6 +68,22 @@ async function writeDashboardSummary(uid, summary) {
 }
 
 /**
+ * Backfill dashboardSummary from cached synthesis if the analysis doc doesn't exist yet.
+ * Fire-and-forget — does not block the response.
+ */
+async function backfillDashboardSummary(uid, summary) {
+  try {
+    const docRef = db.collection("analysis").doc("journeyMap").collection("users").doc(uid);
+    const snap = await docRef.get();
+    if (!snap.exists || !snap.data()?.dashboardSummary) {
+      writeDashboardSummary(uid, summary);
+    }
+  } catch (err) {
+    console.error("[journeyMap] backfill check failed:", err.message);
+  }
+}
+
+/**
  * Cloud Function handler for Journey Map generation.
  *
  * @param {object} request - Firebase v2 onCall request
@@ -91,7 +107,9 @@ async function handler(request) {
           generatedAt: cached.generatedAt,
         };
       }
-      // No cache at all — fall through to full generation
+      // No cache — return early so the 30s client timeout isn't wasted.
+      // Frontend self-healing pattern will trigger a full-timeout follow-up call.
+      return { success: false, noCache: true };
     }
 
     // Prepare rider data
@@ -116,6 +134,10 @@ async function handler(request) {
     if (!forceRefresh) {
       const cached = await getCache(uid, OUTPUT_TYPE, { currentHash: hash });
       if (cached) {
+        // Backfill dashboardSummary if cache has synthesis but analysis doc is missing
+        if (cached.result?.synthesis?.dashboardSummary) {
+          backfillDashboardSummary(uid, cached.result.synthesis.dashboardSummary);
+        }
         return {
           success: true,
           ...cached.result,

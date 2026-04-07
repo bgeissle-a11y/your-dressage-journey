@@ -72,6 +72,9 @@ async function handler(request) {
           cycleState,
         };
       }
+      // No cache — return early so the 30s client timeout isn't wasted.
+      // Frontend self-healing pattern will trigger a full-timeout follow-up call.
+      return { success: false, noCache: true };
     }
 
     // Prepare rider data

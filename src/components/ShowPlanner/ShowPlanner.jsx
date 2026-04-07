@@ -212,8 +212,14 @@ export default function ShowPlanner() {
         const normalized = renumberWeeks(rawWeeks.map(normalizeWeek));
         setWeeks(normalized);
         if (normalized.length > 0) setActiveWeek(normalized[0].week_number);
-        setNeedsGeneration(false);
+      } else if (accumulated.preparationPlan) {
+        // Fallback: use the data we already have from step 3
+        const rawWeeks = accumulated.preparationPlan.weeks || [];
+        const normalized = renumberWeeks(rawWeeks.map(normalizeWeek));
+        setWeeks(normalized);
+        if (normalized.length > 0) setActiveWeek(normalized[0].week_number);
       }
+      setNeedsGeneration(false);
     } catch (err) {
       console.error('ShowPlanner generation error:', err);
       const isTimeout = err.message && (err.message.includes('deadline') || err.message.includes('DEADLINE') || err.message.includes('timed out'));

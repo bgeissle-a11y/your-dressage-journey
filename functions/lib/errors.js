@@ -54,7 +54,8 @@ function classifyError(error) {
     };
   }
   if (code === "ETIMEDOUT" || code === "ECONNRESET" || code === "ECONNREFUSED" ||
-      code === "ENOTFOUND" || msg.includes("timeout") || msg.includes("network")) {
+      code === "ENOTFOUND" || msg.includes("timeout") || msg.includes("network") ||
+      msg.includes("premature close")) {
     return {
       category: "transient",
       retryable: true,

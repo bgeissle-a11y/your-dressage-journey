@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YDJ Practice Card v2 — Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --parchment:      #F7F2E8;
+  --parchment-dark: #E8DFC8;
+  --parchment-mid:  #EDE6D4;
+  --cream:          #FDFAF3;
+  --ink:            #2C1810;
+  --ink-mid:        #6B4A3A;
+  --ink-light:      #9A7A6A;
+  --ink-faint:      #C4AFA4;
+  --gold:           #B8862A;
+  --gold-faint:     #F5EAC8;
+  --gold-mid:       #D4A042;
+  --rust:           #8B4A2A;
+  --rust-faint:     #F5E0D5;
+  --forest:         #2D6A4F;
+  --forest-faint:   #D0EAE0;
+  --sky:            #3D6E8A;
+  --success:        #2D6A4F;
+  --frame:          #1A1A1C;
+  --frame-mid:      #2C2C2E;
+  --sans: 'Work Sans', system-ui, sans-serif;
+  --serif: 'Playfair Display', Georgia, serif;
+}
+
+body {
+  font-family: var(--sans);
+  background: #EDEAE4;
+  color: var(--ink);
+  min-height: 100vh;
+  padding: 2.5rem 1.5rem;
+}
+
+.page-wrap { max-width: 960px; margin: 0 auto; }
+
+/* ── Page header ── */
+.page-header { margin-bottom: 2rem; }
+.page-eyebrow {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--gold);
+  margin-bottom: 6px;
+}
+.page-title { font-family: var(--serif); font-size: 26px; color: var(--ink); margin-bottom: 6px; }
+.page-sub { font-size: 13px; color: var(--ink-light); line-height: 1.65; max-width: 600px; }
+
+/* ── Layout ── */
+.layout { display: grid; grid-template-columns: 1fr 290px; gap: 36px; align-items: start; }
+
+/* ── Left panel ── */
+.left-panel {}
+
+.change-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--parchment-dark);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.change-card-header {
+  padding: 12px 16px;
+  background: var(--parchment);
+  border-bottom: 1px solid var(--parchment-dark);
+  display: flex; align-items: center; gap: 8px;
+}
+.change-pill {
+  font-size: 9.5px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 3px 9px; border-radius: 12px;
+}
+.pill-new { background: #E8F4F0; color: var(--forest); }
+.pill-removed { background: #FBE8E8; color: #A83232; }
+.pill-changed { background: #FFF3DC; color: #8B6414; }
+.change-title { font-family: var(--serif); font-size: 13px; color: var(--ink); }
+.change-body { padding: 12px 16px; }
+.change-body p { font-size: 12.5px; line-height: 1.65; color: var(--ink-mid); }
+.change-body p + p { margin-top: 8px; }
+
+.section-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--ink-faint);
+  margin: 24px 0 10px;
+}
+
+.source-block {
+  background: white;
+  border-radius: 10px;
+  border: 1px solid var(--parchment-dark);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.source-lbl {
+  font-size: 9.5px; font-weight: 600; letter-spacing: 0.14em;
+  text-transform: uppercase; margin-bottom: 7px;
+}
+.source-text { font-size: 12.5px; line-height: 1.6; color: var(--ink-mid); }
+
+/* ── Right panel — phone ── */
+.right-panel { position: sticky; top: 24px; }
+.phone-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--ink-faint);
+  text-align: center; margin-bottom: 12px;
+}
+
+.phone-frame {
+  background: var(--frame);
+  border-radius: 46px;
+  padding: 18px 9px 22px;
+  width: 270px;
+  margin: 0 auto;
+  box-shadow:
+    0 0 0 1px #3A3A3C,
+    0 0 0 2.5px var(--frame),
+    0 28px 60px rgba(0,0,0,0.30),
+    inset 0 1px 0 rgba(255,255,255,0.07);
+}
+
+.phone-notch {
+  display: flex; justify-content: center; margin-bottom: 10px;
+}
+.phone-pill {
+  height: 5px; width: 80px;
+  background: #3A3A3C; border-radius: 3px;
+}
+
+.phone-screen-wrap {
+  position: relative;
+  border-radius: 32px;
+  overflow: hidden;
+  background: var(--cream);
+}
+
+.phone-screen {
+  height: 540px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  background: var(--cream);
+  border-radius: 32px;
+}
+.phone-screen::-webkit-scrollbar { display: none; }
+
+.phone-home {
+  display: flex; justify-content: center;
+  padding: 10px 0 6px;
+}
+.phone-home-bar {
+  width: 100px; height: 4px;
+  background: rgba(0,0,0,0.12);
+  border-radius: 2px;
+}
+
+/* ── Breath overlay ── */
+.breath-overlay {
+  display: none;
+  position: absolute; inset: 0;
+  background: rgba(44, 24, 16, 0.92);
+  border-radius: 32px;
+  z-index: 10;
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 6px;
+  text-align: center;
+  backdrop-filter: blur(2px);
+}
+.breath-word {
+  font-family: var(--serif);
+  font-size: 34px; font-style: italic;
+  color: var(--parchment);
+  animation: breatheFade 3.2s ease-in-out forwards;
+  letter-spacing: 0.04em;
+}
+.breath-sub {
+  font-size: 11px; color: var(--ink-faint);
+  letter-spacing: 0.14em; text-transform: uppercase;
+  opacity: 0;
+  animation: breatheSub 3.2s ease-in-out forwards;
+}
+@keyframes breatheFade {
+  0%   { opacity: 0; transform: scale(0.96); }
+  20%  { opacity: 1; transform: scale(1); }
+  70%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.02); }
+}
+@keyframes breatheSub {
+  0%   { opacity: 0; }
+  30%  { opacity: 0.6; }
+  70%  { opacity: 0.6; }
+  100% { opacity: 0; }
+}
+
+/* ── Card content ── */
+.card-header {
+  text-align: center;
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--parchment-dark);
+}
+.card-wordmark {
+  font-family: var(--serif);
+  font-size: 8px; letter-spacing: 0.24em;
+  text-transform: uppercase; color: var(--gold);
+  margin-bottom: 5px;
+}
+.card-title {
+  font-family: var(--serif);
+  font-size: 20px; color: var(--ink);
+  line-height: 1.2; margin-bottom: 5px;
+}
+.card-meta {
+  font-size: 10.5px; color: var(--ink-light);
+}
+
+.card-body { padding: 13px 14px 4px; }
+
+/* Section blocks */
+.card-section {
+  border-left: 3px solid transparent;
+  border-radius: 0 8px 8px 0;
+  padding: 10px 12px 11px 13px;
+  margin-bottom: 10px;
+}
+.card-section-lbl {
+  font-family: var(--serif);
+  font-size: 7.5px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+/* Goals section — editable state */
+.goals-edit-hint {
+  font-size: 9px; color: var(--gold);
+  letter-spacing: 0.06em; margin-bottom: 7px;
+  display: flex; align-items: center; gap: 4px;
+  opacity: 0.85;
+}
+.goals-edit-hint svg { flex-shrink: 0; }
+
+.goal-row {
+  display: flex; gap: 8px; align-items: flex-start;
+  margin-bottom: 7px; position: relative;
+}
+.goal-row:last-child { margin-bottom: 0; }
+
+.goal-num {
+  font-family: var(--serif); font-size: 13px;
+  font-weight: 700; min-width: 14px;
+  line-height: 1.4; color: var(--gold);
+  flex-shrink: 0; margin-top: 1px;
+}
+
+.goal-content { flex: 1; min-width: 0; }
+
+.goal-text-display {
+  font-size: 11.5px; line-height: 1.55; color: var(--ink);
+  cursor: pointer; padding: 3px 6px 3px 3px;
+  border-radius: 4px; transition: background 0.12s;
+  border: 1.5px solid transparent;
+  word-break: break-word;
+  position: relative;
+}
+.goal-text-display:hover {
+  background: rgba(184, 134, 42, 0.08);
+  border-color: rgba(184, 134, 42, 0.2);
+}
+.goal-text-display.modified {
+  color: var(--ink);
+}
+.modified-dot {
+  display: none;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--gold); flex-shrink: 0;
+  margin-top: 7px;
+}
+.goal-row.is-modified .modified-dot { display: block; }
+
+.goal-input {
+  font-family: var(--sans);
+  font-size: 11.5px; line-height: 1.55;
+  color: var(--ink); background: white;
+  border: 1.5px solid var(--gold);
+  border-radius: 4px;
+  padding: 3px 6px; width: 100%;
+  resize: none; outline: none;
+  box-shadow: 0 0 0 3px rgba(184, 134, 42, 0.12);
+  overflow: hidden; min-height: 20px;
+}
+
+.goal-edit-btn {
+  background: none; border: none;
+  color: var(--ink-faint); cursor: pointer;
+  padding: 3px; border-radius: 3px;
+  flex-shrink: 0; margin-top: 2px;
+  opacity: 0;
+  transition: opacity 0.12s, color 0.12s;
+  display: flex; align-items: center;
+}
+.goal-row:hover .goal-edit-btn { opacity: 1; }
+.goal-edit-btn:hover { color: var(--gold); }
+
+/* Cue section */
+.cue-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 7px; }
+.cue-row:last-child { margin-bottom: 0; }
+.cue-dot { font-size: 7px; min-width: 10px; margin-top: 5px; color: var(--rust); }
+.cue-text { font-size: 11.5px; line-height: 1.55; color: var(--ink); }
+
+/* Analogy section */
+.italic-text {
+  font-family: var(--serif); font-style: italic;
+  font-size: 12px; line-height: 1.7;
+  color: var(--ink-mid);
+}
+
+/* Card footer */
+.card-footer {
+  text-align: center; padding: 10px 0 8px;
+  border-top: 1px solid var(--parchment-dark);
+  margin: 10px 14px 0;
+}
+.card-footer-text {
+  font-family: var(--serif); font-style: italic;
+  font-size: 9px; color: var(--ink-faint);
+  letter-spacing: 0.12em;
+}
+
+/* Ready to ride button */
+.rtr-btn {
+  display: block;
+  width: calc(100% - 28px);
+  margin: 12px 14px 14px;
+  padding: 13px 12px;
+  background: var(--ink); color: var(--parchment);
+  border: none; border-radius: 10px;
+  font-family: var(--serif); font-size: 14px;
+  letter-spacing: 0.03em;
+  cursor: pointer; text-align: center;
+  transition: background 0.15s, transform 0.1s;
+  position: relative; overflow: hidden;
+}
+.rtr-btn::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+.rtr-btn:hover { background: #4A2E22; }
+.rtr-btn:active { transform: scale(0.98); }
+
+/* Confirmed goals section — locked state */
+.goal-text-locked {
+  font-size: 11.5px; line-height: 1.55; color: var(--ink);
+  padding: 3px 0;
+}
+.goal-modified-label {
+  font-size: 8.5px; font-weight: 600; color: var(--gold);
+  letter-spacing: 0.06em; margin-top: 2px;
+}
+
+/* Locked banner */
+.locked-banner {
+  margin: 10px 14px 0;
+  background: var(--forest-faint);
+  border: 1px solid rgba(45, 106, 79, 0.3);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.locked-check {
+  font-size: 16px; color: var(--forest); flex-shrink: 0;
+}
+.locked-text { font-family: var(--serif); font-size: 13px; color: var(--forest); }
+.locked-time { font-size: 10px; color: #4A8A6A; margin-top: 2px; }
+
+/* Post-ride CTA */
+.post-ride-cta {
+  margin: 10px 14px 16px;
+  padding: 11px 14px;
+  background: white;
+  border: 1px solid var(--parchment-dark);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.post-ride-cta:hover { background: var(--parchment); }
+.post-ride-cta-left {}
+.post-ride-cta-eyebrow { font-size: 8.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-light); margin-bottom: 2px; }
+.post-ride-cta-label { font-family: var(--serif); font-size: 12.5px; color: var(--ink); }
+.post-ride-cta-arrow { font-size: 14px; color: var(--gold); }
+
+/* ── Modification summary badge ── */
+.mod-summary {
+  display: none;
+  margin: 6px 14px 0;
+  padding: 5px 10px;
+  background: rgba(184, 134, 42, 0.10);
+  border-radius: 5px;
+  font-size: 9.5px; color: var(--gold);
+  font-weight: 600; letter-spacing: 0.05em;
+  text-align: center;
+}
+.mod-summary.visible { display: block; }
+
+/* ── Prototype notes ── */
+.proto-note {
+  margin-top: 28px; padding: 14px 16px;
+  background: white; border-radius: 10px;
+  border: 1px solid var(--parchment-dark);
+  border-left: 3px solid var(--sky);
+}
+.proto-note-lbl { font-size: 9.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sky); margin-bottom: 7px; }
+.proto-note p { font-size: 12.5px; line-height: 1.65; color: var(--ink-mid); }
+.proto-note p + p { margin-top: 7px; }
+
+/* ── Responsive ── */
+@media (max-width: 680px) {
+  .layout { grid-template-columns: 1fr; }
+  .right-panel { position: static; }
+  .phone-frame { margin: 0 auto; }
+}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div class="page-eyebrow">Your Dressage Journey — Design Prototype</div>
+    <div class="page-title">Practice Card v2</div>
+    <div class="page-sub">Revised to 3 sections. Process goals are editable before locking — tap any goal to refine the AI's suggestion. Between Rides removed. Carry This Question removed. Visualization Script appears as a lightweight pointer.</div>
+  </div>
+
+  <div class="layout">
+
+    <!-- ── Left: change notes ── -->
+    <div class="left-panel">
+
+      <div class="change-card">
+        <div class="change-card-header">
+          <span class="change-pill pill-changed">Changed</span>
+          <span class="change-title">Process Goals — now editable before lock</span>
+        </div>
+        <div class="change-body">
+          <p>The AI suggests three process goals. Before tapping Ready to Ride, the rider can tap any goal to refine it — change the wording, narrow the focus, or reduce to two goals if today's ride calls for it. The card locks with the <em>confirmed</em> goals, not the original suggestions.</p>
+          <p>Modified goals are marked with a small gold dot so the rider knows what they changed. The debrief reads these confirmed goals — no re-entry required.</p>
+        </div>
+      </div>
+
+      <div class="change-card">
+        <div class="change-card-header">
+          <span class="change-pill pill-removed">Removed</span>
+          <span class="change-title">Between Rides — section dropped</span>
+        </div>
+        <div class="change-body">
+          <p>The 3-sentence mental rehearsal paragraph was always undersized for its job. The Visualization Script Builder does this properly — PETTLEP structure, specific movement, real timing, the horse's name throughout. Replaced by a single quiet link. See the bottom of the card.</p>
+        </div>
+      </div>
+
+      <div class="change-card">
+        <div class="change-card-header">
+          <span class="change-pill pill-removed">Removed</span>
+          <span class="change-title">Carry This Question — section dropped</span>
+        </div>
+        <div class="change-body">
+          <p>The pre-ride moment is for narrowing attention, not opening new inquiry. A question in this context adds cognitive weight at exactly the wrong moment. Open curiosity belongs in the debrief where there's space to think. Removed cleanly.</p>
+        </div>
+      </div>
+
+      <div class="change-card">
+        <div class="change-card-header">
+          <span class="change-pill pill-changed">Changed</span>
+          <span class="change-title">Card header — horse name removed</span>
+        </div>
+        <div class="change-body">
+          <p>The header now shows only the week date. Horse-specific language lives inside the content — in-saddle cues name the horse; goals name the horse when relevant. A multi-horse rider heading to the barn to ride a different horse should not see a header that frames the card as belonging to another animal. Any goal that names a horse is the natural cue to tap and edit.</p>
+        </div>
+      </div>
+
+      <div class="section-label">This week's source content (Barb / Rocket Star)</div>
+
+      <div class="source-block">
+        <div class="source-lbl" style="color:var(--gold)">Process Goals — AI suggestion</div>
+        <div class="source-text">
+          1. Maintain trust in the rider's hand by receiving what the hind legs create — never pulling backward to manufacture softness<br><br>
+          2. Establish relaxation (Losgelassenheit) before asking for collection — if tension appears, return to simpler work immediately<br><br>
+          3. Ride the horse that shows up today, adjusting the plan to honor what the body offers rather than forcing a predetermined agenda
+        </div>
+      </div>
+
+      <div class="source-block">
+        <div class="source-lbl" style="color:var(--rust)">In the Saddle — AI suggestion</div>
+        <div class="source-text">
+          ◆ The horse's back feels like a trampoline under you — elastic, lifting, swinging — not flat or braced<br><br>
+          ◆ The jaw softens and chews the bit forward-and-down into your hand, not pulling against it or dropping behind it
+        </div>
+      </div>
+
+      <div class="source-block">
+        <div class="source-lbl" style="color:var(--forest)">This Week's Image — AI suggestion</div>
+        <div class="source-text">
+          Think of suppleness like thawing frozen ground — you can't force it with a hammer, you apply steady warmth and wait for the resistance to melt. Over-bending for a stride or two is the warmth; the release and forward ride afterward is the space where the softness appears.
+        </div>
+      </div>
+
+      <div class="proto-note">
+        <div class="proto-note-lbl">Debrief connection (not shown here)</div>
+        <p>When the rider opens the debrief after this ride, the confirmed goals (whatever she locked) appear read-only at the top of Section 2. She rates each one — Not at all / Somewhat / Mostly / Fully. No re-entry. The goal text comes from Firestore, not a form field.</p>
+        <p>Next week's AI coaching sees those ratings. If Goal 3 ("Ride the horse that shows up") was rated Fully but Goal 1 was rated Somewhat, the Practical Strategist builds on that asymmetry.</p>
+      </div>
+
+    </div>
+
+    <!-- ── Right: phone mockup ── -->
+    <div class="right-panel">
+      <div class="phone-label">Practice Card — tap to interact</div>
+      <div class="phone-frame">
+        <div class="phone-notch"><div class="phone-pill"></div></div>
+        <div class="phone-screen-wrap">
+          <div class="breath-overlay" id="breathOverlay">
+            <div class="breath-word" id="breathWord">Breathe</div>
+            <div class="breath-sub">one breath before you mount</div>
+          </div>
+          <div class="phone-screen" id="phoneScreen">
+            <!-- Card renders here -->
+          </div>
+        </div>
+        <div class="phone-home"><div class="phone-home-bar"></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── Card data (Barb's actual content) ──
+var CARD = {
+  rider: "Barb",
+  horse: "Rocket Star",
+  weekOf: "April 1, 2026",
+  level: "Prix St. Georges",
+  suggestedGoals: [
+    "Maintain trust in the rider's hand by receiving what the hind legs create — never pulling backward to manufacture softness",
+    "Establish relaxation (Losgelassenheit) before asking for collection — if tension appears, return to simpler work immediately",
+    "Ride the horse that shows up today, adjusting the plan to honor what the body offers rather than forcing a predetermined agenda"
+  ],
+  inSaddleCues: [
+    "The horse's back feels like a trampoline under you — elastic, lifting, swinging — not flat or braced",
+    "The jaw softens and chews the bit forward-and-down into your hand, not pulling against it or dropping behind it"
+  ],
+  analogy: "Think of suppleness like thawing frozen ground — you can't force it with a hammer, you apply steady warmth and wait for the resistance to melt. Over-bending for a stride or two is the warmth; the release and forward ride afterward is the space where the softness appears."
+};
+
+// Working copy of goals (rider may modify)
+var confirmedGoals = CARD.suggestedGoals.slice();
+var goalsModified = [false, false, false];
+var isLocked = false;
+
+// ── Render ──
+function render() {
+  var h = '';
+
+  // Header
+  h += '<div class="card-header">';
+  h += '<div class="card-wordmark">Your Dressage Journey</div>';
+  h += '<div class="card-title">Practice Card</div>';
+  h += '<div class="card-meta">Week of ' + CARD.weekOf + '</div>';
+  h += '</div>';
+
+  h += '<div class="card-body">';
+
+  // ── Section 1: Process Goals ──
+  h += '<div class="card-section" style="background:#F5EAC8;border-left-color:#B8862A">';
+  h += '<div class="card-section-lbl" style="color:#B8862A">This ride, focus on</div>';
+
+  if (!isLocked) {
+    h += '<div class="goals-edit-hint">';
+    h += '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+    h += 'Tap any goal to refine it for today';
+    h += '</div>';
+  }
+
+  for (var i = 0; i < confirmedGoals.length; i++) {
+    var modClass = goalsModified[i] ? ' is-modified' : '';
+    h += '<div class="goal-row' + modClass + '" id="goalRow' + i + '">';
+    h += '<span class="goal-num">' + (i + 1) + '</span>';
+    h += '<div class="goal-content">';
+    if (!isLocked) {
+      h += '<div class="goal-text-display' + (goalsModified[i] ? ' modified' : '') + '" id="goalDisplay' + i + '" onclick="editGoal(' + i + ')" title="Tap to edit">' + escHtml(confirmedGoals[i]) + '</div>';
+      if (goalsModified[i]) {
+        h += '<div class="goal-modified-label">✎ Edited from suggestion</div>';
+      }
+    } else {
+      h += '<div class="goal-text-locked">' + escHtml(confirmedGoals[i]) + '</div>';
+      if (goalsModified[i]) {
+        h += '<div class="goal-modified-label">✎ Your edit</div>';
+      }
+    }
+    h += '</div>';
+    if (!isLocked) {
+      h += '<button class="goal-edit-btn" onclick="editGoal(' + i + ')" title="Edit goal" aria-label="Edit goal ' + (i+1) + '">';
+      h += '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+      h += '</button>';
+    }
+    h += '<div class="modified-dot"></div>';
+    h += '</div>';
+  }
+  h += '</div>'; // end section
+
+  // ── Section 2: In-saddle cues ──
+  h += '<div class="card-section" style="background:#F5E0D5;border-left-color:#8B4A2A">';
+  h += '<div class="card-section-lbl" style="color:#8B4A2A">In the saddle — feel for</div>';
+  for (var j = 0; j < CARD.inSaddleCues.length; j++) {
+    h += '<div class="cue-row">';
+    h += '<span class="cue-dot">◆</span>';
+    h += '<span class="cue-text">' + escHtml(CARD.inSaddleCues[j]) + '</span>';
+    h += '</div>';
+  }
+  h += '</div>';
+
+  // ── Section 3: This week's image ──
+  h += '<div class="card-section" style="background:#D0EAE0;border-left-color:#2D6A4F">';
+  h += '<div class="card-section-lbl" style="color:#2D6A4F">This week\'s image</div>';
+  h += '<div class="italic-text">' + escHtml(CARD.analogy) + '</div>';
+  h += '</div>';
+
+  h += '</div>'; // end card-body
+
+  // ── Footer ──
+  h += '<div class="card-footer"><div class="card-footer-text">Illuminate Your Journey</div></div>';
+
+  if (!isLocked) {
+    // Mod summary
+    var modCount = goalsModified.filter(Boolean).length;
+    if (modCount > 0) {
+      h += '<div class="mod-summary visible">' + modCount + ' goal' + (modCount > 1 ? 's' : '') + ' edited from AI suggestion</div>';
+    }
+    // Ready to ride
+    h += '<button class="rtr-btn" id="rtrBtn" onclick="doReadyToRide()">Ready to ride ↗</button>';
+  } else {
+    // Locked banner
+    h += '<div class="locked-banner">';
+    h += '<div class="locked-check">✓</div>';
+    h += '<div><div class="locked-text">Have a great ride!</div><div class="locked-time">Locked ' + lockedTime + '</div></div>';
+    h += '</div>';
+    // Post-ride CTA
+    h += '<div class="post-ride-cta" onclick="alert(\'Opens Post-Ride Debrief with today\\\'s date pre-filled and your confirmed goals ready for rating.\')">';
+    h += '<div class="post-ride-cta-left">';
+    h += '<div class="post-ride-cta-eyebrow">After your ride</div>';
+    h += '<div class="post-ride-cta-label">Log your debrief</div>';
+    h += '</div>';
+    h += '<div class="post-ride-cta-arrow">↗</div>';
+    h += '</div>';
+  }
+
+  document.getElementById("phoneScreen").innerHTML = h;
+}
+
+var lockedTime = "";
+
+function escHtml(str) {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+// ── Edit goal ──
+function editGoal(idx) {
+  if (isLocked) return;
+  var display = document.getElementById("goalDisplay" + idx);
+  if (!display) return;
+
+  var content = display.parentNode;
+  var currentText = confirmedGoals[idx];
+
+  var ta = document.createElement("textarea");
+  ta.className = "goal-input";
+  ta.value = currentText;
+  ta.rows = 2;
+  ta.style.width = "100%";
+
+  // Auto-resize
+  function autoResize() {
+    ta.style.height = "auto";
+    ta.style.height = ta.scrollHeight + "px";
+  }
+  ta.addEventListener("input", autoResize);
+
+  // Remove display, insert textarea
+  content.innerHTML = "";
+  content.appendChild(ta);
+  ta.focus();
+  ta.select();
+  setTimeout(autoResize, 0);
+
+  function saveEdit() {
+    var newVal = ta.value.trim();
+    if (newVal.length === 0) newVal = confirmedGoals[idx]; // revert if cleared
+    confirmedGoals[idx] = newVal;
+    goalsModified[idx] = (newVal !== CARD.suggestedGoals[idx]);
+    render();
+  }
+
+  ta.addEventListener("blur", saveEdit);
+  ta.addEventListener("keydown", function(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      ta.blur();
+    }
+    if (e.key === "Escape") {
+      ta.value = confirmedGoals[idx]; // revert
+      goalsModified[idx] = (confirmedGoals[idx] !== CARD.suggestedGoals[idx]);
+      ta.blur();
+    }
+  });
+}
+
+// ── Ready to ride ──
+function doReadyToRide() {
+  // Show breath overlay
+  var overlay = document.getElementById("breathOverlay");
+  overlay.style.display = "flex";
+
+  // Re-trigger animations by cloning
+  var word = document.getElementById("breathWord");
+  var newWord = word.cloneNode(true);
+  word.parentNode.replaceChild(newWord, word);
+  var sub = overlay.querySelector(".breath-sub");
+  if (sub) { var ns = sub.cloneNode(true); sub.parentNode.replaceChild(ns, sub); }
+
+  setTimeout(function() {
+    overlay.style.display = "none";
+    lockCard();
+  }, 3300);
+}
+
+function lockCard() {
+  var now = new Date();
+  lockedTime = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) +
+    " · " + now.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
+  isLocked = true;
+  render();
+  // Scroll to locked banner
+  var screen = document.getElementById("phoneScreen");
+  setTimeout(function() { screen.scrollTop = screen.scrollHeight; }, 80);
+}
+
+// ── Init ──
+render();
+</script>
+</body>
+</html>

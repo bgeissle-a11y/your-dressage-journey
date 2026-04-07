@@ -1,0 +1,260 @@
+
+<style>
+.rp { font-family: var(--font-sans); max-width: 620px; margin: 0 auto; padding: 1.5rem 0 2rem; }
+.rp-eyebrow { font-size: 11px; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: var(--color-text-tertiary); margin-bottom: 4px; }
+.rp-title { font-family: var(--font-serif); font-size: 24px; font-weight: 500; color: var(--color-text-primary); line-height: 1.2; margin-bottom: 4px; }
+.rp-sub { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; margin-bottom: 1.25rem; }
+.research-box { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); margin-bottom: 1.25rem; overflow: hidden; }
+.r-trigger { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: none; border: none; cursor: pointer; font-family: var(--font-sans); font-size: 12px; font-weight: 500; color: var(--color-text-secondary); text-align: left; }
+.r-trigger:hover { background: var(--color-background-primary); }
+.r-chevron { font-size: 10px; transition: transform 0.2s; color: var(--color-text-tertiary); }
+.r-chevron.open { transform: rotate(180deg); }
+.r-body { border-top: 0.5px solid var(--color-border-tertiary); padding: 12px 14px 14px; }
+.r-stats { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.r-stat { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: var(--border-radius-md); }
+.r-stat.blue { background: var(--color-background-info); color: var(--color-text-info); }
+.r-stat.grn { background: var(--color-background-success); color: var(--color-text-success); }
+.r-body p { font-size: 13px; color: var(--color-text-secondary); line-height: 1.65; margin-bottom: 8px; }
+.r-cite { font-size: 11px; color: var(--color-text-tertiary); margin-top: 4px; font-style: italic; }
+.r-hidelink { font-size: 12px; color: var(--color-text-tertiary); cursor: pointer; text-decoration: underline; margin-top: 8px; display: inline-block; }
+.sec-label { font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--color-text-tertiary); margin-bottom: 10px; }
+.blocks-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.r-block { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); display: flex; align-items: center; gap: 10px; padding: 11px 12px; transition: border-color 0.15s, opacity 0.2s, box-shadow 0.15s; position: relative; }
+.r-block.drag-over { border-color: var(--color-border-info); box-shadow: 0 0 0 2px rgba(37,99,235,0.15); }
+.r-block.dragging-src { opacity: 0.3; border-style: dashed; }
+.r-block.inactive-block { opacity: 0.42; }
+.drag-handle { cursor: grab; flex-shrink: 0; padding: 4px 2px; display: grid; grid-template-columns: repeat(2, 4px); gap: 3px; align-content: center; }
+.drag-handle:active { cursor: grabbing; }
+.dh-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--color-text-tertiary); display: block; }
+.block-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.block-content { flex: 1; min-width: 0; }
+.block-label { font-size: 14px; font-weight: 500; color: var(--color-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
+.block-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.4; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.block-cond { font-size: 11px; color: var(--color-text-tertiary); font-style: italic; margin-top: 2px; }
+.block-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.open-lnk { font-size: 11px; font-weight: 500; padding: 4px 9px; border-radius: 6px; border: 0.5px solid var(--color-border-secondary); background: none; color: var(--color-text-secondary); cursor: pointer; white-space: nowrap; font-family: var(--font-sans); transition: background 0.15s; }
+.open-lnk:hover { background: var(--color-background-secondary); }
+.tog-wrap { position: relative; width: 34px; height: 20px; flex-shrink: 0; }
+.tog-wrap input { opacity: 0; width: 0; height: 0; position: absolute; }
+.tog-sl { position: absolute; inset: 0; border-radius: 10px; background: var(--color-border-secondary); cursor: pointer; transition: background 0.2s; }
+.tog-sl::before { content: ''; position: absolute; width: 14px; height: 14px; border-radius: 50%; background: white; top: 3px; left: 3px; transition: transform 0.2s; }
+.tog-wrap input:checked + .tog-sl { background: #2a6e3f; }
+.tog-wrap input:checked + .tog-sl::before { transform: translateX(14px); }
+.rm-btn { background: none; border: none; cursor: pointer; color: var(--color-text-tertiary); font-size: 18px; line-height: 1; padding: 2px 4px; border-radius: 4px; flex-shrink: 0; font-family: monospace; }
+.rm-btn:hover { color: var(--color-text-danger, #c0392b); background: var(--color-background-danger, #fef2f2); }
+.custom-input { font-size: 13px; font-family: var(--font-sans); color: var(--color-text-primary); background: transparent; border: none; border-bottom: 1px solid var(--color-border-secondary); outline: none; width: 100%; padding: 1px 0; }
+.add-btn { width: 100%; padding: 9px; border: 0.5px dashed var(--color-border-secondary); border-radius: var(--border-radius-lg); background: none; font-size: 13px; font-family: var(--font-sans); color: var(--color-text-secondary); cursor: pointer; transition: background 0.15s, border-color 0.15s; margin-bottom: 1.25rem; }
+.add-btn:hover { background: var(--color-background-secondary); border-color: var(--color-border-primary); }
+.rp-footer { border-top: 0.5px solid var(--color-border-tertiary); padding-top: 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.step-ct { font-size: 12px; color: var(--color-text-tertiary); }
+.save-btn { padding: 8px 20px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-lg); background: var(--color-background-primary); font-size: 13px; font-weight: 500; font-family: var(--font-sans); color: var(--color-text-primary); cursor: pointer; transition: background 0.15s; }
+.save-btn:hover { background: var(--color-background-secondary); }
+.save-btn.saved { background: var(--color-background-success); color: var(--color-text-success); border-color: transparent; }
+</style>
+
+<div class="rp">
+  <div class="rp-eyebrow">Your Dressage Journey</div>
+  <h1 class="rp-title">Pre-Ride Ritual</h1>
+  <p class="rp-sub">Build a sequence that's yours. Do it the same way, every time.</p>
+
+  <div class="research-box" id="resBox">
+    <button class="r-trigger" onclick="toggleRes()">
+      <span>Why a consistent ritual works — research context</span>
+      <span class="r-chevron open" id="rChev">&#9660;</span>
+    </button>
+    <div class="r-body" id="rBody">
+      <div class="r-stats">
+        <span class="r-stat blue">g = 0.70 under pressure</span>
+        <span class="r-stat grn">d = 0.87 self-efficacy</span>
+        <span class="r-stat blue">d = 0.48 self-talk</span>
+      </div>
+      <p>A pre-performance routine's benefit comes from <strong>doing the same sequence consistently</strong> — not from what the sequence contains. Riders who build their own idiosyncratic routine outperform those given a prescribed one. The routine reduces cognitive load at the barn gate: you've already decided what you're bringing into the saddle.</p>
+      <p>Under pressure — at shows, in high-stakes schooling — the consistency effect grows significantly. This is where your ritual earns its keep. Even a three-step sequence, done reliably, protects performance when it counts.</p>
+      <p>The steps here reference your active YDJ outputs rather than prescribing content. That's intentional: the sequence should be in your own rhythm, not the platform's.</p>
+      <p class="r-cite">Wergin, Gröpel &amp; Mesagno (2021), 112 effect sizes &nbsp;·&nbsp; Kingston &amp; Hardy (1997) on process goals &nbsp;·&nbsp; Hatzigeorgiadis et al. (2011) on self-talk</p>
+      <span class="r-hidelink" onclick="hideRes()">I've got it — hide this section ✓</span>
+    </div>
+  </div>
+
+  <div class="sec-label">Your sequence — drag to reorder</div>
+  <div class="blocks-list" id="blocksList"></div>
+  <button class="add-btn" onclick="addCustom()">+ Add your own step</button>
+
+  <div class="rp-footer">
+    <span class="step-ct" id="stepCt"></span>
+    <button class="save-btn" id="saveBtn" onclick="saveRitual()">Save my ritual</button>
+  </div>
+</div>
+
+<script>
+const ICON_STYLES = {
+  physical: { bg: '#e6f3eb', txt: '#2a5c36' },
+  gpt:      { bg: '#deeaf5', txt: '#1e5080' },
+  practice: { bg: '#fdf3e0', txt: '#9a6f1a' },
+  viz:      { bg: '#f0e8f5', txt: '#6b3f7a' },
+  custom:   { bg: '#f0efed', txt: '#666' }
+};
+
+const ICONS = { physical:'🌿', gpt:'🧠', practice:'📋', viz:'🎯', custom:'✎' };
+
+let blocks = [
+  { id:'physical', type:'physical', label:'Physical Check-In',
+    desc:'Review barn aisle prep and your pre-ride checklist.',
+    linkLabel:'Barn Aisle Prep', active:true, removable:false,
+    conditional:false },
+  { id:'gpt', type:'gpt', label:'Mental Performance Check-In',
+    desc:"Review this week's Grand Prix Thinking assignment.",
+    linkLabel:'This Week in GPT', active:true, removable:false,
+    conditional:false },
+  { id:'practice', type:'practice', label:'Open Practice Card',
+    desc:'Set your session intention and review your process goals.',
+    linkLabel:'Practice Card', active:true, removable:false,
+    conditional:false },
+  { id:'viz', type:'viz', label:'Visualization',
+    desc:'Run your opening movement in your mind before mounting.',
+    linkLabel:'Open Script', active:false, removable:false,
+    conditional:true, condNote:'No active script — turn on when you have a visualization script' }
+];
+
+let customCount = 0;
+let dragSrc = null;
+
+function render() {
+  const list = document.getElementById('blocksList');
+  list.innerHTML = '';
+  blocks.forEach((b, i) => {
+    const s = ICON_STYLES[b.type] || ICON_STYLES.custom;
+    const ico = b.type === 'custom' ? '✎' : ICONS[b.type];
+    const div = document.createElement('div');
+    div.className = 'r-block' + (b.active ? '' : ' inactive-block');
+    div.draggable = true;
+    div.dataset.idx = i;
+
+    div.addEventListener('dragstart', e => {
+      dragSrc = i;
+      setTimeout(() => div.classList.add('dragging-src'), 0);
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    div.addEventListener('dragend', () => {
+      div.classList.remove('dragging-src');
+      document.querySelectorAll('.r-block').forEach(el => el.classList.remove('drag-over'));
+    });
+    div.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      document.querySelectorAll('.r-block').forEach(el => el.classList.remove('drag-over'));
+      div.classList.add('drag-over');
+    });
+    div.addEventListener('dragleave', () => div.classList.remove('drag-over'));
+    div.addEventListener('drop', e => {
+      e.preventDefault();
+      div.classList.remove('drag-over');
+      if (dragSrc !== null && dragSrc !== i) {
+        const moved = blocks.splice(dragSrc, 1)[0];
+        const dest = dragSrc < i ? i - 1 : i;
+        blocks.splice(dest < 0 ? 0 : dest, 0, moved);
+        dragSrc = null;
+        render();
+      }
+    });
+
+    let contentInner = '';
+    if (b.type === 'custom') {
+      contentInner = `<input class="custom-input" value="${b.label}" placeholder="Describe your step…"
+        oninput="blocks[${i}].label = this.value; updateCount()" />`;
+    } else {
+      contentInner = `<div class="block-label">${b.label}</div>`;
+    }
+
+    const condNote = b.conditional && !b.active
+      ? `<div class="block-cond">${b.condNote}</div>` : '';
+    const descLine = b.type !== 'custom'
+      ? `<div class="block-desc">${b.desc}</div>` : '';
+
+    div.innerHTML = `
+      <div class="drag-handle" title="Drag to reorder">
+        <span class="dh-dot"></span><span class="dh-dot"></span>
+        <span class="dh-dot"></span><span class="dh-dot"></span>
+        <span class="dh-dot"></span><span class="dh-dot"></span>
+      </div>
+      <div class="block-icon" style="background:${s.bg}; color:${s.txt};">${ico}</div>
+      <div class="block-content">
+        ${contentInner}
+        ${descLine}
+        ${condNote}
+      </div>
+      <div class="block-actions">
+        ${b.type !== 'custom' ? `<button class="open-lnk" onclick="openSection('${b.type}')">${b.linkLabel} ↗</button>` : ''}
+        ${b.removable
+          ? `<button class="rm-btn" onclick="removeBlock(${i})" title="Remove">&times;</button>`
+          : `<label class="tog-wrap" title="${b.active ? 'Disable' : 'Enable'} this step">
+              <input type="checkbox" ${b.active ? 'checked' : ''} onchange="toggleBlock(${i}, this.checked)">
+              <span class="tog-sl"></span>
+            </label>`
+        }
+        ${b.type === 'custom' ? `<button class="rm-btn" onclick="removeBlock(${i})" title="Remove">&times;</button>` : ''}
+      </div>`;
+
+    list.appendChild(div);
+  });
+  updateCount();
+}
+
+function toggleBlock(i, val) {
+  blocks[i].active = val;
+  const el = document.querySelectorAll('.r-block')[i];
+  if (el) el.className = 'r-block' + (val ? '' : ' inactive-block');
+  updateCount();
+}
+
+function removeBlock(i) {
+  blocks.splice(i, 1);
+  render();
+}
+
+function addCustom() {
+  customCount++;
+  blocks.push({ id:'custom_'+customCount, type:'custom', label:'',
+    desc:'', linkLabel:'', active:true, removable:true, conditional:false });
+  render();
+  const inputs = document.querySelectorAll('.custom-input');
+  if (inputs.length) inputs[inputs.length - 1].focus();
+}
+
+function updateCount() {
+  const active = blocks.filter(b => b.active).length;
+  const el = document.getElementById('stepCt');
+  if (el) el.textContent = active + ' active step' + (active !== 1 ? 's' : '');
+}
+
+function openSection(type) {
+  const msgs = {
+    physical: 'Take me to the Barn Aisle Prep section in Physical Guidance.',
+    gpt: 'Take me to this week in Grand Prix Thinking.',
+    practice: 'Open my Practice Card.'
+  };
+  if (msgs[type]) sendPrompt(msgs[type]);
+}
+
+function saveRitual() {
+  const btn = document.getElementById('saveBtn');
+  btn.textContent = 'Saved ✓';
+  btn.classList.add('saved');
+  setTimeout(() => { btn.textContent = 'Save my ritual'; btn.classList.remove('saved'); }, 2200);
+}
+
+function toggleRes() {
+  const body = document.getElementById('rBody');
+  const chev = document.getElementById('rChev');
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  chev.classList.toggle('open', !open);
+}
+
+function hideRes() {
+  const box = document.getElementById('resBox');
+  box.style.display = 'none';
+}
+
+render();
+</script>

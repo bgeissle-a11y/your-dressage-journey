@@ -33,6 +33,8 @@ const firstGlimpse = require("./api/firstGlimpse");
 const waitlist = require("./api/waitlist");
 const adminStats = require("./api/adminStats");
 const adminUsageStats = require("./api/adminUsageStats");
+const adminSmokeTest = require("./api/adminSmokeTest");
+const weeklyFocusRefresh = require("./api/weeklyFocusRefresh");
 const arenaCoaching = require("./api/arenaCoaching");
 const weeklyCoachBrief = require("./api/weeklyCoachBrief");
 const readinessSnapshot = require("./api/readinessSnapshot");
@@ -168,6 +170,19 @@ exports.checkCacheStaleness = onCall(
 //   cacheWarmth.warmHandler
 // );
 
+// --- Weekly Focus Refresh — Monday 5 AM ET (10:00 UTC) ---
+// Advances GPT/Physical week pointers and freezes new content snapshot
+// for all users. No Claude API calls — Firestore reads/writes only.
+exports.weeklyFocusRefresh = onSchedule(
+  {
+    schedule: "every monday 05:00",
+    timeZone: "America/New_York",
+    timeoutSeconds: 120,
+    memory: "512MiB",
+  },
+  weeklyFocusRefresh.handler
+);
+
 // --- Admin ---
 
 // Cross-user activity summary (requires admin custom claim)
@@ -180,6 +195,12 @@ exports.getAdminStats = onCall(
 exports.getAdminUsageStats = onCall(
   { timeoutSeconds: 120, memory: "512MiB" },
   adminUsageStats.handler
+);
+
+// Platform health check — per-user data/cache validation (requires admin)
+exports.adminSmokeTest = onCall(
+  { timeoutSeconds: 120, memory: "512MiB" },
+  adminSmokeTest.handler
 );
 
 // --- Data-Triggered Background Regeneration ---

@@ -14,6 +14,15 @@ const { db } = require("./firebase");
 const COLLECTION = "analysisCache";
 
 /**
+ * Schema version — increment when cache result shapes change.
+ * Cache entries with a different (or missing) version are treated as stale.
+ * History:
+ *   1 — Initial versioning (April 2026). GPT mental requires selectedPath,
+ *       trajectory requires trajectoryPaths, physical requires exerciseProtocol.
+ */
+const SCHEMA_VERSION = 1;
+
+/**
  * Build a deterministic document ID for a cache entry.
  *
  * @param {string} uid - User ID
@@ -71,7 +80,7 @@ async function getCache(uid, outputType, options = {}) {
     }
   }
 
-  console.log(`[cache] Hit for ${docId}`);
+  console.log(`[cache] Hit (fresh) for ${docId}`);
   return data;
 }
 
@@ -95,6 +104,7 @@ async function setCache(uid, outputType, result, metadata) {
   const cacheDoc = {
     userId: uid,
     outputType,
+    schemaVersion: SCHEMA_VERSION,
     generatedAt: new Date().toISOString(),
     dataSnapshotHash: dataSnapshotHash || null,
     tierLabel: tierLabel || null,

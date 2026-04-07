@@ -122,15 +122,21 @@ async function handler(request) {
 
     const hash = riderData.dataSnapshot?.hash;
 
-    // Check data tier — need Tier 1+ for AI features
-    if (riderData.dataTier < 1) {
+    // Check minimum data for show planning — lighter gate than full dataTier.
+    // Show planning needs a profile + horse + some ride history, but does NOT
+    // require a rider self-assessment (which gates dataTier 1+).
+    const hasProfile = riderData.profile?.hasProfile;
+    const hasHorse = (riderData.profile?.horseCount || 0) >= 1;
+    const rideCount = riderData.rideHistory?.totalRides || 0;
+    if (!hasProfile || !hasHorse || rideCount < 3) {
+      const gaps = [];
+      if (!hasProfile) gaps.push("Complete your rider profile");
+      if (!hasHorse) gaps.push("Add at least one horse profile");
+      if (rideCount < 3) gaps.push(`Submit ${3 - rideCount} more post-ride debrief${3 - rideCount === 1 ? "" : "s"} (minimum 3)`);
       return {
         success: false,
         error: "insufficient_data",
-        message:
-          "We need a bit more data to generate your Show Plan. " +
-          "Please complete your rider profile, add at least one horse profile, " +
-          "and submit at least 3 post-ride debriefs.",
+        message: `We need a bit more data to generate your Show Plan. ${gaps.join(". ")}.`,
         dataTier: riderData.dataTier,
         tier: riderData.tier,
       };
@@ -248,7 +254,7 @@ async function handler(request) {
           system,
           userMessage,
           jsonMode: true,
-          maxTokens: 16384,
+          maxTokens: 24576,
           context: "ep-1-test-requirements",
           uid,
         });

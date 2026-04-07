@@ -121,7 +121,7 @@ export function createBaseService(collectionName) {
         const {
           orderField = 'createdAt',
           orderDirection = 'desc',
-          limitCount = 50
+          limitCount = 0
         } = options;
 
         // Use only equality filters to avoid requiring composite indexes.

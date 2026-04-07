@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Physical Guidance — 30-Day Cycle Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --parchment:      #f5ede0;
+  --parchment-dark: #e8d9c4;
+  --parchment-mid:  #ede1ce;
+  --parchment-off:  #faf6f0;
+  --ink:            #2c1f14;
+  --ink-mid:        #4a3220;
+  --ink-light:      #6b4f38;
+  --gold:           #b8862a;
+  --gold-light:     #d4a84b;
+  --gold-pale:      #f0d89a;
+  --track:          #8b6340;
+  --rust:           #7a3020;
+  --forest:         #2a4a30;
+  --forest-light:   #3d6b46;
+  --primary:        #2a4a30;
+  --primary-light:  #3d6b46;
+  --primary-bg:     rgba(42,74,48,0.07);
+  --primary-border: rgba(42,74,48,0.22);
+  --horse-color:    #7a3020;
+  --horse-bg:       rgba(122,48,32,0.07);
+  --horse-border:   rgba(122,48,32,0.20);
+  --mental-color:   #2e5c82;
+  --mental-bg:      rgba(46,92,130,0.07);
+  --mental-border:  rgba(46,92,130,0.20);
+  --gold-color:     #7a6010;
+  --gold-bg:        rgba(122,96,16,0.07);
+  --gold-border:    rgba(122,96,16,0.20);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Work Sans',sans-serif;background:var(--parchment);color:var(--ink);min-height:100vh;line-height:1.5;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* NAV */
+.top-nav{position:sticky;top:0;z-index:100;background:var(--ink);border-bottom:2px solid var(--gold);padding:0 1rem;display:flex;align-items:center;overflow-x:auto;scrollbar-width:none;}
+.top-nav::-webkit-scrollbar{display:none}
+.nav-brand{font-family:'Playfair Display',serif;font-size:.88rem;font-weight:700;color:var(--gold-light);white-space:nowrap;flex-shrink:0;padding:.8rem .9rem .8rem 0;margin-right:.5rem;border-right:1px solid rgba(255,255,255,.12);}
+.nav-item{font-size:.72rem;font-weight:500;letter-spacing:.35px;color:rgba(255,255,255,.55);padding:.8rem .65rem;border:none;background:none;cursor:pointer;white-space:nowrap;text-transform:uppercase;transition:color .15s;font-family:'Work Sans',sans-serif;}
+.nav-item:hover{color:var(--gold-light)}
+.nav-item.active{color:var(--gold-light)}
+
+/* PAGE */
+.page{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:28px 20px 100px;}
+
+/* HERO */
+.phys-hero{background:linear-gradient(135deg,#0a1a0e 0%,#142a18 55%,#1e3824 100%);border-radius:16px;padding:28px 32px 24px;margin-bottom:24px;position:relative;overflow:hidden;animation:fadeUp .4s ease both;}
+.phys-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(61,107,70,.16) 0%,transparent 65%);}
+.phys-hero::after{content:'';position:absolute;right:-20px;top:-20px;width:210px;height:210px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='44' fill='none' stroke='rgba(61,107,70,0.12)' stroke-width='1'/%3E%3Ccircle cx='50' cy='50' r='34' fill='none' stroke='rgba(61,107,70,0.08)' stroke-width='1'/%3E%3Ccircle cx='50' cy='50' r='24' fill='none' stroke='rgba(61,107,70,0.06)' stroke-width='1'/%3E%3C/svg%3E");background-size:contain;}
+.hero-eyebrow{font-size:10px;font-weight:700;letter-spacing:3px;color:rgba(61,107,70,.85);text-transform:uppercase;margin-bottom:7px;position:relative;}
+.hero-title{font-family:'Playfair Display',serif;font-size:clamp(22px,5vw,30px);font-weight:700;color:white;line-height:1.2;margin-bottom:5px;position:relative;}
+.hero-sub{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:18px;position:relative;}
+.hero-sub strong{color:rgba(61,107,70,.9);font-weight:500;}
+
+/* CYCLE STATUS BAR */
+.cycle-bar{display:flex;align-items:center;gap:0;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px 16px;margin-bottom:18px;position:relative;flex-wrap:wrap;gap:2px;}
+.cycle-seg{display:flex;flex-direction:column;padding:2px 14px 2px 0;margin-right:14px;border-right:1px solid rgba(255,255,255,.12);}
+.cycle-seg:last-of-type{border-right:none;margin-right:0;}
+.cycle-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.38);margin-bottom:2px;}
+.cycle-value{font-size:12px;font-weight:600;color:rgba(255,255,255,.82);}
+.cycle-value.highlight{color:rgba(61,107,70,.95);}
+.cycle-regen{margin-left:auto;font-size:10px;font-weight:600;color:rgba(255,255,255,.4);cursor:pointer;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.12);background:transparent;font-family:'Work Sans',sans-serif;transition:all .15s;white-space:nowrap;}
+.cycle-regen:hover{color:rgba(255,255,255,.75);border-color:rgba(255,255,255,.25);}
+
+/* TAB ROW */
+.tab-row{display:flex;gap:6px;flex-wrap:wrap;position:relative;}
+.tab-chip{font-size:11px;font-weight:600;letter-spacing:.8px;padding:6px 16px;border-radius:20px;cursor:pointer;border:1.5px solid rgba(255,255,255,.18);color:rgba(255,255,255,.55);background:transparent;transition:all .18s;text-transform:uppercase;white-space:nowrap;font-family:'Work Sans',sans-serif;}
+.tab-chip:hover{border-color:rgba(61,107,70,.55);color:rgba(61,107,70,.9)}
+.tab-chip.active{background:var(--primary-light);border-color:var(--primary-light);color:white;}
+.tab-chip .chip-badge{display:inline-block;font-size:9px;letter-spacing:.5px;background:rgba(255,255,255,.18);padding:1px 6px;border-radius:8px;margin-left:5px;vertical-align:middle;}
+.tab-chip.active .chip-badge{background:rgba(255,255,255,.25)}
+.tab-panel{display:none;animation:fadeUp .3s ease both}
+.tab-panel.active{display:block}
+
+/* SECTION LABELS */
+.section-label-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;margin-top:4px;}
+.section-pill{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:4px 12px 4px 8px;border-radius:20px;}
+.pill-body{background:var(--primary-bg);color:var(--primary);border:1px solid var(--primary-border);}
+.pill-gold{background:var(--gold-bg);color:var(--gold-color);border:1px solid var(--gold-border);}
+.pill-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.dot-body{background:var(--primary-light)}
+.dot-gold{background:var(--gold);}
+.section-note{font-size:11px;color:var(--ink-light);margin-left:auto;}
+
+/* AI REASONING CARD */
+.ai-card{background:white;border:1.5px solid var(--primary-border);border-radius:14px;overflow:hidden;margin-bottom:18px;box-shadow:0 2px 12px rgba(42,74,48,.07);}
+.ai-card-header{padding:13px 17px 11px;background:linear-gradient(135deg,rgba(42,74,48,.06) 0%,rgba(42,74,48,.02) 100%);border-bottom:1px solid var(--primary-border);display:flex;align-items:center;gap:10px;}
+.ai-icon{width:32px;height:32px;border-radius:8px;background:var(--primary-bg);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.ai-card-title{font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:var(--ink);flex:1;}
+.ai-card-tag{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--primary);background:var(--primary-bg);border:1px solid var(--primary-border);padding:3px 9px;border-radius:10px;}
+.ai-card-body{padding:14px 17px 16px;}
+.ai-why-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--track);margin-bottom:6px;}
+.ai-why-text{font-size:13px;line-height:1.65;color:var(--ink-mid);font-style:italic;border-left:3px solid var(--gold-pale);padding-left:12px;margin-bottom:12px;}
+.ai-why-text strong{font-style:normal;font-weight:600;color:var(--ink);}
+.evidence-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.e-chip{font-size:10px;font-weight:500;padding:3px 10px;border-radius:10px;background:var(--parchment);border:1px solid var(--parchment-dark);color:var(--ink-light);}
+.e-chip.strong{background:var(--primary-bg);border-color:var(--primary-border);color:var(--primary);font-weight:600;}
+.e-chip.horse{background:var(--horse-bg);border-color:var(--horse-border);color:var(--horse-color);font-weight:600;}
+
+/* WEEK NAV */
+.week-nav-row{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap;align-items:center;}
+.week-nav-label{font-size:10px;font-weight:600;color:var(--ink-light);letter-spacing:.5px;text-transform:uppercase;margin-right:4px;}
+.wk-chip{font-size:11px;font-weight:600;padding:6px 14px;border-radius:10px;border:1.5px solid var(--parchment-dark);background:transparent;color:var(--ink-light);cursor:pointer;transition:all .15s;font-family:'Work Sans',sans-serif;white-space:nowrap;}
+.wk-chip:hover{border-color:var(--primary-border);color:var(--primary);}
+.wk-chip.active{background:var(--primary);border-color:var(--primary);color:white;}
+.wk-chip.upcoming{opacity:.55;}
+.week-panel{display:none;animation:fadeUp .2s ease both;}
+.week-panel.active{display:block;}
+
+/* WEEK THEME HEADER */
+.week-theme{padding:12px 16px;border-radius:11px;background:linear-gradient(135deg,var(--primary-bg) 0%,rgba(42,74,48,.03) 100%);border:1px solid var(--primary-border);margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;}
+.week-theme-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--primary);margin-bottom:2px;}
+.week-theme-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--ink);margin-bottom:3px;}
+.week-theme-sub{font-size:12px;color:var(--ink-light);font-style:italic;}
+.week-num-badge{font-size:22px;font-weight:700;color:var(--primary-light);opacity:.35;flex-shrink:0;line-height:1;margin-top:2px;}
+
+/* PATTERN CARDS */
+.pattern-card{background:white;border:1.5px solid var(--parchment-dark);border-radius:14px;overflow:hidden;margin-bottom:12px;box-shadow:0 1px 6px rgba(44,31,20,.04);transition:box-shadow .18s;}
+.pattern-card:hover{box-shadow:0 3px 14px rgba(42,74,48,.09);}
+.pattern-card.horse{border-color:var(--horse-border);}
+.pattern-header{padding:13px 17px 11px;border-bottom:1px solid var(--parchment-dark);display:flex;align-items:flex-start;gap:11px;}
+.pattern-card.horse .pattern-header{border-bottom-color:rgba(122,48,32,.15);}
+.p-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:var(--primary-bg);}
+.pattern-card.horse .p-icon{background:var(--horse-bg);}
+.p-title-block{flex:1;}
+.p-title{font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:var(--ink);margin-bottom:2px;}
+.p-source{font-size:11px;color:var(--ink-light);}
+.p-badge{flex-shrink:0;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 9px;border-radius:8px;background:var(--primary-bg);color:var(--primary);border:1px solid var(--primary-border);white-space:nowrap;align-self:flex-start;}
+.pattern-card.horse .p-badge{background:var(--horse-bg);color:var(--horse-color);border-color:var(--horse-border);}
+
+/* Pattern body — collapsible */
+.pattern-body{padding:0 17px;max-height:0;overflow:hidden;transition:max-height .35s ease, padding .25s ease;}
+.pattern-card.open .pattern-body{max-height:1000px;padding:13px 17px 15px;}
+.pattern-desc{font-size:13px;line-height:1.65;color:var(--ink-mid);margin-bottom:10px;}
+
+/* Noticing block */
+.noticing-block{padding:10px 13px;border-radius:9px;background:var(--primary-bg);border:1px solid var(--primary-border);}
+.pattern-card.horse .noticing-block{background:var(--horse-bg);border-color:var(--horse-border);}
+.noticing-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--primary);margin-bottom:7px;}
+.pattern-card.horse .noticing-label{color:var(--horse-color);}
+.noticing-item{display:flex;align-items:flex-start;gap:7px;margin-bottom:7px;font-size:12.5px;color:var(--ink-mid);line-height:1.55;}
+.noticing-item:last-child{margin-bottom:0;}
+.n-dot{width:5px;height:5px;border-radius:50%;background:var(--primary-light);flex-shrink:0;margin-top:6px;}
+.pattern-card.horse .n-dot{background:var(--rust);}
+.debrief-prompt{font-size:11.5px;color:var(--primary);font-style:italic;margin-top:9px;padding-top:8px;border-top:1px dashed rgba(42,74,48,.2);}
+.pattern-card.horse .debrief-prompt{color:var(--horse-color);border-top-color:rgba(122,48,32,.2);}
+
+/* Expand toggle row */
+.p-toggle-row{padding:9px 17px 10px;border-top:1px solid var(--parchment-dark);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;transition:background .15s;}
+.p-toggle-row:hover{background:var(--parchment-off);}
+.pattern-card.horse .p-toggle-row{border-top-color:rgba(122,48,32,.12);}
+.p-toggle-label{font-size:11px;color:var(--ink-light);}
+.p-toggle-row.weekly-focus-item .p-toggle-label::before{content:'📌 ';font-size:10px;}
+.p-arrow{font-size:11px;color:var(--ink-light);transition:transform .2s;}
+.pattern-card.open .p-arrow{transform:rotate(180deg);}
+.wf-pin{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold-color);background:var(--gold-bg);border:1px solid var(--gold-border);padding:2px 7px;border-radius:6px;}
+
+/* SUCCESS BLOCK */
+.success-block{padding:12px 15px;border-radius:10px;background:rgba(42,74,48,.06);border:1px solid rgba(42,74,48,.16);display:flex;align-items:flex-start;gap:9px;margin-bottom:16px;}
+.success-icon{font-size:15px;margin-top:1px;flex-shrink:0;}
+.success-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--primary-light);margin-bottom:3px;}
+.success-text{font-size:12.5px;color:var(--ink-mid);line-height:1.55;}
+
+/* REFLECTION NUDGE */
+.reflection-nudge{padding:11px 15px;border-radius:10px;background:var(--parchment-off);border:1px solid var(--gold-pale);border-left:3px solid var(--gold);font-size:12.5px;font-style:italic;color:var(--ink-mid);line-height:1.6;margin-bottom:18px;}
+
+/* WEEKLY FOCUS CALLOUT */
+.wf-callout{padding:11px 15px;border-radius:10px;background:rgba(184,134,42,.06);border:1px solid rgba(184,134,42,.2);display:flex;gap:10px;align-items:flex-start;margin-bottom:4px;}
+.wf-callout-text{font-size:12px;color:var(--ink-mid);line-height:1.55;}
+.wf-callout-text strong{font-weight:600;color:var(--ink);}
+.wf-link{font-size:11px;color:var(--primary);font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:3px;margin-top:3px;}
+.wf-link:hover{text-decoration:underline;}
+
+/* ── EXERCISE PROTOCOL TAB ── */
+.cadence-card{background:white;border:1.5px solid var(--parchment-dark);border-radius:13px;padding:14px 17px;margin-bottom:18px;display:flex;gap:11px;align-items:flex-start;}
+.cadence-text{font-size:12.5px;color:var(--ink-mid);line-height:1.55;}
+.cadence-text strong{font-weight:600;color:var(--ink);}
+.regen-btn-sm{display:inline-flex;align-items:center;gap:5px;margin-top:7px;font-size:11px;font-weight:600;color:var(--primary);background:var(--primary-bg);border:1px solid var(--primary-border);padding:5px 12px;border-radius:8px;cursor:pointer;font-family:'Work Sans',sans-serif;transition:all .15s;}
+.regen-btn-sm:hover{background:rgba(42,74,48,.14);}
+
+/* BODY AWARENESS PROFILE — collapsible card */
+.collapse-card{background:white;border:1.5px solid var(--parchment-dark);border-radius:13px;overflow:hidden;margin-bottom:12px;}
+.collapse-card-header{padding:12px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;transition:background .15s;}
+.collapse-card-header:hover{background:var(--parchment-off);}
+.collapse-card-icon{font-size:16px;flex-shrink:0;}
+.collapse-card-title{font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:var(--ink);flex:1;}
+.collapse-card-sub{font-size:11px;color:var(--ink-light);}
+.collapse-card-arrow{font-size:11px;color:var(--ink-light);transition:transform .2s;margin-left:4px;}
+.collapse-card.open .collapse-card-arrow{transform:rotate(180deg);}
+.collapse-card-body{display:none;padding:0 16px 16px;animation:fadeUp .2s ease both;}
+.collapse-card.open .collapse-card-body{display:block;}
+
+/* PRIORITY TIERS */
+.tier-row{display:flex;align-items:stretch;border:1.5px solid var(--parchment-dark);border-radius:11px;overflow:hidden;margin-bottom:18px;}
+.tier-seg{flex:1;padding:10px 8px;text-align:center;border-right:1px solid var(--parchment-dark);}
+.tier-seg:last-child{border-right:none;}
+.tier-seg.active{background:var(--primary-bg);}
+.tier-seg.pending{background:var(--gold-bg);}
+.tier-number{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink-light);margin-bottom:3px;}
+.tier-seg.active .tier-number{color:var(--primary);}
+.tier-seg.pending .tier-number{color:var(--gold-color);}
+.tier-name{font-size:10.5px;font-weight:600;color:var(--ink-mid);line-height:1.3;}
+.tier-seg.active .tier-name{color:var(--ink);}
+.tier-sep{display:flex;align-items:center;justify-content:center;padding:0 4px;font-size:11px;color:var(--ink-light);opacity:.5;}
+
+/* EXERCISE CARDS — accordion */
+.ex-card{background:white;border:1.5px solid var(--parchment-dark);border-radius:13px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 4px rgba(44,31,20,.04);}
+.ex-header{padding:12px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;transition:background .15s;}
+.ex-header:hover{background:var(--parchment-off);}
+.ex-icon{width:32px;height:32px;border-radius:8px;background:var(--primary-bg);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.ex-title-block{flex:1;}
+.ex-title{font-family:'Playfair Display',serif;font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:2px;}
+.ex-meta{font-size:11px;color:var(--ink-light);}
+.ex-tags{display:flex;gap:5px;flex-shrink:0;align-items:center;}
+.ex-tier-tag{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:7px;white-space:nowrap;}
+.tag-propr{background:var(--primary-bg);color:var(--primary);border:1px solid var(--primary-border);}
+.tag-struct{background:var(--gold-bg);color:var(--gold-color);border:1px solid var(--gold-border);}
+.tag-tension{background:var(--horse-bg);color:var(--horse-color);border:1px solid var(--horse-border);}
+.ex-arrow{font-size:11px;color:var(--ink-light);transition:transform .2s;margin-left:4px;}
+.ex-card.open .ex-arrow{transform:rotate(180deg);}
+.ex-body{display:none;padding:0 16px 16px;border-top:1px solid var(--parchment-dark);animation:fadeUp .2s ease both;}
+.ex-card.open .ex-body{display:block;padding-top:14px;}
+.ex-steps{list-style:none;margin-bottom:12px;}
+.ex-step{display:flex;align-items:flex-start;gap:9px;margin-bottom:8px;font-size:12.5px;color:var(--ink-mid);line-height:1.55;}
+.ex-step:last-child{margin-bottom:0;}
+.step-num{width:18px;height:18px;border-radius:50%;background:var(--primary-bg);border:1px solid var(--primary-border);color:var(--primary);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.saddle-block{padding:9px 13px;border-radius:9px;background:rgba(184,134,42,.06);border:1px solid rgba(184,134,42,.2);}
+.saddle-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold-color);margin-bottom:3px;}
+.saddle-text{font-size:12px;color:var(--ink-mid);line-height:1.5;}
+
+/* PRE-RIDE CHECKLIST */
+.preride-card{background:white;border:1.5px solid var(--parchment-dark);border-radius:13px;overflow:hidden;margin-bottom:12px;}
+.preride-header{padding:13px 17px 12px;border-bottom:1px solid var(--parchment-dark);display:flex;align-items:center;gap:10px;}
+.preride-title{font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:var(--ink);flex:1;}
+.preride-meta{font-size:11px;color:var(--ink-light);}
+.preride-items{padding:6px 0 4px;}
+.pr-item{display:flex;align-items:flex-start;gap:11px;padding:9px 17px;border-bottom:1px solid var(--parchment-off);transition:background .15s;cursor:pointer;}
+.pr-item:last-child{border-bottom:none;}
+.pr-item:hover{background:var(--parchment-off);}
+.pr-check{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--parchment-dark);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:11px;}
+.pr-item.done .pr-check{background:var(--primary-light);border-color:var(--primary-light);color:white;}
+.pr-item.done .pr-name{text-decoration:line-through;opacity:.5;}
+.pr-text-block{flex:1;}
+.pr-name{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px;}
+.pr-desc{font-size:11.5px;color:var(--ink-light);line-height:1.5;}
+.pr-time{font-size:10px;font-weight:600;color:var(--track);background:var(--parchment);border:1px solid var(--parchment-dark);padding:2px 7px;border-radius:6px;white-space:nowrap;flex-shrink:0;margin-top:2px;align-self:flex-start;}
+
+/* BODY AWARENESS PROMPTS */
+.bap-body{padding-top:4px;}
+.bap-section{margin-bottom:14px;}
+.bap-section-title{font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--ink);margin-bottom:6px;}
+.bap-text{font-size:12.5px;color:var(--ink-mid);line-height:1.65;}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <div class="nav-brand">Your Dressage Journey</div>
+  <button class="nav-item">This Week</button>
+  <button class="nav-item">Record</button>
+  <button class="nav-item">Coaching</button>
+  <button class="nav-item">Grand Prix Thinking</button>
+  <button class="nav-item active">Physical Guidance</button>
+  <button class="nav-item">Shows</button>
+  <button class="nav-item">Journey</button>
+</nav>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="phys-hero">
+    <div class="hero-eyebrow">🌿 Physical Guidance</div>
+    <div class="hero-title">What your body is telling you</div>
+    <div class="hero-sub">Generated April 1 &nbsp;·&nbsp; 2 primary patterns &nbsp;·&nbsp; 6 exercises prescribed &nbsp;·&nbsp; Body mapping: <strong>5/5 tests complete</strong></div>
+
+    <div class="cycle-bar">
+      <div class="cycle-seg">
+        <div class="cycle-label">Cycle started</div>
+        <div class="cycle-value">April 1, 2026</div>
+      </div>
+      <div class="cycle-seg">
+        <div class="cycle-label">You are on</div>
+        <div class="cycle-value highlight">Week 1 of 4</div>
+      </div>
+      <div class="cycle-seg">
+        <div class="cycle-label">Next refresh</div>
+        <div class="cycle-value">May 1 · 30 days</div>
+      </div>
+      <button class="cycle-regen" onclick="showRegenWarning()">↺ Regenerate early</button>
+    </div>
+
+    <div class="tab-row">
+      <button class="tab-chip active" onclick="switchTab('awareness',this)">Body Awareness <span class="chip-badge">4-WEEK PROGRAM</span></button>
+      <button class="tab-chip" onclick="switchTab('protocol',this)">Exercise Protocol <span class="chip-badge">MONTHLY</span></button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- TAB 1 — BODY AWARENESS                     -->
+  <!-- ══════════════════════════════════════════ -->
+  <div id="tab-awareness" class="tab-panel active">
+
+    <div class="section-label-row">
+      <div class="section-pill pill-body"><span class="pill-dot dot-body"></span>Body Awareness</div>
+      <div class="section-note">What to feel — not what to force</div>
+    </div>
+
+    <!-- AI REASONING -->
+    <div class="ai-card">
+      <div class="ai-card-header">
+        <div class="ai-icon">🧬</div>
+        <div class="ai-card-title">AI identified 2 primary patterns for this cycle</div>
+        <div class="ai-card-tag">Pattern Analysis</div>
+      </div>
+      <div class="ai-card-body">
+        <div class="ai-why-label">Why these patterns, this cycle</div>
+        <div class="ai-why-text">
+          Two patterns are blocking the same thing: <strong>throughness</strong>. The hand-tension default prevents the back from being the contact source, and the right-side dominance prevents the left seat bone from weighting consistently — which is why Pony won't connect left. Treating them separately misses the connection. The 4-week program below escalates your awareness of both from "naming" to "catching in real time."
+        </div>
+        <div class="evidence-chips">
+          <span class="e-chip strong">Hand tension: 8+ debrief mentions</span>
+          <span class="e-chip strong">Right-side dominance: PT confirmed</span>
+          <span class="e-chip">Back squat cue working intermittently</span>
+          <span class="e-chip">Left connection: root cause identified</span>
+          <span class="e-chip horse">Rocket: right hind monitoring</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- WEEK NAV -->
+    <div class="week-nav-row">
+      <span class="week-nav-label">Week</span>
+      <button class="wk-chip active" onclick="switchWeek(1,this)">1 — Establish</button>
+      <button class="wk-chip upcoming" onclick="switchWeek(2,this)">2 — Connect</button>
+      <button class="wk-chip upcoming" onclick="switchWeek(3,this)">3 — Under Load</button>
+      <button class="wk-chip upcoming" onclick="switchWeek(4,this)">4 — Real Time</button>
+    </div>
+
+    <!-- ── WEEK 1 ── -->
+    <div id="week-1" class="week-panel active">
+      <div class="week-theme">
+        <div class="week-num-badge">1</div>
+        <div>
+          <div class="week-theme-label">Week 1 Focus</div>
+          <div class="week-theme-title">Establish — Name it when you feel it</div>
+          <div class="week-theme-sub">Identification without judgment. You're building a vocabulary for what you already feel.</div>
+        </div>
+      </div>
+
+      <!-- PATTERN 1 -->
+      <div class="pattern-card" id="p1">
+        <div class="pattern-header">
+          <div class="p-icon">🤲</div>
+          <div class="p-title-block">
+            <div class="p-title">Hand tension as default contact</div>
+            <div class="p-source">Debriefs + coach cues + self-assessment</div>
+          </div>
+          <div class="p-badge">Primary · Rider</div>
+        </div>
+        <div class="pattern-body">
+          <div class="pattern-desc">
+            This is the single most critical pattern blocking advancement. Hand tension creates false contact — pulling backward rather than receiving what the hind legs create. The arthritis may feel like the cause, but your hands are not tense in daily life — only under riding pressure. The back squat cue is already working intermittently: "liked the way I was able to feel the twins through my upper back and into my elbows today, not in my hands and biceps." The goal this week is not to fix it — it's to name it when it happens.
+          </div>
+          <div class="noticing-block">
+            <div class="noticing-label">Week 1 — Name it when you feel it</div>
+            <div class="noticing-item"><div class="n-dot"></div><span><strong>The impulse to reach forward</strong> with the rein — notice this impulse before you act on it. It precedes the actual hand tension by half a second.</span></div>
+            <div class="noticing-item"><div class="n-dot"></div><span><strong>After the fact is fine this week.</strong> Logging "defaulted to heavier hands" after the ride is the starting point, not a failure. You're building the vocabulary before you build the timing.</span></div>
+            <div class="noticing-item"><div class="n-dot"></div><span><strong>Back squat: was it on or off?</strong> At the end of each ride, log whether you accessed the back-squat engagement. No judgment — just a binary. On or off.</span></div>
+            <div class="debrief-prompt">→ Log in debrief: Did I notice hand-tension before or after it affected the horse?</div>
+          </div>
+        </div>
+        <div class="p-toggle-row weekly-focus-item" onclick="togglePattern('p1')">
+          <span class="p-toggle-label">Feeds Weekly Focus · expand for full pattern</span>
+          <div style="display:flex;align-items:center;gap:7px;"><span class="wf-pin">📌 This Week</span><span class="p-arrow">▾</span></div>
+        </div>
+      </div>
+
+      <!-- PATTERN 2 -->
+      <div class="pattern-card" id="p2">
+        <div class="pattern-header">
+          <div class="p-icon">⚖️</div>
+          <div class="p-title-block">
+            <div class="p-title">Right-side dominance — strong but not subtle</div>
+            <div class="p-source">PT cues + body mapping + debrief cross-reference</div>
+          </div>
+          <div class="p-badge">Primary · Rider</div>
+        </div>
+        <div class="pattern-body">
+          <div class="pattern-desc">
+            Right hip is tighter and slightly retracted (PT: "right leg wants to be a little behind"). Left toe turns in. The result is a rotated pelvis — right side back, left side forward but not weighted. This is why Pony won't connect left: the left seat bone isn't consistently weighted, so the left hind can't push into the contact you're trying to create with your hand. Right-side dominance doesn't mean the right side is correct — it means it's doing work the left side should share.
+          </div>
+          <div class="noticing-block">
+            <div class="noticing-label">Week 1 — Name it when you feel it</div>
+            <div class="noticing-item"><div class="n-dot"></div><span><strong>Before mounting:</strong> notice where your right leg wants to be in the stirrup. Is it slightly behind the girth already? The PT's cue applies here too — check it visually before it becomes invisible.</span></div>
+            <div class="noticing-item"><div class="n-dot"></div><span><strong>In left-bend work on Pony:</strong> when he resists connecting left, ask yourself first — is my left seat bone weighted? Don't answer quickly. Feel it.</span></div>
+            <div class="noticing-item"><div class="n-dot"></div><span><strong>"I'm less grippy on the right too so that probably helps!"</strong> — you noticed this (Mar 26). That moment of reduced right-side grip allowing better response: log when it happens and what preceded it.</span></div>
+            <div class="debrief-prompt">→ Log in debrief: Which horse or movement revealed the asymmetry first today?</div>
+          </div>
+        </div>
+        <div class="p-toggle-row weekly-focus-item" onclick="togglePattern('p2')">
+          <span class="p-toggle-label">Feeds Weekly Focus · expand for full pattern</span>
+          <div style="display:flex;align-items:center;gap:7px;"><span class="wf-pin">📌 This Week</span><span class="p-arrow">▾</span></div>
+        </div>
+      </div>
+
+      <!-- HORSE HEALTH -->
+      <div class="pattern-card horse" id="p3">
+        <div class="pattern-header">
+          <div class="p-icon" style="background:var(--horse-bg);">🐴</div>
+          <div class="p-title-block">
+            <div class="p-title">Rocket Star — right hind: continue monitoring</div>
+            <div class="p-source">Andria exam Feb 27 + 4 debrief references</div>
+          </div>
+          <div class="p-badge" style="background:var(--horse-bg);color:var(--horse-color);border-color:var(--horse-border);">Horse Health</div>
+        </div>
+        <div class="pattern-body">
+          <div class="pattern-desc">
+            Andria's exam noted slightly shorter stride in the right hind at trot — mild stiffness, not lameness. Four subsequent debriefs reference this. Ongoing monitoring recommended; reward softness quickly in the warm-up rather than pushing through early stiffness.
+          </div>
+          <div class="noticing-block" style="background:var(--horse-bg);border-color:var(--horse-border);">
+            <div class="noticing-label" style="color:var(--horse-color);">Each ride on Rocket this week</div>
+            <div class="noticing-item"><div class="n-dot" style="background:var(--rust);"></div><span><strong>10-minute warm-up check:</strong> is the right hind tracking up consistently? Log one sentence about this in every Rocket debrief this week.</span></div>
+            <div class="noticing-item"><div class="n-dot" style="background:var(--rust);"></div><span><strong>Reward softening immediately</strong> — Andria's specific note. Don't ride through early tightness; yield to what he offers and note whether today's response feels better or worse than last ride.</span></div>
+            <div class="debrief-prompt" style="color:var(--horse-color);border-top-color:rgba(122,48,32,.2);">→ Log in debrief: Right hind quality today — better, same, or worse than last ride?</div>
+          </div>
+        </div>
+        <div class="p-toggle-row weekly-focus-item" onclick="togglePattern('p3')" style="border-top-color:rgba(122,48,32,.12);">
+          <span class="p-toggle-label">Feeds Weekly Focus · expand for full notes</span>
+          <div style="display:flex;align-items:center;gap:7px;"><span class="wf-pin">📌 This Week</span><span class="p-arrow">▾</span></div>
+        </div>
+      </div>
+
+      <!-- SUCCESS -->
+      <div class="success-block">
+        <div class="success-icon">🌱</div>
+        <div>
+          <div class="success-label">Week 1 looks like success when…</div>
+          <div class="success-text">You log hand-tension as a named observation in at least 3 debriefs. You log one sentence about the right-side pattern in at least 2 debriefs. You log Rocket's right hind each time you ride him. Noticing counts — even if nothing changed.</div>
+        </div>
+      </div>
+
+      <div class="reflection-nudge">These aren't corrections to force. They're signals to recognize — and eventually, to stop needing to look for.</div>
+    </div><!-- /week-1 -->
+
+    <!-- ── WEEK 2 ── -->
+    <div id="week-2" class="week-panel">
+      <div class="week-theme">
+        <div class="week-num-badge">2</div>
+        <div>
+          <div class="week-theme-label">Week 2 Focus</div>
+          <div class="week-theme-title">Connect — Where does the pattern first appear?</div>
+          <div class="week-theme-sub">You've been naming it. Now find the trigger moment — before the pattern is already running.</div>
+        </div>
+      </div>
+
+      <div class="pattern-card" id="p1w2">
+        <div class="pattern-header">
+          <div class="p-icon">🤲</div>
+          <div class="p-title-block">
+            <div class="p-title">Hand tension as default contact</div>
+            <div class="p-source">Week 2: Find the trigger</div>
+          </div>
+          <div class="p-badge">Primary · Rider</div>
+        </div>
+        <div class="pattern-body">
+          <div class="pattern-desc">Week 1 was naming it. This week: find what comes just before. Is it Rocket's jaw tension at the trot-canter transition? Pony's resistance to left contact? A particular movement you're anxious about? The pattern has a trigger — and once you find it, you're one step ahead of it.</div>
+          <div class="noticing-block">
+            <div class="noticing-label">Week 2 — Find the trigger</div>
+            <div class="noticing-item"><div class="n-dot"></div><span><strong>Before you default to the hand</strong> — what happened? Name the preceding moment in your debrief. "I defaulted because [X]." One specific thing.</span></div>
+            <div class="noticing-item"><div class="n-dot"></div><span><strong>Rocket vs. Pony:</strong> is the trigger different per horse? Rocket's jaw tightness triggers something different than Pony's left resistance. Name them separately.</span></div>
+            <div class="noticing-item"><div class="n-dot"></div><span><strong>Back squat: how quickly did you return to it</strong> after defaulting? Time doesn't matter — logging the return is the goal.</span></div>
+            <div class="debrief-prompt">→ Log in debrief: What triggered the hand-default today? Name the specific moment.</div>
+          </div>
+        </div>
+        <div class="p-toggle-row weekly-focus-item" onclick="togglePattern('p1w2')">
+          <span class="p-toggle-label">Feeds Weekly Focus · expand for full pattern</span>
+          <div style="display:flex;align-items:center;gap:7px;"><span class="wf-pin">📌 This Week</span><span class="p-arrow">▾</span></div>
+        </div>
+      </div>
+
+      <div class="pattern-card" id="p2w2">
+        <div class="pattern-header">
+          <div class="p-icon">⚖️</div>
+          <div class="p-title-block">
+            <div class="p-title">Right-side dominance — strong but not subtle</div>
+            <div class="p-source">Week 2: Which movement reveals it first?</div>
+          </div>
+          <div class="p-badge">Primary · Rider</div>
+        </div>
+        <div class="pattern-body">
+          <div class="pattern-desc">You've been naming the asymmetry. This week: identify which movement or horse reveals it first — that's your diagnostic movement for the rest of the cycle. Knowing where it appears first lets you use it as a check-in rather than a surprise.</div>
+          <div class="noticing-block">
+            <div class="noticing-label">Week 2 — Find the diagnostic movement</div>
+            <div class="noticing-item"><div class="n-dot"></div><span><strong>Canter depart or left-lead work:</strong> when does the right hip want to retract first? Note the specific movement — it will likely be consistent.</span></div>
+            <div class="noticing-item"><div class="n-dot"></div><span><strong>Left shoulder-in or left leg yield:</strong> notice whether the left seat bone is truly weighted before you ask. It often isn't — and the horse will tell you.</span></div>
+            <div class="noticing-item"><div class="n-dot"></div><span><strong>Hip square check at mounting:</strong> after two weeks of the off-horse check, is your "even" calibration changing? Note whether mounting feels different.</span></div>
+            <div class="debrief-prompt">→ Log in debrief: Which movement revealed the asymmetry first today?</div>
+          </div>
+        </div>
+        <div class="p-toggle-row weekly-focus-item" onclick="togglePattern('p2w2')">
+          <span class="p-toggle-label">Feeds Weekly Focus · expand for full pattern</span>
+          <div style="display:flex;align-items:center;gap:7px;"><span class="wf-pin">📌 This Week</span><span class="p-arrow">▾</span></div>
+        </div>
+      </div>
+
+      <div class="success-block"><div class="success-icon">🌱</div><div><div class="success-label">Week 2 looks like success when…</div><div class="success-text">You log the trigger movement for hand-tension in at least 3 rides. You log the diagnostic movement for right-side asymmetry in at least 2 rides. The pattern has a name and now a location.</div></div></div>
+      <div class="reflection-nudge">Finding the trigger is harder than naming the result. A week where you find it once is a good week.</div>
+    </div><!-- /week-2 -->
+
+    <!-- ── WEEK 3 ── -->
+    <div id="week-3" class="week-panel">
+      <div class="week-theme">
+        <div class="week-num-badge">3</div>
+        <div>
+          <div class="week-theme-label">Week 3 Focus</div>
+          <div class="week-theme-title">Under Load — Notice it when it's harder to notice</div>
+          <div class="week-theme-sub">Collection demands. Bigger movement. The moments when the pattern is strongest and awareness is hardest.</div>
+        </div>
+      </div>
+      <div class="pattern-card" id="p1w3">
+        <div class="pattern-header">
+          <div class="p-icon">🤲</div>
+          <div class="p-title-block"><div class="p-title">Hand tension as default contact</div><div class="p-source">Week 3: Catch it under GP-level demands</div></div>
+          <div class="p-badge">Primary · Rider</div>
+        </div>
+        <div class="pattern-body">
+          <div class="pattern-desc">Rocket's big movement is the test case. You said: "I can't relax too much since it takes a lot of balance in my own body to keep things together." That balance demand is where hand-defaulting is strongest. This week, the focus is Rocket's collected and half-pass work specifically.</div>
+          <div class="noticing-block">
+            <div class="noticing-label">Week 3 — Under collection demands</div>
+            <div class="noticing-item"><div class="n-dot"></div><span><strong>Rocket's collected trot and half-pass:</strong> can you access the back-squat engagement while managing his energy? If not — that's the gap. Name it.</span></div>
+            <div class="noticing-item"><div class="n-dot"></div><span><strong>The jaw-shoulder cascade:</strong> when Rocket gets tight, does your jaw tighten first? This week, add jaw-awareness to your riding checklist alongside back-squat awareness.</span></div>
+            <div class="noticing-item"><div class="n-dot"></div><span><strong>"Allow more than do":</strong> your Mar 20 aha still applies here. Can you stay back-engaged while allowing rather than making? Log once when you manage it in a demanding moment.</span></div>
+            <div class="debrief-prompt">→ Log in debrief: In the hardest moment of today's ride — where did the tension go?</div>
+          </div>
+        </div>
+        <div class="p-toggle-row weekly-focus-item" onclick="togglePattern('p1w3')"><span class="p-toggle-label">Feeds Weekly Focus · expand for full pattern</span><div style="display:flex;align-items:center;gap:7px;"><span class="wf-pin">📌 This Week</span><span class="p-arrow">▾</span></div></div>
+      </div>
+      <div class="success-block"><div class="success-icon">🌱</div><div><div class="success-label">Week 3 looks like success when…</div><div class="success-text">You log one moment in Rocket's collected work where back-squat engagement was present during difficulty — not before, during. Once is enough.</div></div></div>
+      <div class="reflection-nudge">This is the hardest week. Awareness under load is the skill that transfers to the show ring.</div>
+    </div><!-- /week-3 -->
+
+    <!-- ── WEEK 4 ── -->
+    <div id="week-4" class="week-panel">
+      <div class="week-theme">
+        <div class="week-num-badge">4</div>
+        <div>
+          <div class="week-theme-label">Week 4 Focus</div>
+          <div class="week-theme-title">Real Time — Before the horse tells you</div>
+          <div class="week-theme-sub">The pattern still exists. The difference is when you catch it — before it affects the quality, not after.</div>
+        </div>
+      </div>
+      <div class="pattern-card" id="p1w4">
+        <div class="pattern-header">
+          <div class="p-icon">🤲</div>
+          <div class="p-title-block"><div class="p-title">Hand tension as default contact</div><div class="p-source">Week 4: Pre-emptive, not reactive</div></div>
+          <div class="p-badge">Primary · Rider</div>
+        </div>
+        <div class="pattern-body">
+          <div class="pattern-desc">Week 1 you named it after. Week 2 you found the trigger. Week 3 you felt it under load. Week 4: the back-squat engagement becomes pre-emptive. You activate it before you pick up the reins — not as a correction, as a default. That's when the neurological rewiring is taking hold.</div>
+          <div class="noticing-block">
+            <div class="noticing-label">Week 4 — Make it pre-emptive</div>
+            <div class="noticing-item"><div class="n-dot"></div><span><strong>Back-squat engagement before you pick up the reins:</strong> this is now part of the pre-ride ritual. Log whether you did it — and whether rides where you do it feel different from rides where you don't.</span></div>
+            <div class="noticing-item"><div class="n-dot"></div><span><strong>When you catch it before the horse tells you:</strong> log that moment specifically. "Caught the hand impulse at [X movement] before [horse name] responded." That's the proof the work transferred.</span></div>
+            <div class="noticing-item"><div class="n-dot"></div><span><strong>Compare your Week 1 debrief language to this week's.</strong> Is "defaulted to heavier hands" appearing less? The language shift is data.</span></div>
+            <div class="debrief-prompt">→ Log in debrief: Did I activate back-squat engagement before picking up the reins today? What changed if I did?</div>
+          </div>
+        </div>
+        <div class="p-toggle-row weekly-focus-item" onclick="togglePattern('p1w4')"><span class="p-toggle-label">Feeds Weekly Focus · expand for full pattern</span><div style="display:flex;align-items:center;gap:7px;"><span class="wf-pin">📌 This Week</span><span class="p-arrow">▾</span></div></div>
+      </div>
+      <div class="success-block"><div class="success-icon">🌱</div><div><div class="success-label">Week 4 looks like success when…</div><div class="success-text">You log pre-emptive back-squat engagement at least once per ride where you ride Rocket or Pony in collected work. You notice whether the month's work changed anything about how often you reach for "defaulted to heavier hands" in your debriefs. The next cycle will build from here.</div></div></div>
+      <div class="reflection-nudge">A 30-day cycle doesn't fix a pattern. It gives you enough rides to understand it. The next cycle goes deeper.</div>
+    </div><!-- /week-4 -->
+
+    <!-- WEEKLY FOCUS CALLOUT (outside week panels) -->
+    <div class="wf-callout" style="margin-top:20px;">
+      <span style="font-size:14px;flex-shrink:0;margin-top:1px;">📌</span>
+      <div>
+        <div class="wf-callout-text"><strong>These patterns feed your Weekly Focus page.</strong> The current week's 3 pinned items (marked above) are extracted automatically to the Physical Awareness card. They are identical to what appears here — no separate generation, no drift.</div>
+        <a href="#" class="wf-link">View in This Week →</a>
+      </div>
+    </div>
+
+  </div><!-- /tab-awareness -->
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- TAB 2 — EXERCISE PROTOCOL                  -->
+  <!-- ══════════════════════════════════════════ -->
+  <div id="tab-protocol" class="tab-panel">
+
+    <div class="section-label-row">
+      <div class="section-pill pill-body"><span class="pill-dot dot-body"></span>Exercise Protocol</div>
+      <div class="section-note">Off-horse · Stable for 30 days</div>
+    </div>
+
+    <div class="cadence-card">
+      <span style="font-size:16px;flex-shrink:0;margin-top:1px;">🗓</span>
+      <div>
+        <div class="cadence-text"><strong>This protocol was generated April 1 and is stable for 30 days.</strong> It is based on your current body mapping results and your primary patterns. Exercises don't change week to week — your awareness of what they're training does. Complete VOR stability test to unlock the neurological tier.</div>
+        <button class="regen-btn-sm" onclick="showRegenWarning()">↺ Regenerate protocol early</button>
+      </div>
+    </div>
+
+    <!-- BODY AWARENESS PROFILE — collapsed -->
+    <div class="collapse-card" id="bap-card">
+      <div class="collapse-card-header" onclick="toggleCollapse('bap-card')">
+        <span class="collapse-card-icon">🪞</span>
+        <div class="collapse-card-title">Body Awareness Profile</div>
+        <span class="collapse-card-sub">Level 5/10 · 4 blind spots · 4 strengths</span>
+        <span class="collapse-card-arrow">▾</span>
+      </div>
+      <div class="collapse-card-body">
+        <div class="bap-body">
+          <div class="bap-section">
+            <div class="bap-section-title">Awareness Level: 5/10 (accurate to slightly generous)</div>
+            <div class="bap-text">You can feel some things clearly — hip-forward cue, back squat engagement, rein weight differences — but miss others entirely until after the fact: jaw tension, right hip retraction, hand-defaulting in the moment. You know gaps exist but may not know which they are.</div>
+          </div>
+          <div class="bap-section">
+            <div class="bap-section-title">Blind Spots</div>
+            <div class="bap-text">Jaw and shoulder tension — normalized to the point of invisibility despite coach repeating "shoulders down and back." Right hip tightness and retraction — you report "right side dominant" but don't connect this to the right-leg-behind observation from PT. Hand tension as default — noticed after ("defaulted back to heavier hands"), not during. Upper body collapse onset — coach names "stay with the motion" which suggests tipping forward before you feel it.</div>
+          </div>
+          <div class="bap-section">
+            <div class="bap-section-title">Awareness Strengths</div>
+            <div class="bap-text">Can isolate and manipulate seat bone/hip position with precision — this is advanced proprioception. Notices subtle rein weight differences. Can track when back squat muscles are engaged vs. hand-dominant. Recognizes quality differences in horse response and correlates to her own body state.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRIORITY TIERS -->
+    <div class="section-label-row" style="margin-top:4px;">
+      <div class="section-pill pill-body"><span class="pill-dot dot-body"></span>Priority Hierarchy</div>
+      <div class="section-note">Work upstream before downstream</div>
+    </div>
+    <div class="tier-row" style="margin-bottom:18px;">
+      <div class="tier-seg pending">
+        <div class="tier-number">Unlock first</div>
+        <div class="tier-name" style="font-size:10px;">Neurological<br><span style="color:var(--gold-color);font-size:9px;">VOR pending</span></div>
+      </div>
+      <div class="tier-sep">→</div>
+      <div class="tier-seg active">
+        <div class="tier-number">Current</div>
+        <div class="tier-name">Proprioceptive</div>
+      </div>
+      <div class="tier-sep">→</div>
+      <div class="tier-seg active">
+        <div class="tier-number">Current</div>
+        <div class="tier-name">Structural</div>
+      </div>
+      <div class="tier-sep">→</div>
+      <div class="tier-seg">
+        <div class="tier-number">Last</div>
+        <div class="tier-name">Tension</div>
+      </div>
+    </div>
+
+    <!-- EXERCISES -->
+    <div class="section-label-row">
+      <div class="section-pill pill-body"><span class="pill-dot dot-body"></span>Prescribed Exercises</div>
+      <div class="section-note">Tap to expand · All 6 exercises</div>
+    </div>
+
+    <div class="ex-card" id="ex1">
+      <div class="ex-header" onclick="toggleEx('ex1')">
+        <div class="ex-icon">🪑</div>
+        <div class="ex-title-block">
+          <div class="ex-title">Seated Hip Square Check with Mirror</div>
+          <div class="ex-meta">Daily + before mounting · 3–4 min · Firm chair or bench</div>
+        </div>
+        <div class="ex-tags"><span class="ex-tier-tag tag-propr">Proprioceptive</span><span class="ex-tier-tag" style="background:rgba(44,31,20,.05);color:var(--ink-light);border:1px solid var(--parchment-dark);">Beginner</span></div>
+        <span class="ex-arrow">▾</span>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li class="ex-step"><div class="step-num">1</div><span>Sit on a firm chair, feet flat, hip-width apart. Without looking down, position feet where they feel "even."</span></li>
+          <li class="ex-step"><div class="step-num">2</div><span>Now look down: is your right foot slightly behind the left? Does your left toe point inward? Adjust to true parallel placement.</span></li>
+          <li class="ex-step"><div class="step-num">3</div><span>Notice how this feels — likely "off" or asymmetric. Hold 30 seconds, breathing into the right hip. Stand, walk, sit again. 3 rounds.</span></li>
+        </ol>
+        <div class="saddle-block">
+          <div class="saddle-label">🐴 In the saddle, when this is working</div>
+          <div class="saddle-text">Mounting will feel different — your pelvis will find "even" more quickly, and Pony's resistance to left contact will begin earlier in the ride rather than persisting through it. The calibration happens off-horse so it's available in the saddle automatically.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card" id="ex2">
+      <div class="ex-header" onclick="toggleEx('ex2')">
+        <div class="ex-icon">🧱</div>
+        <div class="ex-title-block">
+          <div class="ex-title">Right Hip Wall Release with Breath</div>
+          <div class="ex-meta">Before every ride (right side priority) · 2–3 min</div>
+        </div>
+        <div class="ex-tags"><span class="ex-tier-tag tag-struct">Structural</span><span class="ex-tier-tag" style="background:rgba(44,31,20,.05);color:var(--ink-light);border:1px solid var(--parchment-dark);">Beginner</span></div>
+        <span class="ex-arrow">▾</span>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li class="ex-step"><div class="step-num">1</div><span>Stand with right side against a wall, right hip touching the surface. Step right foot slightly forward, left foot slightly back.</span></li>
+          <li class="ex-step"><div class="step-num">2</div><span>Keeping right hip pressed to wall, slowly rotate torso to the left, arms reaching left. Feel the stretch through the right hip flexor and outer hip.</span></li>
+          <li class="ex-step"><div class="step-num">3</div><span>Hold 5 breaths (4 count inhale, 6 count exhale). On each exhale, imagine the right hip softening and releasing back toward the wall. Repeat on left side for balance.</span></li>
+        </ol>
+        <div class="saddle-block">
+          <div class="saddle-label">🐴 In the saddle, when this is working</div>
+          <div class="saddle-text">Your right hip will follow Rocket's motion through collected work without bracing. The "polish the saddle" and "keep your hips moving" cues from your coach will become accessible rather than effortful — the hip will be mobile enough to follow rather than having to be forced.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card" id="ex3">
+      <div class="ex-header" onclick="toggleEx('ex3')">
+        <div class="ex-icon">🏋️</div>
+        <div class="ex-title-block">
+          <div class="ex-title">Back Squat Engagement Rehearsal</div>
+          <div class="ex-meta">Daily + before mounting · 3–4 min · Standing</div>
+        </div>
+        <div class="ex-tags"><span class="ex-tier-tag tag-propr">Proprioceptive</span><span class="ex-tier-tag" style="background:rgba(44,31,20,.05);color:var(--ink-light);border:1px solid var(--parchment-dark);">Intermediate</span></div>
+        <span class="ex-arrow">▾</span>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li class="ex-step"><div class="step-num">1</div><span>Stand hip-width apart. Perform a shallow squat (6 inches), focusing on engaging your lats and upper back — shoulder blades drawing down into back pockets. Hold 3 seconds.</span></li>
+          <li class="ex-step"><div class="step-num">2</div><span>Rise slowly. Repeat 8 times.</span></li>
+          <li class="ex-step"><div class="step-num">3</div><span>Stand still, arms hanging, and recreate JUST the upper back engagement without squatting. Hold 10 seconds, release. Repeat 3 times. This is the saddle-specific recruitment pattern.</span></li>
+        </ol>
+        <div class="saddle-block">
+          <div class="saddle-label">🐴 In the saddle, when this is working</div>
+          <div class="saddle-text">You'll feel the twins through your upper back into your elbows — not in your hands and biceps. You've already found this ("liked the way I was able to feel the twins through my upper back and into my elbows today"). Rehearsing off-horse makes it available under pressure, not just when it's easy.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card" id="ex4">
+      <div class="ex-header" onclick="toggleEx('ex4')">
+        <div class="ex-icon">😮‍💨</div>
+        <div class="ex-title-block">
+          <div class="ex-title">Jaw-Shoulder Release with Exhale Pattern</div>
+          <div class="ex-meta">Daily + 6 breaths before mounting · 2 min</div>
+        </div>
+        <div class="ex-tags"><span class="ex-tier-tag tag-tension">Tension</span><span class="ex-tier-tag" style="background:rgba(44,31,20,.05);color:var(--ink-light);border:1px solid var(--parchment-dark);">Beginner</span></div>
+        <span class="ex-arrow">▾</span>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li class="ex-step"><div class="step-num">1</div><span>Sit or stand. Tongue gently on the roof of your mouth behind front teeth (prevents jaw clenching). Inhale through nose 4 counts.</span></li>
+          <li class="ex-step"><div class="step-num">2</div><span>Exhale through mouth 6 counts — consciously drop shoulders away from ears and let jaw go completely slack (mouth slightly open). 6 repetitions.</span></li>
+          <li class="ex-step"><div class="step-num">3</div><span>Add a small head nod on the exhale — releases muscles at the base of the skull that connect jaw tension to neck and shoulder tension.</span></li>
+        </ol>
+        <div class="saddle-block">
+          <div class="saddle-label">🐴 In the saddle, when this is working</div>
+          <div class="saddle-text">Your jaw is the top of the tension chain. Tight jaw → tight neck → tight shoulders → tight hands. When you interrupt it here, the hands follow automatically. "Shoulders down and back" becomes achievable — not because you remembered to do it, but because the jaw released and the shoulder dropped on its own.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card" id="ex5">
+      <div class="ex-header" onclick="toggleEx('ex5')">
+        <div class="ex-icon">🦩</div>
+        <div class="ex-title-block">
+          <div class="ex-title">Single-Leg Balance with Eyes-Up Focus</div>
+          <div class="ex-meta">3× per week · 3 min · Near a wall if needed</div>
+        </div>
+        <div class="ex-tags"><span class="ex-tier-tag tag-struct">Structural</span><span class="ex-tier-tag" style="background:rgba(44,31,20,.05);color:var(--ink-light);border:1px solid var(--parchment-dark);">Intermediate</span></div>
+        <span class="ex-arrow">▾</span>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li class="ex-step"><div class="step-num">1</div><span>Stand on right leg (left knee lifted to hip height), eyes straight ahead on a fixed point — not down at your foot. Hold 30 seconds.</span></li>
+          <li class="ex-step"><div class="step-num">2</div><span>Repeat on left leg — this will feel less stable because your left glute is under-recruited. Hold 30 seconds. Track both times.</span></li>
+          <li class="ex-step"><div class="step-num">3</div><span>2 rounds per side. Eyes-up is non-negotiable — this trains the exact habit needed for sequence changes.</span></li>
+        </ol>
+        <div class="saddle-block">
+          <div class="saddle-label">🐴 In the saddle, when this is working</div>
+          <div class="saddle-text">Left-lead changes will require less effort because the left glute and hip stabilizers will be available to produce the aid. Eyes-up in the arena — particularly during tempi changes and complex sequences — will start to feel connected to a stable core rather than a conscious reminder.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card" id="ex6">
+      <div class="ex-header" onclick="toggleEx('ex6')">
+        <div class="ex-icon">🪵</div>
+        <div class="ex-title-block">
+          <div class="ex-title">Plank with Lat Engagement Check</div>
+          <div class="ex-meta">3× per week · Not on consecutive days · 3–4 min</div>
+        </div>
+        <div class="ex-tags"><span class="ex-tier-tag tag-struct">Structural</span><span class="ex-tier-tag" style="background:rgba(44,31,20,.05);color:var(--ink-light);border:1px solid var(--parchment-dark);">Intermediate</span></div>
+        <span class="ex-arrow">▾</span>
+      </div>
+      <div class="ex-body">
+        <ol class="ex-steps">
+          <li class="ex-step"><div class="step-num">1</div><span>Forearm plank (elbows under shoulders, straight line head to heels). Hold 20 seconds.</span></li>
+          <li class="ex-step"><div class="step-num">2</div><span>Without moving, imagine pulling elbows toward hips — you'll feel the lats engage. This is the back squat saddle pattern in a loaded position. Hold 10 seconds, rest 10, re-engage 10.</span></li>
+          <li class="ex-step"><div class="step-num">3</div><span>Total plank time: 40 seconds. Repeat 2–3 times.</span></li>
+        </ol>
+        <div class="saddle-block">
+          <div class="saddle-label">🐴 In the saddle, when this is working</div>
+          <div class="saddle-text">"I can't relax too much since it takes a lot of balance in my own body to keep things together" — this is Rocket's piaffe-passage work specifically. Plank with lat engagement teaches your body to sustain back-connection when your core is working hard. Staying with his motion through the transition without tipping forward will feel less effortful.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRE-RIDE CHECKLIST -->
+    <div class="section-label-row" style="margin-top:22px;">
+      <div class="section-pill pill-body"><span class="pill-dot dot-body"></span>Pre-Ride Ritual</div>
+      <div class="section-note">6–8 min · After tacking up · Before any horse</div>
+    </div>
+    <div class="preride-card">
+      <div class="preride-header">
+        <span style="font-size:16px;">☀️</span>
+        <div class="preride-title">Barn Aisle Preparation</div>
+        <div class="preride-meta">Reset daily &nbsp;·&nbsp; In order</div>
+      </div>
+      <div class="preride-items">
+        <div class="pr-item" onclick="togglePR(this)">
+          <div class="pr-check"></div>
+          <div class="pr-text-block">
+            <div class="pr-name">Jaw-Shoulder Release</div>
+            <div class="pr-desc">Tongue on roof of mouth, 6 slow exhales dropping jaw and shoulders. Interrupt the tension chain before you mount.</div>
+          </div>
+          <div class="pr-time">1 min</div>
+        </div>
+        <div class="pr-item" onclick="togglePR(this)">
+          <div class="pr-check"></div>
+          <div class="pr-text-block">
+            <div class="pr-name">Right Hip Wall Release</div>
+            <div class="pr-desc">Right side to wall, 5 breaths rotating left. Right hip needs to follow before it can lead.</div>
+          </div>
+          <div class="pr-time">1.5 min</div>
+        </div>
+        <div class="pr-item" onclick="togglePR(this)">
+          <div class="pr-check"></div>
+          <div class="pr-text-block">
+            <div class="pr-name">Seated Hip Square Check</div>
+            <div class="pr-desc">Mounting block or bench. Feel "even," then check visually. Calibrate before you sit on Pony or Rocket.</div>
+          </div>
+          <div class="pr-time">2 min</div>
+        </div>
+        <div class="pr-item" onclick="togglePR(this)">
+          <div class="pr-check"></div>
+          <div class="pr-text-block">
+            <div class="pr-name">Back Squat Engagement (Standing)</div>
+            <div class="pr-desc">3 shallow squats, then 3 holds of upper back engagement only. Activate the pathway before picking up the reins.</div>
+          </div>
+          <div class="pr-time">2 min</div>
+        </div>
+        <div class="pr-item" onclick="togglePR(this)">
+          <div class="pr-check"></div>
+          <div class="pr-text-block">
+            <div class="pr-name">Eyes-Up Head Turn</div>
+            <div class="pr-desc">Eyes at horizon, turn head right then left 5× each. Shoulders stay down. Neck released before you ask it to carry anything.</div>
+          </div>
+          <div class="pr-time">1 min</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BODY AWARENESS PROMPTS — collapsed -->
+    <div class="collapse-card" id="bap-prompts">
+      <div class="collapse-card-header" onclick="toggleCollapse('bap-prompts')">
+        <span class="collapse-card-icon">💬</span>
+        <div class="collapse-card-title">Body Awareness Prompts — Trainer &amp; PT Coordination</div>
+        <span class="collapse-card-sub">Working with your support team</span>
+        <span class="collapse-card-arrow">▾</span>
+      </div>
+      <div class="collapse-card-body">
+        <div class="bap-body">
+          <div class="bap-section">
+            <div class="bap-section-title">Working with your therapist and trainer</div>
+            <div class="bap-text">You're already working with a PT post-injury, doing Pilates weekly, and training with a personal trainer weekly — that's a strong physical foundation. These exercises complement that work, they don't replace it. Your PT has already identified the right-leg-behind and left-toe-in pattern ("square your hips") — the seated hip square check makes that cue portable to your riding. Share the right hip wall release and single-leg balance exercises with your PT — they may want to incorporate them into your existing program since they directly address the asymmetries affecting your riding.</div>
+          </div>
+          <div class="bap-section">
+            <div class="bap-section-title">Important notice</div>
+            <div class="bap-text">These exercises are general fitness suggestions for riders, not medical advice. If you have existing injuries, chronic conditions, or physical limitations, consult your physician or PT before beginning. Stop any exercise immediately if you experience pain.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tab-protocol -->
+
+</div><!-- /page -->
+
+<script>
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-chip').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  btn.classList.add('active');
+}
+
+function switchWeek(num, btn) {
+  document.querySelectorAll('.week-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.wk-chip').forEach(b => {b.classList.remove('active'); b.classList.add('upcoming');});
+  document.getElementById('week-' + num).classList.add('active');
+  btn.classList.add('active');
+  btn.classList.remove('upcoming');
+}
+
+function togglePattern(id) {
+  const card = document.getElementById(id);
+  card.classList.toggle('open');
+}
+
+function toggleEx(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+function toggleCollapse(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+function togglePR(item) {
+  item.classList.toggle('done');
+  const check = item.querySelector('.pr-check');
+  check.textContent = item.classList.contains('done') ? '✓' : '';
+}
+
+function showRegenWarning() {
+  alert("You're on Week 1 of your current cycle.\n\nRegenerating now will restart the 4-week program from Week 1. Your current progress markers will be cleared.\n\nTo continue, tap Regenerate again on the full page.");
+}
+</script>
+</body>
+</html>

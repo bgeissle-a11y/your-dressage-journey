@@ -179,12 +179,16 @@ async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerConte
   }
 
   // Check cache (30-day cycle)
+  // Guard: cache must contain `selectedPath` (current format).
+  // Caches from pre-April 2026 used `recommendedPath`/`paths` — treat as miss.
+  const isValidMentalCache = (c) => c?.result?.selectedPath;
+
   if (!forceRefresh) {
     const cached = await getCache(uid, OUTPUT_TYPE_MENTAL, {
       currentHash: hash,
       maxAgeDays: 30,
     });
-    if (cached) {
+    if (cached && isValidMentalCache(cached)) {
       const currentCycleState = await getCycleState(uid, "gpt");
       return {
         success: true,
@@ -197,13 +201,16 @@ async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerConte
         cycleState: currentCycleState,
       };
     }
+    if (cached && !isValidMentalCache(cached)) {
+      console.log(`[gpt] Discarding stale-format mental cache for ${uid} (missing selectedPath)`);
+    }
 
     // Stale-while-revalidate
     const staleCache = await getStaleCache(uid, OUTPUT_TYPE_MENTAL, {
       currentHash: hash,
       maxAgeDays: 60,
     });
-    if (staleCache?._stale) {
+    if (staleCache?._stale && isValidMentalCache(staleCache)) {
       const genStatus = await getGenStatus(uid);
       const currentCycleState = await getCycleState(uid, "gpt");
       return {
@@ -401,7 +408,7 @@ async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerC
       userMessage: msg2,
       model: OPUS_MODEL,
       jsonMode: true,
-      maxTokens: 8192,
+      maxTokens: 16384,
       context: "trajectory-call2-three-paths",
       uid,
     }),
@@ -409,7 +416,7 @@ async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerC
       system: sys3,
       userMessage: msg3,
       jsonMode: true,
-      maxTokens: 4096,
+      maxTokens: 8192,
       context: "trajectory-call3-movement-maps",
       uid,
     }),
@@ -513,7 +520,9 @@ async function handler(request) {
       const cacheType = layer === "trajectory" ? OUTPUT_TYPE_TRAJECTORY : OUTPUT_TYPE_MENTAL;
       const maxAge = 60;
       const cached = await getStaleCache(uid, cacheType, { maxAgeDays: maxAge });
-      if (cached) {
+      // Guard: mental cache must contain `selectedPath` (current format)
+      const isValid = layer !== "mental" || cached?.result?.selectedPath;
+      if (cached && isValid) {
         const cycleState = layer === "mental" ? await getCycleState(uid, "gpt") : null;
         return {
           success: true,
@@ -524,6 +533,9 @@ async function handler(request) {
           cycleState,
         };
       }
+      // No cache — return early so the 30s client timeout isn't wasted.
+      // Frontend self-healing pattern will trigger a full-timeout follow-up call.
+      return { success: false, noCache: true };
     }
 
     // Fetch rider data and cross-layer cache in parallel

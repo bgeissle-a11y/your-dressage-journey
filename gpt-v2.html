@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grand Prix Thinking — 30-Day Cycle Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --parchment:      #f5ede0;
+  --parchment-dark: #e8d9c4;
+  --parchment-mid:  #ede1ce;
+  --parchment-off:  #faf6f0;
+  --ink:            #2c1f14;
+  --ink-mid:        #4a3220;
+  --ink-light:      #6b4f38;
+  --gold:           #b8862a;
+  --gold-light:     #d4a84b;
+  --gold-pale:      #f0d89a;
+  --track:          #8b6340;
+  --rust:           #7a3020;
+  --forest-light:   #3d6b46;
+  --primary:        #2e5c82;
+  --primary-light:  #3a72a0;
+  --primary-bg:     rgba(46,92,130,0.07);
+  --primary-border: rgba(46,92,130,0.22);
+  --gold-color:     #7a6010;
+  --gold-bg:        rgba(122,96,16,0.07);
+  --gold-border:    rgba(122,96,16,0.20);
+  --body-color:     #2a4a30;
+  --body-bg:        rgba(42,74,48,0.07);
+  --body-border:    rgba(42,74,48,0.22);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Work Sans',sans-serif;background:var(--parchment);color:var(--ink);min-height:100vh;line-height:1.5;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* NAV */
+.top-nav{position:sticky;top:0;z-index:100;background:var(--ink);border-bottom:2px solid var(--gold);padding:0 1rem;display:flex;align-items:center;overflow-x:auto;scrollbar-width:none;}
+.top-nav::-webkit-scrollbar{display:none}
+.nav-brand{font-family:'Playfair Display',serif;font-size:.88rem;font-weight:700;color:var(--gold-light);white-space:nowrap;flex-shrink:0;padding:.8rem .9rem .8rem 0;margin-right:.5rem;border-right:1px solid rgba(255,255,255,.12);}
+.nav-item{font-size:.72rem;font-weight:500;letter-spacing:.35px;color:rgba(255,255,255,.55);padding:.8rem .65rem;border:none;background:none;cursor:pointer;white-space:nowrap;text-transform:uppercase;transition:color .15s;font-family:'Work Sans',sans-serif;}
+.nav-item:hover{color:var(--gold-light)}
+.nav-item.active{color:var(--gold-light)}
+
+/* PAGE */
+.page{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:28px 20px 100px;}
+
+/* HERO */
+.gpt-hero{background:linear-gradient(135deg,#0a0e1a 0%,#111828 55%,#192236 100%);border-radius:16px;padding:28px 32px 24px;margin-bottom:24px;position:relative;overflow:hidden;animation:fadeUp .4s ease both;}
+.gpt-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 72% 50%,rgba(46,92,130,.14) 0%,transparent 65%);}
+.gpt-hero::after{content:'';position:absolute;right:-20px;top:-20px;width:210px;height:210px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='44' fill='none' stroke='rgba(46,92,130,0.12)' stroke-width='1'/%3E%3Ccircle cx='50' cy='50' r='34' fill='none' stroke='rgba(46,92,130,0.08)' stroke-width='1'/%3E%3Ccircle cx='50' cy='50' r='24' fill='none' stroke='rgba(46,92,130,0.06)' stroke-width='1'/%3E%3C/svg%3E");background-size:contain;}
+.hero-eyebrow{font-size:10px;font-weight:700;letter-spacing:3px;color:rgba(46,92,130,.85);text-transform:uppercase;margin-bottom:7px;position:relative;}
+.hero-title{font-family:'Playfair Display',serif;font-size:clamp(22px,5vw,30px);font-weight:700;color:white;line-height:1.2;margin-bottom:5px;position:relative;}
+.hero-sub{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:18px;position:relative;}
+.hero-sub strong{color:rgba(46,92,130,.9);font-weight:500;}
+
+/* CYCLE STATUS BAR — identical structure to Physical */
+.cycle-bar{display:flex;align-items:center;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px 16px;margin-bottom:18px;position:relative;flex-wrap:wrap;gap:2px;}
+.cycle-seg{display:flex;flex-direction:column;padding:2px 14px 2px 0;margin-right:14px;border-right:1px solid rgba(255,255,255,.12);}
+.cycle-seg:last-of-type{border-right:none;margin-right:0;}
+.cycle-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.38);margin-bottom:2px;}
+.cycle-value{font-size:12px;font-weight:600;color:rgba(255,255,255,.82);}
+.cycle-value.highlight{color:rgba(46,92,130,.95);}
+.cycle-regen{margin-left:auto;font-size:10px;font-weight:600;color:rgba(255,255,255,.4);cursor:pointer;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.12);background:transparent;font-family:'Work Sans',sans-serif;transition:all .15s;white-space:nowrap;}
+.cycle-regen:hover{color:rgba(255,255,255,.75);border-color:rgba(255,255,255,.25);}
+
+/* TAB ROW */
+.tab-row{display:flex;gap:6px;flex-wrap:wrap;position:relative;}
+.tab-chip{font-size:11px;font-weight:600;letter-spacing:.8px;padding:6px 16px;border-radius:20px;cursor:pointer;border:1.5px solid rgba(255,255,255,.18);color:rgba(255,255,255,.55);background:transparent;transition:all .18s;text-transform:uppercase;white-space:nowrap;font-family:'Work Sans',sans-serif;}
+.tab-chip:hover{border-color:rgba(46,92,130,.55);color:rgba(46,92,130,.9)}
+.tab-chip.active{background:var(--primary);border-color:var(--primary);color:white;}
+.tab-chip .chip-badge{display:inline-block;font-size:9px;letter-spacing:.5px;background:rgba(255,255,255,.18);padding:1px 6px;border-radius:8px;margin-left:5px;vertical-align:middle;}
+.tab-chip.active .chip-badge{background:rgba(255,255,255,.25)}
+.tab-panel{display:none;animation:fadeUp .3s ease both}
+.tab-panel.active{display:block}
+
+/* SECTION LABELS */
+.section-label-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;margin-top:4px;}
+.section-pill{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:4px 12px 4px 8px;border-radius:20px;}
+.pill-mental{background:var(--primary-bg);color:var(--primary);border:1px solid var(--primary-border);}
+.pill-gold{background:var(--gold-bg);color:var(--gold-color);border:1px solid var(--gold-border);}
+.pill-body{background:var(--body-bg);color:var(--body-color);border:1px solid var(--body-border);}
+.pill-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.dot-mental{background:var(--primary)}
+.dot-gold{background:var(--gold)}
+.dot-body{background:var(--body-color)}
+.section-note{font-size:11px;color:var(--ink-light);margin-left:auto;}
+
+/* AI REASONING CARD */
+.ai-card{background:white;border:1.5px solid var(--primary-border);border-radius:14px;overflow:hidden;margin-bottom:18px;box-shadow:0 2px 12px rgba(46,92,130,.07);}
+.ai-card-header{padding:13px 17px 11px;background:linear-gradient(135deg,rgba(46,92,130,.06) 0%,rgba(46,92,130,.02) 100%);border-bottom:1px solid var(--primary-border);display:flex;align-items:center;gap:10px;}
+.ai-icon{width:32px;height:32px;border-radius:8px;background:var(--primary-bg);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.ai-card-title{font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:var(--ink);flex:1;}
+.ai-card-tag{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--primary);background:var(--primary-bg);border:1px solid var(--primary-border);padding:3px 9px;border-radius:10px;}
+.ai-card-body{padding:14px 17px 16px;}
+.ai-why-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--track);margin-bottom:6px;}
+.ai-why-text{font-size:13px;line-height:1.65;color:var(--ink-mid);font-style:italic;border-left:3px solid var(--gold-pale);padding-left:12px;margin-bottom:12px;}
+.ai-why-text strong{font-style:normal;font-weight:600;color:var(--ink);}
+.evidence-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.e-chip{font-size:10px;font-weight:500;padding:3px 10px;border-radius:10px;background:var(--parchment);border:1px solid var(--parchment-dark);color:var(--ink-light);}
+.e-chip.strong{background:var(--primary-bg);border-color:var(--primary-border);color:var(--primary);font-weight:600;}
+.other-paths-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.other-paths-label{font-size:10px;color:var(--ink-light);margin-right:2px;}
+.path-chip{font-size:10px;font-weight:500;padding:4px 10px;border-radius:10px;background:var(--parchment);border:1px solid var(--parchment-dark);color:var(--ink-light);cursor:pointer;transition:all .15s;}
+.path-chip:hover{border-color:var(--primary-border);color:var(--primary);}
+
+/* TRAJECTORY LINK */
+.traj-link-bar{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:9px;background:var(--body-bg);border:1px solid var(--body-border);font-size:11.5px;color:var(--body-color);margin-bottom:18px;}
+.traj-link-bar strong{font-weight:600;}
+
+/* WEEK NAV */
+.week-nav-row{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap;align-items:center;}
+.week-nav-label{font-size:10px;font-weight:600;color:var(--ink-light);letter-spacing:.5px;text-transform:uppercase;margin-right:4px;}
+.wk-chip{font-size:11px;font-weight:600;padding:6px 14px;border-radius:10px;border:1.5px solid var(--parchment-dark);background:transparent;color:var(--ink-light);cursor:pointer;transition:all .15s;font-family:'Work Sans',sans-serif;white-space:nowrap;}
+.wk-chip:hover{border-color:var(--primary-border);color:var(--primary);}
+.wk-chip.active{background:var(--primary);border-color:var(--primary);color:white;}
+.wk-chip.upcoming{opacity:.55;}
+.week-panel{display:none;animation:fadeUp .2s ease both;}
+.week-panel.active{display:block;}
+
+/* WEEK THEME */
+.week-theme{padding:12px 16px;border-radius:11px;background:linear-gradient(135deg,var(--primary-bg) 0%,rgba(46,92,130,.03) 100%);border:1px solid var(--primary-border);margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;}
+.week-theme-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--primary);margin-bottom:2px;}
+.week-theme-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--ink);margin-bottom:3px;}
+.week-theme-sub{font-size:12px;color:var(--ink-light);font-style:italic;}
+.week-num-badge{font-size:22px;font-weight:700;color:var(--primary);opacity:.25;flex-shrink:0;line-height:1;margin-top:2px;}
+
+/* ASSIGNMENT CARDS — accordion */
+.assign-card{background:white;border:1.5px solid var(--parchment-dark);border-radius:13px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 4px rgba(44,31,20,.04);}
+.assign-header{padding:12px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;transition:background .15s;}
+.assign-header:hover{background:var(--parchment-off);}
+.assign-icon{width:32px;height:32px;border-radius:8px;background:var(--primary-bg);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.assign-title-block{flex:1;}
+.assign-title{font-family:'Playfair Display',serif;font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:2px;}
+.assign-meta{font-size:11px;color:var(--ink-light);}
+.assign-when{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:7px;background:var(--primary-bg);color:var(--primary);border:1px solid var(--primary-border);white-space:nowrap;flex-shrink:0;}
+.assign-check-wrap{display:flex;align-items:center;gap:8px;}
+.assign-check{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--parchment-dark);display:flex;align-items:center;justify-content:center;transition:all .15s;cursor:pointer;flex-shrink:0;font-size:11px;}
+.assign-check.checked{background:var(--forest-light);border-color:var(--forest-light);color:white;}
+.assign-arrow{font-size:11px;color:var(--ink-light);transition:transform .2s;}
+.assign-card.open .assign-arrow{transform:rotate(180deg);}
+.assign-body{display:none;padding:0 16px 16px;border-top:1px solid var(--parchment-dark);animation:fadeUp .2s ease both;}
+.assign-card.open .assign-body{display:block;padding-top:13px;}
+.assign-desc{font-size:13px;line-height:1.65;color:var(--ink-mid);margin-bottom:10px;}
+.data-callout{padding:9px 13px;border-radius:9px;background:rgba(184,134,42,.06);border-left:3px solid var(--gold-pale);border-top:1px solid rgba(184,134,42,.15);border-right:1px solid rgba(184,134,42,.15);border-bottom:1px solid rgba(184,134,42,.15);}
+.data-callout-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold-color);margin-bottom:3px;}
+.data-callout-text{font-size:12px;color:var(--ink-mid);line-height:1.5;font-style:italic;}
+
+/* WEEKLY FOCUS ITEMS — marked in assignment list */
+.wf-pin-row{display:flex;align-items:center;gap:7px;margin-top:9px;padding-top:8px;border-top:1px dashed var(--parchment-dark);}
+.wf-pin{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold-color);background:var(--gold-bg);border:1px solid var(--gold-border);padding:2px 7px;border-radius:6px;}
+.wf-pin-text{font-size:11px;color:var(--ink-light);}
+
+/* SUCCESS BLOCK */
+.success-block{padding:12px 15px;border-radius:10px;background:rgba(42,74,48,.06);border:1px solid rgba(42,74,48,.16);display:flex;align-items:flex-start;gap:9px;margin:16px 0;}
+.success-icon{font-size:15px;margin-top:1px;flex-shrink:0;}
+.success-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--forest-light);margin-bottom:3px;}
+.success-text{font-size:12.5px;color:var(--ink-mid);line-height:1.55;}
+
+/* CHECK-IN QUESTIONS */
+.checkin-card{background:white;border:1.5px solid var(--parchment-dark);border-radius:13px;overflow:hidden;margin-bottom:14px;}
+.checkin-header{padding:11px 16px;display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none;transition:background .15s;border-bottom:1px solid var(--parchment-dark);}
+.checkin-header:hover{background:var(--parchment-off);}
+.checkin-title{font-size:12px;font-weight:600;color:var(--ink-light);flex:1;text-transform:uppercase;letter-spacing:.8px;}
+.checkin-arrow{font-size:11px;color:var(--ink-light);transition:transform .2s;}
+.checkin-card.open .checkin-arrow{transform:rotate(180deg);}
+.checkin-body{display:none;padding:13px 16px 15px;animation:fadeUp .2s ease both;}
+.checkin-card.open .checkin-body{display:block;}
+.checkin-q{display:flex;align-items:flex-start;gap:8px;margin-bottom:9px;font-size:13px;color:var(--ink-mid);line-height:1.55;}
+.checkin-q:last-child{margin-bottom:0;}
+.q-num{font-size:10px;font-weight:700;color:var(--primary);flex-shrink:0;margin-top:2px;}
+
+/* WEEKLY FOCUS CALLOUT */
+.wf-callout{padding:11px 15px;border-radius:10px;background:rgba(184,134,42,.06);border:1px solid rgba(184,134,42,.2);display:flex;gap:10px;align-items:flex-start;margin-top:20px;margin-bottom:4px;}
+.wf-callout-text{font-size:12px;color:var(--ink-mid);line-height:1.55;}
+.wf-callout-text strong{font-weight:600;color:var(--ink);}
+.wf-link{font-size:11px;color:var(--primary);font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:3px;margin-top:3px;}
+.wf-link:hover{text-decoration:underline;}
+
+/* REFLECTION NUDGE */
+.reflection-nudge{padding:11px 15px;border-radius:10px;background:var(--parchment-off);border:1px solid var(--gold-pale);border-left:3px solid var(--gold);font-size:12.5px;font-style:italic;color:var(--ink-mid);line-height:1.6;margin-bottom:4px;}
+
+/* ── TRAINING TRAJECTORY TAB ── */
+.cadence-card{background:white;border:1.5px solid var(--parchment-dark);border-radius:13px;padding:14px 17px;margin-bottom:18px;display:flex;gap:11px;align-items:flex-start;}
+.cadence-text{font-size:12.5px;color:var(--ink-mid);line-height:1.55;}
+.cadence-text strong{font-weight:600;color:var(--ink);}
+.regen-btn-sm{display:inline-flex;align-items:center;gap:5px;margin-top:7px;font-size:11px;font-weight:600;color:var(--primary);background:var(--primary-bg);border:1px solid var(--primary-border);padding:5px 12px;border-radius:8px;cursor:pointer;font-family:'Work Sans',sans-serif;transition:all .15s;}
+.regen-btn-sm:hover{background:rgba(46,92,130,.14);}
+
+/* TRAJECTORY CARDS */
+.traj-card{background:white;border:1.5px solid var(--parchment-dark);border-radius:14px;overflow:hidden;margin-bottom:14px;box-shadow:0 1px 6px rgba(44,31,20,.04);}
+.traj-card.active-path{border-color:var(--primary-border);box-shadow:0 2px 12px rgba(46,92,130,.10);}
+.traj-header{padding:15px 18px 13px;border-bottom:1px solid var(--parchment-dark);display:flex;align-items:flex-start;gap:12px;cursor:pointer;user-select:none;transition:background .15s;}
+.traj-card.active-path .traj-header{border-bottom-color:var(--primary-border);background:linear-gradient(135deg,rgba(46,92,130,.05) 0%,rgba(46,92,130,.02) 100%);}
+.traj-header:hover{background:var(--parchment-off);}
+.traj-card.active-path .traj-header:hover{background:rgba(46,92,130,.07);}
+.traj-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:var(--parchment);}
+.traj-card.active-path .traj-icon{background:var(--primary-bg);}
+.traj-title-block{flex:1;}
+.traj-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--ink);margin-bottom:3px;}
+.traj-subtitle{font-size:12px;color:var(--ink-light);}
+.traj-badge{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:8px;flex-shrink:0;align-self:flex-start;white-space:nowrap;}
+.badge-active{background:var(--primary-bg);color:var(--primary);border:1px solid var(--primary-border);}
+.badge-alt{background:var(--parchment);color:var(--ink-light);border:1px solid var(--parchment-dark);}
+.traj-arrow{font-size:11px;color:var(--ink-light);transition:transform .2s;margin-left:6px;margin-top:2px;flex-shrink:0;}
+.traj-card.open .traj-arrow{transform:rotate(180deg);}
+.traj-body{display:none;padding:15px 18px 18px;animation:fadeUp .25s ease both;}
+.traj-card.open .traj-body{display:block;}
+.traj-section-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--track);margin-bottom:6px;}
+.traj-why-text{font-size:13px;line-height:1.65;color:var(--ink-mid);font-style:italic;border-left:3px solid var(--gold-pale);padding-left:12px;margin-bottom:14px;}
+.traj-why-text strong{font-style:normal;font-weight:600;color:var(--ink);}
+.milestones-block{margin-bottom:14px;}
+.milestone-item{display:flex;align-items:flex-start;gap:9px;margin-bottom:8px;font-size:12.5px;color:var(--ink-mid);line-height:1.5;}
+.milestone-item:last-child{margin-bottom:0;}
+.m-dot{width:8px;height:8px;border-radius:50%;border:2px solid var(--primary);flex-shrink:0;margin-top:4px;}
+.m-dot.done{background:var(--primary);}
+.m-dot.current{background:white;box-shadow:0 0 0 3px rgba(46,92,130,.25);}
+.traj-position-block{padding:9px 13px;border-radius:9px;background:var(--primary-bg);border:1px solid var(--primary-border);margin-bottom:0;}
+.traj-position-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--primary);margin-bottom:3px;}
+.traj-position-text{font-size:12px;color:var(--ink-mid);line-height:1.5;}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <div class="nav-brand">Your Dressage Journey</div>
+  <button class="nav-item">This Week</button>
+  <button class="nav-item">Record</button>
+  <button class="nav-item">Coaching</button>
+  <button class="nav-item active">Grand Prix Thinking</button>
+  <button class="nav-item">Physical Guidance</button>
+  <button class="nav-item">Shows</button>
+  <button class="nav-item">Journey</button>
+</nav>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="gpt-hero">
+    <div class="hero-eyebrow">🧠 Grand Prix Thinking</div>
+    <div class="hero-title">The mental game behind the movement</div>
+    <div class="hero-sub">Generated April 1 &nbsp;·&nbsp; Path selected: <strong>Ride the Horse You Have</strong> &nbsp;·&nbsp; 4-week program active</div>
+
+    <div class="cycle-bar">
+      <div class="cycle-seg">
+        <div class="cycle-label">Cycle started</div>
+        <div class="cycle-value">April 1, 2026</div>
+      </div>
+      <div class="cycle-seg">
+        <div class="cycle-label">You are on</div>
+        <div class="cycle-value highlight">Week 1 of 4</div>
+      </div>
+      <div class="cycle-seg">
+        <div class="cycle-label">Next refresh</div>
+        <div class="cycle-value">May 1 · 30 days</div>
+      </div>
+      <button class="cycle-regen" onclick="showRegenWarning()">↺ Regenerate early</button>
+    </div>
+
+    <div class="tab-row">
+      <button class="tab-chip active" onclick="switchTab('mental',this)">Mental Performance <span class="chip-badge">4-WEEK PROGRAM</span></button>
+      <button class="tab-chip" onclick="switchTab('trajectory',this)">Training Trajectory <span class="chip-badge">MONTHLY</span></button>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- TAB 1 — MENTAL PERFORMANCE                  -->
+  <!-- ══════════════════════════════════════════ -->
+  <div id="tab-mental" class="tab-panel active">
+
+    <div class="section-label-row">
+      <div class="section-pill pill-mental"><span class="pill-dot dot-mental"></span>Mental Performance</div>
+      <div class="section-note">AI-selected path · Week 1 of 4</div>
+    </div>
+
+    <!-- AI REASONING -->
+    <div class="ai-card">
+      <div class="ai-card-header">
+        <div class="ai-icon">🎯</div>
+        <div class="ai-card-title">AI selected: Ride the Horse You Have</div>
+        <div class="ai-card-tag">Path Reasoning</div>
+      </div>
+      <div class="ai-card-body">
+        <div class="ai-why-label">Why this path, this cycle</div>
+        <div class="ai-why-text">
+          Your data shows a consistent gap between your training plan and what your horse offers on any given day — and a strong instinct to adapt when you stay present. <strong>Mar 24 Rocket lesson:</strong> "didn't come to the party ready to play...took a while to get him to decide to relax." Your own aha: "you can have all kinds of plans but you have to ride the horse that shows up that day." Martin's recurring cues across all 4 sessions emphasize real-time suppleness work. This path builds the diagnostic skill that turns that instinct into a deliberate practice.
+        </div>
+        <div class="evidence-chips">
+          <span class="e-chip strong">Mar 24: ride the horse that shows up</span>
+          <span class="e-chip strong">Mar 20: pirouette — allow vs. make</span>
+          <span class="e-chip">Mar 18: one thing — soften the jaw</span>
+          <span class="e-chip">Trajectory: Ambitious Competitor</span>
+        </div>
+        <div class="other-paths-row">
+          <span class="other-paths-label">Other paths available:</span>
+          <span class="path-chip">🌅 Arrival State</span>
+          <span class="path-chip">🛡️ Bounce-Back</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRAJECTORY ALIGNMENT -->
+    <div class="traj-link-bar">
+      <span style="font-size:13px;flex-shrink:0;">🧭</span>
+      <span><strong>Trajectory alignment:</strong> Ambitious Competitor — adaptive focus is a competition skill. Being able to read and adjust in the first five minutes directly serves performance under show conditions.</span>
+    </div>
+
+    <!-- WEEK NAV -->
+    <div class="week-nav-row">
+      <span class="week-nav-label">Week</span>
+      <button class="wk-chip active" onclick="switchWeek(1,this)">1 — Diagnostic Lens</button>
+      <button class="wk-chip upcoming" onclick="switchWeek(2,this)">2 — Checkpoint Habit</button>
+      <button class="wk-chip upcoming" onclick="switchWeek(3,this)">3 — Under Pressure</button>
+      <button class="wk-chip upcoming" onclick="switchWeek(4,this)">4 — Anchoring</button>
+    </div>
+
+    <!-- ── WEEK 1 ── -->
+    <div id="week-1" class="week-panel active">
+      <div class="week-theme">
+        <div class="week-num-badge">1</div>
+        <div>
+          <div class="week-theme-label">Week 1</div>
+          <div class="week-theme-title">The First Five Minutes — Building a diagnostic lens</div>
+          <div class="week-theme-sub">Read what your horse is offering today before your training agenda takes over.</div>
+        </div>
+      </div>
+
+      <!-- ASSIGNMENT 1 -->
+      <div class="assign-card" id="a1">
+        <div class="assign-header" onclick="toggleAssign('a1')">
+          <div class="assign-icon">🔍</div>
+          <div class="assign-title-block">
+            <div class="assign-title">The Opening Scan</div>
+            <div class="assign-meta">Before any collection or lateral work — 5 min</div>
+          </div>
+          <div class="assign-check-wrap">
+            <span class="assign-when">Pre-ride</span>
+            <div class="assign-check" id="chk-a1" onclick="toggleCheck(event,'chk-a1')"></div>
+          </div>
+          <span class="assign-arrow">▾</span>
+        </div>
+        <div class="assign-body">
+          <div class="assign-desc">In the first five minutes of every ride, before attempting any collection or lateral work, conduct a mental inventory: How tight is his jaw? How does the left rein feel vs. the right? Is he offering to stretch down or bracing up? Name one specific thing he's showing you today before you ask for anything demanding. Log it in your debrief "Horse Notices" field.</div>
+          <div class="data-callout">
+            <div class="data-callout-label">📖 From your Mar 24 Rocket ride</div>
+            <div class="data-callout-text">"So tight in the jaw to start and sticking out his tongue." That's the scan working — you caught it early. This week, make that scan deliberate and always precede your work plan.</div>
+          </div>
+          <div class="wf-pin-row"><span class="wf-pin">📌 Feeds Weekly Focus</span><span class="wf-pin-text">This assignment appears on your This Week page this week.</span></div>
+        </div>
+      </div>
+
+      <!-- ASSIGNMENT 2 -->
+      <div class="assign-card" id="a2">
+        <div class="assign-header" onclick="toggleAssign('a2')">
+          <div class="assign-icon">⏸️</div>
+          <div class="assign-title-block">
+            <div class="assign-title">The Mid-Ride Checkpoint</div>
+            <div class="assign-meta">Halfway through — pause on loose rein walk</div>
+          </div>
+          <div class="assign-check-wrap">
+            <span class="assign-when">During ride</span>
+            <div class="assign-check" id="chk-a2" onclick="toggleCheck(event,'chk-a2')"></div>
+          </div>
+          <span class="assign-arrow">▾</span>
+        </div>
+        <div class="assign-body">
+          <div class="assign-desc">Halfway through your ride, pause for 10 seconds on a loose rein walk. Ask yourself: "Is what I planned still serving this horse today, or do I need to adjust?" If jaw tension persists (Rocket) or energy drops (D), name the shift you'll make for the second half. Write one sentence in your "Challenges" field about whether you adjusted or stayed the course.</div>
+          <div class="data-callout">
+            <div class="data-callout-label">📖 Your Mar 20 aha with Rocket</div>
+            <div class="data-callout-text">"Somewhere between letting go and keeping him active behind lives the pirouette." That's the real-time recalibration this assignment is building. You found the middle ground because you read the moment.</div>
+          </div>
+          <div class="wf-pin-row"><span class="wf-pin">📌 Feeds Weekly Focus</span><span class="wf-pin-text">This assignment appears on your This Week page this week.</span></div>
+        </div>
+      </div>
+
+      <!-- ASSIGNMENT 3 -->
+      <div class="assign-card" id="a3">
+        <div class="assign-header" onclick="toggleAssign('a3')">
+          <div class="assign-icon">🎯</div>
+          <div class="assign-title-block">
+            <div class="assign-title">The One-Thing Rule</div>
+            <div class="assign-meta">When the plan isn't working — name the unlock</div>
+          </div>
+          <div class="assign-check-wrap">
+            <span class="assign-when">During ride</span>
+            <div class="assign-check" id="chk-a3" onclick="toggleCheck(event,'chk-a3')"></div>
+          </div>
+          <span class="assign-arrow">▾</span>
+        </div>
+        <div class="assign-body">
+          <div class="assign-desc">When your horse isn't meeting your training plan — tight jaw, resistance, distraction — identify ONE thing that will unlock the rest. Not five things. For Rocket, Martin's lessons show it's almost always "soften the jaw through over-bending for a stride or two." For D, it's "inside seat bone forward, inside leg almost in his armpit." Name your one thing before you escalate effort. Post-ride, log whether it worked.</div>
+          <div class="data-callout">
+            <div class="data-callout-label">📖 Mar 18 Rocket lesson takeaway</div>
+            <div class="data-callout-text">"Suppleness is critical. He has to give in the jaw to seek the contact." You already know the one thing for him. This week, trust it first — before adding more bend, more angle, more leg.</div>
+          </div>
+          <div class="wf-pin-row"><span class="wf-pin">📌 Feeds Weekly Focus</span><span class="wf-pin-text">This assignment appears on your This Week page this week.</span></div>
+        </div>
+      </div>
+
+      <!-- SUCCESS -->
+      <div class="success-block">
+        <div class="success-icon">✓</div>
+        <div>
+          <div class="success-label">Week 1 looks like success when…</div>
+          <div class="success-text">By end of week, you've logged an Opening Scan observation in at least 4 debriefs, named a mid-ride adjustment in at least 2, and identified your "one thing" strategy in at least 3 rides — especially on Rocket.</div>
+        </div>
+      </div>
+
+      <!-- CHECK-IN QUESTIONS -->
+      <div class="checkin-card" id="checkin1">
+        <div class="checkin-header" onclick="toggleCheckin('checkin1')">
+          <span style="font-size:14px;">💭</span>
+          <span class="checkin-title">End-of-week check-in questions</span>
+          <span class="checkin-arrow">▾</span>
+        </div>
+        <div class="checkin-body">
+          <div class="checkin-q"><span class="q-num">1 →</span><span>Did completing the Opening Scan change anything about how you started the warm-up — or did the scan reveal something you would have ridden through?</span></div>
+          <div class="checkin-q"><span class="q-num">2 →</span><span>On the days you skipped the scan — what got in the way? Was it time, or was it that you already thought you knew how the ride would go?</span></div>
+          <div class="checkin-q"><span class="q-num">3 →</span><span>When you applied the One-Thing Rule, did it work? And if it didn't — what was the second thing you reached for?</span></div>
+        </div>
+      </div>
+
+      <div class="reflection-nudge">These are explorations, not tasks. A week where you attempted all three and logged what happened is a complete week — regardless of how the rides went.</div>
+    </div><!-- /week-1 -->
+
+    <!-- ── WEEK 2 ── -->
+    <div id="week-2" class="week-panel">
+      <div class="week-theme">
+        <div class="week-num-badge">2</div>
+        <div>
+          <div class="week-theme-label">Week 2</div>
+          <div class="week-theme-title">The Checkpoint Habit — Making mid-ride recalibration automatic</div>
+          <div class="week-theme-sub">Week 1 you established the scan. Week 2: the checkpoint becomes the hinge of every ride.</div>
+        </div>
+      </div>
+
+      <div class="assign-card" id="a1w2">
+        <div class="assign-header" onclick="toggleAssign('a1w2')">
+          <div class="assign-icon">🔄</div>
+          <div class="assign-title-block">
+            <div class="assign-title">The Named Shift</div>
+            <div class="assign-meta">Checkpoint with an action attached</div>
+          </div>
+          <div class="assign-check-wrap">
+            <span class="assign-when">During ride</span>
+            <div class="assign-check" id="chk-a1w2" onclick="toggleCheck(event,'chk-a1w2')"></div>
+          </div>
+          <span class="assign-arrow">▾</span>
+        </div>
+        <div class="assign-body">
+          <div class="assign-desc">Week 1's checkpoint was "pause and ask." This week: the pause must produce a named decision. Not "I'll see how it goes" — a specific shift. "I'm reducing collection demands for the second half." "I'm switching to conditioning work because Rocket's jaw is still tight at 20 minutes." Name the adjustment before you make it, then log whether it was the right call.</div>
+          <div class="data-callout">
+            <div class="data-callout-label">📖 Building from Week 1</div>
+            <div class="data-callout-text">The mid-ride pause becomes a decision point. Your data shows you make good adjustments when you name them consciously — the challenge is doing it before quality degrades, not after.</div>
+          </div>
+          <div class="wf-pin-row"><span class="wf-pin">📌 Feeds Weekly Focus</span><span class="wf-pin-text">This assignment appears on your This Week page during Week 2.</span></div>
+        </div>
+      </div>
+
+      <div class="assign-card" id="a2w2">
+        <div class="assign-header" onclick="toggleAssign('a2w2')">
+          <div class="assign-icon">🐴</div>
+          <div class="assign-title-block">
+            <div class="assign-title">Horse-by-Horse One-Thing Library</div>
+            <div class="assign-meta">Build your personal unlock catalog</div>
+          </div>
+          <div class="assign-check-wrap">
+            <span class="assign-when">Post-ride</span>
+            <div class="assign-check" id="chk-a2w2" onclick="toggleCheck(event,'chk-a2w2')"></div>
+          </div>
+          <span class="assign-arrow">▾</span>
+        </div>
+        <div class="assign-body">
+          <div class="assign-desc">After each ride this week, log the one thing that worked — and one thing you tried that didn't. By end of week, you'll have a running library of horse-specific unlocks. Rocket: jaw softening via over-bend. D: inside seat bone forward. By Week 4, this library will be accessible enough to use before you need it.</div>
+          <div class="wf-pin-row"><span class="wf-pin">📌 Feeds Weekly Focus</span><span class="wf-pin-text">This assignment appears on your This Week page during Week 2.</span></div>
+        </div>
+      </div>
+
+      <div class="assign-card" id="a3w2">
+        <div class="assign-header" onclick="toggleAssign('a3w2')">
+          <div class="assign-icon">📝</div>
+          <div class="assign-title-block">
+            <div class="assign-title">The Adjustment Log</div>
+            <div class="assign-meta">Track what worked, what didn't, and when you knew</div>
+          </div>
+          <div class="assign-check-wrap">
+            <span class="assign-when">Post-ride</span>
+            <div class="assign-check" id="chk-a3w2" onclick="toggleCheck(event,'chk-a3w2')"></div>
+          </div>
+          <span class="assign-arrow">▾</span>
+        </div>
+        <div class="assign-body">
+          <div class="assign-desc">Add one field to your post-ride debrief this week: "At what point in the ride did I know I needed to adjust?" Before the checkpoint? During? After quality had already dropped? Tracking the timing builds awareness of how long it takes you to see what the horse is telling you — and that gap narrows over time.</div>
+          <div class="wf-pin-row"><span class="wf-pin">📌 Feeds Weekly Focus</span><span class="wf-pin-text">This assignment appears on your This Week page during Week 2.</span></div>
+        </div>
+      </div>
+
+      <div class="success-block"><div class="success-icon">✓</div><div><div class="success-label">Week 2 looks like success when…</div><div class="success-text">You name a specific adjustment decision at the checkpoint in at least 3 rides. You have at least 2 entries in your horse-specific unlock library. You log the timing of when you knew you needed to adjust in every debrief.</div></div></div>
+      <div class="checkin-card" id="checkin2"><div class="checkin-header" onclick="toggleCheckin('checkin2')"><span style="font-size:14px;">💭</span><span class="checkin-title">End-of-week check-in questions</span><span class="checkin-arrow">▾</span></div><div class="checkin-body"><div class="checkin-q"><span class="q-num">1 →</span><span>When you made a named adjustment at the checkpoint — did naming it change how you executed it, compared to adjusting without naming it?</span></div><div class="checkin-q"><span class="q-num">2 →</span><span>Is your one-thing library consistent across rides on the same horse, or does it change? What does that variation tell you?</span></div></div></div>
+      <div class="reflection-nudge">The named shift is harder than the pause. But a decision you can name is a decision you can evaluate.</div>
+    </div><!-- /week-2 -->
+
+    <!-- ── WEEK 3 ── -->
+    <div id="week-3" class="week-panel">
+      <div class="week-theme">
+        <div class="week-num-badge">3</div>
+        <div>
+          <div class="week-theme-label">Week 3</div>
+          <div class="week-theme-title">Under Pressure — Adaptive focus when the stakes are higher</div>
+          <div class="week-theme-sub">Lessons, clinics, schooling shows. The moment when plans meet reality with an audience.</div>
+        </div>
+      </div>
+      <div class="assign-card" id="a1w3">
+        <div class="assign-header" onclick="toggleAssign('a1w3')">
+          <div class="assign-icon">🏟️</div>
+          <div class="assign-title-block"><div class="assign-title">The Lesson Scan</div><div class="assign-meta">Apply the diagnostic lens with Martin or Cindy watching</div></div>
+          <div class="assign-check-wrap"><span class="assign-when">Pre-ride</span><div class="assign-check" id="chk-a1w3" onclick="toggleCheck(event,'chk-a1w3')"></div></div>
+          <span class="assign-arrow">▾</span>
+        </div>
+        <div class="assign-body">
+          <div class="assign-desc">In your next lesson on Rocket, conduct the Opening Scan before your trainer starts giving cues. What does Rocket need today — and does that align with what your trainer has planned? If there's a gap, name it. You don't have to act on it, but notice whether you're riding the horse or riding the lesson plan. After the lesson, log one moment where your real-time read matched what your trainer saw.</div>
+          <div class="wf-pin-row"><span class="wf-pin">📌 Feeds Weekly Focus</span><span class="wf-pin-text">This assignment appears on your This Week page during Week 3.</span></div>
+        </div>
+      </div>
+      <div class="assign-card" id="a2w3">
+        <div class="assign-header" onclick="toggleAssign('a2w3')">
+          <div class="assign-icon">💬</div>
+          <div class="assign-title-block"><div class="assign-title">When the Plan and the Horse Diverge — Name the gap to your trainer</div><div class="assign-meta">Building the skill of real-time communication</div></div>
+          <div class="assign-check-wrap"><span class="assign-when">During lesson</span><div class="assign-check" id="chk-a2w3" onclick="toggleCheck(event,'chk-a2w3')"></div></div>
+          <span class="assign-arrow">▾</span>
+        </div>
+        <div class="assign-body">
+          <div class="assign-desc">In one lesson this week, when you feel a gap between the lesson plan and what Rocket is offering, name it out loud. "He's still tight in the jaw — should I over-bend first?" This is not second-guessing your trainer. It's demonstrating that you're reading the horse in real time. Log your trainer's response — it will likely be a teaching moment.</div>
+          <div class="wf-pin-row"><span class="wf-pin">📌 Feeds Weekly Focus</span><span class="wf-pin-text">This assignment appears on your This Week page during Week 3.</span></div>
+        </div>
+      </div>
+      <div class="success-block"><div class="success-icon">✓</div><div><div class="success-label">Week 3 looks like success when…</div><div class="success-text">You apply the Opening Scan in at least one lesson. You name a horse-plan gap to your trainer at least once. You log one moment where your real-time read matched what your trainer saw — or where it didn't, and why.</div></div></div>
+      <div class="reflection-nudge">The lesson is the hardest test because it adds your trainer's plan to your own. Riding two plans at once is the advanced skill.</div>
+    </div><!-- /week-3 -->
+
+    <!-- ── WEEK 4 ── -->
+    <div id="week-4" class="week-panel">
+      <div class="week-theme">
+        <div class="week-num-badge">4</div>
+        <div>
+          <div class="week-theme-label">Week 4</div>
+          <div class="week-theme-title">Anchoring — The horse you have is the training</div>
+          <div class="week-theme-sub">The scan is no longer a technique. It's how you start every ride.</div>
+        </div>
+      </div>
+      <div class="assign-card" id="a1w4">
+        <div class="assign-header" onclick="toggleAssign('a1w4')">
+          <div class="assign-icon">⚓</div>
+          <div class="assign-title-block"><div class="assign-title">Scan Without the Assignment</div><div class="assign-meta">Is it automatic yet?</div></div>
+          <div class="assign-check-wrap"><span class="assign-when">Pre-ride</span><div class="assign-check" id="chk-a1w4" onclick="toggleCheck(event,'chk-a1w4')"></div></div>
+          <span class="assign-arrow">▾</span>
+        </div>
+        <div class="assign-body">
+          <div class="assign-desc">This week, don't "do" the Opening Scan as an assignment. Just ride — and notice afterward whether you scanned without being told to. Was there a moment in the first five minutes where you named what the horse was offering? Did the checkpoint happen naturally? If it did, you've anchored the skill. If it didn't, note what got in the way. Both are useful data for the next cycle.</div>
+          <div class="wf-pin-row"><span class="wf-pin">📌 Feeds Weekly Focus</span><span class="wf-pin-text">This assignment appears on your This Week page during Week 4.</span></div>
+        </div>
+      </div>
+      <div class="assign-card" id="a2w4">
+        <div class="assign-header" onclick="toggleAssign('a2w4')">
+          <div class="assign-icon">📊</div>
+          <div class="assign-title-block"><div class="assign-title">Review Your Month</div><div class="assign-meta">Compare Week 1 debrief language to this week's</div></div>
+          <div class="assign-check-wrap"><span class="assign-when">Post-ride</span><div class="assign-check" id="chk-a2w4" onclick="toggleCheck(event,'chk-a2w4')"></div></div>
+          <span class="assign-arrow">▾</span>
+        </div>
+        <div class="assign-body">
+          <div class="assign-desc">Look back at your Week 1 debriefs. What's different in how you describe your rides now? Are you naming the horse's state earlier in the ride? Is "he wouldn't [X]" becoming "he was [X] so I [adjusted]"? The language shift is the evidence that the skill is taking hold. The next cycle will build on whatever you found here.</div>
+          <div class="wf-pin-row"><span class="wf-pin">📌 Feeds Weekly Focus</span><span class="wf-pin-text">This assignment appears on your This Week page during Week 4.</span></div>
+        </div>
+      </div>
+      <div class="success-block"><div class="success-icon">✓</div><div><div class="success-label">Week 4 — and the cycle — looks like success when…</div><div class="success-text">The scan happens without being assigned. You can name your one-thing for Rocket and D before the ride starts. Your debrief language has shifted from reactive to anticipatory — even once. The next cycle begins with that as the baseline.</div></div></div>
+      <div class="reflection-nudge">A 30-day cycle doesn't install a skill. It builds the conditions where the skill can take root. The next cycle goes deeper from here.</div>
+    </div><!-- /week-4 -->
+
+    <!-- WEEKLY FOCUS CALLOUT -->
+    <div class="wf-callout">
+      <span style="font-size:14px;flex-shrink:0;margin-top:1px;">📌</span>
+      <div>
+        <div class="wf-callout-text"><strong>The current week's 3 assignments feed your Weekly Focus page.</strong> What appears on the Grand Prix Thinking card in This Week is extracted from the assignments above — identical, not a separate generation. When you move to Week 2, the Weekly Focus card updates automatically.</div>
+        <a href="#" class="wf-link">View in This Week →</a>
+      </div>
+    </div>
+
+  </div><!-- /tab-mental -->
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- TAB 2 — TRAINING TRAJECTORY                 -->
+  <!-- ══════════════════════════════════════════ -->
+  <div id="tab-trajectory" class="tab-panel">
+
+    <div class="section-label-row">
+      <div class="section-pill pill-gold"><span class="pill-dot dot-gold"></span>Training Trajectory</div>
+      <div class="section-note">Monthly · 3 paths · Choose your direction</div>
+    </div>
+
+    <div class="cadence-card">
+      <span style="font-size:16px;flex-shrink:0;margin-top:1px;">🗓</span>
+      <div>
+        <div class="cadence-text"><strong>Training Trajectory looks further out than weekly mental performance work.</strong> It updates when your data changes significantly, you add a new horse, reach a major milestone, or 30 days have passed. The active path informs which mental performance path is selected above. Last generated: February 15.</div>
+        <button class="regen-btn-sm">↺ Refresh trajectory</button>
+      </div>
+    </div>
+
+    <div class="section-label-row">
+      <div class="section-pill pill-mental"><span class="pill-dot dot-mental"></span>Active Path</div>
+      <div class="section-note">Informing Mental Performance this cycle</div>
+    </div>
+
+    <!-- ACTIVE TRAJECTORY: Ambitious Competitor -->
+    <div class="traj-card active-path open" id="traj-active">
+      <div class="traj-header" onclick="toggleTraj('traj-active')">
+        <div class="traj-icon">🏆</div>
+        <div class="traj-title-block">
+          <div class="traj-title">Ambitious Competitor</div>
+          <div class="traj-subtitle">Building toward PSG and Grand Prix performance under show conditions</div>
+        </div>
+        <div class="traj-badge badge-active">Active Path</div>
+        <span class="traj-arrow">▾</span>
+      </div>
+      <div class="traj-body">
+        <div class="traj-section-label">Why this trajectory</div>
+        <div class="traj-why-text">Your data shows clear competition intent — PSG with Pony, GP-level work with Rocket — combined with a training frequency and lesson structure that supports competition readiness. The pattern in your recent rides is not lack of skill but inconsistent mental preparation for performance conditions: tight jaw, reactive hands, plans that don't account for what the horse brings that day. Ambitious Competitor doesn't mean "push harder." It means <strong>building the performance infrastructure so skill shows up reliably when it matters.</strong></div>
+        <div class="traj-section-label" style="margin-top:2px;">Where you are now</div>
+        <div class="traj-why-text" style="margin-bottom:14px;">Technical skills at or near competitive level with both horses. Mental performance infrastructure — pre-ride preparation, in-ride adaptation, post-competition recovery — is the development gap. The "ride the horse you have" pattern is the first layer of that infrastructure.</div>
+        <div class="traj-section-label">3-month milestones</div>
+        <div class="milestones-block">
+          <div class="milestone-item"><div class="m-dot done"></div><span><strong>Completed:</strong> Identified primary physical and mental patterns through self-assessment and body mapping</span></div>
+          <div class="milestone-item"><div class="m-dot current"></div><span><strong>Current (April):</strong> Build in-ride diagnostic skill — read the horse in first 5 minutes, adapt the plan, log the adjustment</span></div>
+          <div class="milestone-item"><div class="m-dot"></div><span><strong>May:</strong> Apply diagnostic lens in lesson and schooling show context — real-time adaptation with trainer present</span></div>
+          <div class="milestone-item"><div class="m-dot"></div><span><strong>June:</strong> Pre-competition preparation ritual in place — arrival state, warm-up protocol, one-thing rule under show conditions</span></div>
+        </div>
+        <div class="traj-position-block">
+          <div class="traj-position-label">Current position in trajectory</div>
+          <div class="traj-position-text">Foundation layer — building the mental skills that competition-level riding requires before June shows. The physical and mental patterns are identified; now they are being translated into repeatable behaviors. This trajectory expects 2–3 shows in the second half of 2026 with preparation built from this infrastructure.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label-row" style="margin-top:8px;">
+      <div class="section-pill pill-body"><span class="pill-dot dot-body"></span>Other Paths Available</div>
+      <div class="section-note">Tap to explore</div>
+    </div>
+
+    <!-- ALT PATH 1 -->
+    <div class="traj-card" id="traj-alt1">
+      <div class="traj-header" onclick="toggleTraj('traj-alt1')">
+        <div class="traj-icon">🌅</div>
+        <div class="traj-title-block">
+          <div class="traj-title">Arrival State</div>
+          <div class="traj-subtitle">Optimizing the mental and physical state you bring to every ride</div>
+        </div>
+        <div class="traj-badge badge-alt">Alternative</div>
+        <span class="traj-arrow">▾</span>
+      </div>
+      <div class="traj-body">
+        <div class="traj-why-text">This path would be selected if your data showed that ride quality is more strongly correlated with your arrival state than with in-ride adaptation. Your jaw-shoulder tension, pre-ride preparation inconsistency, and "rushed arrival" pattern make this a secondary consideration — but the pre-ride ritual from Physical Guidance already addresses much of what this trajectory would prescribe. If your arrival state improves significantly next cycle, this path may become the primary recommendation.</div>
+        <div class="traj-position-block">
+          <div class="traj-position-label">Why not selected this cycle</div>
+          <div class="traj-position-text">Arrival state work is already embedded in the Physical Guidance pre-ride ritual. The bigger gap is in-ride adaptation — hence Ambitious Competitor as the active trajectory. If you want to shift focus to arrival state, you can select this path manually.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALT PATH 2 -->
+    <div class="traj-card" id="traj-alt2">
+      <div class="traj-header" onclick="toggleTraj('traj-alt2')">
+        <div class="traj-icon">🛡️</div>
+        <div class="traj-title-block">
+          <div class="traj-title">Bounce-Back</div>
+          <div class="traj-subtitle">Recovering quickly from difficult rides, errors, and confidence dips</div>
+        </div>
+        <div class="traj-badge badge-alt">Alternative</div>
+        <span class="traj-arrow">▾</span>
+      </div>
+      <div class="traj-body">
+        <div class="traj-why-text">This path would be selected if your data showed persistent confidence drops after difficult rides, extended recovery periods, or negative self-talk patterns dominating your debriefs. Your confidence scores are generally high (7–8 range) even on difficult rides, and your debrief tone is self-aware and resilient rather than self-critical. Bounce-Back is not your current gap.</div>
+        <div class="traj-position-block">
+          <div class="traj-position-label">Why not selected this cycle</div>
+          <div class="traj-position-text">Your resilience is a strength, not a gap. Your debrief language after difficult rides ("took a while but we got there") shows healthy recovery patterns. This path would become relevant if confidence scores drop consistently below 6, or if you begin avoiding certain work after difficult sessions.</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tab-trajectory -->
+
+</div><!-- /page -->
+
+<script>
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-chip').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  btn.classList.add('active');
+}
+
+function switchWeek(num, btn) {
+  document.querySelectorAll('.week-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.wk-chip').forEach(b => { b.classList.remove('active'); b.classList.add('upcoming'); });
+  document.getElementById('week-' + num).classList.add('active');
+  btn.classList.add('active');
+  btn.classList.remove('upcoming');
+}
+
+function toggleAssign(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+function toggleCheck(e, id) {
+  e.stopPropagation();
+  const el = document.getElementById(id);
+  el.classList.toggle('checked');
+  el.textContent = el.classList.contains('checked') ? '✓' : '';
+}
+
+function toggleCheckin(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+function toggleTraj(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+function showRegenWarning() {
+  alert("You're on Week 1 of your current 30-day cycle.\n\nRegenerating now will restart the 4-week program from Week 1. Your current progress markers will be cleared.\n\nIf new data has significantly changed your training picture, regenerate. Otherwise, the current cycle should run to completion.");
+}
+</script>
+</body>
+</html>

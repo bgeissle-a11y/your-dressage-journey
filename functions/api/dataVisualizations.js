@@ -47,6 +47,9 @@ async function handler(request) {
           generatedAt: cached.generatedAt,
         };
       }
+      // No cache — return early so the 30s client timeout isn't wasted.
+      // Frontend self-healing pattern will trigger a full-timeout follow-up call.
+      return { success: false, noCache: true };
     }
 
     // Prepare rider data
@@ -115,7 +118,7 @@ async function handler(request) {
         system: sys1,
         userMessage: msg1,
         jsonMode: true,
-        maxTokens: 4096,
+        maxTokens: 8192,
         context: "dv-pattern-extraction",
         uid,
       }),

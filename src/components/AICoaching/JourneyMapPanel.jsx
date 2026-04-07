@@ -36,7 +36,10 @@ export default function JourneyMapPanel({ generationStatus }) {
       if (!result.success) {
         if (result.error === 'insufficient_data') {
           setInsufficientData(result);
-        } else if (!staleOk) {
+        } else if (staleOk) {
+          // No cache available — trigger full load with loading UI
+          fetchJourneyMap({ forceRefresh: false });
+        } else {
           setError({ message: 'Failed to generate your Journey Map.' });
         }
         return;
@@ -50,7 +53,7 @@ export default function JourneyMapPanel({ generationStatus }) {
         fetchJourneyMap({ forceRefresh: false });
       }
     } catch (err) {
-      // Silently ignore errors on the staleOk fast path — will fall through to full load
+      // On staleOk error (e.g. timeout), fall through to full load
       if (staleOk) {
         fetchJourneyMap({ forceRefresh: false });
         return;
@@ -142,7 +145,19 @@ export default function JourneyMapPanel({ generationStatus }) {
     );
   }
 
-  if (!data) return null;
+  if (!data) {
+    return (
+      <div className="journey-map-panel">
+        <div className="panel-insufficient">
+          <div className="panel-insufficient__icon">
+            <span role="img" aria-label="map">&#x1F5FA;&#xFE0F;</span>
+          </div>
+          <h3>Generating your Journey Map...</h3>
+          <p>Your Journey Map is being prepared. Please check back in a few minutes.</p>
+        </div>
+      </div>
+    );
+  }
 
   const { synthesis, narrative, visualization, generatedAt } = data;
 

@@ -128,7 +128,7 @@ async function generateQuickInsights(riderData, forceRefresh, uid) {
     system,
     userMessage,
     jsonMode: true,
-    maxTokens: 2048,
+    maxTokens: 4096,
     context: "coaching-quick-insights",
     uid,
   });
