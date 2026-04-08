@@ -44,6 +44,10 @@
         "destination": "/ydj-first-glimpse-quick.html"
       },
       {
+        "source": "/science",
+        "destination": "/ydj-science.html"
+      },
+      {
         "source": "/ydj-science.html",
         "destination": "/ydj-science.html"
       },

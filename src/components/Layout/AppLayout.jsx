@@ -83,7 +83,7 @@ const NAV_GROUPS = [
       {
         heading: 'Background',
         links: [
-          { icon: '\uD83D\uDD2C', label: 'Science & Research', to: '/learn/science' },
+          { icon: '\uD83D\uDD2C', label: 'Science & Research', href: '/ydj-science.html' },
         ],
       },
     ],
