@@ -311,6 +311,15 @@ export default function DebriefForm() {
       intentionRatings: formData.intentionRatings,
       confirmedGoalsSnapshot,
       goalRatings,
+      processGoal1: confirmedGoalsSnapshot?.goal1 || '',
+      processGoal2: confirmedGoalsSnapshot?.goal2 || '',
+      processGoal3: confirmedGoalsSnapshot?.goal3 || '',
+      prevGoalRatings: goalRatings ? {
+        goal1: goalRatings.goal1 ? { text: confirmedGoalsSnapshot?.goal1 || '', rating: goalRatings.goal1 } : null,
+        goal2: goalRatings.goal2 ? { text: confirmedGoalsSnapshot?.goal2 || '', rating: goalRatings.goal2 } : null,
+        goal3: goalRatings.goal3 ? { text: confirmedGoalsSnapshot?.goal3 || '', rating: goalRatings.goal3 } : null,
+        reflection: goalRatings.reflection || null
+      } : null,
       rideArc: formData.rideArc,
       rideArcNote: formData.rideArcNote,
       wins: formData.wins,
