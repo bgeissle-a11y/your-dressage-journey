@@ -177,10 +177,10 @@ export default function DebriefForm() {
         mentalState: d.mentalState || '',
         movements: d.movements || [],
         intentionRatings: d.intentionRatings || {},
-        goalRating1: d.goalRatings?.goal1 || '',
-        goalRating2: d.goalRatings?.goal2 || '',
-        goalRating3: d.goalRatings?.goal3 || '',
-        goalReflection: d.goalRatings?.reflection || '',
+        goalRating1: d.prevGoalRatings?.goal1?.rating || '',
+        goalRating2: d.prevGoalRatings?.goal2?.rating || '',
+        goalRating3: d.prevGoalRatings?.goal3?.rating || '',
+        goalReflection: d.prevGoalRatings?.reflection || '',
         fallbackGoal1: '',
         fallbackGoal2: '',
         fallbackGoal3: '',
@@ -196,12 +196,12 @@ export default function DebriefForm() {
       if (d.confidenceLevel != null) setConfidenceTouched(true);
       if (d.riderEffort != null) setRiderEffortTouched(true);
       if (d.horseEffort != null) setHorseEffortTouched(true);
-      // Load confirmed goals snapshot if stored
-      if (d.confirmedGoalsSnapshot) {
+      // Load process goals if stored
+      if (d.processGoal1) {
         const goals = [
-          d.confirmedGoalsSnapshot.goal1,
-          d.confirmedGoalsSnapshot.goal2,
-          d.confirmedGoalsSnapshot.goal3
+          d.processGoal1,
+          d.processGoal2,
+          d.processGoal3
         ].filter(Boolean);
         if (goals.length > 0) {
           setPracticeCardGoals(goals);
@@ -309,8 +309,6 @@ export default function DebriefForm() {
       mentalState: formData.mentalState,
       movements: formData.movements,
       intentionRatings: formData.intentionRatings,
-      confirmedGoalsSnapshot,
-      goalRatings,
       processGoal1: confirmedGoalsSnapshot?.goal1 || '',
       processGoal2: confirmedGoalsSnapshot?.goal2 || '',
       processGoal3: confirmedGoalsSnapshot?.goal3 || '',
