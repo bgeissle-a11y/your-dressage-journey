@@ -7,6 +7,7 @@ import { db } from '../../firebase-config';
 import { readCycleState } from '../../services/weeklyFocusService';
 import ErrorDisplay from './ErrorDisplay';
 import ElapsedTimer from './ElapsedTimer';
+import YDJLoading from '../YDJLoading';
 import './ThirtyDayCycle.css';
 
 /**
@@ -476,8 +477,7 @@ export default function GrandPrixPanel({ generationStatus }) {
     if (mentalLoading && !mentalData) {
       return (
         <div className="gpt-loading">
-          <div className="spinner" />
-          <p>Generating your Mental Performance program...</p>
+          <YDJLoading message="Designing your mental game" />
           {loadStartedAt && <ElapsedTimer startedAt={loadStartedAt} />}
         </div>
       );
@@ -514,7 +514,7 @@ export default function GrandPrixPanel({ generationStatus }) {
 
         {mentalRefreshing && (
           <div className="gpt-gen-refreshing-bar">
-            <div className="spinner spinner--small" /> Refreshing with your latest data...
+            <YDJLoading size="sm" message="Updating your mental program" />
           </div>
         )}
 
@@ -669,8 +669,7 @@ export default function GrandPrixPanel({ generationStatus }) {
     if (trajectoryLoading && !trajectoryData) {
       return (
         <div className="gpt-loading">
-          <div className="spinner" />
-          <p>Loading Training Trajectory...</p>
+          <YDJLoading message="Charting your training trajectory" />
         </div>
       );
     }

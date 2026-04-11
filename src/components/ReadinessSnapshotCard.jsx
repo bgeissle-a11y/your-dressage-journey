@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase-config';
 import { getReadinessSnapshot } from '../services/aiService';
+import YDJLoading from './YDJLoading';
 
 /**
  * ReadinessSnapshotCard
@@ -94,10 +95,7 @@ export default function ReadinessSnapshotCard({ planId, userId, currentDebriefsC
   if (!snapshot) {
     return (
       <div className="snapshot-card snapshot-card--loading">
-        <div className="snapshot-shimmer snapshot-shimmer--lg" />
-        <div className="snapshot-shimmer" />
-        <div className="snapshot-shimmer snapshot-shimmer--sm" />
-        <p className="snapshot-loading-text">Reading your training data…</p>
+        <YDJLoading size="sm" message="Reading your ride data" />
       </div>
     );
   }
@@ -155,7 +153,7 @@ export default function ReadinessSnapshotCard({ planId, userId, currentDebriefsC
       )}
 
       {loading && (
-        <p className="snapshot-refreshing-text">Refreshing…</p>
+        <YDJLoading size="sm" message="Updating your readiness read" />
       )}
 
     </div>

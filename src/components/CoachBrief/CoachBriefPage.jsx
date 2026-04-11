@@ -19,6 +19,7 @@ import {
   buildMailtoUrl,
 } from '../../services/coachBriefService';
 import CoachBriefPreview from './CoachBriefPreview';
+import YDJLoading from '../YDJLoading';
 import './CoachBrief.css';
 
 export default function CoachBriefPage() {
@@ -166,6 +167,11 @@ export default function CoachBriefPage() {
             <div className={`cb-status ${status.type}`}>
               {status.message}
             </div>
+          )}
+
+          {/* Generating state */}
+          {generating && (
+            <YDJLoading message="Composing your weekly brief" />
           )}
 
           {/* Email targets */}

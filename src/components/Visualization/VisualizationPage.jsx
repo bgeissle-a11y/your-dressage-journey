@@ -10,6 +10,7 @@ import {
 import { buildMovementLabel } from './visualizationConstants';
 import VisualizationForm from './VisualizationForm';
 import VisualizationOutput from './VisualizationOutput';
+import YDJLoading from '../YDJLoading';
 import './Visualization.css';
 
 export default function VisualizationPage() {
@@ -137,8 +138,7 @@ export default function VisualizationPage() {
       {/* Loading overlay */}
       {generating && (
         <div className="viz-loading-overlay">
-          <div className="viz-loading-spinner" />
-          <div className="viz-loading-text">Generating your visualization script...</div>
+          <YDJLoading message="Crafting your visualization" />
         </div>
       )}
 

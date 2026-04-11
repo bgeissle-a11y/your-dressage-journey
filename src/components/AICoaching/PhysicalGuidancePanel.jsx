@@ -7,6 +7,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase-config';
 import ErrorDisplay from './ErrorDisplay';
 import ElapsedTimer from './ElapsedTimer';
+import YDJLoading from '../YDJLoading';
 import './ThirtyDayCycle.css';
 
 /**
@@ -246,8 +247,7 @@ export default function PhysicalGuidancePanel() {
           <div className="hero-title">Physical Guidance</div>
         </div>
         <div className="panel-loading-spinner">
-          <div className="spinner" />
-          <p>Cross-referencing your physical assessment with your ride data...</p>
+          <YDJLoading message="Analyzing your movement" />
           <ElapsedTimer startedAt={loadStartedAt} />
         </div>
       </div>
@@ -368,7 +368,7 @@ export default function PhysicalGuidancePanel() {
       <div className="tab-panel active phys-fade-up">
         {refreshing && (
           <div className="gpt-gen-refreshing-bar">
-            <div className="spinner spinner--small" /> Refreshing...
+            <YDJLoading size="sm" message="Regenerating your physical program" />
           </div>
         )}
 

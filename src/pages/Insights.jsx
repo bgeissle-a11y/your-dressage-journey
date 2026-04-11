@@ -5,6 +5,7 @@ import JourneyMapPanel from '../components/AICoaching/JourneyMapPanel';
 import GrandPrixPanel from '../components/AICoaching/GrandPrixPanel';
 
 import PhysicalGuidancePanel from '../components/AICoaching/PhysicalGuidancePanel';
+import YDJLoading from '../components/YDJLoading';
 import useGenerationStatus from '../hooks/useGenerationStatus';
 import './Insights.css';
 
@@ -41,11 +42,14 @@ export default function Insights() {
       {/* Generation status banner */}
       {generationStatus.isGenerating && (
         <div className="generation-banner">
-          <div className="spinner spinner--small" />
-          <span>
-            Updating your insights with new data...
-            {totalOutputs > 0 && ` (${completedCount} of ${totalOutputs} ready)`}
-          </span>
+          <YDJLoading
+            size="sm"
+            message={
+              totalOutputs > 0
+                ? `Updating your insights (${completedCount} of ${totalOutputs} ready)`
+                : 'Updating your insights with new data'
+            }
+          />
         </div>
       )}
       {generationStatus.justCompleted && (

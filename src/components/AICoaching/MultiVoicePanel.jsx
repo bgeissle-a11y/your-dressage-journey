@@ -6,6 +6,7 @@ import ErrorDisplay from './ErrorDisplay';
 import ElapsedTimer from './ElapsedTimer';
 import OrientingQuestion from './OrientingQuestion';
 import PriorityCloser from './PriorityCloser';
+import YDJLoading from '../YDJLoading';
 
 /**
  * Extract error category and retryable flag from a Firebase HttpsError.
@@ -223,8 +224,7 @@ export default function MultiVoicePanel({ generationStatus }) {
       {/* Refreshing banner (stale-while-revalidate) */}
       {refreshing && (
         <div className="panel-refreshing">
-          <div className="spinner spinner--small" />
-          <span>Refreshing with your latest data...</span>
+          <YDJLoading size="sm" message="Consulting the coaching team" />
         </div>
       )}
 
@@ -339,8 +339,7 @@ export default function MultiVoicePanel({ generationStatus }) {
       {/* Loading state — only shown if no voice entries exist at all */}
       {loading && !hasVoiceEntries && !error && (
         <div className="panel-loading-spinner">
-          <div className="spinner" />
-          <p>Generating your coaching perspectives...</p>
+          <YDJLoading message="Consulting the masters" />
           <ElapsedTimer startedAt={loadStartedAt} />
         </div>
       )}

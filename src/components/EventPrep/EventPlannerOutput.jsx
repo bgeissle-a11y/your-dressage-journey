@@ -2,6 +2,7 @@ import TestRequirementsDisplay from './TestRequirementsDisplay';
 import ReadinessAnalysisDisplay from './ReadinessAnalysisDisplay';
 import PreparationPlanDisplay from './PreparationPlanDisplay';
 import ShowDayGuidanceDisplay from './ShowDayGuidanceDisplay';
+import YDJLoading from '../YDJLoading';
 
 /**
  * Orchestrator for the 4-section AI Event Planner output.
@@ -64,8 +65,7 @@ export default function EventPlannerOutput({ data, isGenerating = false, current
       {/* Loading indicator for next section */}
       {isGenerating && currentStep >= 2 && currentStep <= 4 && (
         <div className="ep-section-loading">
-          <div className="spinner" style={{ width: '24px', height: '24px' }} />
-          <span>Loading next section...</span>
+          <YDJLoading size="sm" message="Preparing next section" />
         </div>
       )}
     </div>

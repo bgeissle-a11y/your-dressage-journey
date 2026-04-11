@@ -6,6 +6,7 @@ import { getTestData, getShortLabel } from '../../services/testDatabase';
 import { getEventPlannerStep } from '../../services/aiService';
 import TestReferencePanel from '../TestReferencePanel/TestReferencePanel';
 import ReadinessSnapshotCard from '../ReadinessSnapshotCard';
+import YDJLoading from '../YDJLoading';
 import './ShowPlanner.css';
 
 /* ── Section config ────────────────────────────────────────── */
@@ -414,8 +415,14 @@ export default function ShowPlanner() {
       )}
       {generating && (
         <div className="slp-generate-prompt">
-          <div className="spinner" style={{ width: '28px', height: '28px', margin: '0 auto 12px' }} />
-          <p>{genStep === 1 ? 'Analyzing test requirements...' : genStep === 2 ? 'Evaluating readiness...' : genStep === 3 ? 'Building preparation plan...' : 'Creating show-day guidance...'}</p>
+          <YDJLoading
+            message={
+              genStep === 1 ? 'Analyzing test requirements'
+              : genStep === 2 ? 'Evaluating readiness'
+              : genStep === 3 ? 'Building your show plan'
+              : 'Creating show-day guidance'
+            }
+          />
           <p style={{ fontSize: '0.82rem', color: 'var(--ink-light)' }}>Step {genStep} of 4 — this takes a few minutes</p>
         </div>
       )}

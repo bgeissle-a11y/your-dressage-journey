@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { readPracticeCardCache, confirmPracticeCard } from "../../services/weeklyFocusService";
+import YDJLoading from "../YDJLoading";
 import "./PracticeCard.css";
 
 /**
@@ -130,7 +131,11 @@ export default function PracticeCard() {
   }, [navigate, goals]);
 
   if (loading) {
-    return <div className="pc-loading">Loading your practice card...</div>;
+    return (
+      <div className="pc-loading">
+        <YDJLoading size="sm" message="Preparing your practice card" />
+      </div>
+    );
   }
 
   if (!card) {

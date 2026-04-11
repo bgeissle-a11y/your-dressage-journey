@@ -3,6 +3,7 @@ import { getJourneyMap } from '../../services/aiService';
 import CollapsibleSection from './CollapsibleSection';
 import ErrorDisplay from './ErrorDisplay';
 import ElapsedTimer from './ElapsedTimer';
+import YDJLoading from '../YDJLoading';
 
 /**
  * Journey Map display panel with at-a-glance summary
@@ -122,11 +123,8 @@ export default function JourneyMapPanel({ generationStatus }) {
           <h2>Journey Map</h2>
           <p>Mapping your riding journey...</p>
         </div>
-        <div className="panel-loading-spinner">
-          <div className="spinner" />
-          <p>Analyzing your data and writing your story...</p>
-          <ElapsedTimer startedAt={loadStartedAt} />
-        </div>
+        <YDJLoading message="Mapping your journey" />
+        <ElapsedTimer startedAt={loadStartedAt} />
       </div>
     );
   }
@@ -198,8 +196,7 @@ export default function JourneyMapPanel({ generationStatus }) {
       {/* Refreshing banner (stale-while-revalidate) */}
       {refreshing && (
         <div className="panel-refreshing">
-          <div className="spinner spinner--small" />
-          <span>Refreshing with your latest data...</span>
+          <YDJLoading size="sm" message="Updating your journey" />
         </div>
       )}
 
