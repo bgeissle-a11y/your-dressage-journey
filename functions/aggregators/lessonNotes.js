@@ -64,6 +64,7 @@ function aggregateLessonNotes(lessonNotes) {
       takeaways: (note.takeaways || []).filter(Boolean),
     };
 
+    if (note.movementPurpose) result.movementPurpose = note.movementPurpose;
     if (note.cuesCorrections) result.cuesCorrections = note.cuesCorrections;
     if (note.riderReflections) result.riderReflections = note.riderReflections;
     if (note.linkedDebriefId) result.linkedDebriefId = note.linkedDebriefId;

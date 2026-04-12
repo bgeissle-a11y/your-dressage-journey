@@ -42,6 +42,7 @@ const NAV_GROUPS = [
         heading: 'Every Ride',
         links: [
           { icon: '\uD83C\uDF05', label: 'Pre-Ride Ritual', to: '/pre-ride-ritual', desc: 'Your consistent pre-ride sequence' },
+          { icon: '\uD83D\uDCDD', label: 'Lesson Prep', to: '/lesson-prep', desc: 'A 60-second summary before your next lesson' },
         ],
       },
       {

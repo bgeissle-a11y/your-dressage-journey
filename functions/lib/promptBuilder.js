@@ -1135,8 +1135,39 @@ Respond in JSON format with this exact structure:
     "restatement": "2–3 sentence restatement of the priority as a direct commitment frame in second person. Not 'you should focus on...' but 'This week, your laboratory is...' It should feel like the coaching team has converged and handed the rider one thing to carry out the door.",
     "strategy_prompt": "→ One specific open-ended question asking how the rider will make this priority real in their specific situation. Must reference something particular from their data — a horse, a movement, a pattern, a context.",
     "evidence_prompt": "→ One specific open-ended question asking how the rider will know this week whether they actually lived the priority — not whether they got the outcome right, but whether they genuinely made it a focus."
-  }
+  },
+  "opening_line": "One sentence in FIRST PERSON, spoken register, that the rider can say aloud as she walks to warm up. Her answer to 'how's it been going?' See OPENING LINE rules below. Omit this field entirely (do not return empty string) if data is insufficient for a specific, confident sentence."
 }
+
+OPENING LINE — GENERATION RULES:
+
+The opening_line is the crown of Quick Insights. It travels out of the app through the rider's mouth at her next lesson. It must demonstrate UNDERSTANDING, not just RECALL.
+
+Write as natural speech the rider will actually say — not a summary she reads.
+
+Priority hierarchy for what to include (work down until the sentence is specific enough to be useful):
+1. If movementPurpose is present in recent lesson notes: lead with the rider's articulated understanding of why the exercise matters. This is the highest-value thing a trainer wants to hear.
+2. The current focus area (from priority_this_week) framed as something the rider has been working on, not something she needs to do.
+3. The most specific actionable obstacle from recent debriefs — one that references a named movement or a lesson exercise.
+4. If a show is within 30 days: one movement or concern she wants to discuss, especially any double-coefficient movements flagged in show prep.
+
+Recall vs understanding:
+- Recall: "We worked on the half-halt timing last week."
+- Understanding: "We've been working on the half-halt — I think the point is that I need to ask and then wait before he responds, instead of releasing early, and I want to know if that's what you're seeing."
+
+Understanding sentences contain: a named exercise or movement, the rider's interpretation of its purpose or the challenge within it, and optionally an invitation for the trainer's perspective ("and I want to ask you about...").
+
+The sentence must be confident, not hedged. No "I think maybe..." or "I've been kind of...". Specific and direct.
+
+If show prep data is absent, synthesize from focus + obstacle only. If lesson notes are absent, synthesize from debrief data only. Never produce a generic sentence. If data is insufficient for a specific sentence, OMIT the opening_line field rather than producing a vague one.
+
+Good examples:
+- "We've been working on the half-halt timing — I think I need to ask and actually wait before Benedikt rebalances, instead of releasing early, and with Meadowbrook twelve days out I want to talk about the submission movements."
+- "The leg yield exercise from last week made him tense when I tried it on my own — I think it's because I'm not maintaining the bend the way you showed me, and I want to figure out what I'm missing."
+
+Bad examples (do not produce):
+- "I've been working on various things this week including lateral work."
+- "Training has been going well with some challenges to discuss."
 
 These three elements — top_patterns, priority_this_week, celebration — are all that renders in Quick Insights. No additional sub-sections, no "what this means" additions, no bridging text between elements. Respect the word and sentence ceilings strictly.
 

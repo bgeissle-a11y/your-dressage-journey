@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YDJ Pre-Lesson Summary</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --parchment: #F9F4EC;
+    --parchment-warm: #F3EBD8;
+    --ink: #2C2416;
+    --ink-light: #4A3F2F;
+    --ink-muted: #7A6E60;
+    --gold: #B8862A;
+    --gold-light: #D4A84B;
+    --gold-pale: #F0E4C4;
+    --gold-deep: #8C6418;
+    --rust: #8B3A2F;
+    --forest: #3A5C3A;
+    --sky: #3A6B7A;
+    --rule: rgba(184,134,42,0.2);
+    --shadow: rgba(44,36,22,0.1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #DDD5C3;
+    font-family: 'Work Sans', sans-serif;
+    color: var(--ink);
+    padding: 28px 16px 48px;
+    min-height: 100vh;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  /* ── TOP BRAND ──────────────────────────────────── */
+  .top-brand {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .brand-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold-deep);
+    font-weight: 600;
+  }
+
+  .week-label {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    font-weight: 500;
+  }
+
+  /* ── MOUNTING BLOCK CARD ─────────────────────────── */
+  /* The whole thing is one warm card with sections divided by rules */
+  .summary-card {
+    background: var(--parchment);
+    border-radius: 4px;
+    box-shadow:
+      0 4px 20px var(--shadow),
+      0 0 0 1px rgba(184,134,42,0.12);
+    overflow: hidden;
+  }
+
+  /* ── HERO: RIDER + INVITATION ────────────────────── */
+  .hero {
+    background: var(--ink);
+    padding: 18px 22px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Subtle texture rings */
+  .hero::before {
+    content: '';
+    position: absolute;
+    right: -30px;
+    top: -30px;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    border: 1px solid rgba(184,134,42,0.12);
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    right: -50px;
+    top: -50px;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: 1px solid rgba(184,134,42,0.07);
+  }
+
+  .hero-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+
+  .rider-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--gold-light);
+    line-height: 1;
+    letter-spacing: 0.01em;
+  }
+
+  .horse-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    font-style: italic;
+    color: rgba(255,255,255,0.55);
+    margin-top: 4px;
+  }
+
+  .meta-stack {
+    text-align: right;
+  }
+
+  .meta-line {
+    font-size: 9px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.38);
+    line-height: 2.0;
+    white-space: nowrap;
+  }
+
+  .meta-line span {
+    color: rgba(255,255,255,0.75);
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    font-size: 10px;
+  }
+
+  /* Invitation line */
+  .invitation {
+    border-top: 1px solid rgba(184,134,42,0.2);
+    padding-top: 12px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.5;
+    font-style: italic;
+  }
+
+  .invitation strong {
+    color: var(--gold-light);
+    font-style: normal;
+    font-weight: 600;
+  }
+
+  /* ── GOLD LEVEL STRIP ────────────────────────────── */
+  .level-strip {
+    background: var(--gold);
+    padding: 5px 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .level-text {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: white;
+    font-weight: 600;
+  }
+
+  .trajectory-pill {
+    font-size: 9px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.9);
+    font-weight: 500;
+  }
+
+  /* ── SECTIONS ─────────────────────────────────────── */
+  .section {
+    padding: 13px 22px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .section:last-child { border-bottom: none; }
+
+  .section-label {
+    font-size: 8px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .section-body {
+    font-size: 13px;
+    line-height: 1.58;
+    color: var(--ink-light);
+  }
+
+  /* ── THIS WEEK'S FOCUS ──────────────────────────── */
+  /* Replaces growth edge — rider-facing, from weekly coaching summary */
+  .focus-section {
+    background: var(--gold-pale);
+    border-left: 3px solid var(--gold);
+  }
+
+  .focus-section .section-label { color: var(--gold-deep); }
+
+  .focus-section .section-body {
+    font-size: 13.5px;
+    color: var(--ink);
+    line-height: 1.55;
+  }
+
+  /* ── AI COACHING NOTICE ─────────────────────────── */
+  .insight-section .section-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .voice-chip {
+    display: inline-block;
+    color: white;
+    font-size: 7.5px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 700;
+  }
+
+  .voice-chip.technical  { background: var(--rust); }
+  .voice-chip.empathetic { background: var(--sky); }
+  .voice-chip.classical  { background: var(--ink-light); }
+  .voice-chip.strategist { background: var(--forest); }
+
+  /* ── TWO-COL ─────────────────────────────────────── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .two-col .section:first-child {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .two-col .section:last-child {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .bullet-list { list-style: none; padding: 0; }
+
+  .bullet-list li {
+    font-size: 11.5px;
+    line-height: 1.52;
+    color: var(--ink-light);
+    padding-left: 13px;
+    position: relative;
+    margin-bottom: 5px;
+  }
+
+  .bullet-list li:last-child { margin-bottom: 0; }
+
+  .bullet-list li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-size: 10px;
+    top: 2px;
+  }
+
+  .bullet-list.aha li::before      { content: '✦'; color: var(--forest); font-size: 8px; top: 3px; }
+  .bullet-list.obstacle li::before { content: '△'; color: var(--rust);   font-size: 8px; top: 3px; }
+
+  .sub-label {
+    font-size: 7.5px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    font-weight: 600;
+    margin-bottom: 5px;
+  }
+
+  .moment-block { margin-bottom: 9px; }
+  .moment-block:last-child { margin-bottom: 0; }
+
+  /* ── SHOW PREP FLAG ──────────────────────────────── */
+  .show-section {
+    border-left: 3px solid var(--rust);
+    background: rgba(139,58,47,0.03);
+  }
+
+  .show-section .section-label { color: var(--rust); }
+
+  .show-meta {
+    font-size: 10px;
+    color: var(--ink-muted);
+    font-style: italic;
+    margin-bottom: 6px;
+  }
+
+  .mv-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .mv-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(139,58,47,0.08);
+    border: 1px solid rgba(139,58,47,0.18);
+    border-radius: 10px;
+    padding: 2px 9px;
+    font-size: 10.5px;
+    color: var(--rust);
+    font-weight: 500;
+  }
+
+  .mv-chip.coeff {
+    background: rgba(139,58,47,0.14);
+    border-color: rgba(139,58,47,0.3);
+    font-weight: 600;
+  }
+
+  .coeff-tag {
+    font-size: 7px;
+    font-weight: 700;
+    background: var(--rust);
+    color: white;
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+
+  /* ── YOUR OPENING LINE ───────────────────────────── */
+  /* The crown jewel — what the rider says as she mounts */
+  .opening-line-section {
+    background: var(--ink);
+    padding: 16px 22px;
+  }
+
+  .opening-label {
+    font-size: 8px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .opening-label-sub {
+    font-size: 8px;
+    letter-spacing: 0.06em;
+    text-transform: none;
+    color: rgba(255,255,255,0.35);
+    font-weight: 400;
+    font-style: italic;
+  }
+
+  .opening-quote {
+    font-family: 'Playfair Display', serif;
+    font-size: 14.5px;
+    font-style: italic;
+    color: rgba(255,255,255,0.88);
+    line-height: 1.6;
+    border-left: 2px solid var(--gold);
+    padding-left: 14px;
+  }
+
+  .opening-note {
+    margin-top: 10px;
+    font-size: 10px;
+    color: rgba(255,255,255,0.35);
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  /* ── FOOTER ──────────────────────────────────────── */
+  .card-footer {
+    background: var(--parchment-warm);
+    padding: 9px 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--rule);
+  }
+
+  .footer-note {
+    font-size: 9px;
+    color: var(--ink-muted);
+  }
+
+  .read-time {
+    font-size: 9px;
+    color: var(--ink-muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── OPTIONAL: share CTA below card ─────────────── */
+  .share-hint {
+    margin-top: 14px;
+    text-align: center;
+    font-size: 10px;
+    color: var(--ink-muted);
+    font-style: italic;
+  }
+
+  .share-hint a {
+    color: var(--gold-deep);
+    text-decoration: none;
+    font-weight: 600;
+    font-style: normal;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- Top brand bar -->
+  <div class="top-brand">
+    <div class="brand-name">Your Dressage Journey</div>
+    <div class="week-label">Week of Mar 17–23, 2026</div>
+  </div>
+
+  <div class="summary-card">
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-top">
+        <div>
+          <div class="rider-name">Claire</div>
+          <div class="horse-name">Benedikt &amp; Rosalind</div>
+        </div>
+        <div class="meta-stack">
+          <div class="meta-line">Last ride <span>Mar 20</span></div>
+          <div class="meta-line">Rides this month <span>14</span></div>
+        </div>
+      </div>
+      <div class="invitation">
+        <strong>Before your lesson — 60 seconds.</strong>
+        This is your answer to "how's it been going?"
+        Read it, own it, then tell your coach.
+      </div>
+    </div>
+
+    <!-- Level + trajectory -->
+    <div class="level-strip">
+      <div class="level-text">3rd Level · Working toward 4th</div>
+      <div class="trajectory-pill">↗ Building momentum</div>
+    </div>
+
+    <!-- This week's focus -->
+    <div class="section focus-section">
+      <div class="section-label">What you're working on this week</div>
+      <div class="section-body">
+        The half-halt is the through-line right now — specifically learning to ask and then <em>wait</em> before Benedikt responds, instead of releasing early and losing the rebalancing.
+      </div>
+    </div>
+
+    <!-- AI coaching insight — rider-facing, second person -->
+    <div class="section insight-section">
+      <div class="section-label">
+        What your coaching analysis noticed
+        <span class="voice-chip technical">Technical Coach</span>
+      </div>
+      <div class="section-body">
+        The breakdown is happening in the same moment every time: just before the canter–trot transition, you close your fingers correctly — then release before Benedikt has rebalanced. The aid is right. The wait isn't there yet. That's the one thing.
+      </div>
+    </div>
+
+    <!-- Two-col: lessons + rider insights -->
+    <div class="two-col">
+      <div class="section">
+        <div class="section-label">Rider-identified lesson insights</div>
+        <ul class="bullet-list">
+          <li>Shoulder-in to renvers to half-pass — keeping angle through the change</li>
+          <li>Canter pirouette: sit more, push less with inside leg</li>
+          <li>Extended trot: release the neck on the diagonal</li>
+        </ul>
+      </div>
+      <div class="section">
+        <div class="section-label">Rider-identified insights</div>
+        <div class="moment-block">
+          <div class="sub-label">✦ What clicked</div>
+          <ul class="bullet-list aha">
+            <li>"When I breathe out, he actually softens — I had it backwards"</li>
+            <li>Rosalind more consistent on the left rein than I'd assumed</li>
+          </ul>
+        </div>
+        <div class="moment-block">
+          <div class="sub-label">△ Still working on</div>
+          <ul class="bullet-list obstacle">
+            <li>The leg yield exercise from last week made him tense when I tried it solo — same neck bracing as in the lesson</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Show prep flagged movements -->
+    <div class="section show-section">
+      <div class="section-label">Going into Meadowbrook — movements to mention</div>
+      <div class="show-meta">12 days out · 3rd Level Test 3</div>
+      <div class="mv-chips">
+        <span class="mv-chip coeff">Submission <span class="coeff-tag">×2</span></span>
+        <span class="mv-chip coeff">General Impression <span class="coeff-tag">×2</span></span>
+        <span class="mv-chip">Half-pass in canter</span>
+        <span class="mv-chip">8m voltes</span>
+      </div>
+    </div>
+
+    <!-- Your opening line — the crown jewel -->
+    <div class="opening-line-section">
+      <div class="opening-label">
+        Your opening line
+        <span class="opening-label-sub">— say this as you walk to warm up</span>
+      </div>
+      <div class="opening-quote">
+        "We've been working a lot on the half-halt timing — I think I'm releasing too early before he rebalances. The leg yield we did last week also made him tense when I tried it on my own, and with Meadowbrook twelve days out I want to talk about submission."
+      </div>
+      <div class="opening-note">Synthesized from your week's entries. Use your own words — this is just a starting point.</div>
+    </div>
+
+    <!-- Footer -->
+    <div class="card-footer">
+      <div class="footer-note">yourdressagejourney.com</div>
+      <div class="read-time">~55 sec read</div>
+    </div>
+
+  </div>
+
+  <!-- Optional share hint -->
+  <div class="share-hint">
+    Want your coach to see this too? <a href="#">Share with coach →</a>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -7,6 +7,8 @@
  * Functions use Firebase Functions v2 (2nd generation).
  * v2 onCall functions provide request.auth automatically when
  * the client uses httpsCallable() from the Firebase client SDK.
+ *
+ * Runtime: nodejs22 (declared in firebase.json)
  */
 
 // Sentry must be initialized before any other imports
@@ -37,6 +39,7 @@ const adminSmokeTest = require("./api/adminSmokeTest");
 const weeklyFocusRefresh = require("./api/weeklyFocusRefresh");
 const arenaCoaching = require("./api/arenaCoaching");
 const weeklyCoachBrief = require("./api/weeklyCoachBrief");
+const lessonPrepSummary = require("./api/lessonPrepSummary");
 const readinessSnapshot = require("./api/readinessSnapshot");
 const visualizationScript = require("./api/visualizationScript");
 
@@ -146,6 +149,13 @@ exports.arenaCoaching = onRequest(
 exports.generateWeeklyCoachBrief = onCall(
   { timeoutSeconds: 30, memory: "256MiB" },
   weeklyCoachBrief.handler
+);
+
+// --- Pre-Lesson Summary (no AI call — data assembly only, rider-facing) ---
+// Input: none (uses authenticated user's data)
+exports.generateLessonPrepSummary = onCall(
+  { timeoutSeconds: 30, memory: "256MiB" },
+  lessonPrepSummary.handler
 );
 
 // --- Cache Warming ---

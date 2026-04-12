@@ -16,6 +16,7 @@ const base = createBaseService(COLLECTION);
  *   lessonType:          string - "in-person" | "clinic" | "video-lesson" | "video-review" | "other"
  *   linkedDebriefId:     string | null - FK to debriefs collection
  *   movementInstructions: string - required, large textarea
+ *   movementPurpose:     string | null - optional, rider's articulation of why the exercises mattered
  *   cuesCorrections:     string - optional textarea
  *   riderReflections:    string - optional textarea
  *   takeaways:           string[] - 0-3 non-empty strings
@@ -43,6 +44,7 @@ export async function createLessonNote(userId, data) {
     lessonType: data.lessonType || '',
     linkedDebriefId: data.linkedDebriefId || null,
     movementInstructions: data.movementInstructions || '',
+    movementPurpose: data.movementPurpose ? data.movementPurpose : null,
     cuesCorrections: data.cuesCorrections || '',
     riderReflections: data.riderReflections || '',
     takeaways: (data.takeaways || []).filter(Boolean),

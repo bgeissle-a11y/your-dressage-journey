@@ -22,6 +22,13 @@ const MOVEMENT_PROMPTS = [
   'Any movements that were repeated or emphasized more than once'
 ];
 
+const PURPOSE_PROMPTS = [
+  'What training problem was the exercise trying to solve?',
+  'What quality in the horse (or you) was it building toward?',
+  "If you're not sure, write your best guess \u2014 that's useful data too",
+  'Example: "I think the shoulder-in to renvers sequence was about teaching me to maintain bend through a direction change, not just set it once."'
+];
+
 const CUES_PROMPTS = [
   'Short verbal cues and reminders (e.g. "be accurate," "thumbs up," "inside leg to outside rein")',
   'Corrections to your position or aids (e.g. "hold with your back," "give the inside rein," "softer hand")',
@@ -78,6 +85,7 @@ export default function LessonNoteForm() {
     lessonType: '',
     linkedDebriefId: '',
     movementInstructions: '',
+    movementPurpose: '',
     cuesCorrections: '',
     riderReflections: '',
     takeaway1: '',
@@ -147,6 +155,7 @@ export default function LessonNoteForm() {
       lessonType: data.lessonType || '',
       linkedDebriefId: data.linkedDebriefId || '',
       movementInstructions: data.movementInstructions || '',
+      movementPurpose: data.movementPurpose || '',
       cuesCorrections: data.cuesCorrections || '',
       riderReflections: data.riderReflections || '',
       takeaway1: (data.takeaways && data.takeaways[0]) || '',
@@ -204,6 +213,7 @@ export default function LessonNoteForm() {
       lessonType: formData.lessonType,
       linkedDebriefId: formData.linkedDebriefId || null,
       movementInstructions: formData.movementInstructions.trim(),
+      movementPurpose: formData.movementPurpose.trim() || null,
       cuesCorrections: formData.cuesCorrections.trim(),
       riderReflections: formData.riderReflections.trim(),
       takeaways: [
@@ -277,6 +287,7 @@ export default function LessonNoteForm() {
       lessonType: '',
       linkedDebriefId: '',
       movementInstructions: '',
+      movementPurpose: '',
       cuesCorrections: '',
       riderReflections: '',
       takeaway1: '',
@@ -457,6 +468,26 @@ export default function LessonNoteForm() {
                 />
               </div>
               <div className="char-counter">{formData.movementInstructions.length} characters</div>
+            </FormField>
+
+            <FormField label="In your own words — what do you think was the purpose?" optional helpText="Not what you did — why you did it. One sentence is enough.">
+              <PromptBox title={'\u2726 What this means'} items={PURPOSE_PROMPTS} />
+              <div style={{ position: 'relative' }}>
+                <textarea
+                  ref={el => { getRef('movementPurpose').current = el; }}
+                  name="movementPurpose"
+                  value={formData.movementPurpose}
+                  onChange={handleChange}
+                  disabled={loading}
+                  placeholder="e.g. I think the purpose of the leg yield sequence was to teach him to move away from my leg without getting tense — it's preparation for half-pass..."
+                  style={{ paddingRight: '60px', minHeight: '80px' }}
+                />
+                <VoiceInput
+                  textareaRef={getRef('movementPurpose')}
+                  onTranscript={text => setFormData(prev => ({ ...prev, movementPurpose: text }))}
+                />
+              </div>
+              <div className="char-counter">{formData.movementPurpose.length} characters</div>
             </FormField>
 
             <FormField label="Instructional Cues & Corrections" optional>

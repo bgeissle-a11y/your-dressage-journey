@@ -53,6 +53,7 @@ import TechnicalPhilosophicalForm from './components/TechnicalPhilosophical/Tech
 
 import PracticeCard from './components/PracticeCard/PracticeCard';
 import PreRideRitual from './components/PreRideRitual/PreRideRitual';
+import LessonPrep from './pages/LessonPrep';
 
 // Toolkit
 import ToolkitList from './components/RiderToolkit/ToolkitList';
@@ -146,6 +147,9 @@ function App() {
 
             {/* Pre-Ride Ritual */}
             <Route path="/pre-ride-ritual" element={<PreRideRitual />} />
+
+            {/* Lesson Prep (Pre-Lesson Summary) */}
+            <Route path="/lesson-prep" element={<LessonPrep />} />
 
             {/* Toolkit */}
             <Route path="/toolkit" element={<ToolkitList />} />

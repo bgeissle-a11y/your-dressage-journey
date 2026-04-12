@@ -7,6 +7,7 @@ import useDashboardData from '../hooks/useDashboardData';
 import useWeeklyFocus from '../hooks/useWeeklyFocus';
 import WeeklyFocusContent from '../components/WeeklyFocus/WeeklyFocusContent';
 import { PracticeCardCompact } from '../components/PracticeCard/PracticeCard';
+import LessonPrepCompact from '../components/LessonPrep/LessonPrepCompact';
 import MovementCoverageHeatmap from '../components/Dashboard/MovementCoverageHeatmap';
 import ProcessGoalBars from '../components/Dashboard/ProcessGoalBars';
 import JourneySnapshot from '../components/Dashboard/JourneySnapshot';
@@ -412,6 +413,10 @@ export default function Dashboard() {
             updateToLatest={wf.updateToLatest}
           />
           <PracticeCardCompact />
+          <LessonPrepCompact />
+          <div className="wf-lesson-prep-crosslink">
+            Heading into a lesson? <Link to="/lesson-prep">Prepare for your lesson &rarr;</Link>
+          </div>
         </div>
       </div>
     );
