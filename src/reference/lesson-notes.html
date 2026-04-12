@@ -340,6 +340,182 @@
 
         .voice-status.active { display: block; }
 
+        /* Transcript Processing Panel */
+        .transcript-panel {
+            background: var(--color-bg-secondary);
+            border: 2px solid var(--color-border);
+            border-radius: 14px;
+            margin-bottom: 32px;
+            overflow: hidden;
+        }
+
+        .transcript-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            cursor: pointer;
+            user-select: none;
+            background: white;
+            border-bottom: 2px solid transparent;
+            transition: border-color 0.25s ease;
+        }
+
+        .transcript-panel.open .transcript-panel-header {
+            border-bottom-color: var(--color-border);
+        }
+
+        .transcript-panel-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05em;
+            color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .transcript-panel-title .tp-badge {
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.72em;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            background: var(--color-secondary);
+            color: white;
+            padding: 3px 9px;
+            border-radius: 50px;
+        }
+
+        .transcript-panel-chevron {
+            font-size: 0.8em;
+            color: var(--color-text-light);
+            transition: transform 0.25s ease;
+        }
+
+        .transcript-panel.open .transcript-panel-chevron {
+            transform: rotate(180deg);
+        }
+
+        .transcript-panel-body {
+            display: none;
+            padding: 24px;
+        }
+
+        .transcript-panel.open .transcript-panel-body {
+            display: block;
+        }
+
+        .transcript-intro {
+            font-size: 0.9em;
+            color: var(--color-text-light);
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .transcript-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+
+        .btn-process {
+            padding: 12px 24px;
+            border-radius: 10px;
+            border: none;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            background: var(--color-accent);
+            color: white;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-process:hover:not(:disabled) {
+            background: #a85e3f;
+            transform: translateY(-1px);
+        }
+
+        .btn-process:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-clear-transcript {
+            padding: 12px 18px;
+            border-radius: 10px;
+            border: 2px solid var(--color-border);
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.9em;
+            font-weight: 500;
+            cursor: pointer;
+            background: white;
+            color: var(--color-text-light);
+            transition: all 0.25s ease;
+        }
+
+        .btn-clear-transcript:hover {
+            border-color: var(--color-accent);
+            color: var(--color-accent);
+        }
+
+        .processing-status {
+            font-size: 0.88em;
+            color: var(--color-primary);
+            font-style: italic;
+            display: none;
+        }
+
+        .processing-status.active {
+            display: block;
+        }
+
+        .processing-status.error {
+            color: var(--color-accent);
+        }
+
+        .transcript-result-notice {
+            display: none;
+            margin-top: 16px;
+            padding: 12px 16px;
+            background: #EFF7EC;
+            border: 1.5px solid #6B8E5F;
+            border-radius: 10px;
+            font-size: 0.88em;
+            color: #3A5C35;
+            line-height: 1.6;
+        }
+
+        .transcript-result-notice.active {
+            display: block;
+        }
+
+        /* Coach's Eye bucket */
+        .coaches-eye-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .coaches-eye-label .eye-badge {
+            font-size: 0.75em;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            background: var(--color-bg-secondary);
+            color: var(--color-primary);
+            border: 1.5px solid var(--color-border);
+            padding: 3px 9px;
+            border-radius: 50px;
+        }
+
         /* Takeaways */
         .takeaway-list { display: flex; flex-direction: column; gap: 14px; }
 
@@ -752,7 +928,47 @@
             <div class="section">
                 <div class="section-header">
                     <div class="section-title">Instructor Guidance</div>
-                    <div class="section-description">Paste a transcription, type from memory, or dictate — whatever gets the guidance captured.</div>
+                    <div class="section-description">Paste your transcript below to let YDJ organize it — or type directly into the fields.</div>
+                </div>
+
+                <!-- Transcript Processing Panel -->
+                <div class="transcript-panel" id="transcriptPanel">
+                    <div class="transcript-panel-header" onclick="toggleTranscriptPanel()">
+                        <div class="transcript-panel-title">
+                            ✦ Process a Lesson Transcript
+                            <span class="tp-badge">Optional</span>
+                        </div>
+                        <span class="transcript-panel-chevron">▼</span>
+                    </div>
+                    <div class="transcript-panel-body">
+                        <p class="transcript-intro">
+                            Paste the full text of your lesson transcript — from any transcription tool or service. No speaker labels needed. YDJ will identify your instructor's voice and organize guidance into movements, cues, and coaching observations. Before saving, do a quick scan for dressage terminology your tool may have mangled (common: "haunches" → "hunches," "volte" → "vault," "half halt" → "half fault").
+                        </p>
+                        <div class="question" style="margin-bottom:0;">
+                            <label for="rawTranscript">Paste Transcript</label>
+                            <div class="voice-input-container">
+                                <textarea id="rawTranscript" class="large" placeholder="Paste your full lesson transcript here..."></textarea>
+                                <button type="button" class="voice-btn" data-target="rawTranscript" title="Dictate transcript">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                                    </svg>
+                                </button>
+                                <div class="voice-status" id="rawTranscript-status">Listening...</div>
+                            </div>
+                            <div class="char-counter"><span id="rawTranscriptCount">0</span> characters</div>
+                        </div>
+                        <div class="transcript-actions">
+                            <button type="button" class="btn-process" id="processBtn" onclick="processTranscript()" disabled>
+                                <span>✦</span> Process with AI
+                            </button>
+                            <button type="button" class="btn-clear-transcript" onclick="clearTranscript()">Clear</button>
+                            <span class="processing-status" id="processingStatus">Analyzing your transcript...</span>
+                        </div>
+                        <div class="transcript-result-notice" id="transcriptResultNotice">
+                            ✓ Fields populated from your transcript. Review each section, correct any dressage terminology your transcription tool may have mangled, and add your own reflections before saving.
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Bucket 1: Movement Instructions -->
@@ -818,6 +1034,40 @@
                         <div class="voice-status" id="cuesCorrections-status">Listening...</div>
                     </div>
                     <div class="char-counter"><span id="cuesCorrectionsCount">0</span> characters</div>
+                </div>
+
+                <!-- Bucket 3: Coach's Eye -->
+                <div class="question" style="margin-bottom:0; margin-top:32px;">
+                    <div class="coaches-eye-label">
+                        <label for="coachesEye" style="margin-bottom:0;">Coach's Eye</label>
+                        <span class="eye-badge">Optional</span>
+                    </div>
+
+                    <div class="prompt-box" id="coachesEyePromptBox">
+                        <div class="prompt-box-toggle" onclick="togglePromptBox('coachesEyePromptBox')">
+                            <span>✦ What belongs here</span>
+                            <span class="prompt-box-chevron">▼</span>
+                        </div>
+                        <div class="prompt-box-body">
+                            <ul>
+                                <li>Imagery or metaphors your instructor used to describe the feeling (e.g. "like water flowing downhill")</li>
+                                <li>Observations about your horse — tension, way of going, asymmetry, a good moment</li>
+                                <li>Any praise or positive feedback your instructor gave (these are data too)</li>
+                                <li>Anything your instructor said that connected to a bigger training idea</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="voice-input-container">
+                        <textarea id="coachesEye" placeholder="e.g. Martin said Rocket was particularly through today on the left rein. Used the image of 'leading him into the bend rather than pushing.' Said the connection in the half-pass was the best he's seen..."></textarea>
+                        <button type="button" class="voice-btn" data-target="coachesEye" title="Voice input">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                            </svg>
+                        </button>
+                        <div class="voice-status" id="coachesEye-status">Listening...</div>
+                    </div>
                 </div>
             </div>
 
@@ -964,6 +1214,10 @@
         });
 
         // Character counters
+        document.getElementById('rawTranscript').addEventListener('input', function() {
+            document.getElementById('rawTranscriptCount').textContent = this.value.length;
+            document.getElementById('processBtn').disabled = this.value.trim().length < 100;
+        });
         document.getElementById('movementInstructions').addEventListener('input', function() {
             document.getElementById('movementInstructionsCount').textContent = this.value.length;
         });
@@ -996,6 +1250,80 @@
     function togglePromptBox(id) {
         const box = document.getElementById(id);
         box.classList.toggle('open');
+    }
+
+    // ========== TRANSCRIPT PANEL ==========
+    function toggleTranscriptPanel() {
+        document.getElementById('transcriptPanel').classList.toggle('open');
+    }
+
+    function clearTranscript() {
+        document.getElementById('rawTranscript').value = '';
+        document.getElementById('rawTranscriptCount').textContent = '0';
+        document.getElementById('processBtn').disabled = true;
+        document.getElementById('processingStatus').classList.remove('active', 'error');
+        document.getElementById('transcriptResultNotice').classList.remove('active');
+    }
+
+    async function processTranscript() {
+        const transcript = document.getElementById('rawTranscript').value.trim();
+        if (!transcript || transcript.length < 100) {
+            showToast('Please paste a longer transcript before processing.', true);
+            return;
+        }
+
+        const horseName = document.getElementById('horseSelect').options[
+            document.getElementById('horseSelect').selectedIndex
+        ]?.text || 'the horse';
+        const instructorName = document.getElementById('instructorName').value.trim() || 'the instructor';
+
+        const btn = document.getElementById('processBtn');
+        const status = document.getElementById('processingStatus');
+
+        btn.disabled = true;
+        status.textContent = 'Analyzing your transcript...';
+        status.classList.add('active');
+        status.classList.remove('error');
+
+        try {
+            const result = await callTranscriptAPI(transcript, horseName, instructorName);
+
+            if (result.movementInstructions) {
+                document.getElementById('movementInstructions').value = result.movementInstructions;
+                document.getElementById('movementInstructionsCount').textContent = result.movementInstructions.length;
+            }
+            if (result.cuesCorrections) {
+                document.getElementById('cuesCorrections').value = result.cuesCorrections;
+                document.getElementById('cuesCorrectionsCount').textContent = result.cuesCorrections.length;
+            }
+            if (result.coachesEye) {
+                document.getElementById('coachesEye').value = result.coachesEye;
+            }
+
+            status.classList.remove('active');
+            document.getElementById('transcriptResultNotice').classList.add('active');
+
+            // Scroll to Movement Instructions
+            document.getElementById('movementInstructions').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        } catch (err) {
+            console.error('Transcript processing error:', err);
+            status.textContent = 'Something went wrong. Please try again or fill in the fields manually.';
+            status.classList.add('error');
+            btn.disabled = false;
+        }
+    }
+
+    async function callTranscriptAPI(transcript, horseName, instructorName) {
+        const response = await fetch('/api/processLessonTranscript', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ transcript, horseName, instructorName })
+        });
+
+        if (!response.ok) throw new Error('API call failed: ' + response.status);
+        const data = await response.json();
+        return data;
     }
 
     // ========== VOICE INPUT ==========
@@ -1034,8 +1362,13 @@
             const transcript = Array.from(e.results).map(r => r[0].transcript).join(' ');
             const el = document.getElementById(targetId);
             el.value = (el.value ? el.value + ' ' : '') + transcript;
-            if (targetId === 'transcript') {
-                document.getElementById('transcriptCount').textContent = el.value.length;
+            if (targetId === 'rawTranscript') {
+                document.getElementById('rawTranscriptCount').textContent = el.value.length;
+                document.getElementById('processBtn').disabled = el.value.trim().length < 100;
+            } else if (targetId === 'movementInstructions') {
+                document.getElementById('movementInstructionsCount').textContent = el.value.length;
+            } else if (targetId === 'cuesCorrections') {
+                document.getElementById('cuesCorrectionsCount').textContent = el.value.length;
             }
         };
 
@@ -1110,6 +1443,7 @@
             document.getElementById('cuesCorrections').value = data.cuesCorrections;
             document.getElementById('cuesCorrectionsCount').textContent = data.cuesCorrections.length;
         }
+        if (data.coachesEye) document.getElementById('coachesEye').value = data.coachesEye;
         if (data.riderReflections) document.getElementById('riderReflections').value = data.riderReflections;
         if (data.takeaways) {
             data.takeaways.forEach((t, i) => {
@@ -1130,6 +1464,8 @@
             linkedDebriefId: document.getElementById('linkedDebrief').value || null,
             movementInstructions: document.getElementById('movementInstructions').value.trim(),
             cuesCorrections: document.getElementById('cuesCorrections').value.trim(),
+            coachesEye: document.getElementById('coachesEye').value.trim(),
+            transcriptProcessed: document.getElementById('rawTranscript').value.trim().length > 0,
             riderReflections: document.getElementById('riderReflections').value.trim(),
             takeaways: [
                 document.getElementById('takeaway1').value.trim(),

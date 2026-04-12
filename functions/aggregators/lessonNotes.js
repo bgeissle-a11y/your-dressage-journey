@@ -66,6 +66,7 @@ function aggregateLessonNotes(lessonNotes) {
 
     if (note.movementPurpose) result.movementPurpose = note.movementPurpose;
     if (note.cuesCorrections) result.cuesCorrections = note.cuesCorrections;
+    if (note.coachesEye) result.coachesEye = note.coachesEye;
     if (note.riderReflections) result.riderReflections = note.riderReflections;
     if (note.linkedDebriefId) result.linkedDebriefId = note.linkedDebriefId;
 

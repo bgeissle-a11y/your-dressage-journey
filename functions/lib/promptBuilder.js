@@ -4010,7 +4010,11 @@ function buildVisualizationScriptUserMessage(formData, riderContext) {
   // Format lesson observations
   const lessonNotes = riderContext.lessonNotes
     .slice(0, 3)
-    .map(l => `[${l.date || "unknown"}] ${l.keyInsights || l.corrections || l.takeaways || ""}`)
+    .map(l => {
+      const parts = [l.keyInsights || l.corrections || l.takeaways || ""];
+      if (l.coachesEye) parts.push(`Coach's Eye: ${l.coachesEye}`);
+      return `[${l.date || "unknown"}] ${parts.join(" | ")}`;
+    })
     .filter(line => line.includes("]") && line.trim().length > 15)
     .join("\n");
 

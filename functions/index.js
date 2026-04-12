@@ -42,6 +42,7 @@ const weeklyCoachBrief = require("./api/weeklyCoachBrief");
 const lessonPrepSummary = require("./api/lessonPrepSummary");
 const readinessSnapshot = require("./api/readinessSnapshot");
 const visualizationScript = require("./api/visualizationScript");
+const processLessonTranscript = require("./api/processLessonTranscript");
 
 // Secrets — declared once, referenced by all AI functions
 const anthropicKey = defineSecret("ANTHROPIC_API_KEY");
@@ -142,6 +143,12 @@ exports.getPhysicalGuidance = onCall(
 exports.arenaCoaching = onRequest(
   { secrets: [anthropicKey], timeoutSeconds: 30, memory: "256MiB" },
   arenaCoaching.handler
+);
+
+// --- Lesson Transcript Processing (AI-powered transcript → structured fields) ---
+exports.processLessonTranscript = onRequest(
+  { secrets: [anthropicKey], timeoutSeconds: 120, memory: "256MiB" },
+  processLessonTranscript.handler
 );
 
 // --- Weekly Coach Brief (no AI call — data assembly only) ---

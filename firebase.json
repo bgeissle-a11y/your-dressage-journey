@@ -1,7 +1,7 @@
 {
   "functions": {
     "source": "functions",
-    "runtime": "nodejs20"
+    "runtime": "nodejs22"
   },
   "firestore": {
     "rules": "firestore.rules",
@@ -22,6 +22,10 @@
       {
         "source": "/waitlist",
         "function": "waitlist"
+      },
+      {
+        "source": "/api/processLessonTranscript",
+        "function": "processLessonTranscript"
       },
       {
         "source": "/first-glimpse",
