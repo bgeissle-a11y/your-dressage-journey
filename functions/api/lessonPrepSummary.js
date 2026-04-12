@@ -61,18 +61,34 @@ function daysAgo(n) {
   return d;
 }
 
+// Sentence-boundary punctuation detector that ignores periods inside
+// numbers (e.g., "(8.2/10)") — those are not sentence terminators.
+function isSentenceBoundary(str, i) {
+  const ch = str[i];
+  if (ch !== "." && ch !== "!" && ch !== "?") return false;
+  const prev = str[i - 1] || "";
+  const next = str[i + 1] || "";
+  if (/\d/.test(prev) && /\d/.test(next)) return false;
+  return true;
+}
+
 function truncateAtSentence(str, maxLen = 120) {
   if (!str || str.length <= maxLen) return str;
   const sub = str.slice(0, maxLen);
-  const lastPeriod = Math.max(sub.lastIndexOf("."), sub.lastIndexOf("!"), sub.lastIndexOf("?"));
-  if (lastPeriod > 20) return str.slice(0, lastPeriod + 1);
+  let lastBoundary = -1;
+  for (let i = sub.length - 1; i >= 0; i--) {
+    if (isSentenceBoundary(sub, i)) { lastBoundary = i; break; }
+  }
+  if (lastBoundary > 20) return str.slice(0, lastBoundary + 1);
   return str.slice(0, maxLen).trimEnd() + "\u2026";
 }
 
 function firstSentence(str) {
   if (!str) return null;
-  const match = str.match(/^[^.!?]+[.!?]/);
-  return match ? match[0].trim() : truncateAtSentence(str, 150);
+  for (let i = 0; i < str.length; i++) {
+    if (isSentenceBoundary(str, i)) return str.slice(0, i + 1).trim();
+  }
+  return truncateAtSentence(str, 150);
 }
 
 function weekOfLabel() {
