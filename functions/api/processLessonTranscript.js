@@ -10,10 +10,13 @@
  * Raw transcripts are NOT stored. Only the structured output is returned
  * to the client for review and editing before the rider saves.
  *
- * Input (POST JSON):  { transcript, horseName, instructorName }
- * Output (JSON):      { movementInstructions, cuesCorrections, coachesEye }
+ * Input (onCall):  { transcript, horseName, instructorName }
+ * Output:          { movementInstructions, cuesCorrections, coachesEye }
  */
 
+const { HttpsError } = require("firebase-functions/v2/https");
+const { validateAuth } = require("../lib/auth");
+const { wrapError } = require("../lib/errors");
 const { callClaude } = require("../lib/claudeCall");
 
 function buildTranscriptPrompt(transcript, horseName, instructorName) {
@@ -67,61 +70,44 @@ TRANSCRIPT:
 ${transcript}`;
 }
 
-function parseTranscriptResponse(raw) {
+/**
+ * Cloud Function handler for transcript processing.
+ *
+ * @param {object} request - Firebase v2 onCall request
+ * @returns {Promise<object>} Parsed transcript fields
+ */
+async function handler(request) {
   try {
-    const clean = raw.replace(/```json|```/g, "").trim();
-    return JSON.parse(clean);
-  } catch (e) {
-    // Fallback: return raw as movement instructions if parse fails
-    return {
-      movementInstructions: raw,
-      cuesCorrections: "",
-      coachesEye: "",
-    };
-  }
-}
+    const uid = validateAuth(request);
+    const { transcript, horseName, instructorName } = request.data || {};
 
-async function handler(req, res) {
-  // CORS
-  res.set("Access-Control-Allow-Origin", "*");
-  res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.set("Access-Control-Allow-Headers", "Content-Type");
+    if (!transcript || transcript.length < 100) {
+      throw new HttpsError("invalid-argument", "Transcript too short or missing.");
+    }
 
-  if (req.method === "OPTIONS") {
-    return res.status(204).send("");
-  }
+    const userMessage = buildTranscriptPrompt(
+      transcript,
+      horseName || "the horse",
+      instructorName || "the instructor"
+    );
 
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
-  const { transcript, horseName, instructorName } = req.body || {};
-
-  if (!transcript || transcript.length < 100) {
-    return res.status(400).json({ error: "Transcript too short or missing." });
-  }
-
-  const userMessage = buildTranscriptPrompt(
-    transcript,
-    horseName || "the horse",
-    instructorName || "the instructor"
-  );
-
-  try {
-    const raw = await callClaude({
-      system: "You are a dressage lesson transcript processor. Return only valid JSON with the requested fields. No preamble, no markdown fences.",
+    const parsed = await callClaude({
+      system: "You are a dressage lesson transcript processor. Return only valid JSON with the three requested fields: movementInstructions, cuesCorrections, coachesEye.",
       userMessage,
       model: "claude-sonnet-4-5-20250929",
-      maxTokens: 3000,
+      jsonMode: true,
+      maxTokens: 5000,
       context: "processLessonTranscript",
+      uid,
     });
 
-    // callClaude returns text; parse it
-    const parsed = typeof raw === "string" ? parseTranscriptResponse(raw) : raw;
-    return res.json(parsed);
-  } catch (err) {
-    console.error("Transcript processing error:", err);
-    return res.status(500).json({ error: "Processing failed." });
+    return {
+      movementInstructions: parsed.movementInstructions || "",
+      cuesCorrections: parsed.cuesCorrections || "",
+      coachesEye: parsed.coachesEye || "",
+    };
+  } catch (error) {
+    throw wrapError(error, "processLessonTranscript");
   }
 }
 

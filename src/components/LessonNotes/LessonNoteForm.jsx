@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../../firebase-config';
 import {
   createLessonNote, getLessonNote, updateLessonNote,
   getAllLessonNotes, getAllHorseProfiles, getAllDebriefs,
@@ -10,6 +12,7 @@ import useFormRecovery from '../../hooks/useFormRecovery';
 import FormSection from '../Forms/FormSection';
 import FormField from '../Forms/FormField';
 import VoiceInput from '../Forms/VoiceInput';
+import YDJLoading from '../YDJLoading';
 import '../Forms/Forms.css';
 import './LessonNotes.css';
 
@@ -35,6 +38,13 @@ const CUES_PROMPTS = [
   'Anything the instructor repeated \u2014 repetition is a pattern signal',
   'Positive feedback, even brief ("nice," "yes," "that\'s it") \u2014 these are data too',
   'Questions asked of you (e.g. "Did you feel that?")'
+];
+
+const COACHES_EYE_PROMPTS = [
+  'Imagery or metaphors your instructor used to describe the feeling (e.g. "like water flowing downhill")',
+  'Observations about your horse \u2014 tension, way of going, asymmetry, a good moment',
+  'Any praise or positive feedback your instructor gave (these are data too)',
+  'Anything your instructor said that connected to a bigger training idea'
 ];
 
 const REFLECTION_PROMPTS = [
@@ -87,6 +97,7 @@ export default function LessonNoteForm() {
     movementInstructions: '',
     movementPurpose: '',
     cuesCorrections: '',
+    coachesEye: '',
     riderReflections: '',
     takeaway1: '',
     takeaway2: '',
@@ -95,6 +106,13 @@ export default function LessonNoteForm() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
+
+  // Transcript panel state
+  const [transcriptOpen, setTranscriptOpen] = useState(false);
+  const [rawTranscript, setRawTranscript] = useState('');
+  const [processing, setProcessing] = useState(false);
+  const [processingError, setProcessingError] = useState('');
+  const [transcriptDone, setTranscriptDone] = useState(false);
 
   const { hasRecovery, applyRecovery, dismissRecovery, clearRecovery } = useFormRecovery(
     'ydj-lesson-note-recovery', formData, setFormData
@@ -157,6 +175,7 @@ export default function LessonNoteForm() {
       movementInstructions: data.movementInstructions || '',
       movementPurpose: data.movementPurpose || '',
       cuesCorrections: data.cuesCorrections || '',
+      coachesEye: data.coachesEye || '',
       riderReflections: data.riderReflections || '',
       takeaway1: (data.takeaways && data.takeaways[0]) || '',
       takeaway2: (data.takeaways && data.takeaways[1]) || '',
@@ -215,6 +234,8 @@ export default function LessonNoteForm() {
       movementInstructions: formData.movementInstructions.trim(),
       movementPurpose: formData.movementPurpose.trim() || null,
       cuesCorrections: formData.cuesCorrections.trim(),
+      coachesEye: formData.coachesEye.trim(),
+      transcriptProcessed: rawTranscript.trim().length > 0,
       riderReflections: formData.riderReflections.trim(),
       takeaways: [
         formData.takeaway1.trim(),
@@ -289,6 +310,7 @@ export default function LessonNoteForm() {
       movementInstructions: '',
       movementPurpose: '',
       cuesCorrections: '',
+      coachesEye: '',
       riderReflections: '',
       takeaway1: '',
       takeaway2: '',
@@ -298,6 +320,59 @@ export default function LessonNoteForm() {
     setDraftId(null);
     setShowCompletion(false);
     setSavedData(null);
+    setRawTranscript('');
+    setTranscriptOpen(false);
+    setTranscriptDone(false);
+    setProcessingError('');
+  }
+
+  async function processTranscript() {
+    if (!rawTranscript || rawTranscript.trim().length < 100) return;
+
+    setProcessing(true);
+    setProcessingError('');
+    setTranscriptDone(false);
+
+    try {
+      const fn = httpsCallable(functions, 'processLessonTranscript', { timeout: 120_000 });
+      const result = await fn({
+        transcript: rawTranscript.trim(),
+        horseName: formData.horseName || 'the horse',
+        instructorName: formData.instructorName.trim() || 'the instructor'
+      });
+
+      const data = result.data;
+      setFormData(prev => ({
+        ...prev,
+        movementInstructions: data.movementInstructions || prev.movementInstructions,
+        cuesCorrections: data.cuesCorrections || prev.cuesCorrections,
+        coachesEye: data.coachesEye || prev.coachesEye
+      }));
+      setTranscriptDone(true);
+    } catch (err) {
+      console.error('Transcript processing error:', err);
+      setProcessingError('Something went wrong. Please try again or fill in the fields manually.');
+    } finally {
+      setProcessing(false);
+    }
+  }
+
+  function clearTranscript() {
+    setRawTranscript('');
+    setTranscriptDone(false);
+    setProcessingError('');
+  }
+
+  function handleFileAttach(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      setRawTranscript(evt.target.result);
+    };
+    reader.readAsText(file);
+    // Reset file input so the same file can be re-selected
+    e.target.value = '';
   }
 
   function formatDate(dateStr) {
@@ -448,7 +523,71 @@ export default function LessonNoteForm() {
           </FormSection>
 
           {/* Section 2: Instructor Guidance */}
-          <FormSection title="Instructor Guidance" description="Paste a transcription, type from memory, or dictate — whatever gets the guidance captured.">
+          <FormSection title="Instructor Guidance" description="Paste your transcript below to let YDJ organize it — or type directly into the fields.">
+
+            {/* Transcript Processing Panel */}
+            <div className={`transcript-panel${transcriptOpen ? ' open' : ''}`}>
+              <button type="button" className="transcript-panel-header" onClick={() => setTranscriptOpen(prev => !prev)}>
+                <div className="transcript-panel-title">
+                  {'\u2726'} Process a Lesson Transcript
+                  <span className="tp-badge">Optional</span>
+                </div>
+                <span className="transcript-panel-chevron">{'\u25BC'}</span>
+              </button>
+              <div className="transcript-panel-body">
+                <p className="transcript-intro">
+                  Paste the full text of your lesson transcript — from any transcription tool or service. No speaker labels needed. YDJ will identify your instructor's voice and organize guidance into movements, cues, and coaching observations. Before saving, do a quick scan for dressage terminology your tool may have mangled (common: "haunches" → "hunches," "volte" → "vault," "half halt" → "half fault").
+                </p>
+                <div style={{ marginBottom: 0 }}>
+                  <div className="transcript-label-row">
+                    <label htmlFor="rawTranscript">Paste or attach transcript</label>
+                    <label className="btn-attach-file">
+                      <input type="file" accept=".txt,.text,.srt,.vtt" onChange={handleFileAttach} disabled={processing} />
+                      Attach file
+                    </label>
+                  </div>
+                  <div style={{ position: 'relative' }}>
+                    <textarea
+                      ref={el => { getRef('rawTranscript').current = el; }}
+                      className="large"
+                      value={rawTranscript}
+                      onChange={e => setRawTranscript(e.target.value)}
+                      disabled={processing}
+                      placeholder="Paste your full lesson transcript here..."
+                      style={{ paddingRight: '60px' }}
+                    />
+                    <VoiceInput
+                      textareaRef={getRef('rawTranscript')}
+                      onTranscript={text => setRawTranscript(text)}
+                    />
+                  </div>
+                  <div className="char-counter">{rawTranscript.length} characters</div>
+                </div>
+                <div className="transcript-actions">
+                  <button
+                    type="button"
+                    className="btn-process"
+                    onClick={processTranscript}
+                    disabled={processing || rawTranscript.trim().length < 100}
+                  >
+                    <span>{'\u2726'}</span> {processing ? 'Processing...' : 'Process with AI'}
+                  </button>
+                  <button type="button" className="btn-clear-transcript" onClick={clearTranscript} disabled={processing}>Clear</button>
+                  {processingError && <span className="processing-status active error">{processingError}</span>}
+                </div>
+                {processing && (
+                  <div style={{ marginTop: 20 }}>
+                    <YDJLoading size="sm" message="Organizing your lesson transcript" />
+                  </div>
+                )}
+                {transcriptDone && (
+                  <div className="transcript-result-notice active">
+                    {'\u2713'} Fields populated from your transcript. Review each section, correct any dressage terminology your transcription tool may have mangled, and add your own reflections before saving.
+                  </div>
+                )}
+              </div>
+            </div>
+
             <FormField label="Movement Instructions" error={errors.movementInstructions}>
               <PromptBox title={'\u2726 What to include'} items={MOVEMENT_PROMPTS} defaultOpen={true} />
               <div style={{ position: 'relative' }}>
@@ -508,6 +647,31 @@ export default function LessonNoteForm() {
                 />
               </div>
               <div className="char-counter">{formData.cuesCorrections.length} characters</div>
+            </FormField>
+
+            {/* Bucket 3: Coach's Eye */}
+            <FormField label={
+              <div className="coaches-eye-label">
+                <span>Coach's Eye</span>
+                <span className="eye-badge">Optional</span>
+              </div>
+            } optional>
+              <PromptBox title={'\u2726 What belongs here'} items={COACHES_EYE_PROMPTS} />
+              <div style={{ position: 'relative' }}>
+                <textarea
+                  ref={el => { getRef('coachesEye').current = el; }}
+                  name="coachesEye"
+                  value={formData.coachesEye}
+                  onChange={handleChange}
+                  disabled={loading}
+                  placeholder="e.g. Martin said Rocket was particularly through today on the left rein. Used the image of 'leading him into the bend rather than pushing.' Said the connection in the half-pass was the best he's seen..."
+                  style={{ paddingRight: '60px' }}
+                />
+                <VoiceInput
+                  textareaRef={getRef('coachesEye')}
+                  onTranscript={text => setFormData(prev => ({ ...prev, coachesEye: text }))}
+                />
+              </div>
             </FormField>
           </FormSection>
 

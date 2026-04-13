@@ -146,7 +146,8 @@ exports.arenaCoaching = onRequest(
 );
 
 // --- Lesson Transcript Processing (AI-powered transcript → structured fields) ---
-exports.processLessonTranscript = onRequest(
+// Input: { transcript, horseName, instructorName }
+exports.processLessonTranscript = onCall(
   { secrets: [anthropicKey], timeoutSeconds: 120, memory: "256MiB" },
   processLessonTranscript.handler
 );

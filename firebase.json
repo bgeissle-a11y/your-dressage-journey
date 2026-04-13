@@ -24,10 +24,6 @@
         "function": "waitlist"
       },
       {
-        "source": "/api/processLessonTranscript",
-        "function": "processLessonTranscript"
-      },
-      {
         "source": "/first-glimpse",
         "destination": "/first-glimpse.html"
       },
