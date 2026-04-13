@@ -74,13 +74,20 @@ a { text-decoration: none; color: inherit; }
 .top-nav::-webkit-scrollbar { display: none; }
 
 .nav-brand {
-  font-family: 'Playfair Display', serif;
-  font-size: 0.88rem; font-weight: 700;
-  color: var(--gold-light); letter-spacing: 0.5px;
-  white-space: nowrap; flex-shrink: 0;
-  padding: 0.8rem 0.9rem 0.8rem 0;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0.5rem 0.9rem 0.5rem 0;
   margin-right: 0.1rem;
   border-right: 1px solid rgba(255,255,255,0.12);
+}
+.nav-brand img {
+  height: 44px;
+  width: auto;
+  display: block;
+}
+@media (max-width: 480px) {
+  .nav-brand img { height: 36px; }
 }
 .nav-btn {
   display: inline-flex; align-items: center; gap: 0.25rem;
@@ -618,6 +625,11 @@ body.arrange-mode .drag-handle { display: inline-flex; }
   white-space: nowrap;
 }
 .order-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.logo-color {
+  height: 56px;
+  width: auto;
+  display: block;
+}
 </style>
 </head>
 <body>
@@ -626,7 +638,7 @@ body.arrange-mode .drag-handle { display: inline-flex; }
      TOP NAV
      ══════════════════════════════════════════ -->
 <nav class="top-nav">
-  <div class="nav-brand">YDJ</div>
+  <div class="nav-brand"><img src="/assets/logo-white-line.svg" alt="Your Dressage Journey" height="44"></div>
 
   <a href="#" class="nav-btn active">⌂ Home</a>
   <div class="nav-sep"></div>
@@ -683,6 +695,7 @@ body.arrange-mode .drag-handle { display: inline-flex; }
       <div class="welcome-sub">Thursday, March 12, 2026</div>
     </div>
     <div style="display:flex;align-items:center;gap:1rem;flex-shrink:0;">
+      <img src="/assets/logo-color.svg" alt="Your Dressage Journey" class="logo-color" height="56">
       <div class="welcome-tagline">Illuminate Your Journey</div>
       <button class="arrange-btn" id="arrange-btn" onclick="toggleArrange()">
         <span class="arrange-icon">⠿</span> Arrange

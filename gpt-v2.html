@@ -40,7 +40,9 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 /* NAV */
 .top-nav{position:sticky;top:0;z-index:100;background:var(--ink);border-bottom:2px solid var(--gold);padding:0 1rem;display:flex;align-items:center;overflow-x:auto;scrollbar-width:none;}
 .top-nav::-webkit-scrollbar{display:none}
-.nav-brand{font-family:'Playfair Display',serif;font-size:.88rem;font-weight:700;color:var(--gold-light);white-space:nowrap;flex-shrink:0;padding:.8rem .9rem .8rem 0;margin-right:.5rem;border-right:1px solid rgba(255,255,255,.12);}
+.nav-brand{display:flex;align-items:center;flex-shrink:0;padding:0.5rem 0.9rem 0.5rem 0;margin-right:0.1rem;border-right:1px solid rgba(255,255,255,.12);}
+.nav-brand img{height:44px;width:auto;display:block;}
+@media (max-width:480px){.nav-brand img{height:36px;}}
 .nav-item{font-size:.72rem;font-weight:500;letter-spacing:.35px;color:rgba(255,255,255,.55);padding:.8rem .65rem;border:none;background:none;cursor:pointer;white-space:nowrap;text-transform:uppercase;transition:color .15s;font-family:'Work Sans',sans-serif;}
 .nav-item:hover{color:var(--gold-light)}
 .nav-item.active{color:var(--gold-light)}
@@ -226,7 +228,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <body>
 
 <nav class="top-nav">
-  <div class="nav-brand">Your Dressage Journey</div>
+  <div class="nav-brand"><img src="/assets/logo-white-line.svg" alt="Your Dressage Journey" height="44"></div>
   <button class="nav-item">This Week</button>
   <button class="nav-item">Record</button>
   <button class="nav-item">Coaching</button>

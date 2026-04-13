@@ -519,6 +519,10 @@ export default function Dashboard() {
           <div className="welcome-sub">{dateStr}</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexShrink: 0 }}>
+          <img src="/assets/logo-color.svg"
+               alt="Your Dressage Journey"
+               className="logo-color"
+               height="56" />
           <div className="welcome-tagline">Illuminate Your Journey</div>
           <button className={`arrange-btn${arrangeMode ? ' active' : ''}`} onClick={toggleArrange}>
             <span className="arrange-icon">{arrangeMode ? '\u2713' : '\u2807'}</span>

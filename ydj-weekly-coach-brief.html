@@ -47,12 +47,17 @@
   }
 
   .brand {
-    font-family: 'Playfair Display', serif;
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--gold);
-    font-weight: 600;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .brand img {
+    height: 40px;
+    width: auto;
+    display: block;
+  }
+  @media (max-width: 480px) {
+    .brand img { height: 36px; }
   }
 
   .brief-label {
@@ -443,7 +448,7 @@
 <div class="brief-wrap">
 
   <div class="brief-header">
-    <div class="brand">Your Dressage Journey</div>
+    <div class="brand"><img src="/assets/logo-white-line.svg" alt="Your Dressage Journey" height="40"></div>
     <div class="brief-label">Weekly Rider Brief · Coach Copy</div>
   </div>
 

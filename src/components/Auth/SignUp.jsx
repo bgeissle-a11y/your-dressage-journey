@@ -129,6 +129,10 @@ export default function SignUp() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
+          <img src="/assets/logo-color.svg"
+               alt="Your Dressage Journey"
+               className="auth-logo"
+               height="56" />
           <h1>Create Your Account</h1>
           <p>Start tracking your progress with Your Dressage Journey.</p>
         </div>

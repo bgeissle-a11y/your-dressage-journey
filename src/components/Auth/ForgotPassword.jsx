@@ -51,6 +51,10 @@ export default function ForgotPassword() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
+          <img src="/assets/logo-color.svg"
+               alt="Your Dressage Journey"
+               className="auth-logo"
+               height="56" />
           <h1>Reset Your Password</h1>
           <p>Enter your email address and we'll send you a link to reset your password</p>
         </div>

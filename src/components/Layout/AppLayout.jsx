@@ -207,8 +207,9 @@ export default function AppLayout() {
       <nav className="top-nav" ref={navRef}>
         {/* Brand */}
         <div className="nav-brand">
-          <div className="nav-brand-main">YDJ</div>
-          <div className="nav-brand-sub">Your Dressage Journey</div>
+          <img src="/assets/logo-white-line.svg"
+               alt="Your Dressage Journey"
+               height="44" />
         </div>
 
         {/* Home — direct link */}
