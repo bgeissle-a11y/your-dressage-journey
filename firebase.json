@@ -14,6 +14,13 @@
       "**/.*",
       "**/node_modules/**"
     ],
+    "redirects": [
+      {
+        "source": "/",
+        "destination": "/ydj-learn-more.html",
+        "type": 302
+      }
+    ],
     "rewrites": [
       {
         "source": "/firstGlimpse",
@@ -36,8 +43,12 @@
         "destination": "/ydj-learn-more.html"
       },
       {
-        "source": "/ydj-ndpc-demo.html",
-        "destination": "/ydj-ndpc-demo.html"
+        "source": "/ydj-sample-analysis.html",
+        "destination": "/ydj-sample-analysis.html"
+      },
+      {
+        "source": "/ydj-ndpc-demo-glimpse.html",
+        "destination": "/ydj-ndpc-demo-glimpse.html"
       },
       {
         "source": "/ydj-first-glimpse-quick.html",
