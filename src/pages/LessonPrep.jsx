@@ -6,6 +6,7 @@ import {
   buildLessonPrepMailto,
 } from '../services/lessonPrepService';
 import { loadAllSettings } from '../services';
+import YDJLoading from '../components/YDJLoading';
 import './LessonPrep.css';
 
 function formatDate(dateStr) {
@@ -61,7 +62,7 @@ export default function LessonPrep() {
     return (
       <div className="lesson-prep-page">
         <div className="lesson-prep-wrap">
-          <div className="lesson-prep-loading">Assembling your pre-lesson summary&hellip;</div>
+          <YDJLoading message="Assembling your pre-lesson summary" />
         </div>
       </div>
     );

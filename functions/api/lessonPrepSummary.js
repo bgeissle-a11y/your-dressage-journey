@@ -266,15 +266,38 @@ async function handler(request) {
         result.opening_line ||
         result.quickInsights?.opening_line ||
         null;
+    }
 
-      // Rider-facing coach insight (no pronoun conversion)
+    // -- AI Coach Insight — from per-voice cache, NOT from priority_this_week --
+    // Voice caches are stored as analysisCache/{uid}_coaching_{0..3}
+    // Each contains: narrative, weeklyFocusExcerpt, _meta { name, index, perspective }
+    // Try voices in order; use the first one that has a weeklyFocusExcerpt.
+    const VOICE_META_FALLBACK = [
+      { key: "coaching_0", name: "The Classical Master" },
+      { key: "coaching_1", name: "The Empathetic Coach" },
+      { key: "coaching_2", name: "The Technical Coach" },
+      { key: "coaching_3", name: "The Practical Strategist" },
+    ];
+
+    for (const vm of VOICE_META_FALLBACK) {
+      if (aiCoachInsight) break;
+      const snap = await db.collection("analysisCache").doc(`${uid}_${vm.key}`).get();
+      if (!snap.exists) continue;
+      const vData = snap.data();
+      const generatedAt = vData.generatedAt ? new Date(vData.generatedAt) : null;
+      const isStale = generatedAt && (Date.now() - generatedAt.getTime()) > 30 * 24 * 60 * 60 * 1000;
+      if (isStale || !vData.result) continue;
+
+      const voiceResult = vData.result;
       const snippet =
-        result.priority_this_week ||
-        result.quickInsights?.priority_this_week ||
+        voiceResult.weeklyFocusExcerpt ||
+        voiceResult.philosophical_reflection ||
         null;
+      const meta = voiceResult._meta || {};
+
       if (snippet) {
         aiCoachInsight = {
-          voiceName: "Combined Coaching Insight",
+          voiceName: meta.name || vm.name,
           snippet: truncateAtSentence(snippet, 300),
         };
       }
