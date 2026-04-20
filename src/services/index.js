@@ -214,3 +214,19 @@ export {
   PROFESSIONAL_TYPES,
   HEALTH_STATUSES
 } from './horseHealthService';
+
+// Rider health & wellness log
+export {
+  createRiderHealthEntry,
+  getRiderHealthEntry,
+  getAllRiderHealthEntries,
+  updateRiderHealthEntry,
+  deleteRiderHealthEntry,
+  RIDER_ISSUE_TYPES,
+  RIDER_IMPACT_LEVELS,
+  RIDER_HEALTH_STATUSES,
+  RIDER_BODY_AREAS,
+  RIDER_PROFESSIONAL_TYPES,
+  RIDER_ISSUE_LABELS,
+  RIDER_IMPACT_LABELS
+} from './riderHealthService';

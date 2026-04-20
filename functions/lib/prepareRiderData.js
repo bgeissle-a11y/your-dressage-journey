@@ -25,6 +25,7 @@ const { aggregateShowPrep } = require("../aggregators/showPrep");
 const { aggregateSelfAssessments } = require("../aggregators/selfAssessments");
 const { aggregateMentalPatterns } = require("../aggregators/mentalPatterns");
 const { aggregateHorseHealth } = require("../aggregators/horseHealth");
+const { aggregateRiderHealth } = require("../aggregators/riderHealth");
 const { aggregateLessonNotes } = require("../aggregators/lessonNotes");
 
 /**
@@ -48,10 +49,10 @@ const OUTPUT_DATA_NEEDS = {
   },
   grandPrixTrajectory: {
     aggregators: ["profile", "rideHistory", "reflections", "selfAssessments",
-      "mentalPatterns", "horseHealth", "lessonNotes"],
+      "mentalPatterns", "horseHealth", "riderHealth", "lessonNotes"],
   },
   physicalGuidance: {
-    aggregators: ["profile", "rideHistory", "selfAssessments", "horseHealth"],
+    aggregators: ["profile", "rideHistory", "selfAssessments", "horseHealth", "riderHealth"],
   },
   eventPlanner: {
     aggregators: ["profile", "rideHistory", "reflections", "eventPrep", "showPrep", "lessonNotes"],
@@ -213,6 +214,7 @@ async function prepareRiderData(uid, outputType = null) {
     riderAssessments,
     technicalAssessments,
     horseHealthEntries,
+    riderHealthEntries,
     lessonNotes,
     weeklyContextDoc,
   ] = await Promise.all([
@@ -229,6 +231,7 @@ async function prepareRiderData(uid, outputType = null) {
     fetchCollection("riderAssessments", uid),
     fetchCollection("technicalPhilosophicalAssessments", uid),
     fetchCollection("horseHealthEntries", uid),
+    fetchCollection("riderHealthEntries", uid),
     fetchCollection("lessonNotes", uid),
     fetchCurrentWeeklyContext(uid),
   ]);
@@ -253,6 +256,7 @@ async function prepareRiderData(uid, outputType = null) {
     riderAssessments: nonDraftRider.length,
     technicalAssessments: nonDraftTechnical.length,
     horseHealthEntries: horseHealthEntries.length,
+    riderHealthEntries: riderHealthEntries.length,
     lessonNotes: nonDraftLessonNotes.length,
   };
 
@@ -270,6 +274,7 @@ async function prepareRiderData(uid, outputType = null) {
   const showPrep = aggregateShowPrep(showPreparations);
   const selfAssessments = aggregateSelfAssessments(nonDraftPhysical, nonDraftRider, nonDraftTechnical);
   const horseHealth = aggregateHorseHealth(horseHealthEntries);
+  const riderHealth = aggregateRiderHealth(riderHealthEntries);
   const lessonNotesSummary = aggregateLessonNotes(nonDraftLessonNotes);
 
   // Cross-cut aggregator: mental patterns
@@ -300,7 +305,10 @@ async function prepareRiderData(uid, outputType = null) {
   const shouldInclude = (name) => !needs || needs.aggregators.includes(name);
 
   // Overall stats and data snapshot
-  const overallStats = buildOverallStats(rawCounts, rideHistory, reflectionsSummary, profile);
+  // Build overallStats (riderHealthCount surfaced for quick reference)
+  const overallStatsBase = buildOverallStats(rawCounts, rideHistory, reflectionsSummary, profile);
+  overallStatsBase.riderHealthCount = rawCounts.riderHealthEntries;
+  const overallStats = overallStatsBase;
   const dataSnapshot = buildDataSnapshot(rawCounts);
 
   return {
@@ -325,6 +333,12 @@ async function prepareRiderData(uid, outputType = null) {
     showPrep: shouldInclude("showPrep") ? showPrep : null,
     selfAssessments: shouldInclude("selfAssessments") ? selfAssessments : null,
     horseHealth: shouldInclude("horseHealth") ? horseHealth : null,
+    // Rider health is RIDER-PRIVATE by default. Omit from any output type
+    // formatted for shared audiences (coach, trainer, external). The
+    // OUTPUT_DATA_NEEDS map is the single source of truth — journeyMap and
+    // dataVisualizations deliberately do not list "riderHealth" so it is
+    // stripped here. Do not rely on prompt instructions alone to exclude it.
+    riderHealth: shouldInclude("riderHealth") ? riderHealth : null,
     lessonNotes: shouldInclude("lessonNotes") ? lessonNotesSummary : null,
 
     // Quick-reference stats and staleness detection

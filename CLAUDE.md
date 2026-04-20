@@ -143,6 +143,7 @@ Your Dressage Journey is an AI-powered coaching platform for adult amateur dress
 | **Rider Self-Assessment** | Periodic | Mental skills, emotional patterns, strengths/growth areas (6 sections incl. scenarios, regulation, attribute grids, self-rating sliders) |
 | **Physical Self-Assessment** | Periodic | Body awareness, physical strengths/limitations (4 sections incl. kinesthetic slider, tension body-map grids) |
 | **Horse Health & Soundness** | As needed | Per-horse log of vet visits, body work, saddle fittings, soundness concerns, emergencies (issue type, professionals, results, next steps, status) |
+| **Rider Health & Wellness Log** | As needed | Rider's own dated health events affecting riding — appointments, injuries, recurring tightness; tracks issue type (maintenance/concern/injury), impact on riding, body areas, professionals, and resolution status |
 
 ### The Six Reflection Categories
 These are a core innovation of YDJ — a universal framework for skill development reflection:
@@ -387,6 +388,7 @@ box is present.
 - **Chunked output:** Long AI responses use progressive disclosure — "scan first, dive deep when ready."
 - **Cost consciousness:** Pre-process aggressively to reduce API tokens. Use Sonnet unless the task specifically requires Opus-level reasoning.
 - **Horse health records:** Health data contextualizes training — it explains patterns, tempers recommendations, and surfaces connections. The AI should never use health records to alarm the rider or second-guess veterinary/professional judgment. Its role is correlation, not diagnosis.
+- **Rider health records:** When AI outputs reference rider health patterns, draw from the `riderHealthEntries` collection. This is separate from `horseHealthEntries` which tracks horse health. Rider entries use `title` as the primary identifier; there is no `name` field parallel to horse's `horseName`. Rider health is rider-private: strip it from any shared-audience output (Weekly Coach Brief, Journey Map) at the prompt-assembly layer, never rely on instructions alone. Never echo numeric body data (weight, BF%, BMR) back to the rider; never reference professionals by first name.
 
 ---
 

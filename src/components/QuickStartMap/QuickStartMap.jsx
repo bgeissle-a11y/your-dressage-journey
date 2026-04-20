@@ -232,7 +232,7 @@ export default function QuickStartMap() {
         </div>
       </div>
 
-      {/* Optional: Rider's Toolkit */}
+      {/* Optional: Rider's Toolkit + Rider Health */}
       <div className="qsm-opt-cluster" style={{ marginTop: '8px', marginBottom: '4px' }}>
         <div className={`qsm-opt-card ${progress.hasToolkitEntries ? 'done' : ''}`}>
           <div className="qsm-opt-title">
@@ -241,6 +241,14 @@ export default function QuickStartMap() {
           </div>
           <div className="qsm-opt-desc">Catalog off-horse discoveries — exercises, supplements, books, recovery practices. Your personal reference for things that might support your riding.</div>
           <Link to="/toolkit/new" className="qsm-opt-link-sm" onClick={(e) => e.stopPropagation()}>→ Open Toolkit</Link>
+        </div>
+        <div className={`qsm-opt-card ${progress.hasRiderHealthLog ? 'done' : ''}`}>
+          <div className="qsm-opt-title">
+            <span className={`qsm-opt-node ${progress.hasRiderHealthLog ? 'done' : ''}`} />
+            Rider Health
+          </div>
+          <div className="qsm-opt-desc">Log what&#39;s affecting your riding — appointments, injuries, recurring tightness. A training journal, not a medical record.</div>
+          <Link to="/rider-health/new" className="qsm-opt-link-sm" onClick={(e) => e.stopPropagation()}>→ Open Rider Health Log</Link>
         </div>
       </div>
 

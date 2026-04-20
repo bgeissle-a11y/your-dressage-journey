@@ -137,6 +137,7 @@ The data may include multiple types:
 - Observations: Learning from watching others ride, clinics, videos
 - Journey Events: Significant life events affecting training
 - Horse Health & Soundness Records: Per-horse log of vet visits, body work, saddle fittings, soundness concerns, and emergencies. Each entry includes issue type (maintenance / concern / emergency), professionals involved, results and next steps, and status (ongoing or resolved). These records are dated and horse-specific, enabling temporal correlation with training quality data.
+- Rider Health & Wellness Records: Rider's own dated log of health events currently affecting their riding — appointments, injuries, recurring tightness, flare-ups, or preventive bodywork. Each entry includes issue type (maintenance / concern / injury), status (ongoing / resolved), impact on riding (minor / moderate / significant / sidelined), body areas involved, professionals seen, and rider-voice notes on what they're noticing in the saddle and what they're working on. Training journal, not a medical record. Rider health is rider-private — it is stripped from shared-audience outputs (Weekly Coach Brief, Journey Map) at the data-assembly layer.
 - Self-Assessments: Mental skills, emotional patterns, strengths/growth areas —
   and optionally, a Technical & Philosophical Self-Assessment capturing: arena
   geometry confidence and knowledge gaps; gait mechanics understanding ratings
@@ -1383,6 +1384,28 @@ Horses pattern-learn. Excessive full test repetition creates anticipation. Targe
 
 ---
 
+## 5D-b. Rider Health Prompt Additions
+
+**Source:** `YDJ_Prompt_Additions_Rider_Health.md`
+**Companion:** `YDJ_RiderHealthLog_Implementation_Brief.md`
+
+**What was added:**
+1. Shared Base Context: Rider Health & Wellness Records data type + full RIDER HEALTH & WELLNESS AWARENESS block + voice-specific handling block
+2. Physical Guidance PG-1: RIDER HEALTH LOG INTEGRATION block (primary consumer — status/impact-based shaping, cross-reference with Physical Self-Assessment and Toolkit)
+3. Multi-Voice Coaching: Voice prominence rule (Empathetic primary; Practical Strategist escalates when sidelined) + per-voice guidance
+4. Data-assembly layer: `aggregateRiderHealth()` aggregator + prepareRiderData integration; rider health is **stripped** from Weekly Coach Brief and Journey Map payloads (rider-private)
+
+**Non-Negotiable Rules:**
+- Never diagnose; never upgrade rider-voice hedges ("tight") to clinical terms ("restricted", "injured")
+- Never recommend specific medications, dosages, treatment protocols, or clinical procedures
+- Never echo professional first names — use role type only
+- **Hard guardrail:** Never echo numeric body data (weight, BF%, BMR, muscle mass, measurements, dosages, lab values), even when rider wrote it in notes
+- Never surface rider health data in shared-audience outputs (Coach Brief, Journey Map)
+- Never alarm; redirect to support team when clustering appears
+- Never reframe self-logged maintenance as concern — trust the categorization
+
+---
+
 ## 5E. Event Preparation Prompt Additions
 
 **Source:** `YDJ_Prompt_Additions_Event_Preparation.md`
@@ -1926,6 +1949,7 @@ Formatting changes add <300 tokens per output — negligible compared to the UX 
 | Rider Self-Assessment | Periodic | Mental skills, emotional patterns, strengths/growth areas |
 | Physical Self-Assessment | Periodic | Body awareness, physical strengths/limitations |
 | Horse Health & Soundness | As needed | Per-horse health records |
+| Rider Health & Wellness Log | As needed | Rider's own dated health events affecting riding (training journal, not medical record; rider-private — stripped from shared-audience outputs) |
 | Technical & Philosophical Self-Assessment | Periodic | Arena geometry, gait mechanics, Training Scale ratings, rider skills, philosophy |
 | Lesson Notes | After lessons | Instructor guidance, cues/corrections, rider takeaways |
 

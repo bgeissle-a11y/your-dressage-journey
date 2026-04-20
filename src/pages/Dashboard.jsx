@@ -18,6 +18,7 @@ import {
   getAllJourneyEvents,
   getAllShowPreparations,
   getAllHealthEntries,
+  getAllRiderHealthEntries,
   getAllLessonNotes,
   getAllToolkitEntries
 } from '../services';
@@ -42,6 +43,7 @@ const DM_RECORD = [
   { icon: '\u25CE', label: 'Observation', desc: 'What you learned watching others', to: '/observations/new', color: 'var(--c-observe)' },
   { icon: '\uD83D\uDCDD', label: 'Lesson Notes', desc: 'Instructor guidance & cues', to: '/lesson-notes/new', color: 'var(--c-lesson)' },
   { icon: '\uD83C\uDF3F', label: 'Health & Soundness', desc: 'Vet visits, bodywork, concerns', to: '/horse-health/new', color: 'var(--c-health)' },
+  { icon: '\uD83E\uDE7A', label: 'Rider Health', desc: "Track how your body is showing up in the saddle \u2014 appointments, injuries, anything affecting your riding.", to: '/rider-health/new', color: 'var(--c-health)' },
   { icon: '\uD83D\uDCC5', label: 'Journey Event', desc: 'Life changes affecting riding', to: '/events/new', color: 'var(--c-event)' },
 ];
 const DM_PLAN = [
@@ -60,6 +62,7 @@ const DM_REVIEW = [
   { icon: '\u25CE', label: 'Observations', desc: 'Your observation notes', to: '/observations' },
   { icon: '\uD83D\uDCDD', label: 'Lesson Notes', desc: 'Your lesson library', to: '/lesson-notes' },
   { icon: '\uD83C\uDF3F', label: 'Health Log', desc: 'Full soundness records', to: '/horse-health' },
+  { icon: '\uD83E\uDE7A', label: 'Rider Health Log', desc: 'Full rider health history', to: '/rider-health' },
   { icon: '\uD83D\uDCC5', label: 'Journey Events', desc: 'Your timeline', to: '/events' },
   { icon: '\uD83C\uDFDF', label: 'Show Preparations', desc: 'Past show prep plans', to: '/show-prep' },
   { icon: '\uD83E\uDDF0', label: 'Toolkit', desc: 'Your off-horse catalog', to: '/toolkit' },
@@ -174,13 +177,14 @@ export default function Dashboard() {
     if (!currentUser || exporting) return;
     setExporting(true);
     try {
-      const [debRes, refRes, obsRes, evtRes, prepRes, healthRes, lessonRes, tkRes] = await Promise.all([
+      const [debRes, refRes, obsRes, evtRes, prepRes, healthRes, riderHealthRes, lessonRes, tkRes] = await Promise.all([
         getAllDebriefs(currentUser.uid),
         getAllReflections(currentUser.uid),
         getAllObservations(currentUser.uid),
         getAllJourneyEvents(currentUser.uid),
         getAllShowPreparations(currentUser.uid),
         getAllHealthEntries(currentUser.uid),
+        getAllRiderHealthEntries(currentUser.uid),
         getAllLessonNotes(currentUser.uid),
         getAllToolkitEntries(currentUser.uid)
       ]);
@@ -192,6 +196,14 @@ export default function Dashboard() {
       if (evtRes.success && evtRes.data.length) exportFn(evtRes.data, `ydj-journey-events-${today}`, EXPORT_COLUMNS.journeyEvents);
       if (prepRes.success && prepRes.data.length) exportFn(prepRes.data, `ydj-show-preps-${today}`, EXPORT_COLUMNS.showPreparations);
       if (healthRes.success && healthRes.data.length) exportFn(healthRes.data, `ydj-horse-health-${today}`, EXPORT_COLUMNS.horseHealthEntries);
+      if (riderHealthRes.success && riderHealthRes.data.length) {
+        const riderHealthExport = riderHealthRes.data.map(e => ({
+          ...e,
+          bodyAreas: Array.isArray(e.bodyAreas) ? e.bodyAreas.join('|') : e.bodyAreas,
+          professionals: Array.isArray(e.professionals) ? e.professionals.join('|') : e.professionals,
+        }));
+        exportFn(riderHealthExport, `rider-health-log-${today}`, EXPORT_COLUMNS.riderHealthEntries);
+      }
       if (lessonRes.success && lessonRes.data.length) exportFn(lessonRes.data, `ydj-lesson-notes-${today}`, EXPORT_COLUMNS.lessonNotes);
       if (tkRes.success && tkRes.data.length) {
         const tkExport = tkRes.data.map(e => ({ ...e, bodyTags: Array.isArray(e.bodyTags) ? e.bodyTags.join('|') : e.bodyTags }));

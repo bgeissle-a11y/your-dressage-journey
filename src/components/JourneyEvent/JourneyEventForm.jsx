@@ -162,7 +162,8 @@ export default function JourneyEventForm() {
       </div>
 
       <div className="form-info-callout">
-        Tracking a vet visit, soundness issue, or body work appointment? Use the <Link to="/horse-health/new">Health &amp; Soundness Tracker</Link> — it gives you a full medical history per horse.
+        <div>&#128161; Tracking a vet visit or body work for your horse? Use the <Link to="/horse-health/new">Horse Health &amp; Soundness Tracker</Link>.</div>
+        <div style={{ marginTop: '0.4rem' }}>&#128161; Tracking an injury or appointment for yourself? Use the <Link to="/rider-health/new">Rider Health &amp; Wellness Log</Link>.</div>
       </div>
 
       <form onSubmit={handleSubmit} autoComplete="off">

@@ -29,6 +29,7 @@ const NAV_GROUPS = [
         heading: 'Track',
         links: [
           { icon: '\uD83C\uDF3F', label: 'Health & Soundness', to: '/horse-health/new' },
+          { icon: '\uD83E\uDE7A', label: 'Rider Health', to: '/rider-health/new' },
           { icon: '\uD83D\uDCC5', label: 'Journey Event', to: '/events/new' },
         ],
       },

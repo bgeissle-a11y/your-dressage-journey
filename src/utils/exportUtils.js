@@ -114,6 +114,13 @@ export const EXPORT_COLUMNS = {
     'date', 'horseName', 'issueType', 'title', 'notes',
     'professionals', 'results', 'nextSteps', 'status', 'resolvedDate'
   ],
+  // Internal fields (id, createdAt, updatedAt) are stripped by cleanRecord before export,
+  // so the brief-spec's id/createdAt/updatedAt columns are intentionally omitted here.
+  riderHealthEntries: [
+    'date', 'title', 'issueType', 'status', 'impact',
+    'bodyAreas', 'professionals', 'notes', 'inSaddleNotes',
+    'workingOnNotes', 'resolvedDate'
+  ],
   lessonNotes: [
     'lessonDate', 'horseName', 'instructorName', 'lessonType',
     'movementInstructions', 'cuesCorrections', 'riderReflections',

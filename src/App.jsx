@@ -43,6 +43,10 @@ import ShowPlanner from './components/ShowPlanner/ShowPlanner';
 import HealthEntryList from './components/HorseHealth/HealthEntryList';
 import HealthEntryForm from './components/HorseHealth/HealthEntryForm';
 
+// Rider Health
+import HealthLogList from './components/RiderHealth/HealthLogList';
+import HealthLogForm from './components/RiderHealth/HealthLogForm';
+
 // Assessments
 import PhysicalAssessmentList from './components/PhysicalAssessment/PhysicalAssessmentList';
 import PhysicalAssessmentForm from './components/PhysicalAssessment/PhysicalAssessmentForm';
@@ -141,6 +145,11 @@ function App() {
             <Route path="/horse-health" element={<HealthEntryList />} />
             <Route path="/horse-health/new" element={<HealthEntryForm />} />
             <Route path="/horse-health/:id/edit" element={<HealthEntryForm />} />
+
+            {/* Rider Health */}
+            <Route path="/rider-health" element={<HealthLogList />} />
+            <Route path="/rider-health/new" element={<HealthLogForm />} />
+            <Route path="/rider-health/:id/edit" element={<HealthLogForm />} />
 
             {/* Practice Card */}
             <Route path="/practice-card" element={<PracticeCard />} />

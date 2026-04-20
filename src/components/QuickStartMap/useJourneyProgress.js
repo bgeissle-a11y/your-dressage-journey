@@ -39,6 +39,7 @@ export default function useJourneyProgress() {
     hasEventLog: false,
     hasLessonNotes: false,
     hasToolkitEntries: false,
+    hasRiderHealthLog: false,
   });
   const [loading, setLoading] = useState(true);
 
@@ -165,6 +166,13 @@ export default function useJourneyProgress() {
       onSnapshot(userQuery('riderToolkitEntries'), (snap) => {
         setProgress((prev) => ({ ...prev, hasToolkitEntries: snap.size > 0 }));
       }, (err) => console.warn('[useJourneyProgress] riderToolkitEntries:', err.message))
+    );
+
+    // 11. Rider Health Log
+    unsubs.push(
+      onSnapshot(userQuery('riderHealthEntries'), (snap) => {
+        setProgress((prev) => ({ ...prev, hasRiderHealthLog: snap.size > 0 }));
+      }, (err) => console.warn('[useJourneyProgress] riderHealthEntries:', err.message))
     );
 
     return () => unsubs.forEach((u) => u());

@@ -23,6 +23,7 @@ export default function TipsAndFaq() {
           <a href="#profiles">Setting Up Your Profiles</a>
           <a href="#events">Events: Logging & Preparation</a>
           <a href="#health-soundness">Horse Health & Soundness Tracker</a>
+          <a href="#rider-health">Rider Health & Wellness Log</a>
           <a href="#observations">Observation Form</a>
           <a href="#assessments">Self-Assessments</a>
           <a href="#best-tips">Getting the Most Value</a>
@@ -82,6 +83,12 @@ export default function TipsAndFaq() {
             <div className="tips-card-title">Health & Soundness</div>
             <div className="tips-card-desc">Track vet visits, body work, saddle fittings, soundness concerns, and emergencies — with full history per horse.</div>
             <span className="tips-card-freq">As they happen</span>
+          </Link>
+          <Link to="/rider-health/new" className="tips-form-card">
+            <div className="tips-card-icon">&#x1FA7A;</div>
+            <div className="tips-card-title">Rider Health</div>
+            <div className="tips-card-desc">Log dated health events that are affecting your riding — appointments, injuries, recurring tightness. Training journal, not a medical record.</div>
+            <span className="tips-card-freq">As needed</span>
           </Link>
           <Link to="/observations/new" className="tips-form-card">
             <div className="tips-card-icon">&#x1F441;&#xFE0F;</div>
@@ -312,6 +319,42 @@ export default function TipsAndFaq() {
         <div className="tips-tip-box">
           <h4>Log Every Professional Visit</h4>
           <p>Log every professional visit, not just problems. Chiro, massage, saddle fitter, and farrier visits are data. When the AI sees that your horse had bodywork two days before a breakthrough ride, it can flag that connection.</p>
+        </div>
+      </div>
+
+      {/* Rider Health & Wellness Log */}
+      <div className="tips-section" id="rider-health">
+        <h2>&#x1FA7A; Rider Health &amp; Wellness Log</h2>
+
+        <p className="tips-welcome-text">
+          A place to track dated health events that are currently affecting your riding — PT appointments, a new injury, a flare-up of an old pattern, a chiro visit. It&#39;s a training journal, not a medical record.
+        </p>
+
+        <h3>What it is NOT</h3>
+        <p>Not a medical record. Specific medications, dosages, diagnoses with codes, and mental health treatment detail belong in your doctor&#39;s chart, not here.</p>
+
+        <h3>How it differs from the Physical Self-Assessment</h3>
+        <p>The Self-Assessment captures your <strong>baseline</strong> — long-standing asymmetries and patterns. The Health Log captures what&#39;s <strong>changing</strong>. If your right hip has been tight for years, that&#39;s the Self-Assessment. If it flared last Tuesday, that&#39;s the Health Log.</p>
+
+        <h3>How it differs from the Toolkit</h3>
+        <p>The Toolkit catalogs things you&#39;re <em>trying</em> (pilates sequences, supplements, books). The Health Log captures <em>events and state</em> in your body.</p>
+
+        <h3>The three issue types</h3>
+        <ul className="tips-bullets">
+          <li><strong>Maintenance:</strong> routine care like monthly massage.</li>
+          <li><strong>Concern:</strong> something to monitor over time.</li>
+          <li><strong>Injury:</strong> an acute event.</li>
+        </ul>
+
+        <h3>The Impact field</h3>
+        <p>Only log entries that are actively impacting your riding. If it&#39;s not affecting your ride, you don&#39;t need to track it here.</p>
+
+        <h3>The Status field</h3>
+        <p>Ongoing vs. Resolved. Update entries as they heal or stabilize.</p>
+
+        <div className="tips-tip-box">
+          <h4>Keep Entries Functional and Riding-Focused</h4>
+          <p>Describe what you feel in the saddle — not the clinical detail of your medical chart.</p>
         </div>
       </div>
 
