@@ -37,7 +37,8 @@ export const RIDER_IMPACT_LEVELS = [
   { value: 'minor',       label: 'Minor' },
   { value: 'moderate',    label: 'Moderate' },
   { value: 'significant', label: 'Significant' },
-  { value: 'sidelined',   label: 'Not riding' }
+  { value: 'sidelined',   label: 'Not riding' },
+  { value: 'unknown',     label: 'Unknown' }
 ];
 
 export const RIDER_HEALTH_STATUSES = [
