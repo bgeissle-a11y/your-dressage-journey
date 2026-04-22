@@ -5,6 +5,13 @@ import { db } from '../../firebase-config';
 
 const BAR_COLORS = ['#b8862a', '#3d6b46', '#2e5c82', '#7a3f72', '#8b6340'];
 
+const RATING_WEIGHTS = {
+  'not-at-all': 0,
+  'somewhat':   33,
+  'mostly':     67,
+  'fully':      100,
+};
+
 /* Helper: extract timestamp as ms number */
 function toMs(ts) {
   if (!ts) return 0;
@@ -57,21 +64,21 @@ export default function ProcessGoalBars() {
           return;
         }
 
-        // Group by goal text
+        // Group by goal text — accumulate weighted score across each rating's independent weight
         const goalMap = {};
         withRatings.forEach(debrief => {
           const ratings = debrief.prevGoalRatings || {};
           ['goal1', 'goal2', 'goal3'].forEach(key => {
             const entry = ratings[key];
             if (!entry || !entry.text || !entry.text.trim()) return;
+            const weight = RATING_WEIGHTS[entry.rating];
+            if (weight === undefined) return;
             const text = entry.text.trim();
             if (!goalMap[text]) {
-              goalMap[text] = { text, met: 0, total: 0, lastSeen: debrief.submittedAt };
+              goalMap[text] = { text, scoreSum: 0, total: 0, lastSeen: debrief.submittedAt };
             }
             goalMap[text].total++;
-            if (entry.rating === 'mostly' || entry.rating === 'fully') {
-              goalMap[text].met++;
-            }
+            goalMap[text].scoreSum += weight;
           });
         });
 
@@ -83,7 +90,7 @@ export default function ProcessGoalBars() {
         // Mark current vs previous
         const result = sorted.map(g => ({
           ...g,
-          pct: Math.round((g.met / g.total) * 100),
+          pct: Math.round(g.scoreSum / g.total),
           isCurrent: currentGoalTexts.has(g.text),
         }));
 
@@ -128,7 +135,7 @@ export default function ProcessGoalBars() {
           <GoalBar key={g.text} goal={g} color={BAR_COLORS[(currentGoals.length + i) % BAR_COLORS.length]} opacity={0.55} />
         ))}
       </div>
-      <div className="viz-note">% of rides rated &ldquo;Mostly&rdquo; or &ldquo;Fully&rdquo; met &middot; Last {rideLabel} rides</div>
+      <div className="viz-note">Weighted follow-through score (Not at all 0 &middot; Somewhat 33 &middot; Mostly 67 &middot; Fully 100) &middot; Last {rideLabel} rides</div>
     </div>
   );
 }
