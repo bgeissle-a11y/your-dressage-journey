@@ -126,7 +126,7 @@ export default function JourneySnapshot() {
             </div>
           )}
 
-          <Link to="/outputs/journey-map" className="journey-snapshot-link">
+          <Link to="/insights?tab=journey" className="journey-snapshot-link">
             View your Journey Map →
           </Link>
         </div>

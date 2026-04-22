@@ -26,7 +26,7 @@ CONTEXT: This is a raw audio transcript of a dressage lesson. It may contain:
 - No speaker labels (unlabeled running text is the most common format)
 - Transcription service headers/footers — ignore these completely
 - Repeated real-time rhythm words ("tap, tap, tap," "good, good, good," "yeah, yeah") — these are coaching rhythms, not instructions; filter them out or condense to a single instance
-- Mangled dressage terminology — common errors: "hunches in" = haunches-in, "vault" = volte, "half fault" = half-halt, "punches in" = haunches-in, "Piaf" = piaffe. Correct these silently in the output.
+- Mangled dressage terminology — common errors: "hunches in" = haunches-in, "vault" = volte, "half fault" = half-halt, "punches in" = haunches-in, "Piaf" = piaffe, "massage" = passage. Correct these silently in the output.
 - Rider acknowledgments ("yeah," "okay," "got it") mixed in — these are the rider speaking, not the instructor; ignore them
 
 IDENTIFYING THE INSTRUCTOR'S VOICE: When there are no speaker labels, the instructor's voice is the one giving directions, corrections, and feedback. The rider's voice is brief acknowledgments. Focus only on what the instructor said.
@@ -94,7 +94,7 @@ async function handler(request) {
     const parsed = await callClaude({
       system: "You are a dressage lesson transcript processor. Return only valid JSON with the three requested fields: movementInstructions, cuesCorrections, coachesEye.",
       userMessage,
-      model: "claude-sonnet-4-5-20250929",
+      model: "claude-sonnet-4-6",
       jsonMode: true,
       maxTokens: 5000,
       context: "processLessonTranscript",
