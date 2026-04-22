@@ -7,8 +7,8 @@ const BAR_COLORS = ['#b8862a', '#3d6b46', '#2e5c82', '#7a3f72', '#8b6340'];
 
 const RATING_WEIGHTS = {
   'not-at-all': 0,
-  'somewhat':   33,
-  'mostly':     67,
+  'somewhat':   25,
+  'mostly':     75,
   'fully':      100,
 };
 
@@ -135,7 +135,7 @@ export default function ProcessGoalBars() {
           <GoalBar key={g.text} goal={g} color={BAR_COLORS[(currentGoals.length + i) % BAR_COLORS.length]} opacity={0.55} />
         ))}
       </div>
-      <div className="viz-note">Weighted follow-through score (Not at all 0 &middot; Somewhat 33 &middot; Mostly 67 &middot; Fully 100) &middot; Last {rideLabel} rides</div>
+      <div className="viz-note">Weighted follow-through score (Not at all 0 &middot; Somewhat 25 &middot; Mostly 75 &middot; Fully 100) &middot; Last {rideLabel} rides</div>
     </div>
   );
 }
