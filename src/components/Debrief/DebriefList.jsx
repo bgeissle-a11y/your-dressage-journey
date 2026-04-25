@@ -81,7 +81,7 @@ export default function DebriefList() {
   return (
     <div className="list-page">
       <div className="list-page-header">
-        <h1>Post-Ride Debriefs</h1>
+        <h1>Debriefs</h1>
         <div className="list-page-actions">
           {debriefs.length > 0 && (
             <>
@@ -96,7 +96,7 @@ export default function DebriefList() {
       {debriefs.length === 0 ? (
         <div className="empty-state">
           <h3>No debriefs yet</h3>
-          <p>Log your first ride debrief to start tracking your progress.</p>
+          <p>Log your first session debrief to start tracking your progress.</p>
           <Link to="/debriefs/new" className="btn-new">+ New Debrief</Link>
         </div>
       ) : (

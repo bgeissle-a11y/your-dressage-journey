@@ -243,8 +243,8 @@ export default function DebriefForm() {
     if (!formData.horseName.trim()) newErrors.horseName = 'Horse name is required';
     if (!formData.sessionType) newErrors.sessionType = 'Please select session type';
     if (!formData.sessionModality) newErrors.sessionModality = 'Please select how this session happened';
-    if (!formData.rideArc) newErrors.rideArc = 'Please select how your ride unfolded.';
-    if (!overallQualityTouched) newErrors.overallQuality = 'Please rate your overall ride quality.';
+    if (!formData.rideArc) newErrors.rideArc = 'Please select how your session unfolded.';
+    if (!overallQualityTouched) newErrors.overallQuality = 'Please rate your overall session quality.';
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) {
       // Scroll to first error field so user sees what needs fixing (critical on mobile)
@@ -359,7 +359,7 @@ export default function DebriefForm() {
   return (
     <div className="form-page">
       <div className="form-page-header">
-        <h1>{isEdit ? 'Edit Debrief' : 'Post-Ride Debrief'}</h1>
+        <h1>{isEdit ? 'Edit Debrief' : 'Debrief'}</h1>
         <p>Capture your insights while they're fresh</p>
       </div>
 
@@ -379,13 +379,13 @@ export default function DebriefForm() {
             </div>
           )}
 
-          {/* Section 1: Ride Basics */}
-          <FormSection title="Ride Basics">
+          {/* Section 1: Session Basics */}
+          <FormSection title="Session Basics">
             <div className="form-row">
-              <FormField label="Date of Ride" error={errors.rideDate}>
+              <FormField label="Date of Session" error={errors.rideDate}>
                 <input type="date" name="rideDate" value={formData.rideDate} onChange={handleChange} disabled={loading} />
               </FormField>
-              <FormField label="Horse" error={errors.horseName} helpText="Which horse did you ride?">
+              <FormField label="Horse" error={errors.horseName} helpText="Which horse?">
                 {horseNames.length > 0 ? (
                   <select
                     name="horseName"
@@ -453,7 +453,7 @@ export default function DebriefForm() {
 
           {/* Section 2: Quick Ratings */}
           <FormSection title="Quick Ratings" description="Your immediate impressions -- there are no wrong answers.">
-            <FormField label={overallQualityTouched ? `Overall Ride Quality: ${formData.overallQuality}/10` : 'Overall Ride Quality'} error={errors.overallQuality}>
+            <FormField label={overallQualityTouched ? `Overall Session Quality: ${formData.overallQuality}/10` : 'Overall Session Quality'} error={errors.overallQuality}>
               <input
                 type="range"
                 name="overallQuality"
@@ -476,8 +476,8 @@ export default function DebriefForm() {
               </div>
             </FormField>
 
-            {/* Ride Arc Picker */}
-            <FormField label="How did the ride unfold?" error={errors.rideArc} helpText="Rides rarely stay the same from start to finish. Tap the shape that best describes your ride's arc.">
+            {/* Session Arc Picker */}
+            <FormField label="How did the session unfold?" error={errors.rideArc} helpText="Sessions rarely stay the same from start to finish. Tap the shape that best describes your session's arc.">
               <div className="arc-grid">
                 {RIDE_ARC_OPTIONS.map(opt => (
                   <label className={`arc-option${formData.rideArc === opt.value ? ' selected' : ''}`} key={opt.value}>
@@ -517,10 +517,10 @@ export default function DebriefForm() {
             </FormField>
 
             {/* Estimation prompt + Confidence slider */}
-            <FormField label={confidenceTouched ? `Confidence in Your Ability to Execute: ${formData.confidenceLevel}/10` : 'Confidence in Your Ability to Execute'} optional helpText="Your in-session sense of whether you could perform the technical work you were attempting — distinct from how good the ride felt overall.">
+            <FormField label={confidenceTouched ? `Confidence in Your Ability to Execute: ${formData.confidenceLevel}/10` : 'Confidence in Your Ability to Execute'} optional helpText="Your in-session sense of whether you could perform the technical work you were attempting — distinct from how good the session felt overall.">
               <div className="prompt-box" style={{ marginBottom: '0.75rem' }}>
                 <div className="prompt-box-content">
-                  Before you rate: if someone had filmed this ride, what would they have seen?
+                  Before you rate: if someone had filmed this session, what would they have seen?
                 </div>
               </div>
               <input
@@ -709,7 +709,7 @@ export default function DebriefForm() {
           )}
 
           {/* Section: Process Goals — rate confirmed goals from Practice Card */}
-          <FormSection title="Process Goals" description="How well did you stay focused on your goals for this ride?">
+          <FormSection title="Process Goals" description="How well did you stay focused on your goals for this session?">
             {hasPracticeCard && practiceCardGoals && practiceCardGoals.length > 0 ? (
               /* Primary path: Practice Card was locked — show goals read-only with ratings */
               <div>
@@ -782,7 +782,7 @@ export default function DebriefForm() {
               /* Fallback path: no locked Practice Card — manual entry */
               <div>
                 <p style={{ fontSize: '0.9rem', color: '#7A7A7A', marginBottom: '1rem', lineHeight: '1.5' }}>
-                  What were you focusing on in this ride?
+                  What were you focusing on in this session?
                 </p>
                 {[
                   { goalKey: 'fallbackGoal1', ratingKey: 'goalRating1', num: 1 },
@@ -855,7 +855,7 @@ export default function DebriefForm() {
           </FormSection>
 
           {/* Section: Narrative */}
-          <FormSection title="What Happened" description="The heart of your reflection -- what stands out from this ride?">
+          <FormSection title="What Happened" description="The heart of your reflection -- what stands out from this session?">
             {NARRATIVE_FIELDS.map(field => (
               <FormField key={field.key} label={field.label} optional>
                 <GuidingQuestions text={field.placeholder} />
