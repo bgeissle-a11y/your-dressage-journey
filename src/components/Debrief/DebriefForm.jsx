@@ -6,7 +6,8 @@ import {
   getAllHorseProfiles, getAllDebriefs,
   SESSION_TYPES, RIDER_ENERGY_LEVELS, HORSE_ENERGY_LEVELS,
   MENTAL_STATE_GROUPS,
-  MOVEMENT_CATEGORIES, RIDE_ARC_OPTIONS
+  MOVEMENT_CATEGORIES, GROUNDWORK_MOVEMENT_CATEGORIES,
+  SESSION_MODALITY_OPTIONS, RIDE_ARC_OPTIONS
 } from '../../services';
 import { readPracticeCardCache } from '../../services/weeklyFocusService';
 import useFormRecovery from '../../hooks/useFormRecovery';
@@ -72,6 +73,7 @@ export default function DebriefForm() {
     rideDate: searchParams.get("date") || new Date().toISOString().split('T')[0],
     horseName: '',
     sessionType: '',
+    sessionModality: '',
     overallQuality: 5,
     confidenceLevel: null,
     riderEffort: null,
@@ -168,6 +170,7 @@ export default function DebriefForm() {
         rideDate: d.rideDate || '',
         horseName: d.horseName || '',
         sessionType: d.sessionType || '',
+        sessionModality: d.sessionModality || '',
         overallQuality: d.overallQuality || 5,
         confidenceLevel: d.confidenceLevel ?? null,
         riderEffort: d.riderEffort ?? null,
@@ -239,6 +242,7 @@ export default function DebriefForm() {
     if (!formData.rideDate) newErrors.rideDate = 'Date is required';
     if (!formData.horseName.trim()) newErrors.horseName = 'Horse name is required';
     if (!formData.sessionType) newErrors.sessionType = 'Please select session type';
+    if (!formData.sessionModality) newErrors.sessionModality = 'Please select how this session happened';
     if (!formData.rideArc) newErrors.rideArc = 'Please select how your ride unfolded.';
     if (!overallQualityTouched) newErrors.overallQuality = 'Please rate your overall ride quality.';
     setErrors(newErrors);
@@ -300,6 +304,7 @@ export default function DebriefForm() {
       rideDate: formData.rideDate,
       horseName: formData.horseName,
       sessionType: formData.sessionType,
+      sessionModality: formData.sessionModality,
       overallQuality: overallQualityTouched ? formData.overallQuality : null,
       confidenceLevel: confidenceTouched ? formData.confidenceLevel : null,
       riderEffort: riderEffortTouched ? formData.riderEffort : null,
@@ -414,6 +419,35 @@ export default function DebriefForm() {
             </div>
             <FormField label="Type of Session" error={errors.sessionType}>
               <RadioGroup name="sessionType" options={SESSION_TYPES} value={formData.sessionType} onChange={handleChange} disabled={loading} />
+            </FormField>
+          </FormSection>
+
+          {/* Section: Session Modality (added April 2026 — groundwork awareness) */}
+          <FormSection title="How did this session happen?" description="Tells the platform how to frame your coaching and which work options to show below.">
+            <FormField label="" error={errors.sessionModality}>
+              <div className="modality-grid">
+                {SESSION_MODALITY_OPTIONS.map(opt => (
+                  <label
+                    key={opt.value}
+                    className={`modality-option${formData.sessionModality === opt.value ? ' selected' : ''}`}
+                  >
+                    <input
+                      type="radio"
+                      name="sessionModality"
+                      value={opt.value}
+                      checked={formData.sessionModality === opt.value}
+                      onChange={e => {
+                        setFormData(prev => ({ ...prev, sessionModality: e.target.value }));
+                        if (errors.sessionModality) setErrors(prev => ({ ...prev, sessionModality: '' }));
+                      }}
+                      disabled={loading}
+                    />
+                    <span className="modality-icon">{opt.icon}</span>
+                    <span className="modality-label">{opt.label}</span>
+                    <span className="modality-sub">{opt.sub}</span>
+                  </label>
+                ))}
+              </div>
             </FormField>
           </FormSection>
 
@@ -615,29 +649,64 @@ export default function DebriefForm() {
             </FormField>
           </FormSection>
 
-          {/* Section: Movements & Exercises */}
-          <FormSection title="Exercises & Movements" description="Select what you worked on today. Tap to toggle.">
-            {MOVEMENT_CATEGORIES.map(category => (
-              <div key={category.label} style={{ marginBottom: '1.25rem' }}>
-                <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#8B7355', marginBottom: '0.5rem' }}>
-                  {category.label}
-                </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  {category.tags.map(tag => (
-                    <button
-                      key={tag.value}
-                      type="button"
-                      onClick={() => toggleMovement(tag.value)}
-                      disabled={loading}
-                      className={`movement-tag ${formData.movements.includes(tag.value) ? 'selected' : ''}`}
-                    >
-                      {tag.label}
-                    </button>
-                  ))}
-                </div>
+          {/* Section: Movements & Exercises — modality-aware (April 2026) */}
+          {!formData.sessionModality && (
+            <FormSection title="Exercises & Movements" description="Select what you worked on today. Tap to toggle.">
+              <div className="modality-empty-state">
+                Select <em>How did this session happen?</em> above to see the work options.
               </div>
-            ))}
-          </FormSection>
+            </FormSection>
+          )}
+
+          {(formData.sessionModality === 'in-saddle' || formData.sessionModality === 'combined') && (
+            <FormSection title="Ridden Work" description="What you worked on in the saddle. Tap to toggle.">
+              {MOVEMENT_CATEGORIES.map(category => (
+                <div key={category.label} style={{ marginBottom: '1.25rem' }}>
+                  <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#8B7355', marginBottom: '0.5rem' }}>
+                    {category.label}
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    {category.tags.map(tag => (
+                      <button
+                        key={tag.value}
+                        type="button"
+                        onClick={() => toggleMovement(tag.value)}
+                        disabled={loading}
+                        className={`movement-tag ${formData.movements.includes(tag.value) ? 'selected' : ''}`}
+                      >
+                        {tag.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </FormSection>
+          )}
+
+          {(formData.sessionModality === 'on-ground' || formData.sessionModality === 'combined') && (
+            <FormSection title="Ground Work" description="What you worked on from the ground. Tap to toggle.">
+              {GROUNDWORK_MOVEMENT_CATEGORIES.map(category => (
+                <div key={category.label} style={{ marginBottom: '1.25rem' }}>
+                  <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#8B7355', marginBottom: '0.5rem' }}>
+                    {category.label}
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    {category.tags.map(tag => (
+                      <button
+                        key={tag.value}
+                        type="button"
+                        onClick={() => toggleMovement(tag.value)}
+                        disabled={loading}
+                        className={`movement-tag ${formData.movements.includes(tag.value) ? 'selected' : ''}`}
+                      >
+                        {tag.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </FormSection>
+          )}
 
           {/* Section: Process Goals — rate confirmed goals from Practice Card */}
           <FormSection title="Process Goals" description="How well did you stay focused on your goals for this ride?">

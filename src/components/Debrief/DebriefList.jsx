@@ -15,6 +15,13 @@ const SESSION_LABELS = {
   other: 'Other'
 };
 
+// Modality-driven debrief title (April 2026 — groundwork awareness)
+const MODALITY_TITLES = {
+  'in-saddle': 'Post-Ride Debrief',
+  'on-ground': 'Post-Groundwork Debrief',
+  'combined': 'Combined Session Debrief'
+};
+
 export default function DebriefList() {
   const { currentUser } = useAuth();
   const [debriefs, setDebriefs] = useState([]);
@@ -116,6 +123,16 @@ export default function DebriefList() {
             filtered.map(debrief => (
               <div key={debrief.id} className="list-card">
                 <Link to={`/debriefs/${debrief.id}/edit`} className="list-card-content" style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <div style={{
+                    fontFamily: "'Playfair Display', serif",
+                    fontSize: '0.85rem',
+                    color: '#8B7355',
+                    fontWeight: 500,
+                    letterSpacing: '0.02em',
+                    marginBottom: '0.2rem'
+                  }}>
+                    {MODALITY_TITLES[debrief.sessionModality] || 'Post-Ride Debrief'}
+                  </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div className="list-card-title">{debrief.horseName || 'Untitled'}</div>
                     {debrief.overallQuality && (

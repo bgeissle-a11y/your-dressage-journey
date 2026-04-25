@@ -165,6 +165,114 @@ export const MOVEMENT_CATEGORIES = [
   }
 ];
 
+// Session modality options (added April 2026 — groundwork awareness)
+export const SESSION_MODALITY_OPTIONS = [
+  { value: 'in-saddle', label: 'In the saddle', sub: 'Ridden work', icon: '🐴' },
+  { value: 'on-ground', label: 'On the ground', sub: 'In-hand, lunging, long-lining, liberty', icon: '👣' },
+  { value: 'combined', label: 'Combined', sub: 'Both in one session', icon: '🔄' }
+];
+
+// Ground-work movement/exercise tag categories (used when sessionModality is on-ground or combined)
+export const GROUNDWORK_MOVEMENT_CATEGORIES = [
+  {
+    label: 'Work Type',
+    tags: [
+      { value: 'gw-lunging', label: 'Lunging (single line)' },
+      { value: 'gw-in-hand', label: 'In-hand work' },
+      { value: 'gw-long-lining', label: 'Long-lining / Long-reining' },
+      { value: 'gw-liberty', label: 'Liberty work' },
+      { value: 'gw-pole-cavaletti', label: 'Pole / Cavaletti work' },
+      { value: 'gw-body-work', label: 'Body work / Stretching' },
+      { value: 'gw-partnership', label: 'Partnership Building' }
+    ]
+  },
+  {
+    label: 'Handling & Life Skills',
+    tags: [
+      { value: 'gw-trailer-loading', label: 'Trailer Loading' },
+      { value: 'gw-standing-tied', label: 'Standing Tied / Patience' },
+      { value: 'gw-farrier-vet-prep', label: 'Farrier / Vet Prep' },
+      { value: 'gw-tacking-exposure', label: 'Saddling / Bridling / Mounting Exposure' },
+      { value: 'gw-bathing-clipping', label: 'Bathing / Clipping / Grooming Desens.' },
+      { value: 'gw-new-environment', label: 'New Environment Exposure' },
+      { value: 'gw-desensitization', label: 'Scary Object Desensitization' },
+      { value: 'gw-obstacle-work', label: 'Obstacle Work (poles, tarps, bridges, water)' },
+      { value: 'gw-leading-skills', label: 'Leading Skills' },
+      { value: 'gw-rehab-hand-walking', label: 'Rehab Hand-Walking' }
+    ]
+  },
+  {
+    label: 'Gaits & Transitions',
+    tags: [
+      { value: 'walk-work', label: 'Walk Work' },
+      { value: 'trot-work', label: 'Trot Work' },
+      { value: 'canter-work', label: 'Canter Work' },
+      { value: 'transitions', label: 'Transitions' },
+      { value: 'gw-halt-stand', label: 'Halt / Stand / Ground-tie' }
+    ]
+  },
+  {
+    label: 'Figures',
+    tags: [
+      { value: 'gw-circles', label: 'Circles (on the lunge or in-hand)' },
+      { value: 'gw-changes-direction', label: 'Changes of Direction' },
+      { value: 'gw-spirals', label: 'Spirals (in / out)' },
+      { value: 'gw-serpentines', label: 'Serpentines' },
+      { value: 'gw-figure-8', label: 'Figure 8' }
+    ]
+  },
+  {
+    label: 'Lateral & In-Hand Work',
+    tags: [
+      { value: 'gw-leg-yield', label: 'Leg Yield (in-hand)' },
+      { value: 'gw-shoulder-in', label: 'Shoulder-In (in-hand)' },
+      { value: 'gw-haunches-in', label: 'Haunches-In (in-hand)' },
+      { value: 'gw-half-pass', label: 'Half-Pass (in-hand)' },
+      { value: 'gw-disengage-hq', label: 'Disengage Hindquarters' },
+      { value: 'gw-turn-on-forehand', label: 'Turn on Forehand' },
+      { value: 'gw-leg-sequence', label: 'Specific Leg Movement Sequence' },
+      { value: 'gw-rein-back', label: 'Rein-Back (in-hand)' }
+    ]
+  },
+  {
+    label: 'Advanced / Collected Work',
+    tags: [
+      { value: 'gw-piaffe', label: 'Piaffe (in-hand)' },
+      { value: 'gw-passage', label: 'Passage (in-hand)' },
+      { value: 'gw-spanish-walk', label: 'Spanish Walk' },
+      { value: 'gw-extensions', label: 'Extensions / Lengthenings' },
+      { value: 'gw-collection-work', label: 'Collection Work' }
+    ]
+  },
+  {
+    label: 'Horse / Training Focus',
+    tags: [
+      { value: 'rhythm', label: 'Rhythm' },
+      { value: 'relaxation', label: 'Relaxation' },
+      { value: 'attentiveness', label: 'Attentiveness' },
+      { value: 'balance', label: 'Balance' },
+      { value: 'bend-flexion', label: 'Bend & Flexion' },
+      { value: 'straightness', label: 'Straightness' },
+      { value: 'suppleness', label: 'Suppleness' },
+      { value: 'impulsion', label: 'Impulsion' },
+      { value: 'engagement', label: 'Engagement' },
+      { value: 'softness-responsiveness', label: 'Softness / Responsiveness' },
+      { value: 'collection', label: 'Collection' }
+    ]
+  },
+  {
+    label: 'Handler Focus',
+    tags: [
+      { value: 'gw-body-language', label: 'Body Language & Position' },
+      { value: 'gw-timing-aids', label: 'Timing of Aids' },
+      { value: 'gw-line-whip-voice', label: 'Line / Whip / Voice Use' },
+      { value: 'breathing', label: 'Breathing' },
+      { value: 'concentration-focus', label: 'Concentration / Focus' },
+      { value: 'gw-reading-horse', label: 'Reading the Horse' }
+    ]
+  }
+];
+
 // Ride arc options (how the ride unfolded over time)
 export const RIDE_ARC_OPTIONS = [
   { value: 'consistent', label: 'Consistent throughout', color: '#8B7355' },
@@ -185,6 +293,7 @@ export async function createDebrief(userId, debriefData) {
     rideDate: debriefData.rideDate || '',
     horseName: debriefData.horseName || '',
     sessionType: debriefData.sessionType || '',
+    sessionModality: debriefData.sessionModality || '',
     overallQuality: debriefData.overallQuality || 5,
     confidenceLevel: debriefData.confidenceLevel || 5,
     riderEffort: debriefData.riderEffort || 5,
