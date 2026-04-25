@@ -2004,3 +2004,16 @@ This consolidated document was compiled from the following source files:
 
 *Compiled March 2026*
 *This document is a point-in-time snapshot. The individual source documents remain the authoritative references and should be updated individually. Regenerate this consolidated view periodically or when significant changes are made.*
+
+---
+
+## Movement Tag Vocabulary (April 2026)
+
+The Debrief form's `movements` array contains tag values drawn from a fixed vocabulary. Two prefix conventions:
+
+- **Shared tags** (no prefix) — used across both modalities for concepts that are the same regardless of where the work happened: `rhythm`, `relaxation`, `attentiveness`, `balance`, `bend-flexion`, `straightness`, `suppleness`, `impulsion`, `engagement`, `softness-responsiveness`, `collection`, `breathing`, `concentration-focus`, `walk-work`, `trot-work`, `canter-work`, `transitions`
+- **Ground-work-specific tags** (`gw-` prefix) — used only when the activity is fundamentally a ground-work activity: `gw-lunging`, `gw-in-hand`, `gw-long-lining`, `gw-liberty`, `gw-pole-cavaletti`, `gw-body-work`, `gw-partnership`, `gw-trailer-loading`, `gw-standing-tied`, `gw-farrier-vet-prep`, `gw-tacking-exposure`, `gw-bathing-clipping`, `gw-new-environment`, `gw-desensitization`, `gw-obstacle-work`, `gw-leading-skills`, `gw-rehab-hand-walking`, `gw-halt-stand`, `gw-circles`, `gw-changes-direction`, `gw-spirals`, `gw-serpentines`, `gw-figure-8`, `gw-leg-yield`, `gw-shoulder-in`, `gw-haunches-in`, `gw-half-pass`, `gw-disengage-hq`, `gw-turn-on-forehand`, `gw-leg-sequence`, `gw-rein-back`, `gw-piaffe`, `gw-passage`, `gw-spanish-walk`, `gw-extensions`, `gw-collection-work`, `gw-body-language`, `gw-timing-aids`, `gw-line-whip-voice`, `gw-reading-horse`
+
+This convention is enforced at the form layer. Aggregations on the dashboard or in Insights theme map should treat shared tags as one concept across modalities and `gw-`-prefixed tags as ground-work-specific.
+
+Source of truth: `YDJ_Debrief_Groundwork_Implementation_Brief.md` Section 3. Prompt insertion language for these tags lives in `YDJ_Prompt_Additions_Groundwork_Modality.md`.

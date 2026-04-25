@@ -208,6 +208,7 @@ function aggregateRideHistory(debriefs) {
     date: d.rideDate || "",
     horse: d.horseName || "",
     sessionType: d.sessionType || "",
+    sessionModality: d.sessionModality || "in-saddle",
     quality: d.overallQuality || 0,
     confidence: d.confidenceLevel || 0,
     riderEffort: d.riderEffort || 0,
