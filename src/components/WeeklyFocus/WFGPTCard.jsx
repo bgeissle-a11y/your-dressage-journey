@@ -28,6 +28,7 @@ export default function WFGPTCard({ assignments, checkedItems, isPinned, isDone,
                     <div
                       className={`gpt-check${checkedItems[i] ? ' done' : ''}`}
                       onClick={() => onItemCheck('gpt', i)}
+                      title="Checkmarks track your progress. Items refresh automatically when the week advances."
                     >{'\u2713'}</div>
                     <div>
                       <div className="gpt-title">{a.title}</div>

@@ -18,8 +18,10 @@ const base = createBaseService(COLLECTION);
  *   movementInstructions: string - required, large textarea
  *   movementPurpose:     string | null - optional, rider's articulation of why the exercises mattered
  *   cuesCorrections:     string - optional textarea
+ *   coachesEye:          string - optional textarea (imagery, horse observations, praise, principles)
  *   riderReflections:    string - optional textarea
  *   takeaways:           string[] - 0-3 non-empty strings
+ *   transcriptProcessed: boolean - whether an AI transcript was used to populate this note
  *   isDraft:             boolean
  * }
  */
@@ -46,8 +48,10 @@ export async function createLessonNote(userId, data) {
     movementInstructions: data.movementInstructions || '',
     movementPurpose: data.movementPurpose ? data.movementPurpose : null,
     cuesCorrections: data.cuesCorrections || '',
+    coachesEye: data.coachesEye || '',
     riderReflections: data.riderReflections || '',
     takeaways: (data.takeaways || []).filter(Boolean),
+    transcriptProcessed: data.transcriptProcessed || false,
     isDraft: data.isDraft || false
   });
 }

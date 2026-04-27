@@ -75,6 +75,12 @@ export default function GrandPrixPanel({ generationStatus }) {
   const [mentalRefreshing, setMentalRefreshing] = useState(false);
   const [loadStartedAt, setLoadStartedAt] = useState(null);
 
+  // Regenerating state — set when another tab/session is already generating
+  // for this user. While true, we poll for fresh data via staleOk instead of
+  // firing a second full-timeout pipeline call.
+  const [mentalRegenerating, setMentalRegenerating] = useState(false);
+  const [trajectoryRegenerating, setTrajectoryRegenerating] = useState(false);
+
   // Rider display info
   const [riderInfo, setRiderInfo] = useState({ name: '', horse: '', level: '' });
 
@@ -165,6 +171,11 @@ export default function GrandPrixPanel({ generationStatus }) {
           if (result.reason === 'standard_tier_active_cycle') {
             setShowRegenModal('upgrade');
           }
+        } else if (result.regenerating) {
+          // Another session is already generating for this user.
+          // Don't fire another pipeline — poll for the fresh result instead.
+          setMentalRegenerating(true);
+          setMentalError(null);
         } else if (staleOk) {
           // No cache available — trigger full load with loading UI
           fetchMental({ forceRefresh: false });
@@ -184,8 +195,17 @@ export default function GrandPrixPanel({ generationStatus }) {
         setActiveWeek(result.cycleState.currentWeek || 1);
       }
 
-      // If stale cache returned from fast path, trigger background refresh
-      if (result.stale && staleOk) {
+      // Server reported another generation in flight — show the loading
+      // horse and poll for fresh data rather than retrying.
+      if (result.regenerating) {
+        setMentalRegenerating(true);
+      } else {
+        setMentalRegenerating(false);
+      }
+
+      // If stale cache returned from fast path and server isn't already
+      // regenerating, trigger a background refresh.
+      if (result.stale && staleOk && !result.regenerating) {
         fetchMental({ forceRefresh: false });
       }
     } catch (err) {
@@ -223,6 +243,12 @@ export default function GrandPrixPanel({ generationStatus }) {
           // Insufficient data is not an error for trajectory — mental tab handles it
           return;
         }
+        if (result.regenerating) {
+          // Another session is already generating — poll instead of firing another pipeline.
+          setTrajectoryRegenerating(true);
+          setTrajectoryError(null);
+          return;
+        }
         if (staleOk) {
           // No cache — trigger full load with loading UI
           fetchTrajectory({ forceRefresh: false });
@@ -239,8 +265,15 @@ export default function GrandPrixPanel({ generationStatus }) {
         setOpenTrajCard(result.activePath);
       }
 
-      // If stale cache returned from fast path, trigger background refresh
-      if (result.stale && staleOk) {
+      if (result.regenerating) {
+        setTrajectoryRegenerating(true);
+      } else {
+        setTrajectoryRegenerating(false);
+      }
+
+      // If stale cache returned from fast path and server isn't already
+      // regenerating, trigger background refresh.
+      if (result.stale && staleOk && !result.regenerating) {
         fetchTrajectory({ forceRefresh: false });
       }
     } catch (err) {
@@ -279,6 +312,65 @@ export default function GrandPrixPanel({ generationStatus }) {
       }
     }
   }, [generationStatus?.justCompleted]);
+
+  // Poll for fresh data while another session is regenerating.
+  // Checks every 15s via staleOk (cache-only, no Claude calls), gives up
+  // after 3 minutes. Server lock releases at most 10 minutes after
+  // acquisition, so 3 min covers typical generation runtimes.
+  useEffect(() => {
+    if (!mentalRegenerating) return;
+    const startedAt = Date.now();
+    const MAX_MS = 3 * 60 * 1000;
+    const timer = setInterval(async () => {
+      if (Date.now() - startedAt > MAX_MS) {
+        setMentalRegenerating(false);
+        clearInterval(timer);
+        return;
+      }
+      try {
+        const result = await getGrandPrixThinking({ staleOk: true, layer: 'mental' });
+        if (result?.success && !result.regenerating && !result.stale) {
+          setMentalData(result);
+          setMentalStale(false);
+          if (result.cycleState) {
+            setCycleState(result.cycleState);
+            setActiveWeek(result.cycleState.currentWeek || 1);
+          }
+          setMentalRegenerating(false);
+          clearInterval(timer);
+        }
+      } catch {
+        // Ignore transient poll failures; keep trying until MAX_MS.
+      }
+    }, 15_000);
+    return () => clearInterval(timer);
+  }, [mentalRegenerating]);
+
+  useEffect(() => {
+    if (!trajectoryRegenerating) return;
+    const startedAt = Date.now();
+    const MAX_MS = 3 * 60 * 1000;
+    const timer = setInterval(async () => {
+      if (Date.now() - startedAt > MAX_MS) {
+        setTrajectoryRegenerating(false);
+        clearInterval(timer);
+        return;
+      }
+      try {
+        const result = await getGrandPrixThinking({ staleOk: true, layer: 'trajectory' });
+        if (result?.success && !result.regenerating && !result.stale) {
+          setTrajectoryData(result);
+          setTrajectoryStale(false);
+          if (result.activePath) setOpenTrajCard(result.activePath);
+          setTrajectoryRegenerating(false);
+          clearInterval(timer);
+        }
+      } catch {
+        // Ignore transient poll failures; keep trying until MAX_MS.
+      }
+    }, 15_000);
+    return () => clearInterval(timer);
+  }, [trajectoryRegenerating]);
 
   // Handle regenerate — direct call, visible loading state
   const handleRegenerate = async () => {
@@ -474,6 +566,18 @@ export default function GrandPrixPanel({ generationStatus }) {
   }
 
   function renderMentalTab() {
+    if (mentalRegenerating && !mentalData?.selectedPath) {
+      return (
+        <div className="gpt-loading">
+          <YDJLoading message="Your program is being prepared" />
+          <p style={{ textAlign: 'center', color: '#8B7355', marginTop: 12, maxWidth: 420, padding: '0 16px' }}>
+            Another session is already generating your Mental Performance program.
+            This usually takes about 2 minutes — come back soon and it will be ready for you.
+          </p>
+        </div>
+      );
+    }
+
     if (mentalLoading && !mentalData) {
       return (
         <div className="gpt-loading">
@@ -666,6 +770,18 @@ export default function GrandPrixPanel({ generationStatus }) {
   }
 
   function renderTrajectoryTab() {
+    if (trajectoryRegenerating && !trajectoryData) {
+      return (
+        <div className="gpt-loading">
+          <YDJLoading message="Your trajectory is being prepared" />
+          <p style={{ textAlign: 'center', color: '#8B7355', marginTop: 12, maxWidth: 420, padding: '0 16px' }}>
+            Another session is already generating your Training Trajectory.
+            This usually takes about 2 minutes — come back soon and it will be ready for you.
+          </p>
+        </div>
+      );
+    }
+
     if (trajectoryLoading && !trajectoryData) {
       return (
         <div className="gpt-loading">
@@ -911,6 +1027,18 @@ export default function GrandPrixPanel({ generationStatus }) {
         <div className="gpt-gen-refreshing-bar">
           <div className="spinner spinner--small" />
           <span>Regenerating your Mental Performance program — this takes about 2 minutes...</span>
+        </div>
+      )}
+      {(mentalRegenerating && mentalData?.selectedPath) && (
+        <div className="gpt-gen-refreshing-bar">
+          <div className="spinner spinner--small" />
+          <span>A fresh version is being prepared in another session — come back soon for the update.</span>
+        </div>
+      )}
+      {(trajectoryRegenerating && trajectoryData) && (
+        <div className="gpt-gen-refreshing-bar">
+          <div className="spinner spinner--small" />
+          <span>Your trajectory is refreshing in another session — come back soon.</span>
         </div>
       )}
       {activeTab === 'mental' && renderMentalTab()}

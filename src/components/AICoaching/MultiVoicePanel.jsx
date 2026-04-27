@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { getMultiVoiceCoaching, getQuickInsights, VOICE_META } from '../../services/aiService';
 import CollapsibleSection from './CollapsibleSection';
 import CoachingVoiceCard from './CoachingVoiceCard';
@@ -45,9 +45,20 @@ export default function MultiVoicePanel({ generationStatus }) {
     (v) => v && !v._loading && !v._error
   );
 
+  // Ref mirror of voices so fetchCoaching can read the latest value without
+  // taking a dependency on it. fetchCoaching mutates voices via setVoices,
+  // which would otherwise recreate the callback and re-fire the mount effect —
+  // causing a 5-call API fan-out on every state update.
+  const voicesRef = useRef(voices);
+  voicesRef.current = voices;
+
   const fetchCoaching = useCallback(async (forceRefresh = false) => {
+    const hasRealVoiceDataNow = Object.values(voicesRef.current).some(
+      (v) => v && !v._loading && !v._error
+    );
+
     // Stale-while-revalidate: keep existing data visible during refresh
-    if (forceRefresh && hasRealVoiceData) {
+    if (forceRefresh && hasRealVoiceDataNow) {
       setRefreshing(true);
     } else {
       // Pre-set all voices to loading state for progressive tab rendering
@@ -83,6 +94,10 @@ export default function MultiVoicePanel({ generationStatus }) {
       })
       .catch((err) => {
         console.error('Quick insights error:', err);
+        const parsed = parseErrorDetails(err);
+        if (parsed.category === 'rate_limited') {
+          setError(parsed);
+        }
       });
 
     // Individual voice calls — each renders as soon as it resolves
@@ -106,13 +121,24 @@ export default function MultiVoicePanel({ generationStatus }) {
         .catch((err) => {
           console.error(`Voice ${idx} error:`, err);
           const parsed = parseErrorDetails(err);
-          setVoices((prev) => ({
-            ...prev,
-            [idx]: {
-              _error: true,
-              _errorMessage: parsed.message || 'This coaching voice encountered a temporary issue.',
-            },
-          }));
+          if (parsed.category === 'rate_limited') {
+            setError(parsed);
+          }
+          setVoices((prev) => {
+            // Preserve cached content if already displayed (stale-while-revalidate).
+            // Only replace with an error card if the voice had no real content.
+            const existing = prev[idx];
+            if (existing && !existing._loading && !existing._error) {
+              return prev;
+            }
+            return {
+              ...prev,
+              [idx]: {
+                _error: true,
+                _errorMessage: parsed.message || 'This coaching voice encountered a temporary issue.',
+              },
+            };
+          });
         })
     );
 
@@ -120,15 +146,18 @@ export default function MultiVoicePanel({ generationStatus }) {
     setIsStale(anyStale);
     setLoading(false);
     setRefreshing(false);
-  }, [hasRealVoiceData]);
+  }, []);
 
   useEffect(() => {
     fetchCoaching();
-  }, [fetchCoaching]);
+    // fetchCoaching is intentionally stable (empty deps) so this runs once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // Auto-refresh when stale data is detected on initial load
+  // Auto-refresh when stale data is detected on initial load.
+  // Guard with !error so a rate-limited refresh doesn't loop.
   useEffect(() => {
-    if (isStale && hasRealVoiceData && !refreshing && !loading) {
+    if (isStale && hasRealVoiceData && !refreshing && !loading && !error) {
       fetchCoaching(true);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps

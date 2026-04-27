@@ -83,14 +83,24 @@ export async function getToolkitEntry(docId) {
 }
 
 /**
- * Get all toolkit entries for a user (newest first)
+ * Get all toolkit entries for a user (newest first).
+ * Sorts by `date` when present, falling back to `createdAt` so entries
+ * without a user-entered date (e.g., visualization scripts) still surface
+ * at the top of the list when freshly created.
  */
 export async function getAllToolkitEntries(userId, options = {}) {
-  return base.readAll(userId, {
-    orderField: 'date',
-    orderDirection: 'desc',
-    ...options
+  const result = await base.readAll(userId, options);
+  if (!result.success) return result;
+
+  const sorted = [...result.data].sort((a, b) => {
+    const aKey = a.date || a.createdAt || '';
+    const bKey = b.date || b.createdAt || '';
+    if (aKey < bKey) return 1;
+    if (aKey > bKey) return -1;
+    return 0;
   });
+
+  return { ...result, data: sorted };
 }
 
 /**
@@ -134,6 +144,7 @@ export async function createVisualizationScript(userId, formData, script, moveme
       category: 'mental',
       status: 'currently-using',
       name: `Visualization: ${movementLabel}`,
+      date: new Date().toISOString().split('T')[0],
       sessionCount: 0,
       lastSessionDate: null,
       isDeleted: false,

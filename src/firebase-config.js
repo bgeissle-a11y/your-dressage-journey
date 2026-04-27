@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import { getAuth, setPersistence, browserLocalPersistence } from 'firebase/auth';
 import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
 
 // Firebase configuration using environment variables
@@ -37,8 +37,15 @@ const app = initializeApp(firebaseConfig);
 // Initialize Firestore database
 export const db = getFirestore(app);
 
-// Initialize Firebase Authentication
+// Initialize Firebase Authentication with explicit local persistence.
+// Default is IndexedDB local persistence, but Safari ITP can silently fall
+// back to in-memory if IndexedDB is unavailable — logging the user out
+// between sessions. Calling setPersistence explicitly surfaces any failure
+// to the console so we know why a session didn't survive.
 export const auth = getAuth(app);
+setPersistence(auth, browserLocalPersistence).catch((err) => {
+  console.warn('[firebase-config] setPersistence(browserLocal) failed:', err?.message || err);
+});
 
 // Initialize Cloud Functions
 export const functions = getFunctions(app);

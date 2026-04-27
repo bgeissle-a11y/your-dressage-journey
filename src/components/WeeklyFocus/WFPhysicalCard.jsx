@@ -39,6 +39,7 @@ export default function WFPhysicalCard({ items, checkedItems, isPinned, isDone, 
                     <div
                       className={`phys-check${checkedItems[i] ? ' done' : ''}`}
                       onClick={() => onItemCheck('physical', i)}
+                      title="Checkmarks track your progress. Items refresh automatically when the week advances."
                     >{'\u2713'}</div>
                   </li>
                 ))}

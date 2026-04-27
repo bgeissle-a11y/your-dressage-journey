@@ -250,9 +250,17 @@ export default function useWeeklyFocus() {
           getAllShowPreparations(uid),
           // Week advancement: lightweight Cloud Function calls that update
           // Firestore if the computed week differs from stored currentWeek.
-          // Silently ignored if cycle state doesn't exist yet.
-          advanceWeekPointer('mental').catch(() => null),
-          advanceWeekPointer('physical').catch(() => null),
+          // Failures are non-fatal (cycle state may not exist yet) but must
+          // be logged — a silent failure here leaves stale weekly assignments
+          // on the home page for the entire week.
+          advanceWeekPointer('mental').catch((err) => {
+            console.warn('[useWeeklyFocus] advanceWeekPointer(mental) failed:', err?.message || err);
+            return null;
+          }),
+          advanceWeekPointer('physical').catch((err) => {
+            console.warn('[useWeeklyFocus] advanceWeekPointer(physical) failed:', err?.message || err);
+            return null;
+          }),
         ]);
 
         if (cancelled) return;

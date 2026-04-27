@@ -28,6 +28,7 @@ const PROBLEM_LABELS = {
 
 const FILTERS = [
   { value: 'all', label: 'All' },
+  { value: 'visualization', label: 'Visualization' },
   ...TOOLKIT_CATEGORIES.filter(c => c.value !== 'other').map(c => ({
     value: c.value,
     label: c.label.split(' ')[0] // First word: Movement, Strength, etc.
@@ -89,6 +90,8 @@ export default function ToolkitList() {
 
   const filtered = filter === 'all'
     ? entries
+    : filter === 'visualization'
+    ? entries.filter(e => e.entryType === 'visualization-script')
     : entries.filter(e => e.category === filter);
 
   function formatDate(dateStr) {
