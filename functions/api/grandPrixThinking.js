@@ -32,6 +32,7 @@ const {
 const { buildTestDatabaseContext } = require("../lib/testDatabase");
 const { getCache, setCache, getStaleCache } = require("../lib/cacheManager");
 const { getStatus: getGenStatus } = require("../lib/generationStatus");
+const { tryAcquireLock, releaseLock } = require("../lib/inflightLock");
 const {
   getCycleState,
   initCycle,
@@ -255,6 +256,37 @@ async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerConte
     }
   }
 
+  // In-flight lock: prevent concurrent pipelines for the same user.
+  const gotLock = await tryAcquireLock(uid, OUTPUT_TYPE_MENTAL);
+  if (!gotLock) {
+    console.log(`[gpt-l1] Another generation in flight for ${uid} — returning stale/regenerating response`);
+    const staleForContention = await getStaleCache(uid, OUTPUT_TYPE_MENTAL, { maxAgeDays: 90 });
+    const currentCycleState = await getCycleState(uid, "gpt");
+    if (staleForContention?.result?.selectedPath) {
+      return {
+        success: true,
+        ...staleForContention.result,
+        fromCache: true,
+        stale: true,
+        regenerating: true,
+        tier: riderData.tier,
+        dataTier: riderData.dataTier,
+        dataSnapshot: riderData.dataSnapshot,
+        generatedAt: staleForContention.generatedAt,
+        cycleState: currentCycleState,
+      };
+    }
+    return {
+      success: false,
+      regenerating: true,
+      noCache: true,
+      tier: riderData.tier,
+      dataTier: riderData.dataTier,
+      cycleState: currentCycleState,
+    };
+  }
+
+  try {
   // Hard Rule 1: Read cached L2 for activePath context
   const cachedL2 = await getCache(uid, OUTPUT_TYPE_TRAJECTORY, { maxAgeDays: 9999 });
   const l2TrajectoryContext = extractL2TrajectoryContext(cachedL2);
@@ -326,6 +358,9 @@ async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerConte
     generatedAt: l1Output.generatedAt || new Date().toISOString(),
     cycleState: newCycleState,
   };
+  } finally {
+    await releaseLock(uid, OUTPUT_TYPE_MENTAL);
+  }
 }
 
 /**
@@ -377,6 +412,36 @@ async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerC
     }
   }
 
+  // In-flight lock: if another invocation is already running this pipeline
+  // for this user, return stale cache (or a regenerating signal) instead of
+  // running a second Opus pipeline in parallel.
+  const gotLock = await tryAcquireLock(uid, OUTPUT_TYPE_TRAJECTORY);
+  if (!gotLock) {
+    console.log(`[trajectory] Another generation in flight for ${uid} — returning stale/regenerating response`);
+    const staleForContention = await getStaleCache(uid, OUTPUT_TYPE_TRAJECTORY, { maxAgeDays: 90 });
+    if (staleForContention?.result) {
+      return {
+        success: true,
+        ...staleForContention.result,
+        fromCache: true,
+        stale: true,
+        regenerating: true,
+        tier: riderData.tier,
+        dataTier: riderData.dataTier,
+        dataSnapshot: riderData.dataSnapshot,
+        generatedAt: staleForContention.generatedAt,
+      };
+    }
+    return {
+      success: false,
+      regenerating: true,
+      noCache: true,
+      tier: riderData.tier,
+      dataTier: riderData.dataTier,
+    };
+  }
+
+  try {
   // Determine rider's current level for test database filtering
   const currentLevel = riderData.profile?.currentLevel
     || riderData.horseSummaries?.[0]?.level
@@ -493,6 +558,9 @@ async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerC
     dataSnapshot: riderData.dataSnapshot,
     generatedAt: new Date().toISOString(),
   };
+  } finally {
+    await releaseLock(uid, OUTPUT_TYPE_TRAJECTORY);
+  }
 }
 
 /**

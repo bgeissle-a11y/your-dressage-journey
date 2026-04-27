@@ -19,6 +19,7 @@ const { callClaude } = require("../lib/claudeCall");
 const { buildJourneyMapPrompt } = require("../lib/promptBuilder");
 const { getCache, setCache, getStaleCache } = require("../lib/cacheManager");
 const { getStatus: getGenStatus } = require("../lib/generationStatus");
+const { tryAcquireLock, releaseLock } = require("../lib/inflightLock");
 const { db } = require("../lib/firebase");
 const { FieldValue } = require("firebase-admin/firestore");
 
@@ -167,6 +168,34 @@ async function handler(request) {
       }
     }
 
+    // In-flight lock: prevent concurrent pipelines for the same user.
+    const gotLock = await tryAcquireLock(uid, OUTPUT_TYPE);
+    if (!gotLock) {
+      console.log(`[journeyMap] Another generation in flight for ${uid} — returning stale/regenerating response`);
+      const staleForContention = await getStaleCache(uid, OUTPUT_TYPE, { maxAgeDays: 90 });
+      if (staleForContention?.result) {
+        return {
+          success: true,
+          ...staleForContention.result,
+          fromCache: true,
+          stale: true,
+          regenerating: true,
+          tier: riderData.tier,
+          dataTier: riderData.dataTier,
+          dataSnapshot: riderData.dataSnapshot,
+          generatedAt: staleForContention.generatedAt,
+        };
+      }
+      return {
+        success: false,
+        regenerating: true,
+        noCache: true,
+        tier: riderData.tier,
+        dataTier: riderData.dataTier,
+      };
+    }
+
+    try {
     // --- Call 1: Data Synthesis ---
     const { system: sys1, userMessage: msg1 } = buildJourneyMapPrompt(
       1,
@@ -258,6 +287,9 @@ async function handler(request) {
       dataSnapshot: riderData.dataSnapshot,
       generatedAt: new Date().toISOString(),
     };
+    } finally {
+      await releaseLock(uid, OUTPUT_TYPE);
+    }
   } catch (error) {
     throw wrapError(error, "getJourneyMap");
   }

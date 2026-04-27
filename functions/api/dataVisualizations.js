@@ -20,6 +20,7 @@ const { callClaude } = require("../lib/claudeCall");
 const { buildDataVisualizationPrompt } = require("../lib/promptBuilder");
 const { getCache, setCache, getStaleCache } = require("../lib/cacheManager");
 const { getStatus: getGenStatus } = require("../lib/generationStatus");
+const { tryAcquireLock, releaseLock } = require("../lib/inflightLock");
 
 const OUTPUT_TYPE = "dataVisualizations";
 
@@ -103,6 +104,34 @@ async function handler(request) {
       }
     }
 
+    // In-flight lock: prevent concurrent pipelines for the same user.
+    const gotLock = await tryAcquireLock(uid, OUTPUT_TYPE);
+    if (!gotLock) {
+      console.log(`[dataVisualizations] Another generation in flight for ${uid} — returning stale/regenerating response`);
+      const staleForContention = await getStaleCache(uid, OUTPUT_TYPE, { maxAgeDays: 90 });
+      if (staleForContention?.result) {
+        return {
+          success: true,
+          ...staleForContention.result,
+          fromCache: true,
+          stale: true,
+          regenerating: true,
+          tier: riderData.tier,
+          dataTier: riderData.dataTier,
+          dataSnapshot: riderData.dataSnapshot,
+          generatedAt: staleForContention.generatedAt,
+        };
+      }
+      return {
+        success: false,
+        regenerating: true,
+        noCache: true,
+        tier: riderData.tier,
+        dataTier: riderData.dataTier,
+      };
+    }
+
+    try {
     // --- DV-1 and DV-2 in parallel (they don't depend on each other) ---
     const { system: sys1, userMessage: msg1 } = buildDataVisualizationPrompt(
       1,
@@ -166,6 +195,9 @@ async function handler(request) {
       dataSnapshot: riderData.dataSnapshot,
       generatedAt: new Date().toISOString(),
     };
+    } finally {
+      await releaseLock(uid, OUTPUT_TYPE);
+    }
   } catch (error) {
     throw wrapError(error, "getDataVisualizations");
   }

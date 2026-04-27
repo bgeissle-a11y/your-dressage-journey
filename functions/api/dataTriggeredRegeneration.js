@@ -30,11 +30,19 @@ const {
   getCountsAtLastRegen,
 } = require("../lib/generationStatus");
 
-// Regeneration threshold for high-frequency collections
-const REGEN_THRESHOLD = 5;
+// Regeneration threshold for high-frequency collections.
+// Light loggers who don't accumulate this many entries still get a refresh
+// via MONTHLY_REFRESH_MS below.
+const REGEN_THRESHOLD = 10;
 
 // Minimum time between regeneration runs for the same user (milliseconds)
 const REGEN_COOLDOWN_MS = 2 * 60 * 60 * 1000; // 2 hours
+
+// Monthly floor: riders who log less than REGEN_THRESHOLD entries per month
+// still get a coaching refresh once 28 days have passed since the last run,
+// provided at least one new entry arrived. Ensures 1x-per-week riders never
+// go longer than a month without fresh coaching.
+const MONTHLY_REFRESH_MS = 28 * 24 * 60 * 60 * 1000;
 
 // Output priority order (same as warmHandler)
 // Skip GP Thinking Trajectory (Opus — too expensive for automated runs)
@@ -197,14 +205,24 @@ async function handleDebriefCreated(event) {
     const { debriefCountAtLastRegen } = await getCountsAtLastRegen(uid);
     const delta = currentCount - debriefCountAtLastRegen;
 
-    console.log(`[dataRegen] ${uid}: ${currentCount} debriefs total, ${debriefCountAtLastRegen} at last regen, delta=${delta}`);
+    const status = await getStatus(uid);
+    const lastCompletedMs = status?.completedAt ? new Date(status.completedAt).getTime() : null;
+    const elapsedSinceLastRegenMs = lastCompletedMs ? Date.now() - lastCompletedMs : Infinity;
 
-    if (delta < REGEN_THRESHOLD) {
-      console.log(`[dataRegen] ${uid}: only ${delta} new debriefs (need ${REGEN_THRESHOLD}) — skipping`);
+    console.log(`[dataRegen] ${uid}: ${currentCount} debriefs total, ${debriefCountAtLastRegen} at last regen, delta=${delta}, ${Math.round(elapsedSinceLastRegenMs / 86400000)}d since last regen`);
+
+    const thresholdReached = delta >= REGEN_THRESHOLD;
+    const monthlyFloorReached = delta >= 1 && elapsedSinceLastRegenMs >= MONTHLY_REFRESH_MS;
+
+    if (!thresholdReached && !monthlyFloorReached) {
+      console.log(`[dataRegen] ${uid}: ${delta} new debriefs (threshold ${REGEN_THRESHOLD}) and monthly floor not reached — skipping`);
       return;
     }
 
-    console.log(`[dataRegen] ${uid}: threshold reached (${delta} new debriefs) — starting regeneration`);
+    const trigger = thresholdReached
+      ? `threshold reached (${delta} new debriefs)`
+      : `monthly floor reached (${Math.round(elapsedSinceLastRegenMs / 86400000)}d since last, ${delta} new debrief${delta === 1 ? "" : "s"})`;
+    console.log(`[dataRegen] ${uid}: ${trigger} — starting regeneration`);
     await runRegeneration(uid, ALL_OUTPUTS, "data_change");
   } catch (err) {
     console.error(`[dataRegen] Error handling debrief trigger for ${uid}:`, err.message);
@@ -233,16 +251,26 @@ async function handleReflectionCreated(event) {
     const { reflectionCountAtLastRegen } = await getCountsAtLastRegen(uid);
     const delta = currentCount - reflectionCountAtLastRegen;
 
-    console.log(`[dataRegen] ${uid}: ${currentCount} reflections total, ${reflectionCountAtLastRegen} at last regen, delta=${delta}`);
+    const status = await getStatus(uid);
+    const lastCompletedMs = status?.completedAt ? new Date(status.completedAt).getTime() : null;
+    const elapsedSinceLastRegenMs = lastCompletedMs ? Date.now() - lastCompletedMs : Infinity;
 
-    if (delta < REGEN_THRESHOLD) {
-      console.log(`[dataRegen] ${uid}: only ${delta} new reflections (need ${REGEN_THRESHOLD}) — skipping`);
+    console.log(`[dataRegen] ${uid}: ${currentCount} reflections total, ${reflectionCountAtLastRegen} at last regen, delta=${delta}, ${Math.round(elapsedSinceLastRegenMs / 86400000)}d since last regen`);
+
+    const thresholdReached = delta >= REGEN_THRESHOLD;
+    const monthlyFloorReached = delta >= 1 && elapsedSinceLastRegenMs >= MONTHLY_REFRESH_MS;
+
+    if (!thresholdReached && !monthlyFloorReached) {
+      console.log(`[dataRegen] ${uid}: ${delta} new reflections (threshold ${REGEN_THRESHOLD}) and monthly floor not reached — skipping`);
       return;
     }
 
     // Reflections affect coaching, journey map, and data viz (not GP thinking)
     const outputs = ["coaching", "dataVisualizations", "journeyMap"];
-    console.log(`[dataRegen] ${uid}: threshold reached (${delta} new reflections) — starting regeneration`);
+    const trigger = thresholdReached
+      ? `threshold reached (${delta} new reflections)`
+      : `monthly floor reached (${Math.round(elapsedSinceLastRegenMs / 86400000)}d since last, ${delta} new reflection${delta === 1 ? "" : "s"})`;
+    console.log(`[dataRegen] ${uid}: ${trigger} — starting regeneration`);
     await runRegeneration(uid, outputs, "data_change");
   } catch (err) {
     console.error(`[dataRegen] Error handling reflection trigger for ${uid}:`, err.message);

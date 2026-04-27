@@ -32,6 +32,30 @@ const DAILY_CALL_LIMIT = 40; // max Claude API calls per user per day
 const BUDGET_COLLECTION = "usageBudgets";
 
 /**
+ * Per-user weekly dollar budget. Backstop against runaway usage patterns
+ * (multi-device users, aggressive manual regens, cache-busting behavior).
+ *
+ * Stored on the same `usageBudgets/{uid}` doc as the daily counter, keyed
+ * by ISO week (YYYY-Www). Resets automatically when the week changes.
+ *
+ * Value is in millicents (1/1000 of a cent) to match _logUsage output.
+ * 20 USD = $20 * 100,000 = 2,000,000 millicents.
+ */
+const WEEKLY_LIMIT_MILLICENTS = 2_000_000;
+
+/**
+ * Build an ISO-week key (e.g. "2026-W17") in UTC for budget bucketing.
+ */
+function getWeekKey(date = new Date()) {
+  const d = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const weekNum = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+  return `${d.getUTCFullYear()}-W${String(weekNum).padStart(2, "0")}`;
+}
+
+/**
  * Make a call to the Claude API with automatic retry for transient failures.
  *
  * @param {object} options
@@ -55,10 +79,16 @@ async function callClaude({
   maxRetries = DEFAULT_MAX_RETRIES,
   uid = null,
 }) {
-  // Per-user daily rate limit check
+  // Per-user daily + weekly rate limit check
   if (uid) {
-    const allowed = await _checkAndIncrementBudget(uid);
-    if (!allowed) {
+    const budgetResult = await _checkAndIncrementBudget(uid);
+    if (!budgetResult.allowed) {
+      if (budgetResult.reason === "weekly") {
+        console.warn(`[${context}] ⛔ Weekly $ budget ($${WEEKLY_LIMIT_MILLICENTS / 100_000}) exceeded for user ${uid}`);
+        const err = new Error("Your weekly insights budget has been reached. Cached insights remain available; new generations will resume at the start of next week.");
+        err.code = "weekly-budget-exceeded";
+        throw err;
+      }
       console.warn(`[${context}] ⛔ Daily API limit (${DAILY_CALL_LIMIT}) exceeded for user ${uid}`);
       const err = new Error(`Daily API call limit reached. Your insights will refresh tomorrow.`);
       err.code = "rate-limit-exceeded";
@@ -108,6 +138,7 @@ async function callClaude({
  */
 async function _checkAndIncrementBudget(uid) {
   const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const week = getWeekKey();
   const docRef = db.collection(BUDGET_COLLECTION).doc(uid);
 
   try {
@@ -115,25 +146,47 @@ async function _checkAndIncrementBudget(uid) {
       const doc = await tx.get(docRef);
       const data = doc.exists ? doc.data() : null;
 
-      // Reset counter if it's a new day or doc doesn't exist
+      // Pre-call weekly $ check. Cost is tallied after each call in _logUsage,
+      // so this blocks once prior calls in the same week have crossed the
+      // threshold. The call that crosses the line slips through (graceful),
+      // but subsequent calls are rejected until the week rolls over.
+      const isSameWeek = data?.week === week;
+      const weekCost = isSameWeek ? (data.weekCostMillicents || 0) : 0;
+      if (weekCost >= WEEKLY_LIMIT_MILLICENTS) {
+        return { allowed: false, reason: "weekly" };
+      }
+
+      // Reset daily counter if it's a new day or doc doesn't exist
       if (!data || data.date !== today) {
-        tx.set(docRef, { date: today, count: 1, uid });
-        return true;
+        tx.set(docRef, {
+          date: today,
+          count: 1,
+          uid,
+          week,
+          weekCostMillicents: weekCost, // preserve accumulated weekly cost
+        }, { merge: true });
+        return { allowed: true };
       }
 
       if (data.count >= DAILY_CALL_LIMIT) {
-        return false; // Over budget
+        return { allowed: false, reason: "daily" };
       }
 
-      tx.update(docRef, { count: data.count + 1 });
-      return true;
+      const updates = { count: data.count + 1 };
+      // If the week rolled over mid-day, reset weekly accumulator
+      if (!isSameWeek) {
+        updates.week = week;
+        updates.weekCostMillicents = 0;
+      }
+      tx.update(docRef, updates);
+      return { allowed: true };
     });
 
     return result;
   } catch (err) {
     // If budget check fails, allow the call (fail open) but log warning
     console.warn(`[rate-limit] Budget check failed for ${uid}: ${err.message} — allowing call`);
-    return true;
+    return { allowed: true };
   }
 }
 
@@ -238,6 +291,33 @@ function _logUsage({ uid, context, model, inputTokens, outputTokens, stopReason 
   db.collection("usageLogs").add(doc).catch((err) => {
     console.warn(`[usage-log] Failed to write usage log: ${err.message}`);
   });
+
+  // Increment the user's weekly cost accumulator (fire-and-forget).
+  // The pre-call budget check reads this to enforce WEEKLY_LIMIT_MILLICENTS.
+  // A transaction is used so that a call in flight across a week boundary
+  // resets the accumulator cleanly rather than carrying prior-week cost
+  // into the new week's tally.
+  if (uid && estimatedCostMillicents > 0) {
+    const week = getWeekKey();
+    const budgetRef = db.collection(BUDGET_COLLECTION).doc(uid);
+    db.runTransaction(async (tx) => {
+      const doc = await tx.get(budgetRef);
+      const data = doc.exists ? doc.data() : null;
+      if (data?.week === week) {
+        tx.update(budgetRef, {
+          weekCostMillicents: (data.weekCostMillicents || 0) + estimatedCostMillicents,
+        });
+      } else {
+        tx.set(budgetRef, {
+          uid,
+          week,
+          weekCostMillicents: estimatedCostMillicents,
+        }, { merge: true });
+      }
+    }).catch((err) => {
+      console.warn(`[usage-log] Failed to increment weekly cost for ${uid}: ${err.message}`);
+    });
+  }
 }
 
 /**

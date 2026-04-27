@@ -26,6 +26,7 @@ const { prepareRiderData } = require("../lib/prepareRiderData");
 const { callClaude } = require("../lib/claudeCall");
 const { buildPhysicalGuidancePrompt } = require("../lib/promptBuilder");
 const { getCache, setCache, getStaleCache } = require("../lib/cacheManager");
+const { tryAcquireLock, releaseLock } = require("../lib/inflightLock");
 const {
   getCycleState,
   initCycle,
@@ -166,6 +167,37 @@ async function handler(request) {
       }
     }
 
+    // In-flight lock: prevent concurrent pipelines for the same user.
+    const gotLock = await tryAcquireLock(uid, OUTPUT_TYPE);
+    if (!gotLock) {
+      console.log(`[physical] Another generation in flight for ${uid} — returning stale/regenerating response`);
+      const staleForContention = await getStaleCache(uid, OUTPUT_TYPE, { maxAgeDays: 90 });
+      const currentCycleState = await getCycleState(uid, "physical");
+      if (staleForContention?.result) {
+        return {
+          success: true,
+          ...staleForContention.result,
+          fromCache: true,
+          stale: true,
+          regenerating: true,
+          tier: riderData.tier,
+          dataTier: riderData.dataTier,
+          dataSnapshot: riderData.dataSnapshot,
+          generatedAt: staleForContention.generatedAt,
+          cycleState: currentCycleState,
+        };
+      }
+      return {
+        success: false,
+        regenerating: true,
+        noCache: true,
+        tier: riderData.tier,
+        dataTier: riderData.dataTier,
+        cycleState: currentCycleState,
+      };
+    }
+
+    try {
     // Read active GPT trajectory for context (Hard Rule 2)
     const trajectoryCache = await getCache(uid, "grandPrixTrajectory", { maxAgeDays: 9999 });
     const activeTrajectory = trajectoryCache?.result?.activePath || "ambitious_competitor";
@@ -291,6 +323,9 @@ async function handler(request) {
       generatedAt: result.generatedAt,
       cycleState: newCycleState,
     };
+    } finally {
+      await releaseLock(uid, OUTPUT_TYPE);
+    }
   } catch (error) {
     throw wrapError(error, "getPhysicalGuidance");
   }

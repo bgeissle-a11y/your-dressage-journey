@@ -22,6 +22,7 @@ const { callClaude } = require("../lib/claudeCall");
 const { buildCoachingPrompt, buildQuickInsightsPrompt, VOICE_META } = require("../lib/promptBuilder");
 const { getCache, setCache, getStaleCache } = require("../lib/cacheManager");
 const { getStatus: getGenStatus } = require("../lib/generationStatus");
+const { tryAcquireLock, releaseLock } = require("../lib/inflightLock");
 
 const OUTPUT_TYPE = "coaching";
 const INSIGHTS_OUTPUT_TYPE = "coaching_insights";
@@ -209,15 +210,57 @@ async function handler(request) {
       };
     }
 
+    // In-flight lock: prevent a concurrent page load/refresh from firing a
+    // second 5-call fan-out while one is already running.
+    const gotLock = await tryAcquireLock(uid, OUTPUT_TYPE);
+    if (!gotLock) {
+      console.log(`[coaching] Another generation in flight for ${uid} — returning stale/regenerating response`);
+      const staleVoices = await Promise.all([0, 1, 2, 3].map(async (i) => {
+        const s = await getStaleCache(riderData.uid, OUTPUT_TYPE, {
+          voiceIndex: i,
+          maxAgeDays: 90,
+        });
+        return s?.result ? { ...s.result, _meta: { ...VOICE_META[i], fromCache: true, stale: true } } : null;
+      }));
+      const staleInsights = await getStaleCache(riderData.uid, INSIGHTS_OUTPUT_TYPE, { maxAgeDays: 90 });
+      const voices = {};
+      staleVoices.forEach((v, i) => { if (v) voices[i] = v; });
+      if (Object.keys(voices).length > 0 || staleInsights?.result) {
+        return {
+          success: true,
+          voices,
+          quickInsights: staleInsights?.result || null,
+          regenerating: true,
+          stale: true,
+          tier: riderData.tier,
+          dataTier: riderData.dataTier,
+          dataSnapshot: riderData.dataSnapshot,
+          generatedAt,
+        };
+      }
+      return {
+        success: false,
+        regenerating: true,
+        noCache: true,
+        tier: riderData.tier,
+        dataTier: riderData.dataTier,
+      };
+    }
+
+    let results;
+    try {
     // Generate all 4 voices + Quick Insights in parallel (5 calls)
     // Use Promise.allSettled so partial results can be returned if some voices fail
-    const results = await Promise.allSettled([
+    results = await Promise.allSettled([
       generateVoice(0, riderData, forceRefresh, uid),
       generateVoice(1, riderData, forceRefresh, uid),
       generateVoice(2, riderData, forceRefresh, uid),
       generateVoice(3, riderData, forceRefresh, uid),
       generateQuickInsights(riderData, forceRefresh, uid),
     ]);
+    } finally {
+      await releaseLock(uid, OUTPUT_TYPE);
+    }
 
     const voices = {};
     const failedVoices = [];
