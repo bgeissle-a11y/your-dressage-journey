@@ -33,8 +33,14 @@ This document follows the format established by `YDJ_Prompt_Additions_Horse_Heal
 ```
 LESSON NOTES AWARENESS:
 The platform includes a Lesson Notes form where riders capture instructor guidance
-after lessons (in-person, clinic, video lesson, or video review). When this data
-is present, use it as follows:
+after lessons (in-person, clinic, video lesson, or video review). The lesson notes
+schema includes: movementInstructions (tiered: "This Session's Focus" + "Also
+Addressed"), cuesCorrections (tiered: "Take Into Your Next Ride" [may include
+[PRIORITY] and [PRAISE] flags] + "In-Session Corrections"), coachesEye (instructor
+observations about the horse, imagery/metaphors, specific praise, biomechanical
+observations, optional "RIDER BREAKTHROUGH" sub-section), rider reflections,
+takeaways, and a transcriptProcessed boolean. When this data is present, use it
+as follows:
 
 INSTRUCTOR VS. RIDER PERSPECTIVE:
 - Lesson notes contain two distinct layers: what the instructor said (movement
@@ -57,6 +63,25 @@ TAKEAWAYS AS RIDER PRIORITIES:
   to carry forward. Treat these as the rider's stated focus for solo schooling
   between lessons.
 
+COACH'S EYE FIELD:
+A third lesson notes field — coachesEye — captures instructor observations about
+the horse's way of going, imagery and metaphors used to describe movements or
+feelings, moments of praise with specific content, biomechanical observations
+about the horse (evasion patterns, asymmetry, willingness), and broader training
+principles mentioned. An optional "RIDER BREAKTHROUGH" sub-section captures
+moments where the rider articulated their own insight and the instructor confirmed
+it. When coachesEye content is present:
+- The Classical Master should draw on instructor imagery as a starting point,
+  then deepen it with classical reference.
+- The Empathetic Coach should treat the Rider Breakthrough sub-section as the
+  highest-priority material — the rider's own words, confirmed by the instructor,
+  are this voice's most powerful input.
+- The Technical Coach should use horse-state observations (tension, asymmetry,
+  suppleness, evasion patterns) as biomechanical context.
+- The Practical Strategist should use instructor imagery as a source of mental
+  cues for between-lesson solo practice, and operationalize any Rider Breakthrough
+  into a concrete plan.
+
 LINKED DEBRIEFS — CROSS-REFERENCE:
 - When a lesson note is linked to a post-ride debrief from the same session,
   look for alignment, gaps, and surprises between felt experience and observed guidance.
@@ -64,22 +89,6 @@ LINKED DEBRIEFS — CROSS-REFERENCE:
 WHEN NO LESSON NOTES ARE PRESENT:
 - Do not reference lessons, instructor guidance, or the absence of lesson data.
   Do not prompt the rider to submit lesson notes within a coaching output.
-
-COACH'S EYE FIELD:
-A third lesson notes field — Coach's Eye — captures instructor observations
-about the horse's way of going, imagery and metaphors used to describe movements
-or feelings, moments of praise, and broader training principles mentioned. This
-field is the richest source of metaphor for the Classical Master and Empathetic
-Coach, and the richest source of horse-state data for longitudinal pattern
-tracking. When Coach's Eye content is present:
-- The Classical Master should draw on instructor imagery as a starting point,
-  then deepen it with classical reference.
-- The Empathetic Coach should note any praise or "good moment" observations
-  that the rider may not have fully absorbed.
-- The Technical Coach should use horse-state observations (tension, asymmetry,
-  suppleness) as biomechanical context.
-- The Practical Strategist should use imagery as a source of mental cues for
-  between-lesson solo practice.
 ```
 
 ---
@@ -165,11 +174,10 @@ tracking. When Coach's Eye content is present:
 
 ---
 
-## 7. Grand Prix Thinking — DATA SOURCES (Future)
+## 7. Grand Prix Thinking — DATA SOURCES (COMPLETE)
 
-**File:** Grand Prix Thinking production prompt (to be built from `grand-prix-thinking-personalization-spec.md`)
-**Insert into:** The DATA SOURCES section of the Current State Analysis (Call 1) or Three Trajectories (Call 2) prompt, after self-assessment references. See `YDJ_Prompt_Additions_Dressage_Principles.md` Section 6 for the pattern.
-**Status:** Pending — production Grand Prix Thinking prompts not yet built. Insert when they are constructed.
+**File:** `functions/lib/promptBuilder.js` — `buildGPTL1Prompt`, `buildTrajectoryCall1Prompt`, `buildTrajectoryCall2Prompt`
+**Status:** COMPLETE — superseded by `YDJ_LessonNotes_JM_GPT_PromptAdditions_Brief.md` (Fixes 3, 4, 5). Lesson notes integration is wired into Trajectory Call 1 (current state analysis), Trajectory Call 2 (path generation), and L1 (path selection signal).
 
 **Addition:**
 ```
@@ -185,11 +193,10 @@ tracking. When Coach's Eye content is present:
 
 ---
 
-## 8. Journey Map — PATTERN SOURCES (Future)
+## 8. Journey Map — PATTERN SOURCES (COMPLETE)
 
-**File:** Journey Map production prompt (to be built from `YDJ_Prompt_Additions_Dressage_Principles.md` Section 9 and `YDJ_Voice_Integration_Update.docx` Sections 3.1, 3.3, 3.4)
-**Insert into:** The PATTERN SOURCES section of the narrative generation prompt
-**Status:** Pending — production Journey Map prompts not yet built. Insert when they are constructed.
+**File:** `functions/lib/promptBuilder.js` — `buildJourneyMapPrompt` (callIndex === 1 and callIndex === 2)
+**Status:** COMPLETE — superseded by `YDJ_LessonNotes_JM_GPT_PromptAdditions_Brief.md` (Fixes 1 and 2). Call 1 has LESSON NOTES AS PATTERN SOURCES (external validation tier, pattern extraction, Coach's Eye, Rider Breakthrough as milestone). Call 2 has LESSON NOTES IN THE JOURNEY NARRATIVE (breakthrough callouts, instructor imagery as narrative thread, convergence as evidence).
 
 **Addition:**
 ```
