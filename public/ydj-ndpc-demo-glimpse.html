@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Dressage Journey | National Dressage Pony Cup</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #8B7355;
+            --color-secondary: #D4A574;
+            --color-accent: #C67B5C;
+            --color-success: #6B8E5F;
+            --color-bg: #FAF8F5;
+            --color-bg-secondary: #F5F1EB;
+            --color-text: #3A3A3A;
+            --color-text-light: #7A7A7A;
+            --color-border: #E0D5C7;
+            --shadow-soft: 0 2px 12px rgba(139, 115, 85, 0.08);
+            --shadow-medium: 0 4px 24px rgba(139, 115, 85, 0.12);
+            --shadow-large: 0 8px 40px rgba(139, 115, 85, 0.18);
+
+            --cat-milestone: #4A7DC4;
+            --cat-validation: #5B9E6B;
+            --cat-aha: #D4A017;
+            --cat-obstacle: #C45252;
+            --cat-connection: #8B5EA0;
+            --cat-body: #D4722A;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ─── TOP BAR ─── */
+        .top-bar {
+            width: 100%;
+            background: white;
+            border-bottom: 1px solid var(--color-border);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05em;
+            color: var(--color-primary);
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .logo img {
+            height: 86px;
+            width: auto;
+            display: block;
+        }
+
+        .logo span {
+            font-weight: 400;
+            color: var(--color-text-light);
+            font-size: 0.78em;
+            display: block;
+            font-family: 'Work Sans', sans-serif;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        @media (max-width: 600px) {
+            .logo img { height: 56px; }
+        }
+
+        .progress-area {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+            min-width: 120px;
+        }
+
+        .progress-label {
+            font-size: 0.68em;
+            color: var(--color-text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .progress-track {
+            width: 120px;
+            height: 4px;
+            background: var(--color-border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--color-primary), var(--color-secondary));
+            border-radius: 2px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ─── MAIN ─── */
+        .main {
+            width: 100%;
+            max-width: 640px;
+            padding: 36px 20px 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ─── SCREENS ─── */
+        .screen { width: 100%; display: none; }
+
+        .screen.active {
+            display: block;
+            animation: fadeUp 0.36s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── WELCOME ─── */
+        .welcome-wrap { text-align: center; padding: 8px 0 0; }
+
+        .show-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: 24px;
+            padding: 7px 18px;
+            font-size: 0.76em;
+            color: var(--color-primary);
+            font-weight: 500;
+            letter-spacing: 0.4px;
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 28px;
+        }
+
+        .show-badge .dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--cat-validation);
+        }
+
+        .welcome-h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.2em, 6.5vw, 3.4em);
+            color: var(--color-primary);
+            line-height: 1.12;
+            margin-bottom: 22px;
+            font-weight: 700;
+        }
+
+        .welcome-h1 em {
+            font-style: italic;
+            color: var(--color-accent);
+        }
+
+        .welcome-sub {
+            font-size: 1.05em;
+            color: var(--color-text-light);
+            line-height: 1.68;
+            max-width: 430px;
+            margin: 0 auto 36px;
+        }
+
+        .welcome-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 10px;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+            color: white;
+            border: none;
+            padding: 17px 52px;
+            border-radius: 50px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1.05em;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 4px 22px rgba(139, 115, 85, 0.32);
+            transition: transform 0.15s, box-shadow 0.15s;
+            letter-spacing: 0.2px;
+        }
+
+        .btn-start:hover { transform: translateY(-2px); box-shadow: 0 6px 30px rgba(139, 115, 85, 0.42); }
+        .btn-start:active { transform: translateY(0); }
+
+        .btn-demo {
+            background: none;
+            border: 1.5px solid var(--color-border);
+            color: var(--color-text-light);
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.88em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-demo:hover { border-color: var(--color-primary); color: var(--color-primary); }
+
+        .demo-note {
+            font-size: 0.72em;
+            color: var(--color-text-light);
+            margin-top: 4px;
+        }
+
+        .welcome-disclaimer {
+            margin-top: 24px;
+            font-size: 0.74em;
+            color: var(--color-text-light);
+        }
+
+        .cat-stripe {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            margin-top: 32px;
+        }
+
+        .cat-stripe .s {
+            height: 3px; width: 38px;
+            border-radius: 2px; opacity: 0.65;
+        }
+
+        /* ─── QUESTION CARD ─── */
+        .q-card {
+            background: white;
+            border-radius: 20px;
+            padding: 42px 46px 36px;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--color-border);
+        }
+
+        @media (max-width: 560px) { .q-card { padding: 28px 20px 24px; } }
+
+        .q-eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.7em;
+            text-transform: uppercase;
+            letter-spacing: 1.1px;
+            color: var(--color-text-light);
+            margin-bottom: 12px;
+        }
+
+        .q-dot {
+            width: 9px; height: 9px;
+            border-radius: 50%; flex-shrink: 0;
+        }
+
+        .q-text {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.2em, 3.5vw, 1.55em);
+            color: var(--color-text);
+            line-height: 1.38;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .q-sub {
+            font-size: 0.86em;
+            color: var(--color-text-light);
+            line-height: 1.55;
+            margin-bottom: 24px;
+            font-style: italic;
+        }
+
+        .horse-hello {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 1.02em;
+            color: var(--color-secondary);
+            margin-bottom: 18px;
+            min-height: 1.4em;
+            transition: opacity 0.5s;
+        }
+
+        input[type="text"], textarea, input[type="email"] {
+            width: 100%;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.97em;
+            color: var(--color-text);
+            background: var(--color-bg);
+            border: 1.5px solid var(--color-border);
+            border-radius: 12px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+        }
+
+        input[type="text"], input[type="email"] { padding: 14px 18px; }
+        textarea { padding: 15px 18px; min-height: 110px; resize: vertical; line-height: 1.6; }
+
+        input[type="text"]:focus, textarea:focus, input[type="email"]:focus {
+            border-color: var(--color-secondary);
+            box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.13);
+            background: white;
+        }
+
+        input::placeholder, textarea::placeholder { color: #B5A99A; }
+
+        /* ─── NAV ─── */
+        .q-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 22px;
+            gap: 12px;
+        }
+
+        .btn-back {
+            background: none;
+            border: 1.5px solid var(--color-border);
+            color: var(--color-text-light);
+            padding: 11px 20px;
+            border-radius: 50px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.86em;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-back:hover { border-color: var(--color-primary); color: var(--color-primary); }
+
+        .btn-next {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+            color: white;
+            border: none;
+            padding: 13px 32px;
+            border-radius: 50px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.92em;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 3px 14px rgba(139, 115, 85, 0.28);
+            transition: transform 0.15s, box-shadow 0.15s;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .btn-next:hover { transform: translateY(-1px); box-shadow: 0 5px 20px rgba(139, 115, 85, 0.36); }
+        .btn-next:active { transform: translateY(0); }
+
+        /* ─── CATEGORY PICKER ─── */
+        .cat-intro { text-align: center; margin-bottom: 24px; }
+
+        .cat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        @media (max-width: 460px) { .cat-grid { grid-template-columns: 1fr; } }
+
+        .cat-tile {
+            background: var(--color-bg);
+            border: 2px solid var(--color-border);
+            border-radius: 14px;
+            padding: 16px 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cat-tile::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 4px;
+            background: var(--tile-color);
+            border-radius: 14px 0 0 14px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .cat-tile:hover { border-color: var(--tile-color); background: white; transform: translateY(-1px); box-shadow: var(--shadow-soft); }
+
+        .cat-tile.selected {
+            border-color: var(--tile-color);
+            background: white;
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--tile-color) 15%, transparent);
+        }
+
+        .cat-tile.selected::before { opacity: 1; }
+        .cat-tile.dimmed { opacity: 0.42; pointer-events: none; }
+
+        .tile-emoji { font-size: 1.25em; margin-bottom: 7px; display: block; }
+
+        .tile-line { font-size: 0.87em; color: var(--color-text); line-height: 1.4; }
+
+        .tile-check {
+            position: absolute;
+            top: 10px; right: 11px;
+            width: 18px; height: 18px;
+            border-radius: 50%;
+            background: var(--tile-color);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transform: scale(0.6);
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .tile-check svg { width: 9px; height: 9px; }
+        .cat-tile.selected .tile-check { opacity: 1; transform: scale(1); }
+
+        .cat-min-note {
+            text-align: center;
+            font-size: 0.76em;
+            color: var(--color-text-light);
+            margin-top: 6px;
+            font-style: italic;
+            min-height: 1.2em;
+            transition: color 0.2s;
+        }
+
+        .cat-min-note.warn { color: var(--color-accent); }
+
+        .cat-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 18px;
+        }
+
+        /* ─── LOADING ─── */
+        .loading-wrap { text-align: center; padding: 48px 20px; }
+
+        .loading-phase { transition: opacity 0.45s; }
+
+        .loading-icon {
+            font-size: 3.4em;
+            margin-bottom: 18px;
+            display: block;
+            animation: floatBob 2.2s ease-in-out infinite;
+        }
+
+        @keyframes floatBob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .loading-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5em;
+            color: var(--color-primary);
+            margin-bottom: 10px;
+            min-height: 1.6em;
+        }
+
+        .loading-sub {
+            font-size: 0.9em;
+            color: var(--color-text-light);
+            line-height: 1.6;
+            max-width: 360px;
+            margin: 0 auto 26px;
+            min-height: 2.8em;
+        }
+
+        .loading-dots { display: flex; gap: 8px; justify-content: center; }
+
+        .loading-dots span {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--color-secondary);
+            animation: dotPulse 1.3s ease-in-out infinite;
+        }
+
+        .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes dotPulse {
+            0%, 80%, 100% { transform: scale(0.65); opacity: 0.35; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        .coach-reveal {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            animation: fadeUp 0.5s forwards;
+        }
+
+        .coach-reveal.visible { display: flex; }
+
+        .reveal-label { font-size: 0.7em; text-transform: uppercase; letter-spacing: 1.4px; color: var(--color-text-light); }
+
+        .reveal-icon {
+            font-size: 3em;
+            animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.4); opacity: 0; }
+            to   { transform: scale(1); opacity: 1; }
+        }
+
+        .reveal-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.65em;
+            color: var(--color-primary);
+            font-weight: 700;
+            opacity: 0;
+            animation: fadeIn 0.5s 0.4s forwards;
+        }
+
+        .reveal-tagline {
+            font-size: 0.85em;
+            color: var(--color-text-light);
+            font-style: italic;
+            opacity: 0;
+            animation: fadeIn 0.5s 0.7s forwards;
+        }
+
+        @keyframes fadeIn { to { opacity: 1; } }
+
+        /* ─── RESULT ─── */
+        .result-header { text-align: center; margin-bottom: 24px; }
+
+        .result-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.5em, 4vw, 2em);
+            color: var(--color-primary);
+            margin-bottom: 5px;
+        }
+
+        .result-header p { font-size: 0.86em; color: var(--color-text-light); }
+
+        /* Demo banner */
+        .demo-banner {
+            background: linear-gradient(135deg, #4A7DC4 0%, #8B5EA0 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 12px 20px;
+            text-align: center;
+            font-size: 0.83em;
+            line-height: 1.5;
+            margin-bottom: 18px;
+            display: none;
+        }
+
+        .demo-banner strong { display: block; font-size: 1.05em; margin-bottom: 2px; }
+
+        .result-card {
+            background: white;
+            border-radius: 20px;
+            padding: 36px 42px;
+            box-shadow: var(--shadow-large);
+            border: 1px solid var(--color-border);
+            margin-bottom: 18px;
+        }
+
+        @media (max-width: 560px) { .result-card { padding: 24px 18px; } }
+
+        .result-voice-strip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .result-voice-icon { font-size: 1.3em; }
+
+        .result-voice-info .label {
+            font-size: 0.66em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--color-text-light);
+        }
+
+        .result-voice-info .name {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.97em;
+            color: var(--color-primary);
+            font-weight: 600;
+        }
+
+        .result-insight {
+            font-size: 1.02em;
+            line-height: 1.82;
+            color: var(--color-text);
+            margin-bottom: 26px;
+        }
+
+        .result-divider { height: 1px; background: var(--color-border); margin-bottom: 22px; }
+
+        .actionable-eyebrow {
+            font-size: 0.66em;
+            text-transform: uppercase;
+            letter-spacing: 1.6px;
+            color: var(--color-secondary);
+            font-weight: 600;
+            margin-bottom: 9px;
+        }
+
+        .actionable-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.12em;
+            color: var(--color-primary);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .actionable-text { font-size: 0.94em; line-height: 1.7; color: var(--color-text); }
+
+        /* ─── SHOW SPECIAL CTA ─── */
+        .cta-card {
+            background: linear-gradient(150deg, #2C2218 0%, #4A3424 45%, #7A5C3A 100%);
+            border-radius: 20px;
+            padding: 36px 42px;
+            text-align: center;
+            color: white;
+            margin-bottom: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-card::before {
+            content: '';
+            position: absolute;
+            top: -40px; right: -40px;
+            width: 180px; height: 180px;
+            border-radius: 50%;
+            background: rgba(212, 165, 116, 0.07);
+            pointer-events: none;
+        }
+
+        @media (max-width: 560px) { .cta-card { padding: 28px 20px; } }
+
+        .show-offer-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(212, 165, 116, 0.18);
+            border: 1px solid rgba(212, 165, 116, 0.35);
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 0.72em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--color-secondary);
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .show-offer-badge .dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--color-secondary);
+        }
+
+        .cta-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+
+        .cta-card p {
+            font-size: 0.87em;
+            line-height: 1.62;
+            opacity: 0.8;
+            max-width: 360px;
+            margin: 0 auto 22px;
+        }
+
+        .pricing-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 22px;
+            flex-wrap: wrap;
+        }
+
+        .price-original {
+            font-size: 1em;
+            opacity: 0.5;
+            text-decoration: line-through;
+            font-family: 'Work Sans', sans-serif;
+        }
+
+        .price-show {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .price-amount {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2em;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .price-period {
+            font-size: 0.72em;
+            opacity: 0.7;
+            margin-top: 2px;
+            letter-spacing: 0.3px;
+        }
+
+        .price-save-tag {
+            background: var(--cat-validation);
+            color: white;
+            font-size: 0.72em;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .cta-deadline {
+            font-size: 0.76em;
+            opacity: 0.65;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .btn-cta {
+            background: white;
+            color: var(--color-primary);
+            border: none;
+            padding: 14px 40px;
+            border-radius: 50px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.22);
+            transition: transform 0.15s, box-shadow 0.15s;
+            letter-spacing: 0.2px;
+        }
+
+        .btn-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,0.28); }
+
+        /* ─── NOT READY / EMAIL CAPTURE ─── */
+        .email-card {
+            background: white;
+            border-radius: 20px;
+            padding: 28px 42px 30px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--color-border);
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        @media (max-width: 560px) { .email-card { padding: 22px 18px 24px; } }
+
+        .email-card-eyebrow {
+            font-size: 0.68em;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--color-text-light);
+            margin-bottom: 8px;
+        }
+
+        .email-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15em;
+            color: var(--color-primary);
+            margin-bottom: 8px;
+        }
+
+        .email-card p {
+            font-size: 0.85em;
+            color: var(--color-text-light);
+            line-height: 1.58;
+            margin-bottom: 18px;
+            max-width: 380px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .email-row {
+            display: flex;
+            gap: 10px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 480px) { .email-row { flex-direction: column; } }
+
+        .email-row input { flex: 1; }
+
+        .btn-email {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+            color: white;
+            border: none;
+            padding: 13px 20px;
+            border-radius: 12px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.86em;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: transform 0.15s, box-shadow 0.15s;
+            box-shadow: 0 3px 10px rgba(139, 115, 85, 0.24);
+            flex-shrink: 0;
+        }
+
+        .btn-email:hover { transform: translateY(-1px); }
+
+        .email-confirm {
+            display: none;
+            font-size: 0.84em;
+            color: var(--color-success);
+            margin-top: 12px;
+            line-height: 1.5;
+        }
+
+        .email-skip {
+            display: block;
+            margin-top: 11px;
+            font-size: 0.74em;
+            color: var(--color-text-light);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: 'Work Sans', sans-serif;
+            border-bottom: 1px solid transparent;
+            transition: all 0.2s;
+            padding: 0;
+        }
+
+        .email-skip:hover { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+
+        .restart-row { text-align: center; margin-top: 6px; }
+
+        .restart-row button {
+            background: none; border: none;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.78em;
+            color: var(--color-text-light);
+            cursor: pointer;
+            border-bottom: 1px solid transparent;
+            padding: 0;
+            transition: all 0.2s;
+        }
+
+        .restart-row button:hover { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+
+        /* ─── ERROR ─── */
+        .error-card {
+            background: #FEF3F0;
+            border: 1px solid #F5C6BC;
+            border-radius: 12px;
+            padding: 16px 20px;
+            color: #8B3A2A;
+            font-size: 0.86em;
+            line-height: 1.6;
+            margin-bottom: 14px;
+        }
+
+        /* ─── SHAKE ─── */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+
+        .shake { animation: shake 0.38s ease; }
+
+        /* ─── MARGARET DEMO ─── */
+        .margaret-header {
+            background: linear-gradient(135deg, #4A7DC4 0%, #8B5EA0 100%);
+            border-radius: 16px 16px 0 0;
+            padding: 18px 24px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 0;
+        }
+
+        .margaret-avatar {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4em;
+            flex-shrink: 0;
+        }
+
+        .margaret-header-text .label {
+            font-size: 0.68em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.75;
+        }
+
+        .margaret-header-text .name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .margaret-header-text .sub {
+            font-size: 0.78em;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+
+        .margaret-card {
+            background: white;
+            border-radius: 0 0 20px 20px;
+            padding: 32px 40px 36px;
+            box-shadow: var(--shadow-large);
+            border: 1px solid var(--color-border);
+            border-top: none;
+            margin-bottom: 18px;
+        }
+
+        @media (max-width: 560px) { .margaret-card { padding: 24px 18px 28px; } }
+
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <div class="logo">
+        <img src="/assets/logo-color.svg" alt="Your Dressage Journey">
+        <span>National Dressage Pony Cup</span>
+    </div>
+    <div class="progress-area">
+        <div class="progress-label" id="progressLabel">Welcome</div>
+        <div class="progress-track">
+            <div class="progress-fill" id="progressFill" style="width:0%"></div>
+        </div>
+    </div>
+</div>
+
+<div class="main">
+
+    <!-- ═══ WELCOME ═══ -->
+    <div class="screen active" id="screenWelcome">
+        <div class="welcome-wrap">
+            <div class="show-badge"><div class="dot"></div> National Dressage Pony Cup · Live Demo</div>
+            <h1 class="welcome-h1">You're at a show.<br>Let's make it <em>count.</em></h1>
+            <p class="welcome-sub">Tell us about you and your horse. We'll give you one personalized thing to carry into your riding this weekend.</p>
+            <div class="welcome-actions">
+                <button class="btn-start" onclick="goTo('screenName')">Try It Yourself →</button>
+                <button class="btn-demo" onclick="showMargaret()">See a Demo First</button>
+                <div class="demo-note">Meet Margaret and her Welsh-cross — no commitment</div>
+            </div>
+            <div class="welcome-disclaimer">~2 minutes · No login · Your answers are not stored</div>
+            <div class="cat-stripe">
+                <div class="s" style="background:var(--cat-milestone)"></div>
+                <div class="s" style="background:var(--cat-validation)"></div>
+                <div class="s" style="background:var(--cat-aha)"></div>
+                <div class="s" style="background:var(--cat-obstacle)"></div>
+                <div class="s" style="background:var(--cat-connection)"></div>
+                <div class="s" style="background:var(--cat-body)"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Q1: NAME ═══ -->
+    <div class="screen" id="screenName">
+        <div class="q-card">
+            <div class="q-eyebrow">About You</div>
+            <div class="q-text">What's your first name?</div>
+            <input type="text" id="inputName" placeholder="Your first name" autocomplete="given-name" />
+            <div class="q-nav">
+                <button class="btn-back" onclick="goTo('screenWelcome')">← Back</button>
+                <button class="btn-next" onclick="submitName()">Continue →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Q2: HORSE NAME ═══ -->
+    <div class="screen" id="screenHorseName">
+        <div class="q-card">
+            <div class="q-eyebrow">About Your Horse</div>
+            <div class="q-text">What is your horse's name?</div>
+            <input type="text" id="inputHorseName" placeholder="Your horse's name" autocomplete="off" />
+            <div class="q-nav">
+                <button class="btn-back" onclick="goTo('screenName')">← Back</button>
+                <button class="btn-next" onclick="submitHorseName()">Continue →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Q3: HORSE SPECIAL (hello moment) ═══ -->
+    <div class="screen" id="screenHorseSpecial">
+        <div class="q-card">
+            <div class="q-eyebrow">About Your Horse</div>
+            <div class="horse-hello" id="horseHello"></div>
+            <div class="q-text">What's something special about this horse that words barely do justice to?</div>
+            <div class="q-sub">A quality, a gift — something that makes this horse uniquely themselves.</div>
+            <textarea id="inputHorseSpecial" placeholder="When she's really with me, it feels like we share a language nobody else can hear…"></textarea>
+            <div class="q-nav">
+                <button class="btn-back" onclick="goTo('screenHorseName')">← Back</button>
+                <button class="btn-next" onclick="submitField('inputHorseSpecial','horse_special','screenCategoryPick')">Continue →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ CATEGORY PICKER (max 2) ═══ -->
+    <div class="screen" id="screenCategoryPick">
+        <div class="q-card">
+            <div class="cat-intro">
+                <div class="q-text">Which of these feels most alive for you right now?</div>
+                <div class="q-sub">Pick 1 or 2. You'll answer only the ones you choose.<br>The others stay quiet.</div>
+            </div>
+            <div class="cat-grid">
+                <div class="cat-tile" data-cat="milestone" style="--tile-color:var(--cat-milestone)" onclick="toggleCat(this)">
+                    <span class="tile-emoji">🟦</span>
+                    <div class="tile-line">A recent breakthrough — big or small</div>
+                    <div class="tile-check"><svg viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                </div>
+                <div class="cat-tile" data-cat="validation" style="--tile-color:var(--cat-validation)" onclick="toggleCat(this)">
+                    <span class="tile-emoji">🟩</span>
+                    <div class="tile-line">Something you're particularly proud of</div>
+                    <div class="tile-check"><svg viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                </div>
+                <div class="cat-tile" data-cat="aha" style="--tile-color:var(--cat-aha)" onclick="toggleCat(this)">
+                    <span class="tile-emoji">🟨</span>
+                    <div class="tile-line">An insight that recently clicked</div>
+                    <div class="tile-check"><svg viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                </div>
+                <div class="cat-tile" data-cat="obstacle" style="--tile-color:var(--cat-obstacle)" onclick="toggleCat(this)">
+                    <span class="tile-emoji">🟥</span>
+                    <div class="tile-line">A challenge that keeps showing up</div>
+                    <div class="tile-check"><svg viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                </div>
+                <div class="cat-tile" data-cat="connection" style="--tile-color:var(--cat-connection)" onclick="toggleCat(this)">
+                    <span class="tile-emoji">🟪</span>
+                    <div class="tile-line">A moment of real connection with your horse</div>
+                    <div class="tile-check"><svg viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                </div>
+                <div class="cat-tile" data-cat="body" style="--tile-color:var(--cat-body)" onclick="toggleCat(this)">
+                    <span class="tile-emoji">🟧</span>
+                    <div class="tile-line">Something about your body you're still figuring out</div>
+                    <div class="tile-check"><svg viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                </div>
+            </div>
+            <div class="cat-min-note" id="catMinNote">Choose at least one to continue</div>
+            <div class="cat-nav">
+                <button class="btn-back" onclick="goTo('screenHorseSpecial')">← Back</button>
+                <button class="btn-next" onclick="submitCategories()">Continue →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ DYNAMIC CAT QUESTIONS ═══ -->
+    <div class="screen" id="screenCatQ"></div>
+
+    <!-- ═══ SHOW QUESTION (the new one) ═══ -->
+    <div class="screen" id="screenShowQ">
+        <div class="q-card">
+            <div class="q-eyebrow">This Weekend</div>
+            <div class="q-text">What's one thing you're working on that you hope shows up in your riding this weekend?</div>
+            <div class="q-sub">In the warm-up, in the test, or just in how you feel in the saddle — what are you bringing with you?</div>
+            <textarea id="inputShowQ" placeholder="I've been working on staying soft and forward through the canter depart — I want that to finally feel easy instead of something I brace for…"></textarea>
+            <div class="q-nav">
+                <button class="btn-back" id="showQBackBtn" onclick="showQBack()">← Back</button>
+                <button class="btn-next" onclick="submitShowQ()">Get My Insight →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ LOADING ═══ -->
+    <div class="screen" id="screenLoading">
+        <div class="loading-wrap">
+            <div id="loadPhase1" class="loading-phase">
+                <span class="loading-icon">🐴</span>
+                <div class="loading-title" id="loadingTitle">Reading your story…</div>
+                <div class="loading-sub" id="loadingSub">Thinking about what this weekend means for you.</div>
+                <div class="loading-dots"><span></span><span></span><span></span></div>
+            </div>
+            <div id="loadPhase2" class="coach-reveal" style="display:none">
+                <div class="reveal-label">Your coach today is</div>
+                <div class="reveal-icon" id="revealIcon">🎯</div>
+                <div class="reveal-name" id="revealName">The Classical Master</div>
+                <div class="reveal-tagline" id="revealTagline">"Why not the first time?"</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ RESULT ═══ -->
+    <div class="screen" id="screenResult">
+        <div class="result-header">
+            <h2 id="resultTitle">Your Glimpse</h2>
+            <p id="resultSubtitle">Something to carry into this weekend</p>
+        </div>
+        <div class="demo-banner" id="demoBanner">
+            <strong>You're viewing Margaret's demo result</strong>
+            This is what a real insight looks like — based on a fictional rider created for this demonstration.
+        </div>
+        <div class="result-card">
+            <div class="result-voice-strip">
+                <div class="result-voice-icon" id="resultVoiceIcon">⭐</div>
+                <div class="result-voice-info">
+                    <div class="label">Your coach</div>
+                    <div class="name" id="resultVoiceName">The Empathetic Coach</div>
+                </div>
+            </div>
+            <div class="result-insight" id="resultInsight"></div>
+            <div class="result-divider"></div>
+            <div class="actionable-eyebrow">Take This Into the Arena</div>
+            <div class="actionable-title" id="actionableTitle"></div>
+            <div class="actionable-text" id="actionableText"></div>
+        </div>
+        <div id="errorCard" style="display:none" class="error-card"></div>
+
+        <!-- SHOW SPECIAL CTA — ready to commit -->
+        <div class="cta-card" id="ctaCard">
+            <div class="show-offer-badge"><div class="dot"></div> NDPC Show Special</div>
+            <h3>Your show price,<br>for the whole year.</h3>
+            <p>As a National Dressage Pony Cup rider, you've earned this. Every ride, every reflection, every insight — all year long.</p>
+            <div class="pricing-display">
+                <div class="price-original">$299/year</div>
+                <div class="price-show">
+                    <div class="price-amount">$239</div>
+                    <div class="price-period">per year</div>
+                </div>
+                <div class="price-save-tag">Save 20%</div>
+            </div>
+            <div class="cta-deadline">Offer expires July 11, 2026 · One week only</div>
+            <a href="https://yourdressagejourney.com/subscribe?promo=NDPC2026" class="btn-cta">Claim Your Show Price →</a>
+        </div>
+
+        <!-- NOT READY / EMAIL CAPTURE -->
+        <div class="email-card" id="emailCard">
+            <div class="email-card-eyebrow">Not ready to commit?</div>
+            <h3>We'll hold your discount.</h3>
+            <p>Leave your email and we'll save your 20% show price until July 11 — no pressure, no commitment. We'll remind you before it expires.</p>
+            <div class="email-row">
+                <input type="email" id="inputEmail" placeholder="your@email.com" />
+                <button class="btn-email" onclick="submitEmail()">Hold It →</button>
+            </div>
+            <div class="email-confirm" id="emailConfirm">✓ Your discount is saved. We\'ll remind you before July 11.</div>
+            <button class="email-skip" onclick="hideEmailCard()">I\'ll pass for now</button>
+        </div>
+        <div class="restart-row">
+            <button onclick="restart()">Start over</button>
+        </div>
+    </div>
+
+    <!-- ═══ MARGARET DEMO ═══ -->
+    <div class="screen" id="screenMargaret">
+        <div class="result-header">
+            <h2>Meet Margaret</h2>
+            <p>A fictional rider — here to show you what's possible</p>
+        </div>
+        <div class="margaret-header">
+            <div class="margaret-avatar">🐴</div>
+            <div class="margaret-header-text">
+                <div class="label">Demo Rider</div>
+                <div class="name">Margaret &amp; Copperfield</div>
+                <div class="sub">Welsh-Thoroughbred cross · First Level · Showing at NDPC this week</div>
+            </div>
+        </div>
+        <div class="margaret-card">
+            <div class="result-voice-strip">
+                <div class="result-voice-icon">📋</div>
+                <div class="result-voice-info">
+                    <div class="label">Coach selected for Margaret</div>
+                    <div class="name">The Practical Strategist</div>
+                </div>
+            </div>
+            <div class="result-insight">Margaret, you are here. The preparation is done — this week is about executing what you already know how to do, not learning anything new. Your data from the past few weeks tells a clear story: your best rides happen when your warm-up is unhurried, you give Copperfield time to find his rhythm before you ask for anything, and you drop that right hip before the canter depart rather than after. None of that changes at NDPC. The arena is different, the atmosphere is different, Copperfield's ears will be busy — but the mechanics that produced those three clean departs last week live in your body, not in your ring at home. The single biggest risk this week is arriving at the in-gate with a plan to fix something rather than a plan to ride what you've built. You have a performance gap you understand, a correction you've proven works, and a horse who tells you immediately when you've got it right. That is a strong position to be standing in. Use it.</div>
+            <div class="result-divider"></div>
+            <div class="actionable-eyebrow">Take This Into the Arena</div>
+            <div class="actionable-title">Warm Up Like You Mean It, Then Let Go</div>
+            <div class="actionable-text">Build your warm-up the same way you do at home: walk long and low for five minutes, establish trot rhythm before you shape anything, and don't pick up canter until Copperfield feels forward and soft in the contact. When you ask for the depart — check your right hip first. Not once. Every time. The test begins the moment you enter at A, and the judge will see what Copperfield feels. Give him something worth showing.</div>
+        </div>
+        <div class="cta-card">
+            <h3>That's what Your Dressage Journey does</h3>
+            <p>Your real answers produce a real insight — personalized to you and your horse, grounded in what you actually share. Want to find out what yours says?</p>
+            <button class="btn-cta" onclick="goTo('screenName'); setProgress('screenName')">Try It Yourself →</button>
+        </div>
+        <div class="restart-row">
+            <button onclick="goTo('screenWelcome')">← Back to welcome</button>
+        </div>
+    </div>
+
+</div><!-- /main -->
+
+<script>
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+const answers  = {};
+let selectedCats = [];
+let catQIndex    = 0;
+let isDemoMode   = false;
+
+const CAT_CONFIG = {
+    milestone:  { color: '#4A7DC4', question: 'Describe a recent moment in your riding that felt like a personal breakthrough — big or small.',                      sub: 'Something that came from inside you. A skill that finally clicked, a fear you moved through, a moment of understanding.',         placeholder: 'Last week I finally felt my horse truly swing through her back in the trot…' },
+    validation: { color: '#5B9E6B', question: 'Tell us about an achievement in your riding that you\'re particularly proud of.',                                     sub: 'Something recognized from outside — a score, feedback from a trainer, a show result, something someone said that landed.',       placeholder: 'My trainer said she finally saw my horse stepping under himself in the trot…' },
+    aha:        { color: '#D4A017', question: 'Describe a dressage insight you\'ve recently (re)discovered — something that clicked in a new way.',                  sub: 'An idea, a principle, or a feeling that suddenly made more sense than it ever had before.',                                       placeholder: 'I finally understood what "riding from back to front" actually means in my body…' },
+    obstacle:   { color: '#C45252', question: 'Describe a challenge you\'re currently facing in your riding — the one that keeps showing up.',                       sub: 'Be honest. The patterns we struggle to name are often the ones most worth understanding.',                                       placeholder: 'My right rein. I know I hold too much, and I can\'t seem to break the habit…' },
+    connection: { color: '#8B5EA0', question: 'Describe a moment when you felt a genuine connection to your horse — when the conversation between you was real.',    sub: 'When the language between you was clear, and you both knew it.',                                                                  placeholder: 'There was one ride last month where I just let go and she just listened…' },
+    body:       { color: '#D4722A', question: 'Describe something about your position or body that you regularly work to improve — and why it matters to you.',      sub: 'What does your body do in the saddle that you\'re still learning to understand or change?',                                    placeholder: 'My lower back tightens when I\'m nervous, which blocks the swing in my seat…' },
+};
+
+// Total required steps for progress bar (excludes cat questions which are dynamic)
+const BASE_STEPS = 6; // name, horse name, horse special, cat pick, show Q, (plus up to 2 cat Qs)
+
+// ═══════════════════════════════════════
+// SCREEN NAV
+// ═══════════════════════════════════════
+function goTo(id) {
+    document.querySelectorAll('.screen').forEach(s => {
+        s.classList.remove('active');
+        s.style.display = '';
+    });
+    const el = document.getElementById(id);
+    el.style.display = 'block';
+    void el.offsetWidth; // reflow for animation
+    el.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function setProgress(screenId) {
+    const map = {
+        screenWelcome:      { label: 'Welcome',    pct: 0   },
+        screenName:         { label: 'Step 1 of 7', pct: 10  },
+        screenHorseName:    { label: 'Step 2 of 7', pct: 24  },
+        screenHorseSpecial: { label: 'Step 3 of 7', pct: 38  },
+        screenCategoryPick: { label: 'Step 4 of 7', pct: 50  },
+        screenCatQ:         { label: 'Step 5 of 7', pct: 62  },
+        screenShowQ:        { label: 'Step 6 of 7', pct: 78  },
+        screenLoading:      { label: 'Almost there…', pct: 92 },
+        screenResult:       { label: 'Complete',   pct: 100 },
+        screenMargaret:     { label: 'Demo',       pct: 100 },
+    };
+    const p = map[screenId] || { label: '', pct: 0 };
+    document.getElementById('progressLabel').textContent = p.label;
+    document.getElementById('progressFill').style.width  = p.pct + '%';
+}
+
+function navigateTo(id) {
+    goTo(id);
+    setProgress(id);
+}
+
+// ═══════════════════════════════════════
+// VALIDATION
+// ═══════════════════════════════════════
+function requireField(id) {
+    const el = document.getElementById(id);
+    if (!el || !el.value.trim()) {
+        if (el) {
+            el.classList.add('shake');
+            el.style.borderColor = '#C45252';
+            el.style.boxShadow   = '0 0 0 3px rgba(196,82,82,0.1)';
+            el.focus();
+            setTimeout(() => {
+                el.classList.remove('shake');
+                el.style.borderColor = '';
+                el.style.boxShadow   = '';
+            }, 1800);
+        }
+        return false;
+    }
+    return true;
+}
+
+function submitField(inputId, key, nextId) {
+    if (!requireField(inputId)) return;
+    answers[key] = document.getElementById(inputId).value.trim();
+    navigateTo(nextId);
+}
+
+// ═══════════════════════════════════════
+// QUESTION SUBMITS
+// ═══════════════════════════════════════
+function submitName() {
+    if (!requireField('inputName')) return;
+    answers.rider_name = document.getElementById('inputName').value.trim();
+    navigateTo('screenHorseName');
+}
+
+function submitHorseName() {
+    if (!requireField('inputHorseName')) return;
+    answers.horse_name = document.getElementById('inputHorseName').value.trim();
+
+    const helloEl = document.getElementById('horseHello');
+    helloEl.style.opacity = '0';
+    helloEl.textContent   = `Hello, ${answers.horse_name}. We'll make sure to include you in this.`;
+
+    navigateTo('screenHorseSpecial');
+    setTimeout(() => { helloEl.style.opacity = '1'; }, 480);
+}
+
+function submitShowQ() {
+    if (!requireField('inputShowQ')) return;
+    answers.show_intention = document.getElementById('inputShowQ').value.trim();
+    startLoading();
+}
+
+function showQBack() {
+    if (selectedCats.length > 0) {
+        showCatQuestion(selectedCats.length - 1);
+    } else {
+        navigateTo('screenCategoryPick');
+    }
+}
+
+// ═══════════════════════════════════════
+// CATEGORY PICKER
+// ═══════════════════════════════════════
+function toggleCat(tile) {
+    const cat        = tile.dataset.cat;
+    const isSelected = tile.classList.contains('selected');
+
+    if (isSelected) {
+        tile.classList.remove('selected');
+        selectedCats = selectedCats.filter(c => c !== cat);
+    } else {
+        if (selectedCats.length >= 2) {
+            tile.classList.add('shake');
+            setTimeout(() => tile.classList.remove('shake'), 400);
+            updateCatNote();
+            return;
+        }
+        tile.classList.add('selected');
+        selectedCats.push(cat);
+    }
+
+    document.querySelectorAll('.cat-tile').forEach(t => {
+        if (!t.classList.contains('selected')) {
+            t.classList.toggle('dimmed', selectedCats.length >= 2);
+        }
+    });
+
+    updateCatNote();
+}
+
+function updateCatNote() {
+    const note = document.getElementById('catMinNote');
+    if (selectedCats.length === 0) {
+        note.textContent = 'Choose at least one to continue';
+        note.classList.remove('warn');
+    } else if (selectedCats.length === 2) {
+        note.textContent = '2 selected — that\'s the max';
+        note.classList.remove('warn');
+    } else {
+        note.textContent = `${selectedCats.length} selected`;
+        note.classList.remove('warn');
+    }
+}
+
+function submitCategories() {
+    if (selectedCats.length === 0) {
+        const note = document.getElementById('catMinNote');
+        note.textContent = 'Please choose at least one to continue';
+        note.classList.add('warn');
+        return;
+    }
+    catQIndex = 0;
+    showCatQuestion(0);
+}
+
+// ═══════════════════════════════════════
+// DYNAMIC CAT QUESTIONS
+// ═══════════════════════════════════════
+function showCatQuestion(index) {
+    catQIndex      = index;
+    const cat      = selectedCats[index];
+    const cfg      = CAT_CONFIG[cat];
+    const savedVal = answers[cat] || '';
+    const label    = selectedCats.length > 1
+        ? `Your Story · ${index + 1} of ${selectedCats.length}`
+        : 'Your Story';
+
+    document.getElementById('screenCatQ').innerHTML = `
+        <div class="q-card">
+            <div class="q-eyebrow">
+                <span class="q-dot" style="background:${cfg.color}"></span>
+                ${label}
+            </div>
+            <div class="q-text">${cfg.question}</div>
+            <div class="q-sub">${cfg.sub}</div>
+            <textarea id="inputCatQ" placeholder="${cfg.placeholder}">${savedVal}</textarea>
+            <div class="q-nav">
+                <button class="btn-back" onclick="catBack()">← Back</button>
+                <button class="btn-next" onclick="submitCatQ()">Continue →</button>
+            </div>
+        </div>
+    `;
+
+    navigateTo('screenCatQ');
+    setTimeout(() => { const ta = document.getElementById('inputCatQ'); if (ta) ta.focus(); }, 150);
+}
+
+function submitCatQ() {
+    const ta = document.getElementById('inputCatQ');
+    if (!ta || !ta.value.trim()) {
+        ta.classList.add('shake');
+        ta.style.borderColor = '#C45252';
+        ta.style.boxShadow   = '0 0 0 3px rgba(196,82,82,0.1)';
+        ta.focus();
+        setTimeout(() => { ta.classList.remove('shake'); ta.style.borderColor=''; ta.style.boxShadow=''; }, 1800);
+        return;
+    }
+    answers[selectedCats[catQIndex]] = ta.value.trim();
+
+    if (catQIndex < selectedCats.length - 1) {
+        showCatQuestion(catQIndex + 1);
+    } else {
+        navigateTo('screenShowQ');
+    }
+}
+
+function catBack() {
+    const ta = document.getElementById('inputCatQ');
+    if (ta && ta.value.trim()) answers[selectedCats[catQIndex]] = ta.value.trim();
+    catQIndex > 0 ? showCatQuestion(catQIndex - 1) : navigateTo('screenCategoryPick');
+}
+
+// ═══════════════════════════════════════
+// LOADING & API
+// ═══════════════════════════════════════
+async function startLoading() {
+    navigateTo('screenLoading');
+
+    document.getElementById('loadingTitle').textContent =
+        `Reading everything you shared about ${answers.rider_name || 'you'} and ${answers.horse_name || 'your horse'}…`;
+    document.getElementById('loadingSub').textContent =
+        'Finding what will serve you most this weekend.';
+
+    try {
+        const prompt = buildPrompt(answers);
+        const parsed = await callAPI(prompt);
+
+        // Fade out phase 1
+        document.getElementById('loadPhase1').style.opacity = '0';
+        await sleep(420);
+        document.getElementById('loadPhase1').style.display = 'none';
+
+        // Coach reveal
+        const p2 = document.getElementById('loadPhase2');
+        document.getElementById('revealIcon').textContent    = parsed.voice.icon;
+        document.getElementById('revealName').textContent    = parsed.voice.name;
+        document.getElementById('revealTagline').textContent = parsed.voice.tagline;
+        p2.style.display = 'flex';
+        p2.classList.add('visible');
+
+        await sleep(2300);
+        displayResult(parsed);
+
+    } catch (err) {
+        displayError(err.message);
+    }
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ═══════════════════════════════════════
+// PROMPT
+// ═══════════════════════════════════════
+function buildPrompt(a) {
+    const catLines = Object.keys(CAT_CONFIG).map(key => {
+        const labels = {
+            milestone:  'Personal Breakthrough',
+            validation: 'Achievement They\'re Proud Of',
+            aha:        'Insight That Recently Clicked',
+            obstacle:   'Current Challenge',
+            connection: 'Moment of Connection With Horse',
+            body:       'Position / Body Awareness',
+        };
+        return `${labels[key]}: ${a[key] || 'Not shared'}`;
+    }).join('\n');
+
+    return `You are an AI coach for "Your Dressage Journey," a platform for adult amateur dressage riders.
+
+A rider has just completed a brief exercise at a live horse show booth — the National Dressage Pony Cup. They are here at the show RIGHT NOW. Your output must be focused entirely on helping them make the most of THIS WEEKEND — not their long-term journey, not future goals. One insight they can carry into their next warm-up or test.
+
+\u2550\u2550\u2550 RIDER \u2550\u2550\u2550
+Name: ${a.rider_name || 'Not provided'}
+
+\u2550\u2550\u2550 HORSE \u2550\u2550\u2550
+Horse Name: ${a.horse_name || 'Not provided'}
+What's Special About This Horse: ${a.horse_special || 'Not provided'}
+
+\u2550\u2550\u2550 REFLECTIONS (rider chose which to share) \u2550\u2550\u2550
+${catLines}
+
+\u2550\u2550\u2550 WHAT THEY'RE BRINGING TO THIS WEEKEND \u2550\u2550\u2550
+${a.show_intention || 'Not provided'}
+
+\u2550\u2550\u2550 YOUR TASK \u2550\u2550\u2550
+
+STEP 1 \u2014 CHOOSE YOUR VOICE:
+Read the emotional tone of their answers. Choose the single voice that will most serve this rider RIGHT NOW, at a show:
+
+- \uD83C\uDFAF The Classical Master \u2014 if their language is rooted in principle, philosophy, or "why." Patient, wise, connects work to tradition.
+- \u2B50 The Empathetic Coach \u2014 if their primary challenge is emotional: nerves, trust, confidence, or inner experience at shows. Warm, validating.
+- \uD83D\uDD2C The Technical Coach \u2014 if their obstacle is specific and biomechanical. Clear, cause-and-effect.
+- \uD83D\uDCCB The Strategic Planner \u2014 if they are very goal- and test-focused. Practical, concrete.
+
+DEFAULT to The Classical Master if unclear.
+
+STEP 2 \u2014 WRITE YOUR RESPONSE:
+
+Two parts only. No headers. No bullets. No lists.
+
+PART 1 \u2014 ONE PARAGRAPH (4\u20136 sentences):
+Address the rider by first name. Speak directly to where they are RIGHT NOW \u2014 at a show, this weekend. Reference specific details from their answers \u2014 the horse's name, what they're working on, what they shared. Find one true thing about what they've told you that they may not have articulated themselves. Keep it grounded in this weekend, not in abstract future progress. Speak in your chosen voice.
+
+PART 2 \u2014 THE ARENA ACTION:
+Write this separator on its own line: |||ACTIONABLE|||
+Then write a short, vivid title (4\u20137 words).
+Then write: |||TEXT|||
+Then write 2\u20133 sentences. Make it something they can do TODAY \u2014 in the warm-up ring, before a test, in the barn aisle, or in the saddle right now. Specific. Embodied. Connected to what they shared.
+
+Do not name the voice. Do not explain your choice. Begin speaking immediately.`;
+}
+
+async function callAPI(prompt) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 25000);
+
+    try {
+        const res = await fetch('/firstGlimpse', {
+            method: 'POST',
+            signal: controller.signal,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ prompt }),
+        });
+        clearTimeout(timeout);
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error?.message || `API error ${res.status}`);
+        }
+
+        const data = await res.json();
+        const text = data.text || '';
+        return parseResponse(text);
+
+    } catch (err) {
+        clearTimeout(timeout);
+        if (err.name === 'AbortError') {
+            throw new Error('Request timed out — please try again.');
+        }
+        throw err;
+    }
+}
+
+function parseResponse(text) {
+    const parts      = text.split('|||ACTIONABLE|||');
+    const insight    = parts[0].trim();
+    let actionTitle  = '', actionText = '';
+    if (parts[1]) {
+        const ap    = parts[1].split('|||TEXT|||');
+        actionTitle = ap[0].trim();
+        actionText  = ap[1] ? ap[1].trim() : '';
+    }
+    return { insight, actionTitle, actionText, voice: detectVoice(text) };
+}
+
+function detectVoice(text) {
+    const t = text.toLowerCase();
+    const s = { classical: 0, empathetic: 0, technical: 0, strategic: 0 };
+    ['training scale','classical','principles','foundation','rhythm','suppleness','tradition'].forEach(k => { if (t.includes(k)) s.classical++; });
+    ["you've got this","confidence","nerves","trust","inner","courage","feel at your best"].forEach(k => { if (t.includes(k)) s.empathetic++; });
+    ['biomechan','position','seat','hip','core','half-halt','aid','timing','did you feel'].forEach(k => { if (t.includes(k)) s.technical++; });
+    ['test','score','plan','warm-up','strategy','goal','preparation','timeline'].forEach(k => { if (t.includes(k)) s.strategic++; });
+
+    const top = Object.entries(s).sort((a,b) => b[1]-a[1])[0][0];
+
+    const map = {
+        classical:  { icon: '🎯', name: 'The Classical Master',  tagline: '"Why not the first time?"' },
+        empathetic: { icon: '⭐', name: 'The Empathetic Coach',  tagline: '"You\'ve got this."'        },
+        technical:  { icon: '🔬', name: 'The Technical Coach',   tagline: '"Did you feel that?"'       },
+        strategic:  { icon: '📋', name: 'The Strategic Planner', tagline: '"Let\'s map this out."'     },
+    };
+    return map[top] || map.classical;
+}
+
+// ═══════════════════════════════════════
+// DISPLAY
+// ═══════════════════════════════════════
+function displayResult(parsed) {
+    isDemoMode = false;
+    document.getElementById('demoBanner').style.display  = 'none';
+    document.getElementById('ctaCard').style.display     = 'block';
+    document.getElementById('emailCard').style.display   = 'block';
+    document.getElementById('resultTitle').textContent   =
+        `${answers.rider_name ? answers.rider_name + '\'s' : 'Your'} Glimpse`;
+    document.getElementById('resultSubtitle').textContent = 'Something to carry into this weekend';
+    document.getElementById('resultVoiceIcon').textContent = parsed.voice.icon;
+    document.getElementById('resultVoiceName').textContent = parsed.voice.name;
+    document.getElementById('resultInsight').textContent   = parsed.insight;
+    document.getElementById('actionableTitle').textContent = parsed.actionTitle;
+    document.getElementById('actionableText').textContent  = parsed.actionText;
+    navigateTo('screenResult');
+}
+
+function displayError(msg) {
+    document.getElementById('errorCard').style.display   = 'block';
+    document.getElementById('ctaCard').style.display     = 'none';
+    document.getElementById('emailCard').style.display   = 'none';
+    document.getElementById('resultInsight').textContent = '';
+    navigateTo('screenResult');
+}
+
+// ═══════════════════════════════════════
+// MARGARET DEMO
+// ═══════════════════════════════════════
+function showMargaret() {
+    isDemoMode = true;
+    document.getElementById('progressLabel').textContent = 'Demo';
+    document.getElementById('progressFill').style.width  = '100%';
+    goTo('screenMargaret');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══════════════════════════════════════
+// EMAIL CAPTURE (stub — wire to backend)
+// ═══════════════════════════════════════
+function submitEmail() {
+    const email = document.getElementById('inputEmail').value.trim();
+    if (!email || !email.includes('@')) {
+        const inp = document.getElementById('inputEmail');
+        inp.classList.add('shake');
+        inp.style.borderColor = '#C45252';
+        setTimeout(() => { inp.classList.remove('shake'); inp.style.borderColor = ''; }, 1800);
+        return;
+    }
+    // TODO: POST to /api/ndpc-email-capture with full payload below
+    // Firestore collection: ndpc_leads
+    console.log('NDPC lead captured:', {
+        email,
+        rider_name:    answers.rider_name  || '',
+        horse_name:    answers.horse_name  || '',
+        insight:       document.getElementById('resultInsight').textContent,
+        action_title:  document.getElementById('actionableTitle').textContent,
+        discount_hold: true,
+        promo_code:    'NDPC2026',
+        expires:       '2026-07-11',
+        source:        'ndpc_booth_2026',
+        captured_at:   new Date().toISOString(),
+    });
+    document.getElementById('emailConfirm').style.display = 'block';
+    document.getElementById('inputEmail').disabled        = true;
+    document.querySelector('.btn-email').disabled         = true;
+    document.querySelector('.email-skip').style.display   = 'none';
+    answers.email = email;
+}
+
+function hideEmailCard() {
+    document.getElementById('emailCard').style.display = 'none';
+}
+
+// ═══════════════════════════════════════
+// RESTART
+// ═══════════════════════════════════════
+function restart() {
+    Object.keys(answers).forEach(k => delete answers[k]);
+    selectedCats = [];
+    catQIndex    = 0;
+    isDemoMode   = false;
+
+    ['inputName','inputHorseName','inputHorseSpecial','inputShowQ','inputEmail'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.value = ''; el.disabled = false; }
+    });
+
+    document.querySelectorAll('.cat-tile').forEach(t => t.classList.remove('selected','dimmed'));
+    document.getElementById('catMinNote').textContent = 'Choose at least one to continue';
+    document.getElementById('catMinNote').classList.remove('warn');
+    document.getElementById('errorCard').style.display   = 'none';
+    document.getElementById('ctaCard').style.display     = 'block';
+    document.getElementById('emailCard').style.display   = 'block';
+    document.getElementById('emailConfirm').style.display= 'none';
+
+    // Reset loading phases
+    const p1 = document.getElementById('loadPhase1');
+    p1.style.opacity = '1'; p1.style.display = '';
+    const p2 = document.getElementById('loadPhase2');
+    p2.style.display = 'none'; p2.classList.remove('visible');
+
+    navigateTo('screenWelcome');
+}
+
+// ═══════════════════════════════════════
+// ENTER KEY
+// ═══════════════════════════════════════
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        const inp = document.querySelector('.screen.active input[type="text"]');
+        if (inp) { e.preventDefault(); inp.closest('.screen').querySelector('.btn-next')?.click(); }
+    }
+});
+</script>
+</body>
+</html>
