@@ -64,6 +64,12 @@
             letter-spacing: 0.3px;
         }
 
+        .logo img {
+            height: 86px;
+            width: auto;
+            display: block;
+        }
+
         .logo span {
             font-weight: 400;
             color: var(--color-text-light);
@@ -72,6 +78,11 @@
             font-family: 'Work Sans', sans-serif;
             letter-spacing: 0.5px;
             text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        @media (max-width: 600px) {
+            .logo img { height: 56px; }
         }
 
         .progress-area {
@@ -728,7 +739,7 @@
 <!-- TOP BAR -->
 <div class="top-bar">
     <div class="logo">
-        Your Dressage Journey
+        <img src="/assets/logo-color.svg" alt="Your Dressage Journey">
         <span>First Glimpse</span>
     </div>
     <div class="progress-area">
