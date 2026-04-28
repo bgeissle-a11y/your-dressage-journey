@@ -79,3 +79,15 @@ extracted_tests_first3_second3.json
 public/ydj-visualization-form.html
 ydj-nav-v2-mockup.html
 ydj-visualization-form.html
+
+# Local-only logo assets (not used by the app)
+public/assets/ColorLogoLarge-01 (1).png
+public/assets/HorseandRiderBLine-01.svg
+public/assets/HorseandRiderColor-01.svg
+public/assets/HorseandRiderWLine-01.svg
+public/assets/TDLogoLarge-01.png
+public/assets/TDLogoLargeBlack-01.png
+public/assets/TDLogoLargewhite-01.png
+public/assets/WorkMarkHorizontalBlack-01.svg
+public/assets/WorkMarkHorizontalColor-01.svg
+public/assets/WorkMarkHorizontalWhite-01.svg
