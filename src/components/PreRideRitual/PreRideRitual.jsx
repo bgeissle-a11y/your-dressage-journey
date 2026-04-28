@@ -35,6 +35,14 @@ const BLOCK_META = {
     linkLabel: 'Practice Card',
     route: '/practice-card',
   },
+  'pre-lesson': {
+    icon: '\uD83D\uDCDD',
+    iconBg: '#e8eef5',
+    iconFg: '#2c4a6e',
+    desc: 'Review your pre-lesson summary before riding with your trainer.',
+    linkLabel: 'Pre-Lesson Summary',
+    route: '/pre-lesson-summary',
+  },
   viz: {
     icon: '\uD83C\uDFAF',
     iconBg: '#f0e8f5',

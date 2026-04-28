@@ -18,7 +18,8 @@ const DEFAULT_BLOCKS = [
   { id: 'physical', type: 'physical', label: 'Physical Check-In', active: true, order: 0 },
   { id: 'gpt', type: 'gpt', label: 'Mental Performance Check-In', active: true, order: 1 },
   { id: 'practice', type: 'practice', label: 'Open Practice Card', active: true, order: 2 },
-  { id: 'viz', type: 'viz', label: 'Visualization', active: false, order: 3 },
+  { id: 'pre-lesson', type: 'pre-lesson', label: 'Pre-Lesson Summary', active: false, order: 3 },
+  { id: 'viz', type: 'viz', label: 'Visualization', active: false, order: 4 },
 ];
 
 /**
