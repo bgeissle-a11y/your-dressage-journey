@@ -43,8 +43,9 @@ const lessonPrepSummary = require("./api/lessonPrepSummary");
 const readinessSnapshot = require("./api/readinessSnapshot");
 const visualizationScript = require("./api/visualizationScript");
 const processLessonTranscript = require("./api/processLessonTranscript");
+const firstLight = require("./api/firstLight");
 
-// Secrets — declared once, referenced by all AI functions
+// Secrets — declared once, referenced by all functions that need them
 const anthropicKey = defineSecret("ANTHROPIC_API_KEY");
 
 // --- Health check / smoke test ---
@@ -139,6 +140,23 @@ exports.getPhysicalGuidance = onCall(
   physicalGuidance.handler
 );
 
+// First Light: inaugural AI coaching artifact (single Sonnet call).
+// Generated on rider request after the 6-reflection wizard. See
+// YDJ_FirstLight_Implementation_Brief_v3.md §10 for the full lifecycle.
+// Input: none (uses authenticated user's data)
+exports.generateFirstLight = onCall(
+  { secrets: [anthropicKey], timeoutSeconds: 120, memory: "512MiB" },
+  firstLight.generate
+);
+
+// First Light: one-time regenerate that incorporates data logged since
+// initial generation. Available between generation and graduation.
+// Input: none
+exports.regenerateFirstLight = onCall(
+  { secrets: [anthropicKey], timeoutSeconds: 120, memory: "512MiB" },
+  firstLight.regenerate
+);
+
 // --- Arena Geometry Trainer coaching (unauthenticated, lightweight) ---
 exports.arenaCoaching = onRequest(
   { secrets: [anthropicKey], timeoutSeconds: 30, memory: "256MiB" },
@@ -231,6 +249,19 @@ exports.onDebriefCreated = onDocumentCreated(
 exports.onReflectionCreated = onDocumentCreated(
   { document: "reflections/{docId}", secrets: [anthropicKey], timeoutSeconds: 540, memory: "512MiB" },
   dataTriggeredRegeneration.handleReflectionCreated
+);
+
+// First Light graduation trigger: on every new debrief or reflection,
+// check whether the rider has crossed the Multi-Voice threshold
+// (5 debriefs + all 6 reflection categories). When met, set
+// firstLight/current.graduatedAt. No Claude calls — Firestore reads only.
+exports.firstLightGraduateOnDebrief = onDocumentCreated(
+  { document: "debriefs/{docId}", timeoutSeconds: 60, memory: "256MiB" },
+  firstLight.graduate
+);
+exports.firstLightGraduateOnReflection = onDocumentCreated(
+  { document: "reflections/{docId}", timeoutSeconds: 60, memory: "256MiB" },
+  firstLight.graduate
 );
 
 // Immediate triggers: regenerate on every creation

@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import useJourneyProgress from './useJourneyProgress';
+import FirstLightLaunchCard from '../FirstLight/FirstLightLaunchCard';
+import FirstLightTerminusNode from '../FirstLight/FirstLightTerminusNode';
 import './QuickStartMap.css';
 
 const REFLECTION_LABELS = {
@@ -83,9 +85,20 @@ export default function QuickStartMap() {
 
       {/* HEADER */}
       <div className="qsm-header">
+        <img
+          src="/assets/logo-color.svg"
+          alt="Your Dressage Journey"
+          className="qsm-logo"
+        />
         <div className="qsm-subtitle">Quick Start Guide</div>
         <h1>Your Dressage Journey</h1>
       </div>
+
+      {/* FIRST LIGHT LAUNCH (Phase C) — Phase D will replace with the
+          full seven-state card spec'd in §6.1 of the implementation brief. */}
+      <FirstLightLaunchCard
+        eligible={progress.riderProfileComplete && progress.horseProfileComplete}
+      />
 
       {/* LEGEND */}
       <div className="qsm-legend">
@@ -251,6 +264,19 @@ export default function QuickStartMap() {
           <Link to="/rider-health/new" className="qsm-opt-link-sm" onClick={(e) => e.stopPropagation()}>→ Open Rider Health Log</Link>
         </div>
       </div>
+
+      {/* CONNECTOR */}
+      <div className="qsm-connector" style={{ marginTop: '8px' }} />
+
+      {/* ═══════════ MILESTONE — FIRST LIGHT ═══════════
+          Terminus node per §6.3 of the First Light brief — "this is what
+          you're building toward." Sits between the Optional blocks and
+          Core Practice so the rider sees the destination before settling
+          into the parallel tracks. */}
+      <div className="qsm-section-label">Milestone</div>
+      <FirstLightTerminusNode
+        eligible={progress.riderProfileComplete && progress.horseProfileComplete}
+      />
 
       {/* CONNECTOR */}
       <div className="qsm-connector" style={{ marginTop: '8px' }} />

@@ -6,6 +6,7 @@ import FormField from '../Forms/FormField';
 import FormSection from '../Forms/FormSection';
 import RadioGroup from '../Forms/RadioGroup';
 import VoiceInput from '../Forms/VoiceInput';
+import FirstReflectionIntroOverlay from '../FirstLight/FirstReflectionIntroOverlay';
 import '../Forms/Forms.css';
 
 const CONFIDENCE_TREND_OPTIONS = [
@@ -398,6 +399,12 @@ export default function ReflectionForm() {
 
   return (
     <div className="form-page">
+      {/* One-time intro shown the first time a rider opens the regular
+          reflection form post-First-Light. Self-gating; renders nothing
+          on edit, when First Light hasn't been generated, or after the
+          intro flag has already been set. Per §11. */}
+      {!isEdit && <FirstReflectionIntroOverlay />}
+
       <div className="form-page-header">
         <h1>{isEdit ? 'Edit Reflection' : 'New Reflection'}</h1>
         <p>A space for reflection and growth</p>

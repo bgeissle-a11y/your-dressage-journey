@@ -11,6 +11,7 @@ import LessonPrepCompact from '../components/LessonPrep/LessonPrepCompact';
 import MovementCoverageHeatmap from '../components/Dashboard/MovementCoverageHeatmap';
 import ProcessGoalBars from '../components/Dashboard/ProcessGoalBars';
 import JourneySnapshot from '../components/Dashboard/JourneySnapshot';
+import JourneyArchive from '../components/FirstLight/JourneyArchive';
 import {
   getAllDebriefs,
   getAllReflections,
@@ -545,6 +546,9 @@ export default function Dashboard() {
 
       {/* Toast */}
       <div className={`order-toast${showToast ? ' show' : ''}`}>Layout saved &#10003;</div>
+
+      {/* "Your Journey So Far" — only renders for graduated riders */}
+      <JourneyArchive />
 
       {/* Blocks */}
       <div className="block-container">

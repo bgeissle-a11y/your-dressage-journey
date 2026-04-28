@@ -1,0 +1,67 @@
+/* Dashboard "Your Journey So Far" — post-graduation archive section.
+   Per §7.1 of the implementation brief. */
+
+.journey-archive {
+  margin: 24px 0;
+}
+
+.journey-archive-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #2c1f14;
+  margin: 0 0 10px;
+  letter-spacing: 0.02em;
+}
+
+.journey-archive-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #FAF8F5;
+  border: 1px solid #E0D5C7;
+  border-left: 4px solid #D4A017;
+  border-radius: 8px;
+  padding: 14px 18px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.journey-archive-card:hover {
+  background: #F5EDE0;
+  transform: translateX(2px);
+}
+
+.journey-archive-icon {
+  font-size: 1.5rem;
+  color: #D4A017;
+  width: 32px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.journey-archive-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.journey-archive-label {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #2c1f14;
+  margin-bottom: 2px;
+}
+
+.journey-archive-desc {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.85rem;
+  color: #5a4d3f;
+}
+
+.journey-archive-arrow {
+  font-size: 1.3rem;
+  color: #b8862a;
+  flex-shrink: 0;
+}

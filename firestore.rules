@@ -148,6 +148,21 @@ service cloud.firestore {
       allow read: if request.auth != null && request.auth.uid == userId;
     }
 
+    // First Light — inaugural AI coaching artifact.
+    // `current` doc holds the active First Light; auto-id docs hold the
+    // history (prior generations after a regenerate). Both written exclusively
+    // by Cloud Functions (admin SDK bypasses rules); read-only by the rider.
+    match /riders/{userId}/firstLight/{docId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Onboarding flags — UI side-effect flags (e.g. firstReflectionIntroShownAt).
+    // Client-writable since flag-setting is a UI side-effect of the rider
+    // clicking through onboarding moments — no AI cost or sensitive write involved.
+    match /riders/{userId}/onboardingFlags/{docId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
     // Analysis cache — written by Cloud Functions (admin SDK bypasses rules),
     // read-only by the authenticated user for weekly focus snapshots
     match /analysisCache/{docId} {

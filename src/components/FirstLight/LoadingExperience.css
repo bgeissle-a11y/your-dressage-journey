@@ -1,0 +1,36 @@
+/* First Light loading experience — wraps YDJLoading with the
+   parchment-themed phase title + subtitle per §6.1 State E. */
+
+.fl-loading-screen {
+  text-align: center;
+  padding: 36px 24px;
+  background:
+    linear-gradient(180deg, #fbf5e8 0%, #f5e9cf 100%);
+  border: 1px solid #E0D5C7;
+  border-radius: 12px;
+  font-family: 'Work Sans', sans-serif;
+}
+
+.fl-loading-screen .loading-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: #2c1f14;
+  margin: 18px 0 6px;
+}
+.fl-loading-screen .loading-sub {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.98rem;
+  color: #4a3220;
+  margin: 0;
+  line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+  .fl-loading-screen {
+    padding: 24px 16px;
+  }
+  .fl-loading-screen .loading-title {
+    font-size: 1.3rem;
+  }
+}

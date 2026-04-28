@@ -54,6 +54,15 @@
   font-size: clamp(26px, 5vw, 38px); font-weight: 700;
   color: var(--qsm-ink); letter-spacing: 0.5px; line-height: 1.2;
 }
+.qsm-logo {
+  display: block;
+  height: 84px;
+  width: auto;
+  margin: 0 auto 14px;
+}
+@media (max-width: 480px) {
+  .qsm-logo { height: 64px; }
+}
 .qsm-header .qsm-subtitle {
   font-size: 13px; font-weight: 500;
   color: var(--qsm-ink-mid); letter-spacing: 2.5px;

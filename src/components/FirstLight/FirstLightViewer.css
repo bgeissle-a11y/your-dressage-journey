@@ -1,0 +1,275 @@
+/* First Light viewer page — the rider's destination after generation.
+   Visual treatment: parchment ink, Playfair Display titles, voice-color
+   accents on the primary-voice badge and per-card top border. */
+
+.fl-viewer-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+  font-family: 'Work Sans', sans-serif;
+  color: #2c1f14;
+}
+
+.fl-viewer-state {
+  max-width: 600px;
+  margin: 60px auto;
+  text-align: center;
+  font-family: 'Work Sans', sans-serif;
+  color: #4a3220;
+  padding: 0 20px;
+}
+.fl-viewer-state h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+/* HEADER ──────────────────────────────────────────────────────────── */
+
+.fl-viewer-header {
+  text-align: center;
+  margin-bottom: 36px;
+  padding-bottom: 22px;
+  border-bottom: 2px solid #b8862a;
+  position: relative;
+}
+.fl-viewer-header::after {
+  content: '✦';
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #FAF8F5;
+  padding: 0 12px;
+  color: #b8862a;
+  font-size: 16px;
+}
+.fl-viewer-eyebrow {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #8b6320;
+  margin-bottom: 10px;
+}
+.fl-viewer-header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(22px, 4.5vw, 32px);
+  font-weight: 700;
+  color: #2c1f14;
+  margin: 0 0 14px;
+  line-height: 1.25;
+}
+.fl-viewer-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: 0.92rem;
+  color: #5a4d3f;
+}
+.fl-viewer-dot {
+  width: 4px;
+  height: 4px;
+  background: #b8862a;
+  border-radius: 50%;
+}
+.fl-viewer-voice-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 14px;
+  border: 1px solid;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* SECTIONS ────────────────────────────────────────────────────────── */
+
+.fl-viewer-section {
+  margin-bottom: 30px;
+}
+.fl-viewer-attribution {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.fl-viewer-prose {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: #2c1f14;
+  margin: 0;
+  font-weight: 400;
+}
+
+.fl-viewer-section-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2c1f14;
+  margin: 0 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #E0D5C7;
+}
+
+/* OTHER VOICES grid ──────────────────────────────────────────────── */
+
+.fl-viewer-other-voices {
+  margin: 36px 0;
+}
+.fl-viewer-voice-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+@media (min-width: 640px) {
+  .fl-viewer-voice-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.fl-viewer-voice-card {
+  background: #FAF8F5;
+  border: 1px solid #E0D5C7;
+  border-top: 4px solid #b8862a;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+.fl-viewer-voice-card-name {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.fl-viewer-voice-card-msg {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: #2c1f14;
+  margin: 0;
+}
+
+/* WHERE WE BEGIN pull-quote ─────────────────────────────────────── */
+
+.fl-viewer-where {
+  background:
+    linear-gradient(180deg, #fbf5e8 0%, #f5e9cf 100%);
+  border-radius: 10px;
+  padding: 22px 28px;
+  border-left: 5px solid #b8862a;
+  margin: 36px 0;
+}
+.fl-viewer-where-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #8b6320;
+  margin-bottom: 10px;
+}
+.fl-viewer-where-quote {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.18rem;
+  line-height: 1.6;
+  color: #2c1f14;
+  margin: 0;
+  font-style: italic;
+  font-weight: 500;
+}
+
+/* FOOTER ─────────────────────────────────────────────────────────── */
+
+.fl-viewer-footer {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid #E0D5C7;
+}
+.fl-viewer-footer-block {
+  background: #FAF8F5;
+  border: 1px solid #E0D5C7;
+  border-radius: 10px;
+  padding: 20px 22px;
+}
+.fl-viewer-footer-graduated {
+  background: linear-gradient(180deg, #f3f6ee 0%, #e7eed7 100%);
+  border-color: #6B8E5F;
+}
+.fl-viewer-footer-msg {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #4a3220;
+  margin-bottom: 12px;
+}
+.fl-viewer-progress {
+  background: rgba(184, 134, 42, 0.08);
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  color: #4a3220;
+  margin-bottom: 14px;
+}
+.fl-viewer-progress strong {
+  color: #2c1f14;
+}
+
+.fl-viewer-btn-primary {
+  background: #b8862a;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 11px 20px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+.fl-viewer-btn-primary:hover:not(:disabled) {
+  background: #a07623;
+}
+.fl-viewer-btn-primary:disabled {
+  background: #c4ad7d;
+  cursor: not-allowed;
+}
+
+.fl-viewer-btn-secondary {
+  background: white;
+  color: #4f6b46;
+  border: 1.5px solid #6B8E5F;
+  border-radius: 6px;
+  padding: 10px 18px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+.fl-viewer-btn-secondary:hover {
+  background: rgba(107, 142, 95, 0.08);
+}
+
+.fl-viewer-error {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: #FBE9E7;
+  border: 1px solid #E5BFB6;
+  border-left: 4px solid #c83030;
+  border-radius: 6px;
+  color: #7B2D24;
+  font-size: 0.9rem;
+}
+.fl-viewer-error strong { display: block; margin-bottom: 4px; }
+.fl-viewer-error code {
+  background: rgba(0,0,0,0.06);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 0.85em;
+}

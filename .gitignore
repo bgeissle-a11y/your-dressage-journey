@@ -38,6 +38,9 @@ firestore-debug.log
 ui-debug.log
 .firebaserc
 scripts/serviceAccountKey.json
+
+# Claude Code local session state
+.claude/
 scripts/*-import*.json
 scripts/event-planner-output-*.json
 scripts/theme-analysis/

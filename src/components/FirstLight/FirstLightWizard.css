@@ -1,0 +1,187 @@
+/* First Light wizard — entry experience for the rider's six pre-selected
+   reflections. Visual treatment matches the Quick Start parchment / gold
+   ✦ theme so the moment feels like the same artifact thread. */
+
+.fl-wizard .fl-eyebrow {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #b8862a; /* Quick Start gold */
+  margin-bottom: 6px;
+}
+
+.fl-wizard .form-page-header h1 {
+  margin-bottom: 0.25rem;
+}
+
+/* Progress indicator ─────────────────────────────────────────────── */
+
+.fl-progress {
+  background: #FAF8F5;
+  border: 1px solid #E0D5C7;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 0 0 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.fl-progress-dots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.fl-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1.5px solid #b8862a;
+  transition: background 0.2s ease;
+}
+.fl-dot.done {
+  background: #b8862a;
+}
+.fl-dot.current {
+  background: #b8862a;
+  box-shadow: 0 0 0 3px rgba(184, 134, 42, 0.18);
+}
+.fl-progress-label {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.95rem;
+  color: #5a4d3f;
+}
+
+/* Screen heading ─────────────────────────────────────────────────── */
+
+.fl-screen-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  color: #5C4033;
+  margin: 0 0 0.4rem;
+}
+.fl-screen-prompt {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 1.02rem;
+  line-height: 1.5;
+  color: #5a4d3f;
+  margin: 0 0 1.25rem;
+  padding-left: 12px;
+  border-left: 3px solid #b8862a;
+}
+
+/* Eligibility (block-state) page ─────────────────────────────────── */
+
+.fl-eligibility-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 1rem;
+}
+.fl-eligibility-list li {
+  padding: 8px 0 8px 22px;
+  position: relative;
+  color: #5a4d3f;
+}
+.fl-eligibility-list li::before {
+  content: '○';
+  position: absolute;
+  left: 0;
+  color: #b8862a;
+  font-size: 1.1rem;
+}
+.fl-eligibility-note {
+  font-style: italic;
+  color: #7a6a5a;
+  margin-top: 1rem;
+}
+
+/* Actions row ─────────────────────────────────────────────────────── */
+
+.fl-actions {
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.fl-exit {
+  background: none;
+  border: none;
+  color: #7a6a5a;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 6px 8px;
+}
+.fl-exit:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.fl-completion-note {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed #E0D5C7;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #7a6a5a;
+  font-family: 'Work Sans', sans-serif;
+}
+
+/* Banners (save error / saved confirmation) ─────────────────────── */
+
+.fl-banner {
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.fl-banner-error {
+  background: #FBE9E7;
+  border: 1px solid #E5BFB6;
+  border-left: 4px solid #c83030;
+  color: #7B2D24;
+}
+.fl-banner-error strong {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+.fl-banner-hint {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+.fl-banner-success {
+  background: #ECF5E5;
+  border: 1px solid #C3DDB0;
+  border-left: 4px solid #6B8E5F;
+  color: #3F5836;
+  font-weight: 500;
+}
+.fl-screen-saved-note {
+  margin: -6px 0 14px;
+  padding: 8px 12px;
+  background: rgba(107, 142, 95, 0.08);
+  border-left: 3px solid #6B8E5F;
+  color: #3F5836;
+  font-size: 0.88rem;
+  border-radius: 4px;
+}
+
+/* Mobile tightening ──────────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .fl-progress {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+  .fl-progress-label {
+    font-size: 0.85rem;
+  }
+  .fl-screen-title {
+    font-size: 1.3rem;
+  }
+}

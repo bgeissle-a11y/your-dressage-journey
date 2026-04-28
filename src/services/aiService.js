@@ -229,3 +229,30 @@ export async function getVisualizationScript(formData) {
   const result = await fn({ formData });
   return result.data;
 }
+
+/**
+ * First Light: generate the rider's inaugural coaching artifact.
+ * Idempotent — if firstLight/current already exists, returns it without
+ * a fresh API call (fromCache: true). Requires the rider to have a
+ * complete profile, ≥1 complete horse profile, and all six wizard
+ * reflections (source === "first-light-entry") logged.
+ *
+ * @returns {Promise<object>} { success, firstLight, fromCache }
+ */
+export async function generateFirstLight() {
+  const fn = httpsCallable(functions, 'generateFirstLight', { timeout: 120_000 });
+  const result = await fn({});
+  return result.data;
+}
+
+/**
+ * First Light: regenerate (one-time) using everything logged since the
+ * original generation. Available between generation and graduation.
+ *
+ * @returns {Promise<object>} { success, firstLight, fromCache }
+ */
+export async function regenerateFirstLight() {
+  const fn = httpsCallable(functions, 'regenerateFirstLight', { timeout: 120_000 });
+  const result = await fn({});
+  return result.data;
+}

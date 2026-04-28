@@ -1,0 +1,161 @@
+/* First Light terminus node — sits on the journey map between Core
+   Practice and the Outputs threshold. Per §6.3 of the implementation brief.
+   Visually distinct from data-entry nodes: gold accent, larger node, ✦ mark. */
+
+.qsm-firstlight-station {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  margin: 6px 0 4px;
+  position: relative;
+}
+
+/* Left column — node + connecting lines */
+.qsm-firstlight-col {
+  width: 60px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 6px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.qsm-firstlight-node {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fbe9b8 0%, #d4a017 60%, #b8862a 100%);
+  border: 3px solid #b8862a;
+  color: #3b2a10;
+  font-size: 20px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 2px 6px rgba(184, 134, 42, 0.45),
+    0 0 0 6px rgba(184, 134, 42, 0.12);
+  position: relative;
+  z-index: 2;
+  transition: transform 0.2s ease;
+}
+
+/* Card */
+.qsm-firstlight-card {
+  flex: 1;
+  background: linear-gradient(180deg, #fbf5e8 0%, #f5e9cf 100%);
+  border: 2px solid #b8862a;
+  border-left-width: 5px;
+  border-radius: 10px;
+  padding: 14px 18px;
+  box-shadow: 0 3px 10px rgba(92, 64, 51, 0.10);
+  font-family: 'Work Sans', sans-serif;
+}
+
+.qsm-firstlight-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8b6320;
+  margin-bottom: 4px;
+}
+
+.qsm-firstlight-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #2c1f14;
+  margin-bottom: 4px;
+}
+
+.qsm-firstlight-desc {
+  font-size: 0.88rem;
+  color: #4a3220;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.qsm-firstlight-link {
+  display: inline-block;
+  color: #8b6320;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1.5px solid #b8862a;
+  padding-bottom: 1px;
+}
+.qsm-firstlight-link:hover {
+  color: #6b4d18;
+  border-bottom-color: #6b4d18;
+}
+
+/* State variants ─────────────────────────────────────────────────── */
+
+/* Pending: not yet eligible — muted */
+.qsm-firstlight-station[data-state="pending"] .qsm-firstlight-node {
+  background: #ECE4D7;
+  border-color: #c4ad7d;
+  color: #8b6320;
+  box-shadow: 0 0 0 6px rgba(184, 134, 42, 0.06);
+}
+.qsm-firstlight-station[data-state="pending"] .qsm-firstlight-card {
+  border-color: #c4ad7d;
+  border-left-color: #c4ad7d;
+  opacity: 0.92;
+}
+
+/* Generated / graduated: green check accent */
+.qsm-firstlight-station[data-state="generated"] .qsm-firstlight-node,
+.qsm-firstlight-station[data-state="graduated"] .qsm-firstlight-node {
+  background: radial-gradient(circle at 35% 30%, #d6e6c4 0%, #6B8E5F 60%, #4f6b46 100%);
+  border-color: #4f6b46;
+  color: white;
+  box-shadow:
+    0 2px 6px rgba(75, 107, 70, 0.4),
+    0 0 0 6px rgba(107, 142, 95, 0.15);
+}
+.qsm-firstlight-station[data-state="generated"] .qsm-firstlight-card,
+.qsm-firstlight-station[data-state="graduated"] .qsm-firstlight-card {
+  background: linear-gradient(180deg, #f3f6ee 0%, #e7eed7 100%);
+  border-color: #6B8E5F;
+  border-left-color: #6B8E5F;
+}
+.qsm-firstlight-station[data-state="generated"] .qsm-firstlight-tag,
+.qsm-firstlight-station[data-state="graduated"] .qsm-firstlight-tag {
+  color: #4f6b46;
+}
+.qsm-firstlight-station[data-state="generated"] .qsm-firstlight-link,
+.qsm-firstlight-station[data-state="graduated"] .qsm-firstlight-link {
+  color: #4f6b46;
+  border-bottom-color: #6B8E5F;
+}
+
+/* Ready (wizard complete, generation pending): pulse the node so the rider
+   sees it ready to fire */
+@keyframes fl-terminus-pulse {
+  0%   { box-shadow: 0 2px 6px rgba(184, 134, 42, 0.45), 0 0 0 6px rgba(184, 134, 42, 0.18); }
+  50%  { box-shadow: 0 2px 6px rgba(184, 134, 42, 0.45), 0 0 0 12px rgba(184, 134, 42, 0.05); }
+  100% { box-shadow: 0 2px 6px rgba(184, 134, 42, 0.45), 0 0 0 6px rgba(184, 134, 42, 0.18); }
+}
+.qsm-firstlight-station[data-state="ready"] .qsm-firstlight-node {
+  animation: fl-terminus-pulse 2.4s ease-in-out infinite;
+}
+
+@media (max-width: 640px) {
+  .qsm-firstlight-col {
+    width: 48px;
+  }
+  .qsm-firstlight-node {
+    width: 32px;
+    height: 32px;
+    font-size: 17px;
+  }
+  .qsm-firstlight-card {
+    padding: 12px 14px;
+  }
+  .qsm-firstlight-title {
+    font-size: 1.05rem;
+  }
+}

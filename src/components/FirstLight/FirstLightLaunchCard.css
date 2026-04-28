@@ -1,0 +1,192 @@
+/* First Light launch card — Phase C surfacing on Quick Start.
+   Treated as the headline moment of the page: deeper parchment tint,
+   thicker gold border, prominent ✦ inset, soft shadow. */
+
+.fl-card {
+  position: relative;
+  background:
+    linear-gradient(180deg, #fbf5e8 0%, #f5e9cf 100%);
+  border: 2px solid #b8862a;
+  border-left-width: 7px;
+  border-radius: 12px;
+  padding: 22px 24px 22px 28px;
+  margin: 0 0 32px;
+  font-family: 'Work Sans', sans-serif;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.6) inset,
+    0 6px 18px rgba(92, 64, 51, 0.10);
+}
+
+/* Decorative ✦ in the upper-right corner */
+.fl-card::after {
+  content: '✦';
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  color: #b8862a;
+  font-size: 22px;
+  opacity: 0.55;
+}
+
+.fl-card-eyebrow {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #8b6320; /* darker than the gold so it doesn't wash on parchment */
+  margin-bottom: 8px;
+}
+
+/* Title — Playfair Display defaults to a thin weight which can disappear
+   into the parchment background. Force semibold + ink color for contrast. */
+.fl-card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #2c1f14; /* matches --qsm-ink */
+  margin: 0 0 10px;
+  line-height: 1.25;
+  padding-right: 28px; /* keep clear of the ✦ */
+}
+
+.fl-card-desc {
+  font-size: 0.98rem;
+  color: #4a3220;
+  line-height: 1.6;
+  margin: 0 0 16px;
+}
+
+.fl-card-desc code {
+  background: #ECE4D7;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.85em;
+}
+
+.fl-card-btn {
+  background: #b8862a;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 22px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+  box-shadow: 0 2px 4px rgba(92, 64, 51, 0.18);
+}
+.fl-card-btn:hover:not(:disabled) {
+  background: #a07623;
+  transform: translateY(-1px);
+}
+.fl-card-btn:disabled {
+  background: #c4ad7d;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.fl-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.fl-card-btn-secondary {
+  background: white;
+  color: #8b6320;
+  border: 1.5px solid #b8862a;
+  border-radius: 6px;
+  padding: 11px 18px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: background 0.15s ease;
+}
+.fl-card-btn-secondary:hover {
+  background: rgba(184, 134, 42, 0.08);
+}
+
+.fl-card-error {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: #FBE9E7;
+  border: 1px solid #E5BFB6;
+  border-left: 4px solid #c83030;
+  border-radius: 6px;
+  color: #7B2D24;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.fl-card-error strong {
+  display: inline-block;
+  margin-right: 6px;
+}
+.fl-card-error code {
+  background: rgba(0,0,0,0.06);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 0.85em;
+}
+
+/* Variant: muted (not-yet-eligible) */
+.fl-card-pending {
+  background: linear-gradient(180deg, #faf6ed 0%, #efe4cc 100%);
+  border-color: #c4ad7d;
+  border-left-color: #c4ad7d;
+  opacity: 0.95;
+}
+
+/* Variant: ready (extra emphasis) */
+.fl-card-ready {
+  border-left-width: 9px;
+}
+
+/* Variant: generated (calmer green accent) */
+.fl-card-generated {
+  background: linear-gradient(180deg, #f3f6ee 0%, #e7eed7 100%);
+  border-color: #6B8E5F;
+  border-left-color: #6B8E5F;
+}
+.fl-card-generated::after { color: #6B8E5F; }
+.fl-card-generated .fl-card-eyebrow { color: #4f6b46; }
+
+/* Inline loading state when generation is in flight */
+.fl-card-loading {
+  margin-top: 14px;
+  padding: 16px;
+  background: rgba(255,255,255,0.55);
+  border: 1px dashed #b8862a;
+  border-radius: 8px;
+  text-align: center;
+}
+.fl-card-loading-msg {
+  margin-top: 10px;
+  color: #5a3e2b;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 640px) {
+  .fl-card {
+    padding: 18px 18px 18px 22px;
+    margin-bottom: 24px;
+  }
+  .fl-card-title {
+    font-size: 1.2rem;
+    padding-right: 24px;
+  }
+  .fl-card::after {
+    top: 12px;
+    right: 14px;
+    font-size: 18px;
+  }
+  .fl-card-btn {
+    width: 100%;
+    text-align: center;
+  }
+}

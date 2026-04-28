@@ -72,6 +72,10 @@ import Settings from './components/Settings/Settings';
 // Coach Brief
 import CoachBriefPage from './components/CoachBrief/CoachBriefPage';
 
+// First Light
+import FirstLightWizard from './components/FirstLight/FirstLightWizard';
+import FirstLightViewer from './components/FirstLight/FirstLightViewer';
+
 // Learn
 import TestExplorer from './components/TestExplorer/TestExplorer';
 import './App.css';
@@ -189,6 +193,10 @@ function App() {
 
             {/* Coach Brief */}
             <Route path="/coach-brief" element={<CoachBriefPage />} />
+
+            {/* First Light */}
+            <Route path="/first-light" element={<FirstLightViewer />} />
+            <Route path="/first-light/wizard" element={<FirstLightWizard />} />
 
             {/* Learn */}
             <Route path="/learn/test-explorer" element={<TestExplorer />} />

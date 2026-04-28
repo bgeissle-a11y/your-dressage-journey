@@ -4976,6 +4976,285 @@ function buildVisualizationScriptPrompt(formData, riderContext, isWarmupScript =
 //   ("What does ready feel like?" answers inform GPT Mental Performance path language)
 // - Keep warm-up and movement session data semantically separate in the context bundle
 
+// ─── First Light prompt ─────────────────────────────────────────────
+// Source of truth: YDJ_FirstLight_Implementation_Brief_v3.md §8
+
+const FIRST_LIGHT_CATEGORY_LABELS = {
+  personal:   'Personal Milestone',
+  validation: 'External Validation',
+  aha:        'Aha Moment',
+  obstacle:   'Obstacle',
+  connection: 'Connection',
+  feel:       'Feel & Body Awareness',
+};
+
+// The fixed display order the prompt lists reflections in, matching the
+// wizard's six-screen sequence in §3.1.
+const FIRST_LIGHT_CATEGORY_ORDER = [
+  'personal', 'validation', 'aha', 'obstacle', 'connection', 'feel',
+];
+
+function _flValueOrNotShared(v) {
+  if (v === null || v === undefined) return 'Not shared';
+  if (typeof v === 'string' && v.trim() === '') return 'Not shared';
+  if (Array.isArray(v) && v.length === 0) return 'Not shared';
+  return Array.isArray(v) ? v.join(', ') : v;
+}
+
+function _flComputeAge(birthMonth, birthYear) {
+  if (!birthYear) return null;
+  const now = new Date();
+  const m = Number(birthMonth) || 1;
+  const y = Number(birthYear);
+  let age = now.getFullYear() - y;
+  if (now.getMonth() + 1 < m) age -= 1;
+  return age >= 0 ? age : null;
+}
+
+function _flFormatRiderProfile(p) {
+  if (!p) return 'Rider profile not provided.';
+  const lines = [];
+  lines.push(`Name: ${_flValueOrNotShared(p.fullName || p.displayName)}`);
+  lines.push(`Why they ride dressage: ${_flValueOrNotShared(p.whyRide || p.whyDressage)}`);
+  lines.push(`Long-term goals: ${_flValueOrNotShared(p.longTermGoals)}`);
+  lines.push(`Current riding level: ${_flValueOrNotShared(p.level || p.currentLevel)}`);
+  lines.push(`Training time per week: ${_flValueOrNotShared(p.trainingTime)}`);
+  lines.push(`Training frequency: ${_flValueOrNotShared(p.frequency)}`);
+  lines.push(`Learning style: ${_flValueOrNotShared(p.learningStyle)}`);
+  const compHistory = [p.compLevel, p.recentScores].filter(Boolean).join(' — ');
+  lines.push(`Competition history: ${_flValueOrNotShared(compHistory)}`);
+  lines.push(`Ownership / training context: ${_flValueOrNotShared(p.ownership)}`);
+  lines.push(`What they enjoy most: ${_flValueOrNotShared(p.enjoyMost)}`);
+  lines.push(`Trainer information: ${_flValueOrNotShared(p.coach || p.trainerInfo)}`);
+  return lines.join('\n');
+}
+
+function _flFormatPrimaryHorse(h) {
+  if (!h) return 'No primary horse profile available.';
+  const age = _flComputeAge(h.birthMonth, h.birthYear);
+  const ageStr = age !== null ? `age ${age}` : 'age not provided';
+  const header = `Primary horse: ${_flValueOrNotShared(h.horseName || h.name)}, ${ageStr}, level ${_flValueOrNotShared(h.level)}, ${_flValueOrNotShared(h.sex)}`;
+  const lines = [header];
+  lines.push(`Partnership arrangement: ${_flValueOrNotShared(h.arrangement)}`);
+  lines.push(`Soundness status: ${_flValueOrNotShared(h.soundness)}`);
+  lines.push(`Conditions / notes: ${_flValueOrNotShared(h.conditions)}`);
+  // Asymmetry observations from the self-diagnostic tests, if present
+  const asym = h.asymmetry;
+  if (asym && typeof asym === 'object') {
+    const asymLines = [];
+    for (const [k, v] of Object.entries(asym)) {
+      if (v && typeof v === 'string' && v.trim()) {
+        asymLines.push(`  ${k}: ${v.trim()}`);
+      }
+    }
+    if (asymLines.length > 0) {
+      lines.push('Asymmetry observations:');
+      lines.push(...asymLines);
+    }
+  }
+  return lines.join('\n');
+}
+
+function _flFormatReflection(r) {
+  if (!r) return null;
+  const label = FIRST_LIGHT_CATEGORY_LABELS[r.category] || r.category;
+  const parts = [`${label}:`];
+  parts.push(`  Prompt: ${r.prompt || ''}`);
+  parts.push(`  Rider wrote: ${r.mainReflection || ''}`);
+  if (r.category === 'obstacle' && r.obstacleStrategy) {
+    parts.push(`  Strategy: ${r.obstacleStrategy}`);
+  }
+  parts.push(`  Feeling: ${r.feeling || 'unspecified'} · Influence: ${r.influence || 'unspecified'}`);
+  return parts.join('\n');
+}
+
+function _flFormatAdditionalContext(accumulated) {
+  if (!accumulated) return '';
+  const blocks = [];
+
+  if (accumulated.debriefs && accumulated.debriefs.length > 0) {
+    const debriefLines = accumulated.debriefs.map(d => {
+      const date = d.date || d.createdAt || 'date unknown';
+      const wins = d.wins || d.win || '';
+      const challenges = d.challenges || d.challenge || '';
+      const conf = d.confidenceLevel != null ? ` · confidence ${d.confidenceLevel}` : '';
+      const horse = d.horseName ? ` with ${d.horseName}` : '';
+      return `- ${date}${horse}${conf}\n  Wins: ${wins || '—'}\n  Challenges: ${challenges || '—'}`;
+    }).join('\n');
+    blocks.push(`Post-Ride Debriefs logged since First Light entry (${accumulated.debriefs.length}):\n${debriefLines}`);
+  }
+
+  if (accumulated.additionalReflections && accumulated.additionalReflections.length > 0) {
+    const refLines = accumulated.additionalReflections.map(r => {
+      const label = FIRST_LIGHT_CATEGORY_LABELS[r.category] || r.category;
+      return `- [${label}] "${r.prompt || ''}"\n  ${r.mainReflection || ''}`;
+    }).join('\n');
+    blocks.push(`Additional Reflections logged since First Light entry (${accumulated.additionalReflections.length}):\n${refLines}`);
+  }
+
+  if (accumulated.assessments) {
+    const a = accumulated.assessments;
+    const assessLines = [];
+    if (a.technical) assessLines.push('- Technical & Philosophical Self-Assessment completed');
+    if (a.physical) assessLines.push('- Physical Self-Assessment completed');
+    if (a.riderSelf) assessLines.push('- Rider Self-Assessment completed');
+    if (assessLines.length > 0) {
+      blocks.push(`Self-Assessments completed since First Light entry:\n${assessLines.join('\n')}`);
+    }
+  }
+
+  if (blocks.length === 0) return '';
+  return `\n═══ ADDITIONAL DATA (regenerate context) ═══\n\n${blocks.join('\n\n')}\n`;
+}
+
+/**
+ * Build the system + user message for the First Light generation API call.
+ * Used by both first-time generation and regenerate (regenerate passes
+ * `accumulated` to include data logged since First Light entry).
+ *
+ * @param {object} args
+ * @param {object} args.riderProfile - Rider profile document
+ * @param {object[]} args.horseProfiles - All horse profiles (primary first)
+ * @param {object[]} args.firstLightReflections - The six wizard reflections
+ * @param {object} [args.accumulated] - Regenerate-only context: {debriefs, additionalReflections, assessments}
+ * @param {number} [args.daysOnPlatform] - For early-journey-mode framing
+ * @returns {{ system: string, userMessage: string }}
+ */
+function buildFirstLightPrompt({
+  riderProfile,
+  horseProfiles = [],
+  firstLightReflections = [],
+  accumulated = null,
+  daysOnPlatform = 0,
+}) {
+  const primaryHorse = horseProfiles[0] || null;
+  const otherHorses = horseProfiles.slice(1);
+
+  // Sort reflections to match the fixed display order
+  const reflectionsByCategory = {};
+  for (const r of firstLightReflections) {
+    if (r && r.category) reflectionsByCategory[r.category] = r;
+  }
+  const orderedReflections = FIRST_LIGHT_CATEGORY_ORDER
+    .map(cat => reflectionsByCategory[cat])
+    .filter(Boolean);
+  const reflectionsBlock = orderedReflections
+    .map(_flFormatReflection)
+    .filter(Boolean)
+    .join('\n\n');
+
+  const debriefCount = accumulated?.debriefs?.length || 0;
+  const additionalReflectionCount = accumulated?.additionalReflections?.length || 0;
+
+  const otherHorsesLine = otherHorses.length > 0
+    ? `The rider also rides: ${otherHorses.map(h => _flValueOrNotShared(h.horseName || h.name)).join(', ')}.\n`
+    : '';
+
+  const additionalDataBlock = _flFormatAdditionalContext(accumulated);
+
+  const system = `You are an AI coach for Your Dressage Journey (YDJ), an AI-powered learning acceleration platform for serious adult amateur dressage riders. The platform's tagline is "Illuminate Your Journey."
+
+This rider has just completed their First Light entry — their rider profile, at least one horse profile, and six reflections, one for each category. They are about to receive their First Light, the inaugural coaching artifact. This is the first time they hear from any of the four coaching voices in the platform. This moment matters enormously for trust and engagement.
+
+═══ EARLY-JOURNEY MODE — ACTIVE ═══
+
+This rider has logged ${debriefCount} debriefs and 6 First Light reflections, plus ${additionalReflectionCount} additional reflections logged after First Light entry. They are within their first ${daysOnPlatform} days on the platform.
+
+DO NOT:
+- Reference patterns, trends, or recurring themes across multiple entries — you do not have enough data to claim them
+- Make claims about the rider's tendencies, habits, or what they "usually" do
+- Suggest connections across multiple rides as established truth
+- Reference horses, people, movements, trainers, or events not explicitly named in the rider's submitted data
+- Generate full coaching arcs designed for accumulated pattern data
+- Hallucinate movement names, exercises, or examples not grounded in the rider's stated level
+
+DO:
+- Reference exactly what the rider shared, naming specifics: horse name, why they ride, stated goals, learning style
+- Quote or echo the rider's own language from reflections where it fits naturally
+- Identify ONE meaningful through-line that connects two specific things the rider said — not a pattern claim, a single observation drawing a line between two reflections
+- Speak to the present moment of beginning
+- Acknowledge that you are just beginning to know them — this is a feature, not a deficit
+- Stay grounded in the rider's actual words
+
+═══ THE FOUR COACHING VOICES ═══
+
+Voice 0 — The Classical Master: "Why not the first time?" Wise, patient, occasionally poetic. Speaks in long arcs. Roots advice in classical principles. Poetic does not mean ornate — it means precise enough to resonate.
+
+Voice 1 — The Empathetic Coach: "You've got this." Warm, validating, perceptive. Honors the emotional reality of riding and the courage required.
+
+Voice 2 — The Technical Coach: "Did you feel that?" Clear, specific, biomechanical. Cause-and-effect oriented. Position and feel.
+
+Voice 3 — The Practical Strategist: "Be accurate!" Forward-looking, structured, goal-oriented. Maps the path.
+
+═══ VOICE SELECTION — CHOOSE ONE PRIMARY ═══
+
+Read the rider's stated goals, learning style, why they ride, and especially their six reflections. Choose the primary voice using these signals:
+
+- Strong competition focus, structured timeline goals, explicit qualifying targets, planning language → The Practical Strategist
+- Classical principles language, "the why," "training scale," "foundations," mastery orientation, references to classical concepts (the box, throughness, the training scale, allowing, schwung, durchlässigkeit) → The Classical Master
+- Confidence/trust/emotional language, partnership-centric goals, characteristic self-talk patterns, connection-category dominance → The Empathetic Coach
+- Cause-and-effect language, biomechanical curiosity, position-focused growth areas, "feel" curiosity, body-awareness framing → The Technical Coach
+
+Default to The Empathetic Coach if signals are mixed or weak — a warmer on-ramp serves a brand-new rider better than the Classical Master's gravitas.
+
+═══ RIDER DATA ═══
+
+${_flFormatRiderProfile(riderProfile)}
+
+═══ HORSE DATA ═══
+
+${_flFormatPrimaryHorse(primaryHorse)}
+${otherHorsesLine}
+═══ FIRST LIGHT REFLECTIONS ═══
+
+${reflectionsBlock}
+${additionalDataBlock}
+═══ YOUR TASK ═══
+
+Write the rider's First Light. Output as valid JSON with EXACTLY this structure:
+
+{
+  "primaryVoice": "classical" | "empathetic" | "technical" | "strategic",
+  "riderRead": "...",
+  "partnershipRead": "...",
+  "otherVoices": [
+    { "voice": "...", "message": "..." },
+    { "voice": "...", "message": "..." },
+    { "voice": "...", "message": "..." }
+  ],
+  "whereWeBegin": "..."
+}
+
+SECTION SPECIFICATIONS:
+
+riderRead: 4–7 sentences in the primary voice. Address the rider by first name. Synthesize across rider profile and the six reflections. Reference specifics, not generalities. Identify ONE meaningful through-line that connects two specific things the rider said. Weave the rider's own language in where it fits.
+
+partnershipRead: 3–5 sentences in the same primary voice. Reference the horse by name. If multiple horses, lead with primary, briefly acknowledge others by name in one sentence.
+
+otherVoices: An array of three objects. Each is one of the three voices NOT chosen as primary, in voice-number order (0, 1, 2, 3 minus the primary). The "voice" field uses the same key form as primaryVoice ("classical" | "empathetic" | "technical" | "strategic"). Each "message" is approximately 2 sentences. Each voice introduces what they will be watching for in this rider's data, grounded in something specific the rider shared.
+
+whereWeBegin: 1–2 sentences in the primary voice. Not homework. A frame for what the rider could carry into their next ride or first regular reflection. Often the most powerful place to draw a line between two of the rider's reflections.
+
+OUTPUT CONSTRAINTS:
+
+- Total length across all sections: 350–550 words
+- No markdown formatting in the output text — no headers, no bullets, no bold, no italics
+- No coaching voice catchphrases recited verbatim — voices demonstrate character, they do not announce it
+- Reference horse name(s) accurately — fabricating a horse name is catastrophic and breaks rider trust
+- Reference movements only at the rider's stated level
+- For PSG riders: 8m voltes (not 10m circles), half-pirouettes (not full), 3-tempi and 4-tempi changes only
+- Do not skip Inter II when discussing progression beyond Inter I
+- Approved trainer/author references (use only if naturally fitting): Mary Wanless, Alois Podhajsky, Charles de Kunffy, Kyra Kyrklund, Jane Savoie, Beth Baumert, Sally Swift, Susanne von Dietze, Reiner Klimke, Ingrid Klimke
+
+Output ONLY the JSON object. No preamble, no markdown code fences, no explanation before or after.`;
+
+  const userMessage = accumulated
+    ? `Generate this rider's regenerated First Light, drawing on the original six reflections plus everything they have logged since their first generation. Return ONLY the JSON object specified above.`
+    : `Generate this rider's First Light from the data above. Return ONLY the JSON object specified above.`;
+
+  return { system, userMessage };
+}
+
 module.exports = {
   BASE_CONTEXT,
   VOICE_META,
@@ -4996,6 +5275,9 @@ module.exports = {
   buildEventPlannerPrompt,
   buildPhysicalGuidancePrompt,
   buildVisualizationScriptPrompt,
+  buildFirstLightPrompt,
+  FIRST_LIGHT_CATEGORY_ORDER,
+  FIRST_LIGHT_CATEGORY_LABELS,
   buildMovementLabel,
   buildUserDataMessage,
 };
