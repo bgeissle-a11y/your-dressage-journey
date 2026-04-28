@@ -1,0 +1,592 @@
+/* ============================================================
+   Pricing Page Styles
+   ============================================================ */
+
+.pricing-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 1rem 3rem;
+}
+
+/* ── Header ── */
+.pricing-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--parchment-dark);
+}
+.pricing-header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+.pricing-header p {
+  font-size: 0.88rem;
+  color: var(--ink-light);
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* ── Billing toggle ── */
+.billing-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+.billing-toggle-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--ink-light);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.billing-toggle-label.active {
+  color: var(--ink);
+  font-weight: 600;
+}
+.billing-toggle-switch {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  background: var(--parchment-dark);
+  border-radius: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+  border: none;
+  padding: 0;
+}
+.billing-toggle-switch.annual {
+  background: var(--gold);
+}
+.billing-toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.billing-toggle-switch.annual .billing-toggle-knob {
+  transform: translateX(22px);
+}
+.billing-savings-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--forest-light);
+  background: var(--done-bg);
+  padding: 0.2rem 0.5rem;
+  border-radius: 10px;
+  letter-spacing: 0.02em;
+}
+
+/* ── Tier cards grid ── */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+/* ── Individual tier card ── */
+.tier-card {
+  position: relative;
+  background: white;
+  border: 1.5px solid var(--parchment-dark);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.tier-card:hover {
+  border-color: var(--gold-light);
+  box-shadow: 0 4px 16px rgba(139, 115, 85, 0.1);
+}
+.tier-card.popular {
+  border-color: var(--gold);
+  box-shadow: 0 4px 20px rgba(184, 134, 42, 0.15);
+}
+.tier-card.popular .tier-card-header {
+  background: linear-gradient(135deg, rgba(184, 134, 42, 0.08), rgba(212, 168, 75, 0.04));
+}
+
+/* Popular badge */
+.popular-badge {
+  position: absolute;
+  top: -1px;
+  right: 1.25rem;
+  background: var(--gold);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.75rem;
+  border-radius: 0 0 8px 8px;
+}
+
+/* Card header */
+.tier-card-header {
+  padding: 1.5rem 1.25rem 1rem;
+  border-bottom: 1px solid var(--parchment-dark);
+  background: var(--parchment-off);
+}
+.tier-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 0.25rem;
+}
+.tier-position {
+  font-size: 0.78rem;
+  color: var(--ink-light);
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+.tier-price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.2rem;
+}
+.tier-price-amount {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+.tier-price-period {
+  font-size: 0.78rem;
+  color: var(--ink-light);
+}
+.tier-price-annual-note {
+  font-size: 0.72rem;
+  color: var(--forest-light);
+  margin-top: 0.25rem;
+  font-weight: 500;
+}
+
+/* Card body */
+.tier-card-body {
+  padding: 1.25rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Feature list */
+.tier-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+  flex: 1;
+}
+.tier-features li {
+  font-size: 0.82rem;
+  color: var(--ink-mid);
+  padding: 0.4rem 0;
+  padding-left: 1.4rem;
+  position: relative;
+  line-height: 1.4;
+}
+.tier-features li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55rem;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--gold-light);
+}
+.tier-features li.not-included {
+  color: var(--ink-light);
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+.tier-features li.not-included::before {
+  background: var(--parchment-dark);
+}
+.tier-features li.section-header {
+  font-weight: 600;
+  color: var(--ink);
+  padding-left: 0;
+}
+.tier-features li.section-header::before {
+  display: none;
+}
+
+/* Subscribe button */
+.tier-subscribe-btn {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--gold);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--gold);
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.tier-subscribe-btn:hover {
+  background: var(--gold);
+  color: white;
+}
+.tier-subscribe-btn.popular {
+  background: var(--gold);
+  color: white;
+}
+.tier-subscribe-btn.popular:hover {
+  background: var(--gold-light);
+  border-color: var(--gold-light);
+}
+.tier-subscribe-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Current plan badge ── */
+.tier-current-badge {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--forest-light);
+  border-radius: 10px;
+  background: var(--done-bg);
+  color: var(--forest-light);
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ── Footer note ── */
+.pricing-footer {
+  text-align: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--parchment-dark);
+}
+.pricing-footer p {
+  font-size: 0.78rem;
+  color: var(--ink-light);
+  line-height: 1.6;
+}
+
+/* ── Loading state ── */
+.pricing-loading {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}
+
+/* ── Initial Centerline banner ── */
+.ic-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: linear-gradient(135deg, rgba(184, 134, 42, 0.10), rgba(212, 168, 75, 0.06));
+  border: 1.5px solid var(--gold);
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+.ic-banner-text strong {
+  display: block;
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  color: var(--ink);
+  margin-bottom: 0.25rem;
+}
+.ic-banner-text p {
+  font-size: 0.82rem;
+  color: var(--ink-mid);
+  margin: 0;
+  line-height: 1.5;
+}
+.ic-spots-counter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: white;
+  border: 1.5px solid var(--gold);
+  border-radius: 12px;
+  padding: 0.5rem 0.85rem;
+  min-width: 90px;
+  flex-shrink: 0;
+}
+.ic-spots-number {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1.1;
+}
+.ic-spots-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--ink-light);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ── Pilot conversion banner ── */
+.pilot-banner {
+  background: rgba(75, 95, 75, 0.06);
+  border: 1px solid var(--forest-light);
+  border-radius: 12px;
+  padding: 0.85rem 1.1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--ink-mid);
+}
+.pilot-banner strong {
+  color: var(--forest-light);
+}
+
+/* ── Free trial banner ── */
+.trial-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: var(--parchment-off);
+  border: 1px dashed var(--gold-light);
+  border-radius: 12px;
+  padding: 0.85rem 1.1rem;
+  margin-bottom: 1.5rem;
+}
+.trial-banner strong {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--ink);
+  margin-bottom: 0.2rem;
+}
+.trial-banner p {
+  font-size: 0.8rem;
+  color: var(--ink-mid);
+  margin: 0;
+  line-height: 1.5;
+}
+.trial-banner-btn {
+  flex-shrink: 0;
+  padding: 0.6rem 1.1rem;
+  background: var(--gold);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.trial-banner-btn:hover {
+  background: var(--gold-light);
+}
+.trial-banner-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── IC tier card variant ── */
+.tier-card.ic-card {
+  border-color: var(--gold);
+  box-shadow: 0 4px 22px rgba(184, 134, 42, 0.18);
+}
+.tier-card.ic-card .tier-card-header {
+  background: linear-gradient(135deg, rgba(184, 134, 42, 0.12), rgba(212, 168, 75, 0.05));
+}
+.ic-badge {
+  position: absolute;
+  top: -1px;
+  right: 1.25rem;
+  background: var(--gold);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.75rem;
+  border-radius: 0 0 8px 8px;
+}
+.tier-price-strikethrough {
+  font-size: 0.7rem;
+  color: var(--ink-light);
+  margin-top: 0.2rem;
+}
+
+/* ── Footer fine print ── */
+.pricing-footer-fineprint {
+  margin-top: 0.75rem;
+  font-size: 0.72rem !important;
+  color: var(--ink-light);
+  font-style: italic;
+}
+
+/* ── IC Upgrade confirmation modal ── */
+.upgrade-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(40, 30, 20, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1000;
+}
+.upgrade-modal {
+  background: white;
+  border: 1.5px solid var(--gold);
+  border-radius: 14px;
+  padding: 1.5rem 1.5rem 1.25rem;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+}
+.upgrade-modal h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0 0 0.5rem;
+}
+.upgrade-modal-lead {
+  font-size: 0.88rem;
+  color: var(--ink-mid);
+  line-height: 1.5;
+  margin: 0 0 1rem;
+}
+.upgrade-modal-summary {
+  background: var(--parchment-off);
+  border: 1px solid var(--parchment-dark);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+.upgrade-modal-row {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: 0.6rem;
+  padding: 0.45rem 0;
+  font-size: 0.83rem;
+  line-height: 1.45;
+  border-bottom: 1px solid var(--parchment-dark);
+}
+.upgrade-modal-row:last-child {
+  border-bottom: none;
+}
+.upgrade-modal-row > span:first-child {
+  font-weight: 600;
+  color: var(--ink);
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  padding-top: 0.15rem;
+}
+.upgrade-modal-row-detail {
+  color: var(--ink-mid);
+}
+.upgrade-modal-fineprint {
+  font-size: 0.75rem;
+  color: var(--ink-light);
+  line-height: 1.5;
+  margin: 0 0 1.25rem;
+}
+.upgrade-modal-actions {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: flex-end;
+}
+.upgrade-modal-btn {
+  padding: 0.6rem 1.1rem;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid var(--gold);
+  transition: all 0.2s;
+}
+.upgrade-modal-btn.cancel {
+  background: transparent;
+  color: var(--ink-mid);
+  border-color: var(--parchment-dark);
+}
+.upgrade-modal-btn.cancel:hover {
+  background: var(--parchment-off);
+}
+.upgrade-modal-btn.confirm {
+  background: var(--gold);
+  color: white;
+}
+.upgrade-modal-btn.confirm:hover {
+  background: var(--gold-light);
+  border-color: var(--gold-light);
+}
+.upgrade-modal-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Error state ── */
+.pricing-error {
+  text-align: center;
+  padding: 1.5rem;
+  background: rgba(122, 48, 32, 0.06);
+  border: 1px solid rgba(122, 48, 32, 0.2);
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+}
+.pricing-error p {
+  color: var(--rust);
+  font-size: 0.85rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .pricing-grid {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+    margin: 0 auto 2rem;
+  }
+  .pricing-header h1 {
+    font-size: 1.35rem;
+  }
+  .ic-banner,
+  .trial-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .ic-spots-counter {
+    align-self: flex-end;
+  }
+  .trial-banner-btn {
+    align-self: stretch;
+    text-align: center;
+  }
+}
+@media (min-width: 769px) and (max-width: 960px) {
+  .pricing-grid {
+    gap: 1rem;
+  }
+  .tier-card-header {
+    padding: 1.25rem 1rem 0.85rem;
+  }
+  .tier-card-body {
+    padding: 1rem;
+  }
+}

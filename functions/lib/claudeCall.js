@@ -12,6 +12,7 @@
 const { getAnthropicClient } = require("./anthropic");
 const { isTransientError } = require("./errors");
 const { db } = require("./firebase");
+const { getTierBudgets, MILLICENTS_PER_USD } = require("./tierBudgets");
 
 const DEFAULT_MODEL = "claude-sonnet-4-5-20250929";
 const DEFAULT_MAX_TOKENS = 4096;
@@ -32,16 +33,19 @@ const DAILY_CALL_LIMIT = 40; // max Claude API calls per user per day
 const BUDGET_COLLECTION = "usageBudgets";
 
 /**
- * Per-user weekly dollar budget. Backstop against runaway usage patterns
- * (multi-device users, aggressive manual regens, cache-busting behavior).
+ * Per-user weekly + monthly dollar budgets are tier-aware (see ./tierBudgets).
+ * Spec: YDJ_Pricing_Discounts_Consolidation_v2.md Part 3.
  *
- * Stored on the same `usageBudgets/{uid}` doc as the daily counter, keyed
- * by ISO week (YYYY-Www). Resets automatically when the week changes.
+ *   Working   monthly $10
+ *   Medium    monthly $40   weekly $20
+ *   Extended  monthly $80   weekly $20
  *
- * Value is in millicents (1/1000 of a cent) to match _logUsage output.
- * 20 USD = $20 * 100,000 = 2,000,000 millicents.
+ * Both accumulators are stored on the same `usageBudgets/{uid}` doc as the
+ * daily counter, keyed by ISO week and YYYY-MM month respectively. They
+ * reset automatically when the bucket key changes.
+ *
+ * Costs are tallied in millicents (1/1000 of a cent) to match _logUsage.
  */
-const WEEKLY_LIMIT_MILLICENTS = 2_000_000;
 
 /**
  * Build an ISO-week key (e.g. "2026-W17") in UTC for budget bucketing.
@@ -53,6 +57,17 @@ function getWeekKey(date = new Date()) {
   const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
   const weekNum = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
   return `${d.getUTCFullYear()}-W${String(weekNum).padStart(2, "0")}`;
+}
+
+/**
+ * Build a calendar-month key (e.g. "2026-04") in UTC for monthly cost
+ * bucketing. Calendar months are used (not Stripe billing periods) so that
+ * an annual subscriber's $/month ceiling resets predictably each month.
+ */
+function getMonthKey(date = new Date()) {
+  const y = date.getUTCFullYear();
+  const m = String(date.getUTCMonth() + 1).padStart(2, "0");
+  return `${y}-${m}`;
 }
 
 /**
@@ -79,13 +94,21 @@ async function callClaude({
   maxRetries = DEFAULT_MAX_RETRIES,
   uid = null,
 }) {
-  // Per-user daily + weekly rate limit check
+  // Per-user daily + weekly + monthly rate limit check
   if (uid) {
     const budgetResult = await _checkAndIncrementBudget(uid);
     if (!budgetResult.allowed) {
+      if (budgetResult.reason === "monthly") {
+        const limitUSD = (budgetResult.limit / MILLICENTS_PER_USD).toFixed(0);
+        console.warn(`[${context}] ⛔ Monthly $ budget ($${limitUSD}) exceeded for user ${uid} (tier=${budgetResult.tier})`);
+        const err = new Error(`Your monthly insights budget ($${limitUSD}) has been reached. Cached insights remain available; new generations resume next month.`);
+        err.code = "monthly-budget-exceeded";
+        throw err;
+      }
       if (budgetResult.reason === "weekly") {
-        console.warn(`[${context}] ⛔ Weekly $ budget ($${WEEKLY_LIMIT_MILLICENTS / 100_000}) exceeded for user ${uid}`);
-        const err = new Error("Your weekly insights budget has been reached. Cached insights remain available; new generations will resume at the start of next week.");
+        const limitUSD = (budgetResult.limit / MILLICENTS_PER_USD).toFixed(0);
+        console.warn(`[${context}] ⛔ Weekly $ budget ($${limitUSD}) exceeded for user ${uid} (tier=${budgetResult.tier})`);
+        const err = new Error(`Your weekly insights budget ($${limitUSD}) has been reached. Cached insights remain available; new generations will resume at the start of next week.`);
         err.code = "weekly-budget-exceeded";
         throw err;
       }
@@ -139,21 +162,51 @@ async function callClaude({
 async function _checkAndIncrementBudget(uid) {
   const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
   const week = getWeekKey();
+  const month = getMonthKey();
   const docRef = db.collection(BUDGET_COLLECTION).doc(uid);
+  const userRef = db.collection("users").doc(uid);
 
   try {
     const result = await db.runTransaction(async (tx) => {
+      // Read both docs inside the transaction so the tier read is consistent
+      // with the cost accumulator we're about to gate on.
       const doc = await tx.get(docRef);
+      const userDoc = await tx.get(userRef);
       const data = doc.exists ? doc.data() : null;
+      const tier = userDoc.exists ? (userDoc.data() || {}).subscriptionTier : null;
+      const budgets = getTierBudgets(tier);
 
-      // Pre-call weekly $ check. Cost is tallied after each call in _logUsage,
-      // so this blocks once prior calls in the same week have crossed the
-      // threshold. The call that crosses the line slips through (graceful),
-      // but subsequent calls are rejected until the week rolls over.
+      // Pre-call weekly + monthly $ checks. Cost is tallied after each call
+      // in _logUsage, so these block once prior calls in the same bucket have
+      // crossed the threshold. The call that crosses the line slips through
+      // (graceful); subsequent calls are rejected until the bucket rolls over.
+
       const isSameWeek = data?.week === week;
       const weekCost = isSameWeek ? (data.weekCostMillicents || 0) : 0;
-      if (weekCost >= WEEKLY_LIMIT_MILLICENTS) {
-        return { allowed: false, reason: "weekly" };
+      if (
+        budgets.weeklyMillicents !== null &&
+        weekCost >= budgets.weeklyMillicents
+      ) {
+        return {
+          allowed: false,
+          reason: "weekly",
+          limit: budgets.weeklyMillicents,
+          tier: budgets.tier,
+        };
+      }
+
+      const isSameMonth = data?.month === month;
+      const monthCost = isSameMonth ? (data.monthCostMillicents || 0) : 0;
+      if (
+        budgets.monthlyMillicents !== null &&
+        monthCost >= budgets.monthlyMillicents
+      ) {
+        return {
+          allowed: false,
+          reason: "monthly",
+          limit: budgets.monthlyMillicents,
+          tier: budgets.tier,
+        };
       }
 
       // Reset daily counter if it's a new day or doc doesn't exist
@@ -164,6 +217,8 @@ async function _checkAndIncrementBudget(uid) {
           uid,
           week,
           weekCostMillicents: weekCost, // preserve accumulated weekly cost
+          month,
+          monthCostMillicents: monthCost, // preserve accumulated monthly cost
         }, { merge: true });
         return { allowed: true };
       }
@@ -173,10 +228,14 @@ async function _checkAndIncrementBudget(uid) {
       }
 
       const updates = { count: data.count + 1 };
-      // If the week rolled over mid-day, reset weekly accumulator
+      // If the week or month rolled over mid-day, reset that accumulator
       if (!isSameWeek) {
         updates.week = week;
         updates.weekCostMillicents = 0;
+      }
+      if (!isSameMonth) {
+        updates.month = month;
+        updates.monthCostMillicents = 0;
       }
       tx.update(docRef, updates);
       return { allowed: true };
@@ -292,30 +351,37 @@ function _logUsage({ uid, context, model, inputTokens, outputTokens, stopReason 
     console.warn(`[usage-log] Failed to write usage log: ${err.message}`);
   });
 
-  // Increment the user's weekly cost accumulator (fire-and-forget).
-  // The pre-call budget check reads this to enforce WEEKLY_LIMIT_MILLICENTS.
-  // A transaction is used so that a call in flight across a week boundary
-  // resets the accumulator cleanly rather than carrying prior-week cost
-  // into the new week's tally.
+  // Increment the user's weekly + monthly cost accumulators (fire-and-forget).
+  // The pre-call budget check reads these to enforce tier-aware caps. A
+  // transaction is used so that a call in flight across a week/month boundary
+  // resets the accumulator cleanly rather than carrying prior-bucket cost
+  // into the new bucket's tally.
   if (uid && estimatedCostMillicents > 0) {
     const week = getWeekKey();
+    const month = getMonthKey();
     const budgetRef = db.collection(BUDGET_COLLECTION).doc(uid);
     db.runTransaction(async (tx) => {
       const doc = await tx.get(budgetRef);
       const data = doc.exists ? doc.data() : null;
+      const updates = { uid };
+
       if (data?.week === week) {
-        tx.update(budgetRef, {
-          weekCostMillicents: (data.weekCostMillicents || 0) + estimatedCostMillicents,
-        });
+        updates.weekCostMillicents = (data.weekCostMillicents || 0) + estimatedCostMillicents;
       } else {
-        tx.set(budgetRef, {
-          uid,
-          week,
-          weekCostMillicents: estimatedCostMillicents,
-        }, { merge: true });
+        updates.week = week;
+        updates.weekCostMillicents = estimatedCostMillicents;
       }
+
+      if (data?.month === month) {
+        updates.monthCostMillicents = (data.monthCostMillicents || 0) + estimatedCostMillicents;
+      } else {
+        updates.month = month;
+        updates.monthCostMillicents = estimatedCostMillicents;
+      }
+
+      tx.set(budgetRef, updates, { merge: true });
     }).catch((err) => {
-      console.warn(`[usage-log] Failed to increment weekly cost for ${uid}: ${err.message}`);
+      console.warn(`[usage-log] Failed to increment cost accumulators for ${uid}: ${err.message}`);
     });
   }
 }

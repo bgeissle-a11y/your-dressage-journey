@@ -69,6 +69,11 @@ import VisualizationPage from './components/Visualization/VisualizationPage';
 // Settings
 import Settings from './components/Settings/Settings';
 
+// Subscription
+import Pricing from './pages/Pricing';
+import SubscriptionSuccess from './pages/SubscriptionSuccess';
+import SubscriptionCancel from './pages/SubscriptionCancel';
+
 // Coach Brief
 import CoachBriefPage from './components/CoachBrief/CoachBriefPage';
 
@@ -190,6 +195,11 @@ function App() {
 
             {/* Settings */}
             <Route path="/settings" element={<Settings />} />
+
+            {/* Subscription */}
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/subscription/success" element={<SubscriptionSuccess />} />
+            <Route path="/subscription/cancel" element={<SubscriptionCancel />} />
 
             {/* Coach Brief */}
             <Route path="/coach-brief" element={<CoachBriefPage />} />

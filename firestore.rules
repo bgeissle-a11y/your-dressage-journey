@@ -200,5 +200,12 @@ service cloud.firestore {
     match /usageBudgets/{uid} {
       allow read, write: if false;
     }
+
+    // IC cohort counter — public read so the Pricing page can show live
+    // spots-remaining; written exclusively by Cloud Functions (admin SDK).
+    match /admin/icCohort {
+      allow read: if true;
+      allow write: if false;
+    }
   }
 }

@@ -43,10 +43,13 @@ const lessonPrepSummary = require("./api/lessonPrepSummary");
 const readinessSnapshot = require("./api/readinessSnapshot");
 const visualizationScript = require("./api/visualizationScript");
 const processLessonTranscript = require("./api/processLessonTranscript");
+const stripeHandlers = require("./api/stripe");
 const firstLight = require("./api/firstLight");
 
 // Secrets — declared once, referenced by all functions that need them
 const anthropicKey = defineSecret("ANTHROPIC_API_KEY");
+const stripeSecretKey = defineSecret("STRIPE_SECRET_KEY");
+const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
 
 // --- Health check / smoke test ---
 exports.ping = onCall((request) => {
@@ -280,4 +283,48 @@ exports.onRiderAssessmentCreated = onDocumentCreated(
 exports.onHealthEntryCreated = onDocumentCreated(
   { document: "horseHealthEntries/{docId}", secrets: [anthropicKey], timeoutSeconds: 540, memory: "512MiB" },
   dataTriggeredRegeneration.handleImmediateChange
+);
+
+// --- Stripe Subscription & Billing ---
+
+// Create a Stripe Checkout Session for subscription signup
+// Input: { lookupKey: string, origin?: string }
+// Returns: { url: string }
+exports.createCheckoutSession = onCall(
+  { secrets: [stripeSecretKey], timeoutSeconds: 30, memory: "256MiB" },
+  stripeHandlers.createCheckoutSession
+);
+
+// Create a Stripe Billing Portal session for subscription management
+// Input: { origin?: string }
+// Returns: { url: string }
+exports.createPortalSession = onCall(
+  { secrets: [stripeSecretKey], timeoutSeconds: 30, memory: "256MiB" },
+  stripeHandlers.createPortalSession
+);
+
+// Stripe webhook endpoint — raw HTTP POST, not onCall
+// Processes: subscription.created/updated/deleted, invoice.payment_succeeded/failed
+exports.stripeWebhook = onRequest(
+  { secrets: [stripeSecretKey, stripeWebhookSecret], timeoutSeconds: 30, memory: "256MiB" },
+  stripeHandlers.handleWebhook
+);
+
+// In-place subscription update with proper IC coupon swap. Used for IC tier
+// upgrades within the 6-month window (the Customer Portal can't manage our
+// coupon rules).
+// Input: { targetLookupKey: string, flow: "ic_upgrade" }
+// Returns: { success, subscriptionId, fromTier, toTier }
+exports.changeSubscriptionPlan = onCall(
+  { secrets: [stripeSecretKey], timeoutSeconds: 30, memory: "256MiB" },
+  stripeHandlers.changeSubscriptionPlan
+);
+
+// Get pricing eligibility for the current user (or anonymous public response)
+// Returns IC eligibility, trial eligibility, pilot status, and live cohort count.
+// Input: none
+// Returns: { isPilot, isAlreadyIC, icEligibleNow, trialEligible, cohort: {...} }
+exports.getPricingEligibility = onCall(
+  { timeoutSeconds: 15, memory: "256MiB" },
+  stripeHandlers.getPricingEligibility
 );
