@@ -67,6 +67,7 @@ const NAV_GROUPS = [
           { icon: '\uD83C\uDFAF', label: 'Multi-Voice Coaching', to: '/insights?tab=coaching' },
           { icon: '\uD83E\uDDE0', label: 'Grand Prix Thinking', to: '/insights?tab=grandprix' },
           { icon: '\uD83C\uDF3F', label: 'Physical Guidance', to: '/insights?tab=physical' },
+          { icon: '\uD83D\uDCCA', label: 'Data Visualizations', to: '/insights?tab=visualizations' },
         ],
       },
     ],
@@ -252,11 +253,6 @@ export default function AppLayout() {
         {/* Quick Start — direct link */}
         <div className="nav-item">
           <Link to="/quickstart" className={`nav-btn nav-special${isActive('/quickstart') ? ' active' : ''}`}>&#9672; Quick Start</Link>
-        </div>
-
-        {/* Insights — direct link */}
-        <div className="nav-item">
-          <Link to="/data-insights" className={`nav-btn nav-special${isActive('/data-insights') ? ' active' : ''}`}>&#10022; Insights</Link>
         </div>
 
         <div className="nav-spacer" />

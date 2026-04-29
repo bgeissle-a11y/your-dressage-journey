@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { AuthProvider } from './contexts/AuthContext';
 import { SettingsProvider } from './contexts/SettingsContext';
@@ -10,7 +10,6 @@ import SignIn from './components/Auth/SignIn';
 import ForgotPassword from './components/Auth/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import Insights from './pages/Insights';
-import InsightsPage from './components/insights/InsightsPage';
 
 import TipsAndFaq from './pages/TipsAndFaq';
 import OutputsTipsAndFaq from './pages/OutputsTipsAndFaq';
@@ -113,7 +112,8 @@ function App() {
           <Route element={<PrivateRoute><AppLayout /></PrivateRoute>}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/insights" element={<Insights />} />
-            <Route path="/data-insights" element={<InsightsPage />} />
+            {/* Old standalone Insights URL — now folded into AI Coaching tabs */}
+            <Route path="/data-insights" element={<Navigate to="/insights?tab=visualizations" replace />} />
 
             <Route path="/tips-and-faq" element={<TipsAndFaq />} />
             <Route path="/outputs-tips-and-faq" element={<OutputsTipsAndFaq />} />

@@ -5,6 +5,7 @@ import JourneyMapPanel from '../components/AICoaching/JourneyMapPanel';
 import GrandPrixPanel from '../components/AICoaching/GrandPrixPanel';
 
 import PhysicalGuidancePanel from '../components/AICoaching/PhysicalGuidancePanel';
+import InsightsPage from '../components/insights/InsightsPage';
 import YDJLoading from '../components/YDJLoading';
 import useGenerationStatus from '../hooks/useGenerationStatus';
 import './Insights.css';
@@ -14,6 +15,7 @@ const TABS = [
   { id: 'journey', label: 'Journey Map', icon: '\ud83d\uddfa\ufe0f' },
   { id: 'grandprix', label: 'Grand Prix Thinking', icon: '\ud83e\udde0' },
   { id: 'physical', label: 'Physical Guidance', icon: '\ud83e\uddd8' },
+  { id: 'visualizations', label: 'Data Visualizations', icon: '\ud83d\udcca' },
 ];
 
 export default function Insights() {
@@ -76,6 +78,7 @@ export default function Insights() {
         {activeTab === 'journey' && <JourneyMapPanel generationStatus={generationStatus} />}
         {activeTab === 'grandprix' && <GrandPrixPanel generationStatus={generationStatus} />}
         {activeTab === 'physical' && <PhysicalGuidancePanel />}
+        {activeTab === 'visualizations' && <InsightsPage embedded />}
       </div>
     </div>
   );

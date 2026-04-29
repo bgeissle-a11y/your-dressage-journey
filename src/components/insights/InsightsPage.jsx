@@ -20,7 +20,7 @@ const SECTIONS = [
   { id: 'journey', label: 'The Journey', count: 3 },
 ];
 
-export default function InsightsPage() {
+export default function InsightsPage({ embedded = false }) {
   const { data, loading, error, insufficientData } = useInsightsData();
   const [activeSection, setActiveSection] = useState('quality');
 
@@ -30,9 +30,11 @@ export default function InsightsPage() {
   if (loading) {
     return (
       <div className="ip-page">
-        <div className="ip-header">
-          <h1 className="ip-header__title">Insights</h1>
-        </div>
+        {!embedded && (
+          <div className="ip-header">
+            <h1 className="ip-header__title">Insights</h1>
+          </div>
+        )}
         <div className="ip-loading">
           <div className="ip-skeleton-grid">
             {[1, 2, 3].map(i => (
@@ -53,9 +55,11 @@ export default function InsightsPage() {
   if (error) {
     return (
       <div className="ip-page">
-        <div className="ip-header">
-          <h1 className="ip-header__title">Insights</h1>
-        </div>
+        {!embedded && (
+          <div className="ip-header">
+            <h1 className="ip-header__title">Insights</h1>
+          </div>
+        )}
         <div className="ip-error">
           <p>Something went wrong loading your insights. Please try refreshing the page.</p>
         </div>
@@ -65,13 +69,14 @@ export default function InsightsPage() {
 
   return (
     <div className="ip-page">
-      {/* Sticky header */}
-      <div className="ip-header">
-        <h1 className="ip-header__title">Insights</h1>
-        <p className="ip-header__subtitle">
-          Your Dressage Journey &middot; {data?.riderName || 'Rider'} &middot; {monthYear}
-        </p>
-      </div>
+      {!embedded && (
+        <div className="ip-header">
+          <h1 className="ip-header__title">Insights</h1>
+          <p className="ip-header__subtitle">
+            Your Dressage Journey &middot; {data?.riderName || 'Rider'} &middot; {monthYear}
+          </p>
+        </div>
+      )}
 
       {/* Section tab nav */}
       <div className="ip-section-nav">
