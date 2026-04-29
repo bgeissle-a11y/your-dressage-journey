@@ -41,7 +41,7 @@ const BLOCK_META = {
     iconFg: '#2c4a6e',
     desc: 'Review your pre-lesson summary before riding with your trainer.',
     linkLabel: 'Pre-Lesson Summary',
-    route: '/pre-lesson-summary',
+    route: '/lesson-prep',
   },
   viz: {
     icon: '\uD83C\uDFAF',

@@ -32,10 +32,19 @@ export async function readPreRideRitual(userId) {
     const snap = await getDoc(ref);
     if (snap.exists()) {
       const data = snap.data();
+      const savedBlocks = data.blocks || [];
+      // Append any predefined default blocks the saved doc is missing — lets
+      // new defaults reach existing rituals without disturbing user state.
+      // New blocks land at the end with active=false; user can reorder/enable.
+      const savedIds = new Set(savedBlocks.map(b => b.id));
+      const missing = DEFAULT_BLOCKS.filter(b => !savedIds.has(b.id));
+      const blocks = missing.length
+        ? [...savedBlocks, ...missing.map((b, i) => ({ ...b, order: savedBlocks.length + i }))]
+        : savedBlocks;
       return {
         success: true,
         data: {
-          blocks: data.blocks || DEFAULT_BLOCKS,
+          blocks,
           researchHidden: data.researchHidden || false,
           version: data.version || 1,
         },
