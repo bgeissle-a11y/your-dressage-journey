@@ -9,7 +9,7 @@ import {
   updateProfile
 } from 'firebase/auth';
 import { auth, db } from '../firebase-config';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 // Create the Auth Context
 const AuthContext = createContext({});
@@ -44,6 +44,23 @@ export function AuthProvider({ children }) {
 
       // Send email verification
       await sendEmailVerification(userCredential.user);
+
+      // Record Terms of Service / Privacy Policy consent. This is an
+      // immutable audit record written once at account creation.
+      // Non-blocking: failure here must not prevent the user from proceeding.
+      try {
+        await setDoc(
+          doc(db, 'riders', userCredential.user.uid, 'settings', 'consent'),
+          {
+            tosVersion: '1.2',
+            privacyVersion: '1.0',
+            consentDate: serverTimestamp(),
+            consentMethod: 'registration-checkbox'
+          }
+        );
+      } catch (consentErr) {
+        console.error('Failed to record registration consent:', consentErr);
+      }
 
       return {
         success: true,

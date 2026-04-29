@@ -15,6 +15,7 @@ export default function SignUp() {
   const [message, setMessage] = useState('');
   const [accountCreated, setAccountCreated] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [consentChecked, setConsentChecked] = useState(false);
 
   const { signup } = useAuth();
   const navigate = useNavigate();
@@ -254,11 +255,46 @@ export default function SignUp() {
             )}
           </div>
 
+          {/* Terms / Privacy Consent */}
+          <div className="form-group consent-group">
+            <label className="consent-label">
+              <input
+                type="checkbox"
+                checked={consentChecked}
+                onChange={(e) => setConsentChecked(e.target.checked)}
+                disabled={loading}
+                className="consent-checkbox"
+              />
+              <span>
+                I have read and agree to the{' '}
+                <a
+                  href="/terms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="auth-link"
+                >
+                  Terms of Service
+                </a>
+                {' '}and{' '}
+                <a
+                  href="/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="auth-link"
+                >
+                  Privacy Policy
+                </a>
+                .
+              </span>
+            </label>
+          </div>
+
           {/* Submit Button */}
           <button
             type="submit"
             className="btn btn-primary"
-            disabled={loading}
+            disabled={loading || !consentChecked}
+            style={(!consentChecked || loading) ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
           >
             {loading ? 'Creating Account...' : 'Sign Up'}
           </button>

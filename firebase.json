@@ -63,6 +63,14 @@
         "destination": "/ydj-science.html"
       },
       {
+        "source": "/terms",
+        "destination": "/ydj-terms.html"
+      },
+      {
+        "source": "/privacy",
+        "destination": "/ydj-privacy.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

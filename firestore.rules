@@ -128,9 +128,22 @@ service cloud.firestore {
       }
     }
 
-    // Rider settings (preferences, notifications, privacy)
+    // Registration consent (Terms of Service / Privacy Policy acknowledgment).
+    // Immutable audit record: created once at registration, never modified or deleted.
+    // Firestore unions all matching rule grants, so the generic /settings/{document}
+    // rule below explicitly excludes `consent` to keep this write-once.
+    match /riders/{userId}/settings/consent {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update, delete: if false;
+    }
+
+    // Rider settings (preferences, notifications, privacy).
+    // Excludes `consent`, which has its own immutable rule above.
     match /riders/{userId}/settings/{document} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId
+                         && document != 'consent';
     }
 
     // Pre-Ride Ritual subcollection

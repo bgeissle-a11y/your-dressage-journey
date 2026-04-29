@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terms of Service — Your Dressage Journey</title>
+<meta name="description" content="Terms of Service for Your Dressage Journey, a learning acceleration platform for adult amateur dressage riders.">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brown:        #5C3D2E;
+    --brown-deep:   #3D2518;
+    --gold:         #C9A84C;
+    --gold-light:   #E8C97A;
+    --gold-pale:    #F7EDCF;
+    --cream:        #FDF8F2;
+    --cream-dark:   #F0E8DB;
+    --cream-deeper: #E4D5C2;
+    --text:         #2C1810;
+    --text-muted:   #7A6055;
+    --text-light:   #A08070;
+    --blue:         #1B4F7A;
+    --blue-light:   #2E75B6;
+    --blue-pale:    #EEF4FB;
+    --white:        #FFFFFF;
+    --rule:         #DDD3C7;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Work Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    line-height: 1.75;
+    font-size: 15px;
+  }
+
+  /* ── NAV ── */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(253,248,242,0.96);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--cream-dark);
+    padding: 12px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--brown);
+    text-decoration: none;
+  }
+  .nav-brand span { color: var(--gold); }
+  .nav-doc-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .nav-actions {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+  .nav-link {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-link:hover { color: var(--brown); }
+  .nav-link.active { color: var(--gold); font-weight: 600; }
+
+  /* ── LAYOUT ── */
+  .page-wrapper {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 0;
+    align-items: start;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position: sticky;
+    top: 57px;
+    max-height: calc(100vh - 57px);
+    overflow-y: auto;
+    padding: 40px 24px 40px 0;
+    border-right: 1px solid var(--rule);
+    scrollbar-width: none;
+  }
+  .sidebar::-webkit-scrollbar { display: none; }
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 14px;
+  }
+  .sidebar-nav { list-style: none; }
+  .sidebar-nav li { margin-bottom: 2px; }
+  .sidebar-nav a {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 400;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    border-left: 2px solid transparent;
+    transition: all 0.15s;
+    line-height: 1.4;
+  }
+  .sidebar-nav a:hover {
+    color: var(--brown);
+    background: var(--cream-dark);
+    border-left-color: var(--gold);
+  }
+  .sidebar-nav a.current {
+    color: var(--blue);
+    background: var(--blue-pale);
+    border-left-color: var(--blue-light);
+    font-weight: 500;
+  }
+  .sidebar-divider {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 16px 0;
+  }
+  .sidebar-meta {
+    font-size: 11px;
+    color: var(--text-light);
+    line-height: 1.6;
+    padding: 0 10px;
+  }
+  .sidebar-meta a {
+    color: var(--gold);
+    text-decoration: none;
+  }
+  .sidebar-meta a:hover { text-decoration: underline; }
+
+  /* ── CONTENT ── */
+  .content {
+    padding: 48px 0 80px 48px;
+    min-width: 0;
+  }
+
+  /* HERO */
+  .doc-hero {
+    margin-bottom: 40px;
+    padding-bottom: 32px;
+    border-bottom: 2px solid var(--cream-deeper);
+  }
+  .doc-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+  .doc-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(26px, 4vw, 36px);
+    font-weight: 700;
+    color: var(--brown-deep);
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+  .doc-meta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .doc-meta-item {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .doc-meta-item strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* SECTIONS */
+  .doc-section {
+    margin-bottom: 48px;
+    scroll-margin-top: 80px;
+  }
+  .section-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--blue);
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--blue-pale);
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .section-num {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-light);
+    font-family: 'Work Sans', sans-serif;
+    min-width: 24px;
+  }
+  .subsection-heading {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--blue-light);
+    margin: 20px 0 10px;
+    letter-spacing: 0.01em;
+  }
+
+  /* TEXT */
+  .doc-section p {
+    margin-bottom: 14px;
+    color: var(--text);
+  }
+  .doc-section p:last-child { margin-bottom: 0; }
+
+  ul.doc-list {
+    list-style: none;
+    margin: 12px 0 16px;
+    padding: 0;
+  }
+  ul.doc-list li {
+    padding: 5px 0 5px 22px;
+    position: relative;
+    color: var(--text);
+    font-size: 14.5px;
+  }
+  ul.doc-list li::before {
+    content: '·';
+    position: absolute;
+    left: 8px;
+    color: var(--gold);
+    font-size: 18px;
+    line-height: 1.4;
+  }
+
+  /* CALLOUT */
+  .callout {
+    background: var(--blue-pale);
+    border-left: 3px solid var(--blue-light);
+    border-radius: 0 6px 6px 0;
+    padding: 14px 18px;
+    margin: 16px 0;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .callout strong { color: var(--blue-light); }
+
+  .callout-gold {
+    background: #FDFAF2;
+    border-left-color: var(--gold);
+  }
+  .callout-gold strong { color: var(--brown); }
+
+  /* PRICING TABLE */
+  .pricing-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 20px;
+    font-size: 13.5px;
+  }
+  .pricing-table th {
+    background: var(--blue-pale);
+    color: var(--blue);
+    font-weight: 600;
+    padding: 10px 14px;
+    text-align: left;
+    border: 1px solid var(--cream-deeper);
+  }
+  .pricing-table td {
+    padding: 9px 14px;
+    border: 1px solid var(--cream-deeper);
+    color: var(--text);
+    vertical-align: top;
+  }
+  .pricing-table tr:nth-child(even) td { background: var(--cream-dark); }
+  .tier-name { font-weight: 600; color: var(--brown); }
+
+  /* CONTACT BLOCK */
+  .contact-block {
+    background: var(--cream-dark);
+    border: 1px solid var(--cream-deeper);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 2;
+  }
+  .contact-block a {
+    color: var(--gold);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .contact-block a:hover { text-decoration: underline; }
+
+  /* FOOTER */
+  footer {
+    background: var(--brown-deep);
+    color: rgba(253,248,242,0.55);
+    padding: 32px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 2;
+    margin-top: 0;
+  }
+  footer a {
+    color: rgba(201,168,76,0.7);
+    text-decoration: none;
+  }
+  footer a:hover { color: var(--gold); }
+  footer a.active-page { color: var(--gold); font-weight: 600; }
+  .footer-links { display: flex; justify-content: center; gap: 24px; margin-bottom: 6px; }
+
+  /* PRINT */
+  @media print {
+    .nav, .sidebar, footer { display: none; }
+    .page-wrapper { grid-template-columns: 1fr; }
+    .content { padding: 0; }
+    .section-heading { color: #1B4F7A; }
+    body { font-size: 11pt; }
+  }
+
+  /* MOBILE */
+  @media (max-width: 768px) {
+    .page-wrapper { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .content { padding: 32px 0 60px; }
+    .nav { padding: 12px 16px; }
+    .nav-doc-label { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="https://yourdressagejourney.com" class="nav-brand">Your Dressage <span>Journey</span></a>
+  <span class="nav-doc-label">Legal Documents</span>
+  <div class="nav-actions">
+    <a href="/terms" class="nav-link active">Terms of Service</a>
+    <a href="/privacy" class="nav-link">Privacy Policy</a>
+    <a href="https://yourdressagejourney.com" class="nav-link">← Back to YDJ</a>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-label">Sections</div>
+    <ul class="sidebar-nav">
+      <li><a href="#s1">1. Who May Use YDJ</a></li>
+      <li><a href="#s2">2. Your Account</a></li>
+      <li><a href="#s3">3. Subscriptions &amp; Billing</a></li>
+      <li><a href="#s4">4. Your Content &amp; Data</a></li>
+      <li><a href="#s5">5. Retention, Export &amp; Deletion</a></li>
+      <li><a href="#s6">6. Acceptable Use</a></li>
+      <li><a href="#s7">7. Intellectual Property</a></li>
+      <li><a href="#s8">8. Disclaimers &amp; Liability</a></li>
+      <li><a href="#s9">9. Privacy</a></li>
+      <li><a href="#s10">10. Termination</a></li>
+      <li><a href="#s11">11. Dispute Resolution</a></li>
+      <li><a href="#s12">12. Changes to These Terms</a></li>
+      <li><a href="#s13">13. General Provisions</a></li>
+    </ul>
+    <hr class="sidebar-divider">
+    <div class="sidebar-meta">
+      <strong>Version 1.2</strong><br>
+      Effective May 1, 2026<br>
+      Your Training Journey, LLC<br>
+      Sadorus, Illinois<br><br>
+      See also:<br>
+      <a href="/privacy">Privacy Policy →</a>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <header class="doc-hero">
+      <div class="doc-eyebrow">Your Dressage Journey — Legal</div>
+      <h1 class="doc-title">Terms of Service</h1>
+      <div class="doc-meta">
+        <span class="doc-meta-item"><strong>Version:</strong> 1.2</span>
+        <span class="doc-meta-item"><strong>Effective:</strong> May 1, 2026</span>
+        <span class="doc-meta-item"><strong>Entity:</strong> Your Training Journey, LLC — Sadorus, Illinois</span>
+      </div>
+    </header>
+
+    <div class="callout callout-gold">
+      <strong>Welcome.</strong> These Terms govern your use of Your Dressage Journey (YDJ). By creating an account or using the Service, you agree to these Terms. Questions? Contact us at <a href="mailto:support@yourdressagejourney.com" style="color:var(--brown);font-weight:500;">support@yourdressagejourney.com</a>.
+    </div>
+
+    <!-- 1 -->
+    <section class="doc-section" id="s1">
+      <h2 class="section-heading"><span class="section-num">1</span> Who May Use YDJ</h2>
+      <p>You must be at least 18 years of age to create an account and use the Service. By using YDJ, you represent that you meet this requirement and that all information you provide is accurate and complete.</p>
+      <p>YDJ is currently available to residents of the <strong>United States and Canada</strong>, including all provinces and territories. Canadian users' personal data is handled in accordance with applicable federal and provincial privacy law, including PIPEDA and Quebec's Law 25. We will update these Terms as we expand to additional countries.</p>
+    </section>
+
+    <!-- 2 -->
+    <section class="doc-section" id="s2">
+      <h2 class="section-heading"><span class="section-num">2</span> Your Account</h2>
+      <h3 class="subsection-heading">2.1 Registration</h3>
+      <p>To access the Service, you must register for an account using a valid email address and a secure password. You are responsible for maintaining the confidentiality of your login credentials and for all activity that occurs under your account.</p>
+      <h3 class="subsection-heading">2.2 Account Security</h3>
+      <p>Please notify us immediately at <a href="mailto:support@yourdressagejourney.com" style="color:var(--gold);font-weight:500;">support@yourdressagejourney.com</a> if you suspect unauthorized access to your account. We are not liable for losses resulting from unauthorized use of your credentials.</p>
+      <h3 class="subsection-heading">2.3 One Account Per Person</h3>
+      <p>Each account is for a single individual rider. Sharing accounts or credentials is not permitted.</p>
+    </section>
+
+    <!-- 3 -->
+    <section class="doc-section" id="s3">
+      <h2 class="section-heading"><span class="section-num">3</span> Subscriptions, Billing &amp; Cancellation</h2>
+      <h3 class="subsection-heading">3.1 Subscription Plans</h3>
+      <p>YDJ offers the following subscription plans. Annual plans represent a savings equivalent to two months at no charge.</p>
+      <table class="pricing-table">
+        <thead>
+          <tr><th>Plan</th><th>Monthly</th><th>Annual</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="tier-name">Working</td><td>$30 / mo</td><td>$300 / yr</td><td>Core platform features for the developing rider</td></tr>
+          <tr><td class="tier-name">Medium</td><td>$50 / mo</td><td>$500 / yr</td><td>Full feature access for the committed competitor</td></tr>
+          <tr><td class="tier-name">Extended</td><td>$130 / mo</td><td>$1,300 / yr</td><td>Complete access for the serious amateur training at upper levels</td></tr>
+        </tbody>
+      </table>
+      <p>All prices are in USD. Feature availability by tier is described at yourdressagejourney.com. We reserve the right to modify pricing with at least 30 days' advance notice to existing subscribers.</p>
+      <h3 class="subsection-heading">3.2 Billing</h3>
+      <p>Paid subscriptions are billed on a recurring basis (monthly or annual) through our payment processor, Stripe. By subscribing, you authorize us to charge your payment method on a recurring basis until you cancel. Prices do not include applicable taxes, which will be added where required by law.</p>
+      <h3 class="subsection-heading">3.3 Cancellation &amp; Refunds</h3>
+      <p>You may cancel your subscription at any time through your account settings. Cancellation takes effect at the end of the current billing period — you will retain full access through that date. We do not offer prorated refunds for partial subscription periods except where required by applicable law.</p>
+      <h3 class="subsection-heading">3.4 Plan Changes</h3>
+      <p>Upgrades take effect immediately, with prorated credit applied toward your next billing cycle. Downgrades take effect at the start of the next billing cycle. Features associated with higher tiers will become inaccessible upon downgrade, though your underlying data is always retained.</p>
+      <h3 class="subsection-heading">3.5 Free Access &amp; Promotional Periods</h3>
+      <p>We may offer free access, trial periods, or promotional pricing from time to time. No payment information is required unless you choose to subscribe to a paid plan. We may modify or discontinue free access with reasonable notice.</p>
+    </section>
+
+    <!-- 4 -->
+    <section class="doc-section" id="s4">
+      <h2 class="section-heading"><span class="section-num">4</span> Your Content &amp; Data</h2>
+      <h3 class="subsection-heading">4.1 Ownership</h3>
+      <p>You retain full ownership of all training data, reflections, post-ride notes, and other content you submit to YDJ (your "Content"). These Terms do not transfer any ownership of your Content to us.</p>
+      <h3 class="subsection-heading">4.2 License to Provide the Service</h3>
+      <p>By submitting your Content, you grant Your Training Journey, LLC a limited, non-exclusive, worldwide, royalty-free license to store, process, and transmit your Content solely as necessary to operate and provide the Service to you. This license ends when you delete your Content or close your account, subject to the retention provisions in Section 5.</p>
+      <h3 class="subsection-heading">4.3 AI Processing</h3>
+      <p>YDJ uses artificial intelligence — including <strong>Anthropic's Claude API</strong> — to analyze your Content and generate personalized coaching insights, pattern analyses, and recommendations. By using the Service, you consent to your Content being transmitted to Anthropic's API for this purpose. Anthropic processes your data as a service provider under our agreement and in accordance with <a href="https://anthropic.com/privacy" target="_blank" rel="noopener" style="color:var(--gold);">Anthropic's Privacy Policy</a>. Under our current API agreement, Anthropic does not use your personal data to train its models.</p>
+      <h3 class="subsection-heading">4.4 Pre-Lesson Summary &amp; Optional Coach Sharing</h3>
+      <div class="callout">
+        <strong>Coach sharing is entirely under your control.</strong> YDJ will never share your data with any coach unless you have explicitly enabled sharing for that specific coach in your account settings. The Pre-Lesson Summary is a rider-facing feature first; sharing it with a coach requires your affirmative action.
+      </div>
+      <p>YDJ generates a <strong>Pre-Lesson Summary</strong> — a structured briefing drawn from your recent training data and platform outputs to help you arrive at each lesson prepared. You may optionally share it with a coach by enabling coach sharing in Settings. The following terms govern the coach sharing extension of this feature:</p>
+      <ul class="doc-list">
+        <li><strong>Consent is per-coach and explicit.</strong> You must individually add each coach (by name and email address) and enable sharing through Settings → Coach Sharing. No summary is ever sent to a coach without this affirmative action.</li>
+        <li><strong>Consent is recorded.</strong> Your opt-in date for each coach is permanently recorded in your account as a consent audit trail and is never modified, even if you later disable sharing.</li>
+        <li><strong>You may withdraw consent at any time.</strong> Turning off sharing for a coach takes effect immediately. You may also remove a coach entirely, which withdraws consent and deletes the coach record from your account.</li>
+        <li><strong>Scope of sharing.</strong> The Pre-Lesson Summary shared with your coach is assembled from your existing platform data and AI-generated outputs. Your coach receives a formatted summary by email and does not receive access to your YDJ account.</li>
+        <li><strong>Coach email use is limited.</strong> Your coach's email address will be used solely to deliver your Pre-Lesson Summary. YDJ will never use it for any other purpose, including marketing.</li>
+        <li><strong>No coach-initiated actions.</strong> Your coach cannot log into YDJ, access your account, or modify your data.</li>
+        <li><strong>Parallel truth.</strong> The Pre-Lesson Summary is drawn directly from data you have entered and outputs already generated for you. It contains no independent AI analysis and will never contradict what you see in your own account.</li>
+      </ul>
+      <h3 class="subsection-heading">4.5 Anonymized Aggregate Data</h3>
+      <div class="callout">
+        <strong>What this means:</strong> We may analyze patterns across the YDJ platform — with all personally identifying information removed — to improve the Service for all riders.
+      </div>
+      <p>YDJ may analyze <strong>anonymized, aggregated patterns</strong> derived from user data across the platform to: improve the quality of AI-generated coaching insights; identify common training themes, obstacles, and breakthroughs; develop new platform features; conduct internal QA and research; and generate non-identifying aggregate reports.</p>
+      <p>We will <strong>never</strong> sell, rent, or share your individual data with third parties for marketing or advertising purposes. If you prefer that your data not be included in aggregate analysis, you may opt out at any time through <strong>Settings → Privacy → Data Usage Preferences</strong> without affecting your access to any Service features.</p>
+      <h3 class="subsection-heading">4.6 Content You Should Not Submit</h3>
+      <p>Please do not submit to YDJ any information you are not authorized to share, including confidential information belonging to others, protected health or medical records beyond what is directly relevant to your riding position and fitness, or sensitive personal data about third parties.</p>
+    </section>
+
+    <!-- 5 -->
+    <section class="doc-section" id="s5">
+      <h2 class="section-heading"><span class="section-num">5</span> Data Retention, Export &amp; Deletion</h2>
+      <h3 class="subsection-heading">5.1 Retention During Active Account</h3>
+      <p>We retain your Content for the duration of your account so that you can access your full training history and benefit from longitudinal AI analysis. This continuity is core to how YDJ works.</p>
+      <h3 class="subsection-heading">5.2 Data Export</h3>
+      <p>You may export your personal data at any time through <strong>Settings → Export My Data</strong>. Your export includes all structured data you have entered: training entries, reflections, self-assessments, lesson notes, profile data, journey events, and account settings including coach sharing consent records. Data is provided in JSON format.</p>
+      <p>AI-generated coaching outputs (Journey Maps, Multi-Voice analyses, Grand Prix Thinking reports, Physical Guidance, and Pre-Lesson Summaries) are accessible within the platform but are not currently included in the data export file. You may save individual outputs at any time by copying or screenshotting them from within the app. We intend to include coaching outputs in future export versions and will update this section when that capability is available.</p>
+      <h3 class="subsection-heading">5.3 Account Deletion</h3>
+      <p>You may delete your account at any time. Upon deletion, your personal data will be purged from our active systems within 30 days. Encrypted backup copies will be fully deleted within 60 days. Anonymized or aggregated data that cannot be linked back to you individually may be retained as part of platform analytics. Coach consent records will be deleted as part of your account data.</p>
+    </section>
+
+    <!-- 6 -->
+    <section class="doc-section" id="s6">
+      <h2 class="section-heading"><span class="section-num">6</span> Acceptable Use</h2>
+      <p>You agree to use YDJ only for lawful purposes and in accordance with these Terms. You must not:</p>
+      <ul class="doc-list">
+        <li>Use the Service in any way that violates applicable federal, state, or local laws or regulations</li>
+        <li>Attempt to gain unauthorized access to any part of the Service or its underlying infrastructure</li>
+        <li>Submit false, misleading, or fraudulent data</li>
+        <li>Use automated means (bots, scrapers, or similar tools) to access the Service without our prior written consent</li>
+        <li>Reproduce, distribute, or create derivative works from any YDJ proprietary content, including AI-generated coaching outputs, without authorization</li>
+        <li>Use the Service or any insights derived from it to develop a competing product without our prior written consent</li>
+      </ul>
+    </section>
+
+    <!-- 7 -->
+    <section class="doc-section" id="s7">
+      <h2 class="section-heading"><span class="section-num">7</span> Intellectual Property</h2>
+      <h3 class="subsection-heading">7.1 YDJ Platform</h3>
+      <p>Your Dressage Journey and its content — including the six-category reflection framework, four-voice coaching system, platform architecture, software, design, and any trademarks or service marks — are owned by Your Training Journey, LLC and are protected by applicable intellectual property law. Nothing in these Terms grants you any ownership right in the platform.</p>
+      <h3 class="subsection-heading">7.2 AI-Generated Coaching Outputs</h3>
+      <p>Coaching insights, Journey Maps, pattern analyses, and other AI-generated outputs are produced by combining your Content with our proprietary prompts and methodology. You are granted a personal, non-transferable license to use these outputs for your individual training purposes. You may not reproduce, redistribute, or commercially exploit these outputs without our prior written consent.</p>
+      <h3 class="subsection-heading">7.3 Feedback</h3>
+      <p>If you provide feedback, suggestions, or ideas about the Service, you grant Your Training Journey, LLC the right to use that feedback for any purpose without compensation or further obligation to you.</p>
+    </section>
+
+    <!-- 8 -->
+    <section class="doc-section" id="s8">
+      <h2 class="section-heading"><span class="section-num">8</span> Disclaimers &amp; Limitation of Liability</h2>
+      <h3 class="subsection-heading">8.1 Not Professional Advice</h3>
+      <div class="callout callout-gold">
+        <strong>Important:</strong> YDJ provides AI-generated training insights for informational and educational purposes only. The Service is not a substitute for professional riding instruction, veterinary advice, or medical care.
+      </div>
+      <p>Always consult qualified professionals regarding your health, your horse's welfare, and your training progression. YDJ makes no warranty as to the accuracy, completeness, or fitness for a particular purpose of any AI-generated coaching output.</p>
+      <h3 class="subsection-heading">8.2 Service Availability</h3>
+      <p>We strive for high availability but do not guarantee that the Service will be uninterrupted, error-free, or free from data loss. We are not liable for any disruption, outage, or degradation of the Service.</p>
+      <h3 class="subsection-heading">8.3 Limitation of Liability</h3>
+      <p>TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, YOUR TRAINING JOURNEY, LLC SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOSS OF DATA, LOSS OF REVENUE, OR LOSS OF TRAINING PROGRESS, ARISING OUT OF YOUR USE OF OR INABILITY TO USE THE SERVICE, EVEN IF WE HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.</p>
+      <p>OUR TOTAL LIABILITY TO YOU FOR ANY CLAIMS ARISING UNDER THESE TERMS SHALL NOT EXCEED THE GREATER OF (A) THE TOTAL AMOUNTS PAID BY YOU TO YDJ IN THE 12 MONTHS PRECEDING THE CLAIM, OR (B) $100.</p>
+      <h3 class="subsection-heading">8.4 Indemnification</h3>
+      <p>You agree to indemnify, defend, and hold harmless Your Training Journey, LLC and its members, managers, employees, and agents from any claims, damages, losses, or expenses (including reasonable attorneys' fees) arising from: (a) your use of the Service; (b) your violation of these Terms; or (c) your Content infringing the rights of a third party.</p>
+    </section>
+
+    <!-- 9 -->
+    <section class="doc-section" id="s9">
+      <h2 class="section-heading"><span class="section-num">9</span> Privacy</h2>
+      <p>Your privacy is a core commitment of YDJ. Our <a href="/privacy" style="color:var(--gold);font-weight:500;">Privacy Policy</a> — available publicly at <strong>yourdressagejourney.com/privacy</strong> — is incorporated into these Terms by reference and governs how we collect, use, protect, and share your information. Key commitments:</p>
+      <ul class="doc-list">
+        <li>We collect only the data necessary to provide the Service</li>
+        <li>We do not sell your personal data</li>
+        <li>Your data is encrypted at rest (AES-256) and in transit (TLS 1.3) via Google Firebase</li>
+        <li>You may export or delete all of your data at any time via Settings → Export My Data</li>
+        <li>Cookie and analytics preferences are controlled via Settings → Privacy</li>
+        <li>We will notify you of any material changes to our privacy practices before they take effect</li>
+      </ul>
+      <p>By using the Service, you acknowledge that you have read and understood our Privacy Policy.</p>
+    </section>
+
+    <!-- 10 -->
+    <section class="doc-section" id="s10">
+      <h2 class="section-heading"><span class="section-num">10</span> Termination</h2>
+      <h3 class="subsection-heading">10.1 By You</h3>
+      <p>You may stop using the Service and close your account at any time through your account settings. Cancellation of a paid subscription is governed by Section 3.3.</p>
+      <h3 class="subsection-heading">10.2 By YDJ</h3>
+      <p>We may suspend or terminate your account if you materially breach these Terms, engage in fraudulent or abusive activity, or if we reasonably believe your continued access poses a risk to the platform or other users. We will provide reasonable notice where practicable, except in cases of serious breach or illegal activity.</p>
+      <h3 class="subsection-heading">10.3 Effect of Termination</h3>
+      <p>Upon termination, your access to the Service will cease. Data deletion will occur as described in Section 5.3, including deletion of all coach consent records. Sections 4.1, 4.5, 7, 8, 9, 10.3, 11, and 12 survive termination.</p>
+    </section>
+
+    <!-- 11 -->
+    <section class="doc-section" id="s11">
+      <h2 class="section-heading"><span class="section-num">11</span> Dispute Resolution</h2>
+      <p>These Terms are governed by the laws of the <strong>State of Illinois</strong>, without regard to its conflict of law principles.</p>
+      <p>Any dispute arising out of or relating to these Terms or the Service shall first be submitted to good-faith negotiation by written notice. If unresolved within 30 days, it shall be submitted to binding arbitration administered by the American Arbitration Association under its Consumer Arbitration Rules, with proceedings conducted in Chicago, Illinois (or by video conference if mutually agreed). The arbitrator's decision shall be final and binding.</p>
+      <p>Either party may seek emergency injunctive relief in a court of competent jurisdiction in Illinois to prevent irreparable harm, without waiving the right to arbitrate the underlying dispute.</p>
+      <div class="callout callout-gold">
+        <strong>Class Action Waiver:</strong> You agree to resolve any disputes with YDJ on an individual basis. You waive any right to participate in a class action lawsuit, class-wide arbitration, or any other representative proceeding.
+      </div>
+    </section>
+
+    <!-- 12 -->
+    <section class="doc-section" id="s12">
+      <h2 class="section-heading"><span class="section-num">12</span> Changes to These Terms</h2>
+      <p>We may update these Terms from time to time. When we make material changes, we will notify you by email and through a prominent in-app notice at least <strong>14 days before</strong> the changes take effect. The updated Terms will always be available at yourdressagejourney.com/terms.</p>
+      <p>If you do not agree to the updated Terms, you may cancel your subscription and close your account before the effective date. Your continued use of the Service after that date constitutes your acceptance of the updated Terms.</p>
+    </section>
+
+    <!-- 13 -->
+    <section class="doc-section" id="s13">
+      <h2 class="section-heading"><span class="section-num">13</span> General Provisions</h2>
+      <h3 class="subsection-heading">13.1 Entire Agreement</h3>
+      <p>These Terms, together with our Privacy Policy, constitute the entire agreement between you and Your Training Journey, LLC regarding the Service and supersede all prior agreements or understandings on the same subject.</p>
+      <h3 class="subsection-heading">13.2 Severability</h3>
+      <p>If any provision of these Terms is found to be unenforceable, that provision will be modified to the minimum extent necessary. The remaining provisions will remain in full force and effect.</p>
+      <h3 class="subsection-heading">13.3 No Waiver</h3>
+      <p>Our failure to enforce any provision of these Terms at any time does not constitute a waiver of our right to enforce that provision in the future.</p>
+      <h3 class="subsection-heading">13.4 Assignment</h3>
+      <p>You may not assign your rights or obligations under these Terms without our prior written consent. We may assign our rights and obligations — including in connection with a merger, acquisition, or sale of substantially all of our assets — with notice to you.</p>
+      <h3 class="subsection-heading">13.5 Contact</h3>
+      <div class="contact-block">
+        <strong>Your Training Journey, LLC</strong><br>
+        Sadorus, Illinois<br>
+        <a href="mailto:support@yourdressagejourney.com">support@yourdressagejourney.com</a><br>
+        <a href="https://yourdressagejourney.com/terms">yourdressagejourney.com/terms</a>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="/terms" class="active-page">Terms of Service</a>
+    <a href="/privacy">Privacy Policy</a>
+    <a href="https://yourdressagejourney.com">yourdressagejourney.com</a>
+    <a href="mailto:support@yourdressagejourney.com">support@yourdressagejourney.com</a>
+  </div>
+  <div>&copy; 2026 Your Training Journey, LLC &nbsp;·&nbsp; Sadorus, Illinois &nbsp;·&nbsp; AI analysis powered by <a href="https://anthropic.com" target="_blank" rel="noopener">Anthropic</a></div>
+</footer>
+
+<script>
+  // Highlight current sidebar section on scroll
+  const sections = document.querySelectorAll('.doc-section');
+  const navLinks = document.querySelectorAll('.sidebar-nav a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => link.classList.remove('current'));
+        const link = document.querySelector(`.sidebar-nav a[href="#${entry.target.id}"]`);
+        if (link) link.classList.add('current');
+      }
+    });
+  }, { rootMargin: '-10% 0px -80% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
