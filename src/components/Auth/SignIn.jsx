@@ -19,8 +19,10 @@ export default function SignIn() {
   // Get message from navigation state (e.g., from signup redirect)
   const successMessage = location.state?.message;
 
-  // Get the path user was trying to access before being redirected to signin
-  const from = location.state?.from?.pathname || '/dashboard';
+  // Get the path user was trying to access before being redirected to signin.
+  // When there's no specific origin, route through "/" so Home resolves the
+  // landing page from the rider's saved preference (default: /quickstart).
+  const from = location.state?.from?.pathname || '/';
 
   // Validate form
   function validateForm() {

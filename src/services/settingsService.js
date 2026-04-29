@@ -101,16 +101,18 @@ export async function loadAllSettings(userId) {
       getDocs(coachesCollectionRef(userId)),
     ]);
 
+    // Merge defaults under loaded data so missing fields fall back to defaults
+    // (read-side only — the doc itself is not rewritten until the user saves).
     const preferences = prefsSnap.exists()
-      ? prefsSnap.data()
+      ? { ...SETTINGS_DEFAULTS.preferences, ...prefsSnap.data() }
       : { ...SETTINGS_DEFAULTS.preferences };
 
     const notifications = notifsSnap.exists()
-      ? notifsSnap.data()
+      ? { ...SETTINGS_DEFAULTS.notifications, ...notifsSnap.data() }
       : { ...SETTINGS_DEFAULTS.notifications };
 
     const privacy = privacySnap.exists()
-      ? privacySnap.data()
+      ? { ...SETTINGS_DEFAULTS.privacy, ...privacySnap.data() }
       : { ...SETTINGS_DEFAULTS.privacy };
 
     const coaches = coachesSnap.docs.map(d => ({
@@ -234,7 +236,7 @@ export async function loadPreferences(userId) {
   try {
     const snap = await getDoc(settingsDocRef(userId, 'preferences'));
     if (snap.exists()) {
-      const data = snap.data();
+      const data = { ...SETTINGS_DEFAULTS.preferences, ...snap.data() };
       delete data.updatedAt;
       return { success: true, data };
     }
