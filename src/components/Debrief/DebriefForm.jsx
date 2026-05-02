@@ -109,8 +109,18 @@ export default function DebriefForm() {
   const [horseEffortTouched, setHorseEffortTouched] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
 
+  // Snapshot of formData captured immediately after loadExisting completes.
+  // Used to gate the recovery hook's auto-save: while formData equals the
+  // baseline, the user hasn't actually edited anything, so don't write a
+  // recovery blob that would later trigger a "phantom" recovery banner.
+  // For new debriefs (no id), baseline stays null and isDirty is always true.
+  const [loadedBaseline, setLoadedBaseline] = useState(null);
+  const isDirty = loadedBaseline === null
+    ? true
+    : JSON.stringify(formData) !== JSON.stringify(loadedBaseline);
+
   const { hasRecovery, applyRecovery, dismissRecovery, clearRecovery } = useFormRecovery(
-    'ydj-debrief-recovery', id, formData, setFormData
+    'ydj-debrief-recovery', id, formData, setFormData, isDirty
   );
 
   useEffect(() => {
@@ -166,7 +176,7 @@ export default function DebriefForm() {
     const result = await getDebrief(id);
     if (result.success) {
       const d = result.data;
-      setFormData({
+      const loaded = {
         rideDate: d.rideDate || '',
         horseName: d.horseName || '',
         sessionType: d.sessionType || '',
@@ -194,7 +204,9 @@ export default function DebriefForm() {
         horseNotices: d.horseNotices || '',
         challenges: d.challenges || '',
         workFocus: d.workFocus || ''
-      });
+      };
+      setFormData(loaded);
+      setLoadedBaseline(loaded);
       if (d.overallQuality != null) setOverallQualityTouched(true);
       if (d.confidenceLevel != null) setConfidenceTouched(true);
       if (d.riderEffort != null) setRiderEffortTouched(true);

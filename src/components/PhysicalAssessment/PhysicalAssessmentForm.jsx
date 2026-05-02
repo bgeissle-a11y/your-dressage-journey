@@ -65,8 +65,15 @@ export default function PhysicalAssessmentForm() {
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
 
+  // Edit-mode baseline (set after loadExisting). Suppresses phantom recovery
+  // banners by gating the hook's auto-save until formData diverges.
+  const [loadedBaseline, setLoadedBaseline] = useState(null);
+  const isDirty = loadedBaseline === null
+    ? true
+    : JSON.stringify(formData) !== JSON.stringify(loadedBaseline);
+
   const { hasRecovery, applyRecovery, dismissRecovery, clearRecovery } = useFormRecovery(
-    'ydj-physical-assessment-recovery', id, formData, setFormData
+    'ydj-physical-assessment-recovery', id, formData, setFormData, isDirty
   );
 
   // Pelvic Clock state (separate from formData since it's optional/nested)
@@ -83,7 +90,7 @@ export default function PhysicalAssessmentForm() {
     const result = await getPhysicalAssessment(id);
     if (result.success) {
       const d = result.data;
-      setFormData({
+      const loaded = {
         occupation: d.occupation || '',
         physicalChallenges: d.physicalChallenges || '',
         physicalStrengths: d.physicalStrengths || '',
@@ -97,7 +104,9 @@ export default function PhysicalAssessmentForm() {
         dailyTensionDetails: d.dailyTensionDetails || '',
         ridingTensionAreas: d.ridingTensionAreas || [],
         tensionComparison: d.tensionComparison || ''
-      });
+      };
+      setFormData(loaded);
+      setLoadedBaseline(loaded);
 
       // Load pelvic clock data if it exists
       if (d.bodyMapping && d.bodyMapping.pelvicClock) {

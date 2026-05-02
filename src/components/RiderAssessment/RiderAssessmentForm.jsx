@@ -60,8 +60,15 @@ export default function RiderAssessmentForm() {
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
 
+  // Edit-mode baseline (set after loadExisting). Suppresses phantom recovery
+  // banners by gating the hook's auto-save until formData diverges.
+  const [loadedBaseline, setLoadedBaseline] = useState(null);
+  const isDirty = loadedBaseline === null
+    ? true
+    : JSON.stringify(formData) !== JSON.stringify(loadedBaseline);
+
   const { hasRecovery, applyRecovery, dismissRecovery, clearRecovery } = useFormRecovery(
-    'ydj-rider-assessment-recovery', id, formData, setFormData
+    'ydj-rider-assessment-recovery', id, formData, setFormData, isDirty
   );
 
   useEffect(() => {
@@ -74,7 +81,7 @@ export default function RiderAssessmentForm() {
     const result = await getRiderAssessment(id);
     if (result.success) {
       const d = result.data;
-      setFormData({
+      const loaded = {
         bestWhen: d.bestWhen || '',
         bestFeelings: d.bestFeelings || '',
         bestDialogue: d.bestDialogue || '',
@@ -99,7 +106,9 @@ export default function RiderAssessmentForm() {
         feelAndTiming: d.feelAndTiming || 5,
         knowledgeAndUnderstanding: d.knowledgeAndUnderstanding || 5,
         mentalGame: d.mentalGame || 5
-      });
+      };
+      setFormData(loaded);
+      setLoadedBaseline(loaded);
     }
     setLoadingData(false);
   }

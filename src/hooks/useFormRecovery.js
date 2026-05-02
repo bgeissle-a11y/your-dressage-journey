@@ -16,8 +16,12 @@ const MAX_AGE_MS = 24 * 60 * 60 * 1000;
  * @param {string|null|undefined} recordId - Document id when editing, falsy for "new"
  * @param {object} formData - Current form state
  * @param {function} setFormData - State setter to restore recovered data
+ * @param {boolean} [isDirty=true] - When false, skip auto-save (no phantom
+ *   recovery banner from a form the user opened but never modified). Forms
+ *   in edit mode should pass `formData != loadedBaseline`. New-form callers
+ *   can omit (default true).
  */
-export default function useFormRecovery(baseKey, recordId, formData, setFormData) {
+export default function useFormRecovery(baseKey, recordId, formData, setFormData, isDirty = true) {
   const recordKey = recordId || 'new';
   const storageKey = `${baseKey}:${recordKey}`;
 
@@ -62,8 +66,11 @@ export default function useFormRecovery(baseKey, recordId, formData, setFormData
 
   // Auto-save form data on changes (debounced). Always stamps the recordKey
   // so a later mount on the same record can validate identity before applying.
+  // Bails when isDirty is false — eliminates phantom recovery banners on edit
+  // forms that were opened but not modified.
   useEffect(() => {
     if (!initializedRef.current) return;
+    if (!isDirty) return;
 
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
@@ -76,7 +83,7 @@ export default function useFormRecovery(baseKey, recordId, formData, setFormData
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [storageKey, recordKey, formData]);
+  }, [storageKey, recordKey, formData, isDirty]);
 
   const applyRecovery = useCallback(() => {
     if (recoveredRef.current) {

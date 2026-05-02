@@ -73,8 +73,15 @@ export default function TechnicalPhilosophicalForm() {
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
 
+  // Edit-mode baseline (set after loadExisting). Suppresses phantom recovery
+  // banners by gating the hook's auto-save until formData diverges.
+  const [loadedBaseline, setLoadedBaseline] = useState(null);
+  const isDirty = loadedBaseline === null
+    ? true
+    : JSON.stringify(formData) !== JSON.stringify(loadedBaseline);
+
   const { hasRecovery, applyRecovery, dismissRecovery, clearRecovery } = useFormRecovery(
-    'ydj-technical-assessment-recovery', id, formData, setFormData
+    'ydj-technical-assessment-recovery', id, formData, setFormData, isDirty
   );
 
   useEffect(() => {
@@ -87,7 +94,7 @@ export default function TechnicalPhilosophicalForm() {
     const result = await getTechnicalAssessment(id);
     if (result.success) {
       const d = result.data;
-      setFormData({
+      const loaded = {
         arenaGeometry: {
           confidenceRating: d.arenaGeometry?.confidenceRating || 5,
           quarterlines: d.arenaGeometry?.quarterlines || '',
@@ -129,7 +136,9 @@ export default function TechnicalPhilosophicalForm() {
           formativeInfluences: d.synthesis?.formativeInfluences || '',
           burningQuestion: d.synthesis?.burningQuestion || ''
         }
-      });
+      };
+      setFormData(loaded);
+      setLoadedBaseline(loaded);
     }
     setLoadingData(false);
   }

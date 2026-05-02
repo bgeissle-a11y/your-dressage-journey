@@ -114,8 +114,16 @@ export default function LessonNoteForm() {
   const [processingError, setProcessingError] = useState('');
   const [transcriptDone, setTranscriptDone] = useState(false);
 
+  // Edit-mode baseline (set after loadExisting). When formData equals it, the
+  // user hasn't modified anything yet, so the recovery hook should skip its
+  // auto-save — prevents phantom recovery banners on next visit.
+  const [loadedBaseline, setLoadedBaseline] = useState(null);
+  const isDirty = loadedBaseline === null
+    ? true
+    : JSON.stringify(formData) !== JSON.stringify(loadedBaseline);
+
   const { hasRecovery, applyRecovery, dismissRecovery, clearRecovery } = useFormRecovery(
-    'ydj-lesson-note-recovery', id, formData, setFormData
+    'ydj-lesson-note-recovery', id, formData, setFormData, isDirty
   );
 
   useEffect(() => {
@@ -159,13 +167,14 @@ export default function LessonNoteForm() {
     setLoadingData(true);
     const result = await getLessonNote(id);
     if (result.success) {
-      populateForm(result.data);
+      const shape = populateForm(result.data);
+      setLoadedBaseline(shape);
     }
     setLoadingData(false);
   }
 
   function populateForm(data) {
-    setFormData({
+    const shape = {
       lessonDate: data.lessonDate || '',
       horseId: data.horseId || '',
       horseName: data.horseName || '',
@@ -180,7 +189,9 @@ export default function LessonNoteForm() {
       takeaway1: (data.takeaways && data.takeaways[0]) || '',
       takeaway2: (data.takeaways && data.takeaways[1]) || '',
       takeaway3: (data.takeaways && data.takeaways[2]) || ''
-    });
+    };
+    setFormData(shape);
+    return shape;
   }
 
   function handleChange(e) {
