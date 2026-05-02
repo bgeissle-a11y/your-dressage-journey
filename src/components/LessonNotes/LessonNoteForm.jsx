@@ -115,7 +115,7 @@ export default function LessonNoteForm() {
   const [transcriptDone, setTranscriptDone] = useState(false);
 
   const { hasRecovery, applyRecovery, dismissRecovery, clearRecovery } = useFormRecovery(
-    'ydj-lesson-note-recovery', formData, setFormData
+    'ydj-lesson-note-recovery', id, formData, setFormData
   );
 
   useEffect(() => {

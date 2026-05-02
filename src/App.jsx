@@ -5,6 +5,7 @@ import { SettingsProvider } from './contexts/SettingsContext';
 import PrivateRoute from './components/Auth/PrivateRoute';
 import AppLayout from './components/Layout/AppLayout';
 import { initGA4, trackPageView } from './analytics';
+import { purgeLegacyRecoveryKeys } from './hooks/useFormRecovery';
 import SignUp from './components/Auth/SignUp';
 import SignIn from './components/Auth/SignIn';
 import ForgotPassword from './components/Auth/ForgotPassword';
@@ -86,6 +87,11 @@ import './App.css';
 
 // Initialize GA4 once on app load
 initGA4()
+
+// Drop any legacy unscoped form-recovery localStorage keys carried over from
+// the old shared-key version of useFormRecovery. Prevents abandoned drafts
+// from one form leaking into another. Runs every boot — cheap and idempotent.
+purgeLegacyRecoveryKeys()
 
 // Sends page_view on every route change (SPA-aware)
 function RouteTracker() {

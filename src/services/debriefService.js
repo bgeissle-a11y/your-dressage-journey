@@ -294,10 +294,14 @@ export async function createDebrief(userId, debriefData) {
     horseName: debriefData.horseName || '',
     sessionType: debriefData.sessionType || '',
     sessionModality: debriefData.sessionModality || '',
-    overallQuality: debriefData.overallQuality || 5,
-    confidenceLevel: debriefData.confidenceLevel || 5,
-    riderEffort: debriefData.riderEffort || 5,
-    horseEffort: debriefData.horseEffort || 5,
+    // Optional 1–10 sliders. Preserve null when the rider didn't touch the
+    // slider — coercing null to 5 silently fabricates ratings the rider never
+    // gave, which then poison averages and trend charts. The form sends
+    // null deliberately when its `*Touched` flag is false.
+    overallQuality: debriefData.overallQuality ?? null,
+    confidenceLevel: debriefData.confidenceLevel ?? null,
+    riderEffort: debriefData.riderEffort ?? null,
+    horseEffort: debriefData.horseEffort ?? null,
     riderEnergy: debriefData.riderEnergy || '',
     horseEnergy: debriefData.horseEnergy || '',
     mentalState: debriefData.mentalState || '',

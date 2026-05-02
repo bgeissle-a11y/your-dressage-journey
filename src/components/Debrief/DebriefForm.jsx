@@ -110,7 +110,7 @@ export default function DebriefForm() {
   const [loadingData, setLoadingData] = useState(false);
 
   const { hasRecovery, applyRecovery, dismissRecovery, clearRecovery } = useFormRecovery(
-    'ydj-debrief-recovery', formData, setFormData
+    'ydj-debrief-recovery', id, formData, setFormData
   );
 
   useEffect(() => {
@@ -171,7 +171,7 @@ export default function DebriefForm() {
         horseName: d.horseName || '',
         sessionType: d.sessionType || '',
         sessionModality: d.sessionModality || '',
-        overallQuality: d.overallQuality || 5,
+        overallQuality: d.overallQuality ?? 5,
         confidenceLevel: d.confidenceLevel ?? null,
         riderEffort: d.riderEffort ?? null,
         horseEffort: d.horseEffort ?? null,

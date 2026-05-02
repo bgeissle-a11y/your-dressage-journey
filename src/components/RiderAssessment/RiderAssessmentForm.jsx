@@ -61,7 +61,7 @@ export default function RiderAssessmentForm() {
   const [loadingData, setLoadingData] = useState(false);
 
   const { hasRecovery, applyRecovery, dismissRecovery, clearRecovery } = useFormRecovery(
-    'ydj-rider-assessment-recovery', formData, setFormData
+    'ydj-rider-assessment-recovery', id, formData, setFormData
   );
 
   useEffect(() => {

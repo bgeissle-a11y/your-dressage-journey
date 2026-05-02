@@ -66,7 +66,7 @@ export default function PhysicalAssessmentForm() {
   const [loadingData, setLoadingData] = useState(false);
 
   const { hasRecovery, applyRecovery, dismissRecovery, clearRecovery } = useFormRecovery(
-    'ydj-physical-assessment-recovery', formData, setFormData
+    'ydj-physical-assessment-recovery', id, formData, setFormData
   );
 
   // Pelvic Clock state (separate from formData since it's optional/nested)

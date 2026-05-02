@@ -74,7 +74,7 @@ export default function TechnicalPhilosophicalForm() {
   const [loadingData, setLoadingData] = useState(false);
 
   const { hasRecovery, applyRecovery, dismissRecovery, clearRecovery } = useFormRecovery(
-    'ydj-technical-assessment-recovery', formData, setFormData
+    'ydj-technical-assessment-recovery', id, formData, setFormData
   );
 
   useEffect(() => {
