@@ -168,6 +168,111 @@ Reinforce the habit of noticing and documenting physical sensations, even when t
 seem small or uncertain. The perceptual trace that enables independent self-correction
 is built one noticed sensation at a time.
 
+TEMPORAL ACCURACY \u2014 NON-NEGOTIABLE:
+Every API call includes an ANALYSIS DATE at the top of the context block. This is
+"today" for the purposes of this output. All dated rider entries (debriefs,
+lesson notes, observations, journey events, health entries, show preparations)
+include an ISO-format date (YYYY-MM-DD). Use these dates as the only authority
+on time. Never infer chronological order from list position, prose context, or
+narrative flow.
+
+RULE 1 \u2014 RELATIVE TIME LANGUAGE:
+Do not use "recent," "recently," "lately," "this week," "last week," "a while
+ago," "some time back," or any other relative time phrase unless BOTH of the
+following are true:
+  (a) The entry you are referring to has an explicit date in the data, AND
+  (b) You have compared that date to the ANALYSIS DATE above.
+
+When both conditions are met, prefer specific anchors over vague ones:
+  - "your May 2 clinic" rather than "your recent clinic"
+  - "three weeks ago" rather than "recently"
+  - "in your January 14 lesson" rather than "in a recent lesson"
+
+If you cannot identify the date of an entry, do not describe it temporally at
+all. Refer to the entry by its content ("the lesson where you worked on
+shoulder-in") rather than by its supposed timing.
+
+NEVER write "recent debrief," "recent ride," "recent lesson," or "recent
+observation" as a generic phrase. Either name the date or name the content.
+
+RULE 2 \u2014 CHRONOLOGICAL ORDER:
+When describing two or more events in relation to each other ("before," "after,"
+"prior to," "subsequent to," "leading up to," "in the wake of," "following"):
+  - Identify the ISO date of each event.
+  - Compare them digit by digit: year, then month, then day.
+  - The earlier date is BEFORE / PRIOR TO.
+  - The later date is AFTER / SUBSEQUENT TO / FOLLOWING.
+
+Example: A debrief dated 2026-05-01 is BEFORE a clinic dated 2026-05-02.
+The clinic is SUBSEQUENT to the debrief. The debrief is PRIOR to the clinic.
+This holds regardless of which entry was submitted, edited, or appeared first
+in the data passed to you.
+
+If you find yourself uncertain which of two events came first, do not write a
+sentence that asserts an order. Describe each event independently.
+
+RULE 3 \u2014 NEVER INVENT TEMPORAL CONTEXT:
+Do not say "this builds on your work from earlier in the week" or "this echoes
+something from last month" unless the data actually contains an entry from that
+window AND you have verified its date against the ANALYSIS DATE.
+Pattern-matching narrative phrases without dated evidence is a hallucination.
+
+RULE 4 \u2014 REFLECTIONS HAVE NO RELIABLE EVENT DATE:
+Reflections are written about whatever experience the rider chooses to reflect
+on, which may have occurred yesterday, last year, or decades ago. The entry
+timestamp on a reflection records only WHEN THE RIDER WROTE IT \u2014 not when the
+event being reflected on happened.
+
+For reflections specifically, do NOT use the entry date as a temporal anchor.
+Do not say "in your recent reflection" based on when it was submitted. Do not
+say "last week you reflected on..." because the writing date tells you nothing
+about the experience inside.
+
+A reflection acquires temporal context ONLY when the rider's own prose contains
+a date, year, season, or explicit relative time marker. Examples of valid
+temporal markers from within the reflection text:
+  - "Back in 2019, I had a clinic where..."
+  - "When I was a junior rider..."
+  - "Yesterday, after my lesson..."
+  - "Last summer at Lamplight..."
+  - "Two years ago, when I first got [horse]..."
+
+When such markers are present, you may use them \u2014 and where the rider provides
+a specific date, compare to the ANALYSIS DATE. When NO temporal marker is
+present in the rider's prose, refer to the reflection by its category and
+content only, never by when it was written:
+  - GOOD: "Your Aha Moment reflection about lateral suppleness..."
+  - GOOD: "In the Connection reflection where you wrote about [horse]'s left
+    lead..."
+  - BAD: "Your recent reflection about lateral suppleness..."
+  - BAD: "Last week's reflection on connection..."
+  - BAD: "A reflection from earlier this month suggested..."
+
+If a reflection contains no temporal marker and no date in the prose, treat it
+as TIMELESS rider data \u2014 a piece of self-knowledge with no fixed point on the
+calendar.
+
+DATE FIELDS BY DATA TYPE \u2014 REFERENCE TABLE:
+For each data type, this is the dated field you may use as a temporal anchor
+and what it represents:
+
+  - Post-Ride Debrief: rideDate = when the ride occurred. Use as anchor.
+  - Lesson Notes: lessonDate = when the lesson occurred. Use as anchor.
+  - Observation: date = when the rider watched. Use as anchor.
+  - Journey Event: eventDate = when the event happened. Use as anchor.
+  - Health & Soundness Entry: entryDate = when the maintenance/concern
+    occurred. Use as anchor.
+  - Show Preparation: showDate = when the show is/was. Use as anchor.
+  - REFLECTION: reflectionWritten = when the rider WROTE it. DO NOT use as
+    anchor for the experience being reflected on. Use only the rider's own
+    prose for temporal context, if any exists. The field is omitted entirely
+    for voices that have no legitimate use for it.
+  - Self-Assessment: completedAt = when the snapshot was taken. Treat with
+    similar caution to reflections \u2014 a self-assessment describes an ongoing
+    state, not an event. Use the timestamp only to locate the snapshot
+    relative to other snapshots, not to assign timing to the rider's
+    self-description.
+
 PROPER NAMES REFERENCE:
 When referencing dressage authorities, use these exact names:
 - Mary Wanless (not Martin Wanless)
@@ -1986,19 +2091,73 @@ VALID triggerType VALUES: upcoming_show, new_movement, recurring_mechanic, persi
 // ─── Prompt Builders ────────────────────────────────────────────────
 
 /**
- * Format rider data into a readable user message.
+ * Build the temporal anchor block prepended to every user message.
+ * Provides the AI with an explicit "today" date and a reminder that
+ * dated entries are ISO-formatted. Paired with the TEMPORAL ACCURACY
+ * rules in BASE_CONTEXT.
  */
-function buildUserDataMessage(riderData) {
+function buildTemporalAnchor(now = new Date()) {
+  const analysisDate = now.toISOString().split("T")[0];
+  const dayOfWeek = now.toLocaleDateString("en-US", { weekday: "long" });
+  return `ANALYSIS DATE: ${analysisDate} (${dayOfWeek})
+Use this date as the anchor for any relative time language in your output.
+All dated rider entries below are in ISO format (YYYY-MM-DD).
+
+`;
+}
+
+/**
+ * Deep-strip the `reflectionWritten` field from every reflection entry.
+ * Use for consumers that have no legitimate use for reflection cadence
+ * data and should NOT pattern-match on the writing timestamp.
+ */
+function stripReflectionTimestamps(riderData) {
+  if (!riderData || !riderData.reflections || !riderData.reflections.byCategory) {
+    return riderData;
+  }
+  const next = { ...riderData };
+  next.reflections = { ...riderData.reflections };
+  next.reflections.byCategory = {};
+  for (const [cat, value] of Object.entries(riderData.reflections.byCategory)) {
+    const entries = Array.isArray(value && value.recentEntries) ? value.recentEntries : [];
+    next.reflections.byCategory[cat] = {
+      ...value,
+      recentEntries: entries.map((e) => {
+        const { reflectionWritten, ...rest } = e;
+        return rest;
+      }),
+    };
+  }
+  return next;
+}
+
+/**
+ * Format rider data into a readable user message.
+ *
+ * @param {object} riderData - Output from prepareRiderData()
+ * @param {object} [options]
+ * @param {boolean} [options.showReflectionTimestamps] - When true, the
+ *   `reflectionWritten` field is preserved on reflection entries. Use
+ *   ONLY for consumers with a legitimate use for reflection cadence
+ *   (Journey Map, Practical Strategist). Default false — strips the
+ *   field so other voices cannot pattern-match on it.
+ */
+function buildUserDataMessage(riderData, options = {}) {
+  const { showReflectionTimestamps = false } = options;
+
   // Strip internal fields not useful for the AI, and filter out null sections
   // (from tiered data inclusion — sections not needed for this output type)
   const { uid, ...relevantData } = riderData;
+  const visible = showReflectionTimestamps ? relevantData : stripReflectionTimestamps(relevantData);
+
   const filtered = {};
-  for (const [key, value] of Object.entries(relevantData)) {
+  for (const [key, value] of Object.entries(visible)) {
     if (value !== null) {
       filtered[key] = value;
     }
   }
-  return JSON.stringify(filtered, null, 2);
+
+  return buildTemporalAnchor() + JSON.stringify(filtered, null, 2);
 }
 
 /**
@@ -2057,9 +2216,15 @@ function buildCoachingPrompt(voiceIndex, riderData) {
         ? "\n\nNote: This rider has comprehensive data (Tier 3 — Full). Leverage the rich data for deep, cross-referenced analysis."
         : "\n\nNote: This rider has very limited data. Provide general guidance and encourage them to submit more data.";
 
+  // Practical Strategist (voiceIndex 3) legitimately analyzes reflection
+  // cadence/consistency — show reflectionWritten. Other voices analyze
+  // content; the writing timestamp is irrelevant and risks false temporal
+  // anchoring, so it is stripped.
+  const userDataOptions = { showReflectionTimestamps: voiceIndex === 3 };
+
   const userMessage = `Here is the complete rider data from Your Dressage Journey:
 
-${buildUserDataMessage(riderData)}
+${buildUserDataMessage(riderData, userDataOptions)}
 
 ${tierContext}
 
@@ -2187,9 +2352,12 @@ WHEN LESSON NOTES ARE ABSENT:
 Do not reference lessons, instructor guidance, or the absence of lesson data
 in the output. Do not prompt the rider to submit lesson notes.`;
 
+    // Journey Map legitimately uses reflection cadence as part of pattern
+    // recognition — show reflectionWritten so chronological synthesis can
+    // place reflection-writing patterns alongside other dated entries.
     userMessage = `Here is the complete rider data:
 
-${buildUserDataMessage(riderData)}
+${buildUserDataMessage(riderData, { showReflectionTimestamps: true })}
 
 Analyze this data chronologically. Identify themes, milestones, patterns, and goal progress. Be thorough — this synthesis drives the entire Journey Map.`;
 

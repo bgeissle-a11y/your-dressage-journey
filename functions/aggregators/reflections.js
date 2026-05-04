@@ -87,6 +87,11 @@ function aggregateReflections(reflections, weeklyContext) {
         reflection: r.mainReflection || "",
         feeling: r.feeling || "",
         influence: r.influence || "",
+        // Field name signals what the timestamp does and does not represent:
+        // it is when the rider WROTE the reflection, not when the experience
+        // inside happened. Stripped for voices with no legitimate use for
+        // reflection cadence — see promptBuilder.stripReflectionTimestamps.
+        reflectionWritten: r.createdAt ? String(r.createdAt).slice(0, 10) : "",
       };
       if (cat === "obstacle" && r.obstacleStrategy) {
         entry.obstacleStrategy = r.obstacleStrategy;
