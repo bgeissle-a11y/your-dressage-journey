@@ -1,6 +1,4 @@
 import { useState, useCallback } from 'react';
-import { httpsCallable } from 'firebase/functions';
-import { functions } from '../../firebase-config';
 import {
   getTestList, getTestData, isFullDataAvailable, getShortLabel
 } from '../../services/testDatabase';
@@ -9,19 +7,6 @@ import './TestExplorer.css';
 
 const ALL_TESTS = getTestList();
 
-// Classical Master system prompt
-const SYSTEM_PROMPT = `You are the Classical Master coaching voice for Your Dressage Journey, an AI dressage coaching platform for adult amateur riders. Your voice is precise, pithy, and honest — "Why not the first time?" is your ethos. You respect the rider's intelligence.
-
-Rules:
-- Never use bullet points or headers
-- Speak in complete paragraphs
-- Be direct about gaps without being discouraging
-- Lead with double-coefficient movements when any are flagged developing — those are the highest-leverage areas
-- Do not mention that you are an AI
-- Do not use the rider's name (you don't have it)
-- Keep total response under 400 words (single test) or 500 words (compare mode)
-- In compare mode: one paragraph per test, then one comparative paragraph`;
-
 export default function TestExplorer() {
   const [mode, setMode] = useState('one'); // 'one' | 'compare'
   const [test1, setTest1] = useState('');
@@ -29,11 +14,6 @@ export default function TestExplorer() {
 
   // devState: { [testId]: { [itemId]: boolean } }
   const [devState, setDevState] = useState({});
-
-  // AI analysis
-  const [analysisText, setAnalysisText] = useState('');
-  const [analysisLoading, setAnalysisLoading] = useState(false);
-  const [analysisError, setAnalysisError] = useState(null);
 
   const handleDevToggle = useCallback((testId, itemId) => {
     setDevState(prev => ({
@@ -65,82 +45,11 @@ export default function TestExplorer() {
     return Math.round(((items.length - developing) / items.length) * 100);
   }
 
-  function buildExplorerPrompt() {
-    const tests = [test1, mode === 'compare' ? test2 : null].filter(Boolean);
-    const parts = [];
-
-    tests.forEach((tKey, idx) => {
-      const data = getTestData(tKey);
-      if (!data) return;
-      const items = data.assessItems || [];
-      const devItems = items.filter(i => devState[tKey]?.[i.id]);
-      const devCoeff = devItems.filter(i => i.coeff);
-      const solidCount = items.length - devItems.length;
-
-      parts.push([
-        `Test ${idx + 1}: ${data.label}`,
-        `Total assessed movements: ${items.length}`,
-        `Solid: ${solidCount}`,
-        `Developing: ${devItems.length}${devItems.length > 0 ? ` (${devItems.map(i => i.text).join(', ')})` : ''}`,
-        devCoeff.length > 0 ? `Developing DOUBLE-COEFFICIENT movements: ${devCoeff.map(i => i.text).join(', ')}` : null,
-      ].filter(Boolean).join('\n'));
-    });
-
-    if (mode === 'compare' && test2) {
-      const d2 = getTestData(test2);
-      if (d2?.keyDifferences) {
-        parts.push(`What's new at ${d2.label}: ${d2.keyDifferences}`);
-      }
-
-      // Find overlapping developing items
-      const dev1 = new Set((getTestData(test1)?.assessItems || [])
-        .filter(i => devState[test1]?.[i.id]).map(i => i.text));
-      const dev2 = new Set((getTestData(test2)?.assessItems || [])
-        .filter(i => devState[test2]?.[i.id]).map(i => i.text));
-      const overlap = [...dev1].filter(t => dev2.has(t));
-      if (overlap.length > 0) {
-        parts.push(`Developing movements that overlap between both tests: ${overlap.join(', ')}`);
-      }
-    }
-
-    return parts.join('\n\n');
-  }
-
-  async function handleGetCoachingRead() {
-    setAnalysisLoading(true);
-    setAnalysisError(null);
-    setAnalysisText('');
-
-    try {
-      const userMessage = buildExplorerPrompt();
-
-      // Call via Cloud Function (same pattern as other AI calls)
-      const callFn = httpsCallable(functions, 'testExplorerAnalysis');
-
-      const result = await callFn({
-        systemPrompt: SYSTEM_PROMPT,
-        userMessage,
-        maxTokens: 600
-      });
-
-      if (result.data?.success) {
-        setAnalysisText(result.data.text);
-      } else {
-        throw new Error(result.data?.message || 'Analysis failed');
-      }
-    } catch (err) {
-      console.error('Test Explorer analysis error:', err);
-      setAnalysisError(err.message || 'Failed to get coaching analysis. Please try again.');
-    } finally {
-      setAnalysisLoading(false);
-    }
-  }
-
   const hasTest1 = test1 && isFullDataAvailable(test1);
   const hasTest2 = mode === 'compare' && test2 && isFullDataAvailable(test2);
   const stats1 = hasTest1 ? getReadinessStats(test1) : null;
   const stats2 = hasTest2 ? getReadinessStats(test2) : null;
-  const showChart = mode === 'compare' && hasTest1 && hasTest2 && analysisText;
+  const showChart = mode === 'compare' && hasTest1 && hasTest2;
   const gaitGroups = ['trot', 'canter', 'walk', 'other'];
 
   return (
@@ -156,14 +65,14 @@ export default function TestExplorer() {
           <button
             type="button"
             className={`te-mode-btn${mode === 'one' ? ' active' : ''}`}
-            onClick={() => { setMode('one'); setTest2(''); setAnalysisText(''); }}
+            onClick={() => { setMode('one'); setTest2(''); }}
           >
             One Test
           </button>
           <button
             type="button"
             className={`te-mode-btn${mode === 'compare' ? ' active' : ''}`}
-            onClick={() => { setMode('compare'); setAnalysisText(''); }}
+            onClick={() => setMode('compare')}
           >
             Compare Two
           </button>
@@ -172,7 +81,7 @@ export default function TestExplorer() {
         <div className="te-selectors">
           <div className="te-select-wrap">
             <label className="te-select-label">Test {mode === 'compare' ? '1' : ''}</label>
-            <select value={test1} onChange={e => { setTest1(e.target.value); setAnalysisText(''); }}>
+            <select value={test1} onChange={e => setTest1(e.target.value)}>
               <option value="">Select a test...</option>
               {ALL_TESTS.map(t => (
                 <option key={t.value} value={t.value}>
@@ -184,7 +93,7 @@ export default function TestExplorer() {
           {mode === 'compare' && (
             <div className="te-select-wrap">
               <label className="te-select-label">Test 2</label>
-              <select value={test2} onChange={e => { setTest2(e.target.value); setAnalysisText(''); }}>
+              <select value={test2} onChange={e => setTest2(e.target.value)}>
                 <option value="">Select a test...</option>
                 {ALL_TESTS.filter(t => t.value !== test1).map(t => (
                   <option key={t.value} value={t.value}>
@@ -257,29 +166,6 @@ export default function TestExplorer() {
               />
             )}
           </div>
-
-          {/* Get Coaching Read button */}
-          <div className="te-analysis-trigger">
-            <button
-              type="button"
-              className="te-coaching-btn"
-              onClick={handleGetCoachingRead}
-              disabled={analysisLoading}
-            >
-              {analysisLoading ? 'Analyzing...' : 'Get Coaching Read'}
-            </button>
-          </div>
-
-          {/* AI output */}
-          {analysisError && (
-            <div className="te-analysis-error">{analysisError}</div>
-          )}
-          {analysisText && (
-            <div className="te-coaching-output">
-              <div className="te-coaching-text">{analysisText}</div>
-              <div className="te-coaching-attr">— The Classical Master, Your Dressage Journey</div>
-            </div>
-          )}
 
           {/* Comparison chart */}
           {showChart && (
