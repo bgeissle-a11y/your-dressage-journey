@@ -23,6 +23,7 @@ const { buildCoachingPrompt, buildQuickInsightsPrompt, VOICE_META } = require(".
 const { getCache, setCache, getStaleCache } = require("../lib/cacheManager");
 const { getStatus: getGenStatus } = require("../lib/generationStatus");
 const { tryAcquireLock, releaseLock } = require("../lib/inflightLock");
+const { refreshWeeklyFocusSnapshotSection } = require("../lib/weeklyFocusSnapshot");
 
 const OUTPUT_TYPE = "coaching";
 const INSIGHTS_OUTPUT_TYPE = "coaching_insights";
@@ -145,6 +146,57 @@ async function generateQuickInsights(riderData, forceRefresh, uid) {
 }
 
 /**
+ * Persist the practiceCard and visualizationSuggestion side-extracts to their
+ * dedicated cache docs. Quick Insights always carries these as nested fields,
+ * but the home-page Practice Card and weekly viz card read from the dedicated
+ * caches — so this must run on every code path that produces quickInsights,
+ * including the quickInsightsOnly fast path.
+ *
+ * Logs explicitly when quickInsights is missing or lacks practiceCard, so a
+ * silent failure (which previously left the practice card stale for 9+ days)
+ * is now visible in Cloud Function logs.
+ */
+async function persistInsightsSideExtracts(quickInsights, riderData, generatedAt) {
+  if (!quickInsights) {
+    console.warn("[coaching] persistInsightsSideExtracts: quickInsights null — skipping side-extract saves");
+    return;
+  }
+
+  const meta = {
+    dataSnapshotHash: riderData.dataSnapshot?.hash,
+    tierLabel: riderData.tier?.label || "unknown",
+    dataTier: riderData.dataTier,
+  };
+
+  // Visualization suggestion — always saved (defaults to shouldSuggest:false)
+  try {
+    const vizSuggestion = quickInsights.visualizationSuggestion ?? { shouldSuggest: false };
+    await setCache(riderData.uid, "coaching_visualizationSuggestion", vizSuggestion, meta);
+  } catch (vizErr) {
+    console.error("[coaching] Failed to save visualizationSuggestion:", vizErr.message);
+  }
+
+  // Practice card — only saved when present
+  if (quickInsights.practiceCard) {
+    try {
+      const practiceCardData = {
+        ...quickInsights.practiceCard,
+        generatedAt,
+        weekOf: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
+        horseName: riderData.horseProfiles?.[0]?.horseName || "your horse",
+        confirmedAt: null,
+        confirmedDate: null,
+      };
+      await setCache(riderData.uid, "coaching_practiceCard", practiceCardData, meta);
+    } catch (pcErr) {
+      console.error("[coaching] Failed to save practiceCard:", pcErr.message);
+    }
+  } else {
+    console.warn("[coaching] persistInsightsSideExtracts: quickInsights has no practiceCard field — practice card cache will go stale");
+  }
+}
+
+/**
  * Cloud Function handler for Multi-Voice Coaching.
  *
  * @param {object} request - Firebase v2 onCall request
@@ -187,6 +239,7 @@ async function handler(request) {
     // Generate quick insights only (for progressive voice rendering)
     if (quickInsightsOnly) {
       const quickInsights = await generateQuickInsights(riderData, forceRefresh, uid);
+      await persistInsightsSideExtracts(quickInsights, riderData, generatedAt);
       return {
         success: true,
         quickInsights,
@@ -200,6 +253,9 @@ async function handler(request) {
     // Generate specific voice (no quick insights for single-voice requests)
     if (voiceIndex !== undefined && voiceIndex !== null) {
       const voiceResult = await generateVoice(voiceIndex, riderData, forceRefresh, uid);
+      // Re-extract the home page snapshot — even a single-voice refresh can
+      // change what the rotation picks if that voice is in the featured pair.
+      await refreshWeeklyFocusSnapshotSection(uid, "coaching");
       return {
         success: true,
         voices: { [voiceIndex]: voiceResult },
@@ -284,45 +340,18 @@ async function handler(request) {
       console.error("[coaching] Quick insights failed:", results[4].reason?.message || results[4].reason);
     }
 
-    // Extract visualizationSuggestion from Quick Insights and cache separately
-    if (quickInsights) {
-      try {
-        const vizSuggestion = quickInsights.visualizationSuggestion ?? { shouldSuggest: false };
-        await setCache(riderData.uid, "coaching_visualizationSuggestion", vizSuggestion, {
-          dataSnapshotHash: riderData.dataSnapshot?.hash,
-          tierLabel: riderData.tier?.label || "unknown",
-          dataTier: riderData.dataTier,
-        });
-      } catch (vizErr) {
-        console.error("[coaching] Failed to save visualizationSuggestion:", vizErr.message);
-      }
-    }
-
-    // Extract practiceCard from Quick Insights and cache separately
-    if (quickInsights && quickInsights.practiceCard) {
-      try {
-        const practiceCardData = {
-          ...quickInsights.practiceCard,
-          generatedAt: generatedAt,
-          weekOf: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
-          horseName: riderData.horseProfiles?.[0]?.horseName || "your horse",
-          confirmedAt: null,
-          confirmedDate: null,
-        };
-        await setCache(riderData.uid, "coaching_practiceCard", practiceCardData, {
-          dataSnapshotHash: riderData.dataSnapshot?.hash,
-          tierLabel: riderData.tier?.label || "unknown",
-          dataTier: riderData.dataTier,
-        });
-      } catch (pcErr) {
-        console.error("[coaching] Failed to save practiceCard:", pcErr.message);
-      }
-    }
+    await persistInsightsSideExtracts(quickInsights, riderData, generatedAt);
 
     // If ALL voices failed, throw so the client gets an error
     if (failedVoices.length === 4) {
       throw results[0].reason || new Error("All coaching voices failed to generate.");
     }
+
+    // Propagate fresh voice content into the home page's frozen weekly
+    // snapshot so the coaching card updates without waiting for Monday's
+    // cron. Only worth doing when at least one voice succeeded; if all
+    // four failed we'd have thrown above.
+    await refreshWeeklyFocusSnapshotSection(uid, "coaching");
 
     return {
       success: true,

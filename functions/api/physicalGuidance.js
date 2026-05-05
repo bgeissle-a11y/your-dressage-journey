@@ -37,6 +37,7 @@ const {
   shouldTruncateFirstCycle,
   getUserTier,
 } = require("../lib/cycleState");
+const { refreshWeeklyFocusSnapshotSection } = require("../lib/weeklyFocusSnapshot");
 
 const OUTPUT_TYPE = "physicalGuidance";
 
@@ -56,6 +57,9 @@ async function handler(request) {
     if (advanceWeek) {
       const result = await advanceWeekAndExtract(uid, "physical");
       const cycleState = await getCycleState(uid, "physical");
+      if (result?.advanced) {
+        await refreshWeeklyFocusSnapshotSection(uid, "physical");
+      }
       return { success: true, ...result, cycleState };
     }
 
@@ -312,6 +316,11 @@ async function handler(request) {
     if (forceRefresh && !isFirstGen) {
       await recordRegen(uid, "physical");
     }
+
+    // Propagate the new content into the home page's frozen weekly snapshot
+    // so the user sees the regen on next page load instead of waiting for
+    // next Monday's cron.
+    await refreshWeeklyFocusSnapshotSection(uid, "physical");
 
     return {
       success: true,

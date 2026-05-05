@@ -396,26 +396,44 @@ export function buildShowSnapshot(showPreps, showPlanCache, _currentWeekStart) {
 }
 
 /**
- * Select the celebration from positive reflections.
- * Uses weekId to rotate through different reflections each week.
+ * Canonical celebration picker. Algorithm must match the server's
+ * selectCelebration in functions/lib/weeklyFocusSnapshot.js so that
+ * a celebrationId written by the cron resolves to the same reflection
+ * the client would have picked locally:
+ *   1. Filter to positive categories (legacy + alias forms, case-insensitive)
+ *   2. Sort descending by createdAt
+ *   3. Pick positive[weekRotationSeed(weekId) % positive.length]
  */
+const CELEBRATION_CATEGORIES = new Set([
+  'personal', 'personal_milestone',
+  'validation', 'external_validation',
+  'aha', 'aha_moment',
+]);
+
+const CATEGORY_LABELS = {
+  personal: 'Personal Milestone',
+  personal_milestone: 'Personal Milestone',
+  validation: 'External Validation',
+  external_validation: 'External Validation',
+  aha: 'Aha Moment',
+  aha_moment: 'Aha Moment',
+};
+
 export function selectCelebration(reflections, weekId) {
-  const positive = reflections
-    .filter(r => ['personal', 'validation', 'aha'].includes(r.category))
+  const positive = (reflections || [])
+    .filter(r => CELEBRATION_CATEGORIES.has((r.category || '').toLowerCase()))
     .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
 
   if (positive.length === 0) return null;
 
-  // Rotate: pick a different reflection each week
   const seed = weekRotationSeed(weekId);
   const r = positive[seed % positive.length];
+  const cat = (r.category || '').toLowerCase();
   return {
     id: r.id,
     quote: r.mainReflection || r.response || r.text || '',
     horseName: r.horseName || '',
     date: r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : '',
-    category: r.category === 'personal' ? 'Personal Milestone'
-      : r.category === 'validation' ? 'External Validation'
-      : 'Aha Moment',
+    category: CATEGORY_LABELS[cat] || cat,
   };
 }

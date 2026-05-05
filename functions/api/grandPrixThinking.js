@@ -45,6 +45,7 @@ const {
   getUserTier,
   computeCurrentWeek,
 } = require("../lib/cycleState");
+const { refreshWeeklyFocusSnapshotSection } = require("../lib/weeklyFocusSnapshot");
 
 const OUTPUT_TYPE_MENTAL = "grandPrixThinking";
 const OUTPUT_TYPE_TRAJECTORY = "grandPrixTrajectory";
@@ -348,6 +349,11 @@ async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerConte
     await recordRegen(uid, "gpt");
   }
 
+  // Propagate the new content into the home page's frozen weekly snapshot.
+  // Without this, the home page keeps showing last Monday's snapshot until
+  // the next cron run — exactly the desync that bit us on 2026-05-04.
+  await refreshWeeklyFocusSnapshotSection(uid, "gpt");
+
   return {
     success: true,
     ...l1Output,
@@ -580,6 +586,11 @@ async function handler(request) {
     if (advanceWeek) {
       const result = await advanceWeekAndExtract(uid, "gpt");
       const cycleState = await getCycleState(uid, "gpt");
+      // If the pointer actually advanced, the weeklyAssignments in cache
+      // were just rewritten — refresh the home page snapshot to match.
+      if (result?.advanced) {
+        await refreshWeeklyFocusSnapshotSection(uid, "gpt");
+      }
       return { success: true, ...result, cycleState };
     }
 

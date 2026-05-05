@@ -12,6 +12,11 @@
  *   - Show Planner: countdown tasks for nearest upcoming show
  *
  * No Claude API calls — purely Firestore reads/writes.
+ *
+ * NOTE: extract* functions below are duplicated in lib/weeklyFocusSnapshot.js,
+ * which is the canonical source used by the per-regen refresh helper. Keep the
+ * two in sync — drifting them caused the home-page-snapshot desync bugs. TODO:
+ * import the extractors from the lib module instead of redefining.
  */
 
 const { db, auth } = require("../lib/firebase");
@@ -19,6 +24,7 @@ const {
   advanceWeekAndExtract,
   getCycleState,
 } = require("../lib/cycleState");
+const { selectCelebration } = require("../lib/weeklyFocusSnapshot");
 
 const CACHE_COLLECTION = "analysisCache";
 const VOICE_IDS = ["classical_master", "empathetic_coach", "technical_coach", "practical_strategist"];
@@ -299,19 +305,6 @@ function buildShowSnapshot(showPreps, showPlanCache) {
     showTasks,
     sourceGeneratedAt: showPlanCache?.generatedAt || null,
   };
-}
-
-// ── Celebration selector (deterministic per weekId) ──
-
-function selectCelebration(reflections, weekId) {
-  const positive = (reflections || []).filter((r) => {
-    const cat = (r.category || "").toLowerCase();
-    return ["personal", "personal_milestone", "validation", "external_validation", "aha", "aha_moment"]
-      .includes(cat);
-  });
-  if (positive.length === 0) return null;
-  const seed = weekRotationSeed(weekId);
-  return positive[seed % positive.length];
 }
 
 // ── Main handler ──
