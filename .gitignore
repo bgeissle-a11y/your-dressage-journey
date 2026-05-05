@@ -80,6 +80,12 @@ public/ydj-visualization-form.html
 ydj-nav-v2-mockup.html
 ydj-visualization-form.html
 
+# Local-only audit/data outputs
+audit-default-ratings.csv
+
+# Local-only public asset (not part of the deployed app)
+public/assets/ydj-testimonials.html
+
 # Local-only logo assets (not used by the app)
 public/assets/ColorLogoLarge-01 (1).png
 public/assets/HorseandRiderBLine-01.svg
