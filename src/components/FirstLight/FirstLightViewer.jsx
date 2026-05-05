@@ -6,7 +6,16 @@ import { useAuth } from '../../contexts/AuthContext';
 import { regenerateFirstLight as callRegenerateFirstLight } from '../../services/aiService';
 import { VOICE_META } from '../../services/aiService';
 import LoadingExperience from './LoadingExperience';
+import InfoTip from '../InfoTip/InfoTip';
 import './FirstLightViewer.css';
+
+const FIRST_LIGHT_REGEN_TOOLTIP = (
+  <p>
+    First Light can be refreshed once after you add new data &mdash; a reflection, debrief, observation, or
+    event log entry. It&rsquo;s designed for early-stage insights and retires automatically after your 5th
+    debrief, when your full coaching outputs take over.
+  </p>
+);
 
 const VOICE_INDEX_BY_KEY = { classical: 0, empathetic: 1, technical: 2, strategic: 3 };
 
@@ -255,14 +264,20 @@ export default function FirstLightViewer() {
               coaches again.
             </div>
             <PreGradProgress debriefCount={debriefCount} categoriesCount={categoriesCount} />
-            <button
-              type="button"
-              className="fl-viewer-btn-primary"
-              onClick={handleRegenerate}
-              disabled={regenerating}
-            >
-              Regenerate My First Light →
-            </button>
+            <span className="fl-viewer-regen-row">
+              <button
+                type="button"
+                className="fl-viewer-btn-primary"
+                onClick={handleRegenerate}
+                disabled={regenerating}
+              >
+                Regenerate My First Light →
+              </button>
+              <InfoTip
+                content={FIRST_LIGHT_REGEN_TOOLTIP}
+                ariaLabel="About regenerating your First Light"
+              />
+            </span>
             {regenError && (
               <div className="fl-viewer-error" role="alert">
                 <strong>Regenerate failed.</strong>

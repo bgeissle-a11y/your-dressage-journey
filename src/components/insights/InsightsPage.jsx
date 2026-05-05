@@ -12,6 +12,7 @@ import useInsightsData, { REFLECTION_CATEGORY_COLORS, buildHorseColorMap } from 
 import Section1Quality from './Section1Quality';
 import Section2Outcomes from './Section2Outcomes';
 import Section3Journey from './Section3Journey';
+import CadenceStrip from '../InfoTip/CadenceStrip';
 import './InsightsPage.css';
 
 const SECTIONS = [
@@ -77,6 +78,8 @@ export default function InsightsPage({ embedded = false }) {
           </p>
         </div>
       )}
+
+      <CadenceStrip outputSlug="data-viz" liveData />
 
       {/* Section tab nav */}
       <div className="ip-section-nav">

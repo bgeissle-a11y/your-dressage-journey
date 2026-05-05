@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getMultiVoiceCoaching, getQuickInsights, VOICE_META } from '../../services/aiService';
+import { readInflightLock } from '../../services/weeklyFocusService';
+import { useAuth } from '../../contexts/AuthContext';
 import CollapsibleSection from './CollapsibleSection';
 import CoachingVoiceCard from './CoachingVoiceCard';
 import ErrorDisplay from './ErrorDisplay';
@@ -7,6 +9,7 @@ import ElapsedTimer from './ElapsedTimer';
 import OrientingQuestion from './OrientingQuestion';
 import PriorityCloser from './PriorityCloser';
 import YDJLoading from '../YDJLoading';
+import CadenceStrip from '../InfoTip/CadenceStrip';
 
 /**
  * Extract error category and retryable flag from a Firebase HttpsError.
@@ -30,11 +33,13 @@ function parseErrorDetails(err) {
  * content streaming in rather than waiting for all voices to complete.
  */
 export default function MultiVoicePanel({ generationStatus }) {
+  const { currentUser } = useAuth();
   const [voices, setVoices] = useState({});
   const [quickInsights, setQuickInsights] = useState(null);
   const [activeVoice, setActiveVoice] = useState(0);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
   const [error, setError] = useState(null);
   const [insufficientData, setInsufficientData] = useState(null);
   const [meta, setMeta] = useState(null);
@@ -154,6 +159,46 @@ export default function MultiVoicePanel({ generationStatus }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // If a regeneration started in a previous tab or visit is still running
+  // when we mount, surface the regenerating UI immediately. The polling
+  // effect below swaps in fresh content when the lock releases.
+  useEffect(() => {
+    if (!currentUser) return;
+    (async () => {
+      const lock = await readInflightLock(currentUser.uid, 'coaching');
+      if (lock) setRegenerating(true);
+    })();
+  }, [currentUser]);
+
+  // Poll the lock doc directly while another session is regenerating;
+  // a backend probe would risk triggering a parallel fan-out, while a
+  // lock read is a single cheap Firestore get. When the lock disappears
+  // (the upstream regen finished), do a one-shot fetchCoaching to swap
+  // in the fresh content. Gives up after 4 minutes.
+  useEffect(() => {
+    if (!regenerating || !currentUser) return;
+    const startedAt = Date.now();
+    const MAX_MS = 4 * 60 * 1000;
+    const timer = setInterval(async () => {
+      if (Date.now() - startedAt > MAX_MS) {
+        setRegenerating(false);
+        clearInterval(timer);
+        return;
+      }
+      try {
+        const lock = await readInflightLock(currentUser.uid, 'coaching');
+        if (!lock) {
+          fetchCoaching();
+          setRegenerating(false);
+          clearInterval(timer);
+        }
+      } catch {
+        // Ignore transient poll failures; keep trying until MAX_MS.
+      }
+    }, 15_000);
+    return () => clearInterval(timer);
+  }, [regenerating, currentUser]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Auto-refresh when stale data is detected on initial load.
   // Guard with !error so a rate-limited refresh doesn't loop.
   useEffect(() => {
@@ -233,8 +278,8 @@ export default function MultiVoicePanel({ generationStatus }) {
         <div className="multi-voice-panel__actions">
           {meta?.generatedAt && (
             <span className={`panel-timestamp${isStale ? ' panel-timestamp--stale' : ''}`}>
-              {isStale && refreshing ? 'Updating... \u00b7 ' : ''}
-              {isStale && !refreshing ? 'Updated ' : ''}
+              {(isStale && refreshing) || regenerating ? 'Updating... \u00b7 ' : ''}
+              {isStale && !refreshing && !regenerating ? 'Updated ' : ''}
               {new Date(meta.generatedAt).toLocaleDateString('en-US', {
                 month: 'short', day: 'numeric', year: 'numeric'
               })}
@@ -243,22 +288,24 @@ export default function MultiVoicePanel({ generationStatus }) {
           <button
             className="btn-refresh"
             onClick={() => fetchCoaching(true)}
-            disabled={loading || refreshing}
+            disabled={loading || refreshing || regenerating}
           >
-            {loading || refreshing ? 'Generating...' : 'Generate Fresh Insights'}
+            {loading || refreshing || regenerating ? 'Generating...' : 'Generate Fresh Insights'}
           </button>
         </div>
       </div>
 
+      <CadenceStrip outputSlug="multi-voice" lastRefreshedAt={meta?.generatedAt} />
+
       {/* Refreshing banner (stale-while-revalidate) */}
-      {refreshing && (
+      {(refreshing || regenerating) && (
         <div className="panel-refreshing">
           <YDJLoading size="sm" message="Consulting the coaching team" />
         </div>
       )}
 
       {/* Error display */}
-      {error && !refreshing && (
+      {error && !refreshing && !regenerating && (
         <ErrorDisplay
           message={error.message}
           category={error.category}

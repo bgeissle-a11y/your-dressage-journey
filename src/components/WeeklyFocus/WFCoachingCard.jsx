@@ -1,10 +1,20 @@
 import { Link } from 'react-router-dom';
+import CadenceInfoTip from '../InfoTip/CadenceInfoTip';
+import VoiceInfoTip from '../InfoTip/VoiceInfoTip';
+import LockedInfoTip from '../InfoTip/LockedInfoTip';
 
 const VOICE_CLASSES = {
   classical_master: 'voice-0',
   empathetic_coach: 'voice-1',
   technical_coach: 'voice-2',
   practical_strategist: 'voice-3',
+};
+
+const VOICE_INDEX_BY_KEY = {
+  classical_master: 0,
+  empathetic_coach: 1,
+  technical_coach: 2,
+  practical_strategist: 3,
 };
 
 const VOICE_LABELS = {
@@ -25,7 +35,10 @@ export default function WFCoachingCard({ data, isPinned, isDone, isCollapsed, on
             Key Insight &middot; Multi-Voice
             {hasNewer && <span className="newer-dot" title="Updated insights available" />}
           </div>
-          <div className="card-title">{data?.title || 'Coaching Insight'}</div>
+          <div className="card-title">
+            {data?.title || 'Coaching Insight'}
+            <CadenceInfoTip outputSlug="multi-voice" />
+          </div>
         </div>
         <div className="card-actions">
           <button className={`pin-btn${isPinned ? ' active' : ''}`} onClick={e => { e.stopPropagation(); onPin(); }}>&#128204;</button>
@@ -36,16 +49,22 @@ export default function WFCoachingCard({ data, isPinned, isDone, isCollapsed, on
         <div className="card-body">
           {data ? (
             <>
-              {data.excerpts.map((ex, i) => (
-                <div key={i}>
-                  <div className={`voice-tag ${VOICE_CLASSES[ex.voice] || 'voice-2'}`}>
-                    {VOICE_LABELS[ex.voice] || ex.voice}
+              {data.excerpts.map((ex, i) => {
+                const voiceIdx = VOICE_INDEX_BY_KEY[ex.voice];
+                return (
+                  <div key={i}>
+                    <div className={`voice-tag ${VOICE_CLASSES[ex.voice] || 'voice-2'}`}>
+                      {VOICE_LABELS[ex.voice] || ex.voice}
+                      {i === 0 && voiceIdx !== undefined && (
+                        <VoiceInfoTip voiceIndex={voiceIdx} />
+                      )}
+                    </div>
+                    <div className="insight-text" style={i > 0 ? { fontSize: '12px', marginBottom: '10px' } : undefined}>
+                      &ldquo;{ex.text}&rdquo;
+                    </div>
                   </div>
-                  <div className="insight-text" style={i > 0 ? { fontSize: '12px', marginBottom: '10px' } : undefined}>
-                    &ldquo;{ex.text}&rdquo;
-                  </div>
-                </div>
-              ))}
+                );
+              })}
               <Link to="/insights?tab=coaching" className="insight-link">View full Multi-Voice Analysis &rarr;</Link>
               {data.reflectionNudge && (
                 <div className="reflection-nudge">{data.reflectionNudge}</div>
@@ -59,6 +78,7 @@ export default function WFCoachingCard({ data, isPinned, isDone, isCollapsed, on
               <div className="no-show-icon">&#127919;</div>
               Your coaching insight will appear here after your first Multi-Voice analysis.
               Log at least 5 rides to activate AI coaching.
+              <LockedInfoTip variant="activity" />
             </div>
           )}
         </div>

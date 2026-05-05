@@ -1,0 +1,107 @@
+{
+  "journey-map": {
+    "title": "Journey Map",
+    "icon": "🗺️",
+    "blocks": [
+      { "type": "lead", "html": "Your Journey Map is a living document &mdash; a visual and narrative timeline that shows where you've been, where you are, and the trajectory of your growth. Think of it as your riding autobiography, written by an AI that's read every debrief and reflection you've ever submitted." },
+      { "type": "h3", "text": "What You'll See" },
+      { "type": "p", "html": "The Journey Map opens with a <strong>summary</strong> &mdash; milestones count, themes count, key events count, trajectory direction, and a current focus narrative. Below that, the detail is organized into expandable sections:" },
+      { "type": "ul", "items": [
+        { "html": "<strong>Key Milestones:</strong> Chronological timeline of significant moments." },
+        { "html": "<strong>Progress Snapshot:</strong> Overall Trajectory, Consistency score, and Self-Awareness score." },
+        { "html": "<strong>Your Story:</strong> A long-form narrative arc with chapter headings (e.g., \"The Return,\" \"The Journey of Becoming\") and embedded coaching voice annotations." },
+        { "html": "<strong>Emerging Themes:</strong> Pattern cards identifying recurring threads across your dataset." },
+        { "html": "<strong>Goal Progress:</strong> Per-goal progress bars with evidence narrative and a \"Next:\" recommendation." }
+      ] },
+      { "type": "tip", "title": "Getting the Richest Journey Map", "html": "The Journey Map draws from <em>everything</em> &mdash; debriefs, reflections, events, observations. The more consistently you record, the more detailed and accurate your map becomes. Five rides show you what happened. Twenty rides reveal why it keeps happening. Fifty rides show you the conditions that create your best work." },
+      { "type": "emphasis", "html": "<strong>Generated:</strong> Auto-refreshes after 10 combined debriefs and reflections, or after a journey event plus 5 entries. Working tier: max once per month. Extended: no frequency cap. Each generation incorporates all data submitted to date." }
+    ]
+  },
+
+  "multi-voice": {
+    "title": "Multi-Voice Coaching",
+    "icon": "🎙️",
+    "blocks": [
+      { "type": "lead", "html": "The same riding data, analyzed through four completely different coaching lenses. Each voice sees your data from a distinct perspective and offers insights the others might miss. It's like having a team of coaches around the table, each bringing their expertise to bear on <em>your</em> riding." },
+      { "type": "h3", "text": "Quick Insights First, Voices When You're Ready" },
+      { "type": "p", "html": "Your weekly coaching report opens with a <strong>Quick Insights</strong> summary that's always visible:" },
+      { "type": "ul", "items": [
+        { "html": "<strong>Top 3 Patterns This Week</strong> &mdash; the most significant, actionable patterns from your recent rides, each in one sentence with data to back it up." },
+        { "html": "<strong>Your Priority This Week</strong> &mdash; one clear, achievable focus for the next seven days with specific context from your data. Always visible, never buried." },
+        { "html": "<strong>This Week's Celebration</strong> &mdash; one genuine breakthrough or success, connected to your broader progress. Expandable if you want to read more." }
+      ] },
+      { "type": "p", "html": "Below the Quick Insights, the four coaching voices are presented in <strong>tabs</strong>. Tap any voice to read their full analysis. The Technical Coach might focus on a position pattern while the Empathetic Coach notices an emotional shift. The Classical Master might remind you that difficulty is a sign of deepening understanding, while the Practical Strategist maps out next week." },
+      { "type": "tip", "title": "Voice Snippets Everywhere", "html": "Beyond the full Multi-Voice Coaching report, you'll notice brief coaching voice annotations throughout your other outputs &mdash; a Technical Coach note in your Physical Guidance, a Classical Master reflection in your Journey Map. These are marked with each voice's icon and color so you always know who's speaking. They feel like expert margin notes, not competing headlines." },
+      { "type": "emphasis", "html": "<strong>Generated:</strong> Auto-refreshes after every 10 new debriefs. Working tier: also a monthly fallback if the 10-debrief trigger hasn't fired. Extended tier: regenerate any time, with a 4-hour cooldown." }
+    ]
+  },
+
+  "data-viz": {
+    "title": "Data Visualizations",
+    "icon": "📊",
+    "blocks": [
+      { "type": "lead", "html": "Making the invisible visible. Your subjective riding experience &mdash; feel, mood, energy, quality &mdash; transformed into trackable visual data that reveals patterns over time. Each visualization includes a clear title, brief context, and a highlighted key insight so you can scan quickly." },
+      { "type": "ul", "items": [
+        { "html": "<strong>📈 Ride Quality Trend:</strong> Session-by-session trajectory with rolling average &mdash; see the real direction beneath the daily ups and downs." },
+        { "html": "<strong>🧠 Mental State Patterns:</strong> How often you report focused vs. frustrated vs. tense &mdash; and which states correlate with higher ride quality." },
+        { "html": "<strong>🎯 Training Focus:</strong> What you've been working on most &mdash; your training distribution over time." },
+        { "html": "<strong>🏆 Goal Progress:</strong> Visual progress toward each stated goal with milestone markers along the way." },
+        { "html": "<strong>💪 Confidence Trajectory:</strong> Your emotional arc with annotated events that shifted your trajectory." },
+        { "html": "<strong>🔥 Theme Frequency:</strong> Which topics and challenges appear most often in your debriefs &mdash; what's really on your mind." }
+      ] },
+      { "type": "p", "html": "The AI provides a narrative interpretation alongside each chart &mdash; not just the numbers, but what the patterns mean and what they suggest about your training trajectory." },
+      { "type": "tip", "title": "The Quality + Mental State Connection", "html": "One of the most revealing visualizations cross-references your ride quality ratings with your reported mental state. Over time, this can show you exactly which mindset conditions produce your best riding &mdash; information that feeds directly into your Grand Prix Thinking practices." },
+      { "type": "emphasis", "html": "<strong>Generated:</strong> Refreshes whenever your Multi-Voice Coaching refreshes &mdash; every 10 debriefs (Working: monthly fallback; Extended: manual regen with 4-hour cooldown)." }
+    ]
+  },
+
+  "grand-prix": {
+    "title": "Grand Prix Thinking",
+    "icon": "🧠",
+    "blocks": [
+      { "type": "lead", "html": "Mental skills development for dressage riders, built from sport psychology principles and personalized to your specific patterns, horses, and challenges. \"Grand Prix\" isn't about your competition level &mdash; it's about developing the mental approach that the best riders in the world use, adapted to where <em>you</em> are right now." },
+      { "type": "h3", "text": "Two Layers, One Dashboard" },
+      { "type": "p", "html": "Grand Prix Thinking operates in two layers that appear together. <strong>Tabs</strong> let you switch between \"what do I practice today\" and \"where is all this taking me\" without either perspective getting lost." },
+      { "type": "p", "html": "<strong>Layer 1: Mental Performance</strong> &mdash; \"What do I practice today?\" Three paths, each with parallel structure: <strong>The Pattern</strong> (what's happening now), <strong>The Mental Shift</strong> (the reframe needed), <strong>This Week's Practice</strong> (3 specific exercises), <strong>Success Metric</strong> (how you'll know it's working). 4-week progressive programs with daily practices." },
+      { "type": "p", "html": "<strong>Layer 2: Training Trajectory</strong> &mdash; \"Where is all this taking me?\" Three trajectories, each with parallel structure: <strong>Current Position</strong>, <strong>Next Milestones</strong> (3&ndash;6 month view), <strong>Building Blocks</strong> (how current work connects), <strong>Timeline Projection</strong> (realistic estimate). Long-term roadmaps with movement progression." },
+      { "type": "p", "html": "Everything in Grand Prix Thinking is personalized. Your affirmations use your own language &mdash; pulled from your reflections and self-assessment. Your self-talk scripts address your actual negative patterns. Horse-specific strategies exist for every horse in your profile. Each path includes a coaching voice annotation from the voice most natural to that path's focus." },
+      { "type": "tip", "title": "Unlocking Deeper Personalization", "html": "Grand Prix Thinking gets significantly more specific as your data grows. With 5+ debriefs, it starts identifying your mental state patterns. With a completed Rider Self-Assessment, it has your self-awareness levels, self-regulation strategies, and performance history. The richest personalization comes when debriefs, reflections, self-assessments, and event data all work together." },
+      { "type": "emphasis", "html": "<strong>Generated:</strong> 30-day program with weekly progression. Available on Medium and Extended tiers. Medium tier: refreshes monthly with one mid-cycle refresh allowed. Extended tier: regenerate any time." }
+    ]
+  },
+
+  "physical": {
+    "title": "Physical Guidance",
+    "icon": "🏋️",
+    "blocks": [
+      { "type": "lead", "html": "Dressage is an athletic pursuit, and your body is your primary tool. Physical Guidance addresses the rider's body with off-horse exercises, stretches, and body awareness practices &mdash; all tailored to what <em>your</em> Physical Self-Assessment and debrief data reveal about your specific challenges." },
+      { "type": "h3", "text": "What You'll See" },
+      { "type": "ul", "items": [
+        { "html": "<strong>Position Pattern Analysis:</strong> The AI cross-references your physical self-assessment with what you describe in your debriefs to identify recurring position-related themes." },
+        { "html": "<strong>Off-Horse Exercises:</strong> Targeted exercises addressing your documented asymmetries and tension patterns. Each exercise includes a <strong>Technical Coach annotation</strong> &mdash; one sentence explaining the biomechanical cause-and-effect between this exercise and your in-saddle improvement." },
+        { "html": "<strong>Classical Framing:</strong> A brief <strong>Classical Master annotation</strong> at the top connecting your physical preparation to classical principles &mdash; why suppleness matters, why the rider's body must be as prepared as the horse's." },
+        { "html": "<strong>Pre-Ride Preparation:</strong> Warm-up routines calibrated to your kinesthetic awareness level &mdash; simpler cues if you're building body awareness, more nuanced proprioceptive work if you're already tuned in." },
+        { "html": "<strong>Body Awareness Prompts:</strong> In-ride mindfulness cues targeting your specific tension areas from your physical self-assessment." }
+      ] },
+      { "type": "p", "html": "Physical Guidance complements (but doesn't duplicate) the Pre-Ride path in Grand Prix Thinking. Where Grand Prix Thinking's body scan serves a mental performance goal, Physical Guidance stands alone as dedicated fitness and body awareness support." },
+      { "type": "tip", "title": "The Kinesthetic Awareness Slider", "html": "Your Physical Self-Assessment includes a 1&ndash;10 kinesthetic awareness rating. This calibrates <em>all</em> physical cues across the platform &mdash; not just in Physical Guidance but in Grand Prix Thinking and coaching voice annotations too. As your awareness grows and you update this rating, the cues you receive become more refined." },
+      { "type": "emphasis", "html": "<strong>Generated:</strong> 30-day program with weekly progression. Available on Medium and Extended tiers. Medium tier: refreshes monthly with one mid-cycle refresh allowed. Extended tier: regenerate any time. <em>Standard disclaimer: These are general fitness suggestions for riders, not medical advice. Riders with injuries or conditions should consult their healthcare provider.</em>" }
+    ]
+  },
+
+  "event-planner": {
+    "title": "Event Planner",
+    "icon": "🎯",
+    "blocks": [
+      { "type": "lead", "html": "When you submit a Show Preparation form for an upcoming show, the Event Planner generates a comprehensive, personalized preparation plan &mdash; from readiness analysis against specific dressage test requirements through a tailored week-by-week training plan." },
+      { "type": "h3", "text": "The Plan" },
+      { "type": "ul", "items": [
+        { "html": "<strong>Test Requirements Assembly:</strong> If you're competing, the planner pulls the complete requirements from the verified dressage test database &mdash; movements, geometry, coefficients, and common errors for your specific test." },
+        { "html": "<strong>Readiness Analysis:</strong> Your recent debriefs, profiles, and self-assessments evaluated against the test requirements. Where are you strong? Where are the gaps? What are the risk areas?" },
+        { "html": "<strong>Preparation Plan:</strong> A personalized week-by-week training plan from now until the event. Each week includes a <strong>coaching voice tip</strong> from the voice most relevant to that week's focus." }
+      ] },
+      { "type": "tip", "title": "The Preparation + Follow-Up Loop", "html": "The Event Planner generates structured post-event debrief questions that feed back into the YDJ system. When you prepare for an event AND log what actually happened afterward, the AI can analyze the gap between intention and outcome &mdash; one of the most revealing patterns in rider development." },
+      { "type": "emphasis", "html": "<strong>Generated:</strong> On demand, whenever you submit a Show Preparation form. Works for shows within the next six months." }
+    ]
+  }
+}

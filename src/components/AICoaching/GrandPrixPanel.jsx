@@ -4,10 +4,11 @@ import { useAuth } from '../../contexts/AuthContext';
 import { getRiderProfile } from '../../services';
 import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { db } from '../../firebase-config';
-import { readCycleState } from '../../services/weeklyFocusService';
+import { readCycleState, readInflightLock } from '../../services/weeklyFocusService';
 import ErrorDisplay from './ErrorDisplay';
 import ElapsedTimer from './ElapsedTimer';
 import YDJLoading from '../YDJLoading';
+import CadenceStrip from '../InfoTip/CadenceStrip';
 import './ThirtyDayCycle.css';
 
 /**
@@ -130,16 +131,42 @@ export default function GrandPrixPanel({ generationStatus }) {
     })();
   }, [currentUser]);
 
-  // Compute cycle display info
+  // If a regeneration started in a previous tab or visit is still running
+  // when we mount, surface the regenerating UI immediately so the user
+  // doesn't see apparently-stale data while it finishes. The existing
+  // polling effects will swap in fresh content as soon as the lock releases.
+  useEffect(() => {
+    if (!currentUser) return;
+    (async () => {
+      const [mentalLock, trajectoryLock] = await Promise.all([
+        readInflightLock(currentUser.uid, 'grandPrixThinking'),
+        readInflightLock(currentUser.uid, 'grandPrixTrajectory'),
+      ]);
+      if (mentalLock) setMentalRegenerating(true);
+      if (trajectoryLock) setTrajectoryRegenerating(true);
+    })();
+  }, [currentUser]);
+
+  // Compute cycle display info.
+  // Derive status='expired' from cycleStartDate once the 30-day mark has passed —
+  // the backend computes expiry at request time but never persists it to the cycle doc,
+  // so the "New cycle ready" banner relies on this client-side derivation.
+  const cycleStartDateObj = cycleState?.cycleStartDate ? new Date(cycleState.cycleStartDate) : null;
+  const cycleExpiresAtObj = cycleStartDateObj
+    ? new Date(cycleStartDateObj.getTime() + 30 * 24 * 60 * 60 * 1000)
+    : null;
+  const backendCycleStatus = cycleState?.status || 'active';
+  const isCycleExpired = cycleExpiresAtObj
+    && cycleExpiresAtObj < new Date()
+    && (backendCycleStatus === 'active' || backendCycleStatus === 'truncated');
+
   const cycleInfo = cycleState ? {
-    startDate: cycleState.cycleStartDate ? new Date(cycleState.cycleStartDate) : null,
+    startDate: cycleStartDateObj,
     currentWeek: cycleState.currentWeek || 1,
-    status: cycleState.status || 'active',
+    status: isCycleExpired ? 'expired' : backendCycleStatus,
     tier: cycleState.tier || 'standard',
     maxWeeks: cycleState.status === 'truncated' ? 2 : 4,
-    expiresAt: cycleState.cycleStartDate
-      ? new Date(new Date(cycleState.cycleStartDate).getTime() + 30 * 24 * 60 * 60 * 1000)
-      : null,
+    expiresAt: cycleExpiresAtObj,
   } : null;
 
   const daysUntilRefresh = cycleInfo?.expiresAt
@@ -1023,6 +1050,11 @@ export default function GrandPrixPanel({ generationStatus }) {
   return (
     <div className="gpt-redesign">
       {renderHero()}
+      <CadenceStrip
+        outputSlug="grand-prix"
+        lastRefreshedAt={mentalData?.generatedAt}
+        nextRefreshAt={cycleInfo?.expiresAt}
+      />
       {mentalRefreshing && (
         <div className="gpt-gen-refreshing-bar">
           <div className="spinner spinner--small" />

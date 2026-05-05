@@ -1,0 +1,107 @@
+.info-tip {
+  display: inline-flex;
+  position: relative;
+  vertical-align: middle;
+  margin-left: 4px;
+  line-height: 0;
+}
+
+.info-tip__trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--ink-light);
+  cursor: pointer;
+  border-radius: 50%;
+  transition: color 150ms ease, box-shadow 150ms ease;
+}
+
+.info-tip__trigger:hover {
+  color: var(--gold);
+}
+
+.info-tip__trigger:focus-visible {
+  color: var(--gold);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(184, 134, 42, 0.35);
+}
+
+.info-tip__panel {
+  position: absolute;
+  z-index: 250;
+  width: max-content;
+  max-width: 280px;
+  padding: 12px 14px;
+  background: #fff;
+  border: 1.5px solid var(--parchment-dark);
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(44, 31, 20, 0.12);
+  font-family: 'Work Sans', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-mid);
+  text-align: left;
+  white-space: normal;
+  pointer-events: auto;
+}
+
+.info-tip__panel--voice {
+  border-left-width: 4px;
+}
+
+.info-tip__panel .info-tip__heading,
+.info-tip__panel h4 {
+  font-family: 'Playfair Display', serif;
+  font-size: 14px;
+  font-style: italic;
+  font-weight: 600;
+  margin: 0 0 6px 0;
+  color: var(--ink-mid);
+}
+
+.info-tip__panel p {
+  margin: 0 0 6px 0;
+}
+.info-tip__panel p:last-child {
+  margin-bottom: 0;
+}
+
+.info-tip__panel .info-tip__meta {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-light);
+  margin-top: 4px;
+}
+
+.info-tip__panel .info-tip__catchphrase {
+  font-style: italic;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.info-tip__panel--top {
+  bottom: calc(100% + 8px);
+}
+.info-tip__panel--bottom {
+  top: calc(100% + 8px);
+}
+
+.info-tip__panel--align-center {
+  left: 50%;
+  transform: translateX(-50%);
+}
+.info-tip__panel--align-start {
+  left: 0;
+}
+.info-tip__panel--align-end {
+  right: 0;
+}
+
+@media (max-width: 480px) {
+  .info-tip__panel {
+    max-width: min(280px, calc(100vw - 24px));
+  }
+}

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import VoiceInfoTip from '../InfoTip/VoiceInfoTip';
 
 /**
  * Individual coaching voice display.
@@ -72,6 +73,7 @@ export default function CoachingVoiceCard({ voiceMeta, content, loading, error, 
         <div className="coaching-voice-content__meta">
           <span style={{ fontSize: '1.3em' }}>{voiceMeta.icon}</span>
           <h3 className="coaching-voice-content__name">{voiceMeta.name}</h3>
+          <VoiceInfoTip voiceIndex={voiceMeta.index} />
           {content._meta?.fromCache && (
             <span className="voice-card__cache-badge">Cached</span>
           )}
@@ -109,7 +111,10 @@ export default function CoachingVoiceCard({ voiceMeta, content, loading, error, 
       <div className="voice-card__header">
         <span className="voice-card__icon">{voiceMeta.icon}</span>
         <div>
-          <h3 className="voice-card__name">{voiceMeta.name}</h3>
+          <h3 className="voice-card__name">
+            {voiceMeta.name}
+            <VoiceInfoTip voiceIndex={voiceMeta.index} />
+          </h3>
           <p className="voice-card__catchphrase">"{voiceMeta.catchphrase}"</p>
         </div>
         {content._meta?.fromCache && (

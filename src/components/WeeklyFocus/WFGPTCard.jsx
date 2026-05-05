@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom';
+import CadenceInfoTip from '../InfoTip/CadenceInfoTip';
+import LockedInfoTip from '../InfoTip/LockedInfoTip';
 
 export default function WFGPTCard({ assignments, checkedItems, isPinned, isDone, isCollapsed, onPin, onDone, onToggle, onItemCheck, hasNewer, onUpdate }) {
   return (
@@ -11,7 +13,10 @@ export default function WFGPTCard({ assignments, checkedItems, isPinned, isDone,
             Grand Prix Thinking
             {hasNewer && <span className="newer-dot" title="Updated insights available" />}
           </div>
-          <div className="card-title">This week&rsquo;s assignments</div>
+          <div className="card-title">
+            This week&rsquo;s assignments
+            <CadenceInfoTip outputSlug="grand-prix" />
+          </div>
         </div>
         <div className="card-actions">
           <button className={`pin-btn${isPinned ? ' active' : ''}`} onClick={e => { e.stopPropagation(); onPin(); }}>&#128204;</button>
@@ -49,6 +54,7 @@ export default function WFGPTCard({ assignments, checkedItems, isPinned, isDone,
             <div className="no-show-state">
               <div className="no-show-icon">&#129504;</div>
               Grand Prix Thinking assignments will appear here after your data reaches the analysis threshold.
+              <LockedInfoTip variant="tier" />
             </div>
           )}
         </div>

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import CadenceInfoTip from '../InfoTip/CadenceInfoTip';
 
 export default function WFPhysicalCard({ items, checkedItems, isPinned, isDone, isCollapsed, onPin, onDone, onToggle, onItemCheck, hasNewer, onUpdate }) {
   return (
@@ -11,7 +12,10 @@ export default function WFPhysicalCard({ items, checkedItems, isPinned, isDone, 
             Physical Awareness
             {hasNewer && <span className="newer-dot" title="Updated insights available" />}
           </div>
-          <div className="card-title">What your body keeps saying</div>
+          <div className="card-title">
+            What your body keeps saying
+            <CadenceInfoTip outputSlug="physical" />
+          </div>
         </div>
         <div className="card-actions">
           <button className={`pin-btn${isPinned ? ' active' : ''}`} onClick={e => { e.stopPropagation(); onPin(); }}>&#128204;</button>

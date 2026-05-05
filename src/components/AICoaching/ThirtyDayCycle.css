@@ -98,8 +98,23 @@
 }
 
 .cycle-bar--expired {
-  border-color: rgba(184,134,42,.35);
-  background: rgba(184,134,42,.08);
+  border-color: rgba(212,168,75,.55);
+  background: rgba(184,134,42,.18);
+  cursor: pointer;
+  transition: background-color .15s ease, border-color .15s ease;
+}
+
+.cycle-bar--expired:hover {
+  background: rgba(184,134,42,.26);
+  border-color: rgba(212,168,75,.75);
+}
+
+.cycle-expired-text {
+  color: #f0d89a;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  line-height: 1.4;
 }
 
 .cycle-seg {

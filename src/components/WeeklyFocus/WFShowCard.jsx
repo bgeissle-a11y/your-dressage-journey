@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import CadenceInfoTip from '../InfoTip/CadenceInfoTip';
 
 const WEEK_SUBS = {
   10: 'Intention — set your direction and take stock',
@@ -43,6 +44,7 @@ export default function WFShowCard({ show, checkedItems, isPinned, isDone, isCol
             {hasActiveShow
               ? `${show.name} · ${show.daysOut} day${show.daysOut !== 1 ? 's' : ''} out`
               : 'Nothing on the calendar yet'}
+            <CadenceInfoTip outputSlug="event-planner" />
           </div>
         </div>
         <div className="card-actions">

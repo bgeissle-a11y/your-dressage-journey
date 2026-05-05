@@ -1,18 +1,23 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getJourneyMap } from '../../services/aiService';
+import { readInflightLock } from '../../services/weeklyFocusService';
+import { useAuth } from '../../contexts/AuthContext';
 import CollapsibleSection from './CollapsibleSection';
 import ErrorDisplay from './ErrorDisplay';
 import ElapsedTimer from './ElapsedTimer';
 import YDJLoading from '../YDJLoading';
+import CadenceStrip from '../InfoTip/CadenceStrip';
 
 /**
  * Journey Map display panel with at-a-glance summary
  * and collapsible detail sections.
  */
 export default function JourneyMapPanel({ generationStatus }) {
+  const { currentUser } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
   const [error, setError] = useState(null);
   const [insufficientData, setInsufficientData] = useState(null);
   const [loadStartedAt, setLoadStartedAt] = useState(null);
@@ -49,8 +54,17 @@ export default function JourneyMapPanel({ generationStatus }) {
       setData(result);
       setIsStale(!!result.stale);
 
+      // Backend signals another generation is in flight (lock held by an
+      // earlier call from this or another session). Show regenerating UI
+      // and let the polling effect swap in fresh content when it completes.
+      if (result.regenerating) {
+        setRegenerating(true);
+      } else {
+        setRegenerating(false);
+      }
+
       // If we got stale data from the fast path, trigger background refresh
-      if (result.stale && staleOk) {
+      if (result.stale && staleOk && !result.regenerating) {
         fetchJourneyMap({ forceRefresh: false });
       }
     } catch (err) {
@@ -87,6 +101,45 @@ export default function JourneyMapPanel({ generationStatus }) {
   useEffect(() => {
     fetchJourneyMap({ staleOk: true });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // If a regeneration started in a previous tab or visit is still running
+  // when we mount, surface the regenerating UI immediately. The polling
+  // effect below will swap in fresh content when the lock releases.
+  useEffect(() => {
+    if (!currentUser) return;
+    (async () => {
+      const lock = await readInflightLock(currentUser.uid, 'journeyMap');
+      if (lock) setRegenerating(true);
+    })();
+  }, [currentUser]);
+
+  // Poll for fresh data while another session is regenerating. Checks
+  // every 15s via staleOk (cache-only, no Claude calls), gives up after
+  // 3 minutes — well above typical Journey Map runtimes.
+  useEffect(() => {
+    if (!regenerating) return;
+    const startedAt = Date.now();
+    const MAX_MS = 3 * 60 * 1000;
+    const timer = setInterval(async () => {
+      if (Date.now() - startedAt > MAX_MS) {
+        setRegenerating(false);
+        clearInterval(timer);
+        return;
+      }
+      try {
+        const result = await getJourneyMap({ staleOk: true });
+        if (result?.success && !result.regenerating && !result.stale) {
+          setData(result);
+          setIsStale(false);
+          setRegenerating(false);
+          clearInterval(timer);
+        }
+      } catch {
+        // Ignore transient poll failures; keep trying until MAX_MS.
+      }
+    }, 15_000);
+    return () => clearInterval(timer);
+  }, [regenerating]);
 
   // Auto-refresh when background generation completes
   useEffect(() => {
@@ -176,8 +229,8 @@ export default function JourneyMapPanel({ generationStatus }) {
         <div className="journey-map-panel__actions">
           {generatedAt && (
             <span className={`panel-timestamp${isStale ? ' panel-timestamp--stale' : ''}`}>
-              {isStale && refreshing ? 'Updating... \u00B7 ' : ''}
-              {isStale && !refreshing ? 'Updated ' : ''}
+              {(isStale && refreshing) || regenerating ? 'Updating... \u00B7 ' : ''}
+              {isStale && !refreshing && !regenerating ? 'Updated ' : ''}
               {new Date(generatedAt).toLocaleDateString('en-US', {
                 month: 'short', day: 'numeric', year: 'numeric'
               })}
@@ -186,15 +239,17 @@ export default function JourneyMapPanel({ generationStatus }) {
           <button
             className="btn-refresh"
             onClick={() => fetchJourneyMap({ forceRefresh: true })}
-            disabled={loading || refreshing}
+            disabled={loading || refreshing || regenerating}
           >
-            {loading || refreshing ? 'Regenerating...' : 'Regenerate'}
+            {loading || refreshing || regenerating ? 'Regenerating...' : 'Regenerate'}
           </button>
         </div>
       </div>
 
+      <CadenceStrip outputSlug="journey-map" lastRefreshedAt={generatedAt} />
+
       {/* Refreshing banner (stale-while-revalidate) */}
-      {refreshing && (
+      {(refreshing || regenerating) && (
         <div className="panel-refreshing">
           <YDJLoading size="sm" message="Updating your journey" />
         </div>

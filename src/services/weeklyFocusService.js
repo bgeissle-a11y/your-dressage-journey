@@ -136,6 +136,44 @@ export async function readPhysicalCache(uid) {
 }
 
 /**
+ * Read the in-flight generation lock for an output type. Returns the lock
+ * data when a fresh lock exists, otherwise null. Stale locks (older than
+ * the backend TTL) are returned as null so they don't keep the UI pinned
+ * to a "regenerating" state after a crashed pipeline.
+ *
+ * Used by output panels on mount to detect that a regeneration started in
+ * a previous tab or session is still running, so the user gets visible
+ * feedback after navigating back instead of seeing apparently-unchanged
+ * pre-regen data.
+ *
+ * Collection: generationLocks/{uid}_{outputType}
+ * Backend writer: functions/lib/inflightLock.js
+ *
+ * @param {string} uid
+ * @param {string} outputType - server-side output type (e.g.
+ *   "grandPrixThinking", "grandPrixTrajectory", "journeyMap",
+ *   "physicalGuidance", "coaching")
+ * @returns {Promise<object|null>}
+ */
+const INFLIGHT_LOCK_TTL_MS = 10 * 60 * 1000;
+
+export async function readInflightLock(uid, outputType) {
+  try {
+    const ref = doc(db, 'generationLocks', `${uid}_${outputType}`);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return null;
+    const data = snap.data();
+    if (data?.acquiredAtMs && Date.now() - data.acquiredAtMs > INFLIGHT_LOCK_TTL_MS) {
+      return null;
+    }
+    return data;
+  } catch (error) {
+    console.error(`[weeklyFocusService] readInflightLock(${outputType}) error:`, error);
+    return null;
+  }
+}
+
+/**
  * Read the cycle state document for GPT or Physical Guidance.
  * Used by Weekly Focus and output pages to determine current week.
  *

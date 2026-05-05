@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getPhysicalGuidance, advanceWeekPointer } from '../../services/aiService';
-import { readCycleState } from '../../services/weeklyFocusService';
+import { readCycleState, readInflightLock } from '../../services/weeklyFocusService';
 import { useAuth } from '../../contexts/AuthContext';
 import { getRiderProfile } from '../../services';
 import { doc, getDoc } from 'firebase/firestore';
@@ -8,6 +8,7 @@ import { db } from '../../firebase-config';
 import ErrorDisplay from './ErrorDisplay';
 import ElapsedTimer from './ElapsedTimer';
 import YDJLoading from '../YDJLoading';
+import CadenceStrip from '../InfoTip/CadenceStrip';
 import './ThirtyDayCycle.css';
 
 /**
@@ -31,6 +32,7 @@ export default function PhysicalGuidancePanel() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
   const [error, setError] = useState(null);
   const [insufficientData, setInsufficientData] = useState(null);
   const [loadStartedAt, setLoadStartedAt] = useState(null);
@@ -153,7 +155,16 @@ export default function PhysicalGuidancePanel() {
         setActiveWeek(result.cycleState.currentWeek || 1);
       }
 
-      if (result.stale && staleOk) {
+      // Backend signals another generation is in flight (lock held by an
+      // earlier call from this or another session). Surface regenerating UI
+      // and let the polling effect swap in fresh content when it completes.
+      if (result.regenerating) {
+        setRegenerating(true);
+      } else {
+        setRegenerating(false);
+      }
+
+      if (result.stale && staleOk && !result.regenerating) {
         fetchData({ forceRefresh: false });
       }
     } catch (err) {
@@ -177,7 +188,50 @@ export default function PhysicalGuidancePanel() {
 
   useEffect(() => {
     fetchData({ staleOk: true });
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // If a regeneration started in a previous tab or visit is still running
+  // when we mount, surface the regenerating UI immediately. The polling
+  // effect below will swap in fresh content when the lock releases.
+  useEffect(() => {
+    if (!currentUser) return;
+    (async () => {
+      const lock = await readInflightLock(currentUser.uid, 'physicalGuidance');
+      if (lock) setRegenerating(true);
+    })();
+  }, [currentUser]);
+
+  // Poll for fresh data while another session is regenerating. Checks
+  // every 15s via staleOk (cache-only, no Claude calls), gives up after
+  // 3 minutes — well above typical Physical Guidance runtimes.
+  useEffect(() => {
+    if (!regenerating) return;
+    const startedAt = Date.now();
+    const MAX_MS = 3 * 60 * 1000;
+    const timer = setInterval(async () => {
+      if (Date.now() - startedAt > MAX_MS) {
+        setRegenerating(false);
+        clearInterval(timer);
+        return;
+      }
+      try {
+        const result = await getPhysicalGuidance({ staleOk: true });
+        if (result?.success && !result.regenerating && !result.stale) {
+          setData(result);
+          setIsStale(false);
+          if (result.cycleState) {
+            setCycleState(result.cycleState);
+            setActiveWeek(result.cycleState.currentWeek || 1);
+          }
+          setRegenerating(false);
+          clearInterval(timer);
+        }
+      } catch {
+        // Ignore transient poll failures; keep trying until MAX_MS.
+      }
+    }, 15_000);
+    return () => clearInterval(timer);
+  }, [regenerating]);
 
   const handleRegenerate = async () => {
     setShowRegenModal(null);
@@ -329,8 +383,8 @@ export default function PhysicalGuidancePanel() {
             {daysUntilRefresh != null && ` · ${daysUntilRefresh} days`}
           </span>
         </div>
-        <button className="cycle-regen" onClick={handleRegenerate} disabled={refreshing}>
-          {refreshing ? '⏳ Regenerating...' : '↺ Regenerate early'}
+        <button className="cycle-regen" onClick={handleRegenerate} disabled={refreshing || regenerating}>
+          {refreshing || regenerating ? '⏳ Regenerating...' : '↺ Regenerate early'}
         </button>
       </div>
     );
@@ -366,7 +420,7 @@ export default function PhysicalGuidancePanel() {
 
     return (
       <div className="tab-panel active phys-fade-up">
-        {refreshing && (
+        {(refreshing || regenerating) && (
           <div className="gpt-gen-refreshing-bar">
             <YDJLoading size="sm" message="Regenerating your physical program" />
           </div>
@@ -500,8 +554,8 @@ export default function PhysicalGuidancePanel() {
             <div className="cadence-text">
               <strong>This protocol was generated {formatDate(data.generatedAt)} and is stable for 30 days.</strong> It is based on your current body mapping results and your primary patterns. Exercises don't change week to week — your awareness of what they're training does.
             </div>
-            <button className="regen-btn-sm" onClick={handleRegenerate} disabled={refreshing}>
-              {refreshing ? '⏳ Regenerating...' : '↺ Regenerate protocol early'}
+            <button className="regen-btn-sm" onClick={handleRegenerate} disabled={refreshing || regenerating}>
+              {refreshing || regenerating ? '⏳ Regenerating...' : '↺ Regenerate protocol early'}
             </button>
           </div>
         </div>
@@ -779,7 +833,12 @@ export default function PhysicalGuidancePanel() {
   return (
     <div className="phys-redesign">
       {renderHero()}
-      {refreshing && (
+      <CadenceStrip
+        outputSlug="physical"
+        lastRefreshedAt={data?.generatedAt}
+        nextRefreshAt={cycleInfo?.expiresAt}
+      />
+      {(refreshing || regenerating) && (
         <div className="gpt-gen-refreshing-bar">
           <div className="spinner spinner--small" />
           <span>Regenerating your Physical Guidance — this takes about 2 minutes...</span>

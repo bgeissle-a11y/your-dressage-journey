@@ -30,6 +30,7 @@ export default function useJourneyProgress() {
       connection: false,
       feel: false,
     },
+    reflectionCount: 0,
     debriefCount: 0,
     riderAssessmentComplete: false,
     physicalAssessmentComplete: false,
@@ -85,6 +86,7 @@ export default function useJourneyProgress() {
     // 3. Reflections by category (6 listeners)
     // Actual stored category values: 'personal', 'validation', 'aha', 'obstacle', 'connection', 'feel'
     const CATEGORIES = ['personal', 'validation', 'aha', 'obstacle', 'connection', 'feel'];
+    const categoryCounts = Object.fromEntries(CATEGORIES.map((c) => [c, 0]));
     CATEGORIES.forEach((cat) => {
       const q = query(
         collection(db, 'reflections'),
@@ -94,12 +96,15 @@ export default function useJourneyProgress() {
       );
       unsubs.push(
         onSnapshot(q, (snap) => {
+          categoryCounts[cat] = snap.size;
+          const total = Object.values(categoryCounts).reduce((a, b) => a + b, 0);
           setProgress((prev) => ({
             ...prev,
             reflectionsByCategory: {
               ...prev.reflectionsByCategory,
               [cat]: snap.size > 0,
             },
+            reflectionCount: total,
           }));
         }, (err) => console.warn(`[useJourneyProgress] reflections/${cat}:`, err.message))
       );
