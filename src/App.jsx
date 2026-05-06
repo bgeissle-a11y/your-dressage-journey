@@ -83,6 +83,7 @@ import FirstLightViewer from './components/FirstLight/FirstLightViewer';
 
 // Learn
 import TestExplorer from './components/TestExplorer/TestExplorer';
+import RecommendedReading from './components/RecommendedReading/RecommendedReading';
 import './App.css';
 
 // Initialize GA4 once on app load
@@ -216,6 +217,7 @@ function App() {
 
             {/* Learn */}
             <Route path="/learn/test-explorer" element={<TestExplorer />} />
+            <Route path="/learn/recommended-reading" element={<RecommendedReading />} />
           </Route>
 
           {/* Default Route */}

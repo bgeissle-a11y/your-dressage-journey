@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recommended Reading — Your Dressage Journey</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Brand palette */
+    --brown: #5C3D2E;
+    --brown-deep: #3D2518;
+    --brown-light: #7A5240;
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --gold-pale: #F7EDCF;
+    --cream: #FDF8F2;
+    --cream-dark: #F0E8DB;
+    --cream-deeper: #E4D5C2;
+    --text: #2C1810;
+    --text-muted: #7A6055;
+    --white: #FFFFFF;
+
+    /* Canonical voice colors (aiService.js VOICE_META) */
+    --classical: #5C4033;
+    --empathetic: #C67B5C;
+    --technical: #6B8E5F;
+    --strategist: #4A6274;
+
+    /* Tinted voice backgrounds */
+    --classical-tint: #F4ECE6;
+    --empathetic-tint: #FBEEE5;
+    --technical-tint: #EEF2EA;
+    --strategist-tint: #E9EDF1;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Work Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Subtle paper texture */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.35;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/><feColorMatrix values='0 0 0 0 0.36  0 0 0 0 0.24  0 0 0 0 0.18  0 0 0 0.045 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  /* ── NAV ── */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(253,248,242,0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--cream-dark);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .nav-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--brown);
+    text-decoration: none;
+  }
+  .nav-brand span { color: var(--gold); }
+  .nav-back {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-back:hover { color: var(--brown); }
+  .nav-back::before { content: "← "; }
+
+  /* ── PAGE WRAPPER ── */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 56px 24px 96px;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+  .hero-eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 5vw, 44px);
+    font-weight: 700;
+    color: var(--brown-deep);
+    line-height: 1.15;
+    margin-bottom: 20px;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--brown);
+  }
+  .hero-lede {
+    font-size: 17px;
+    color: var(--text-muted);
+    max-width: 620px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+  .hero-rule {
+    width: 60px;
+    height: 1px;
+    background: var(--gold);
+    margin: 32px auto 0;
+  }
+
+  /* ── VOICE SECTION ── */
+  .voice {
+    margin-bottom: 72px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--cream-dark);
+    background: var(--white);
+    box-shadow: 0 1px 3px rgba(60, 30, 10, 0.04);
+  }
+
+  .voice-head {
+    padding: 32px 36px 28px;
+    border-bottom: 1px solid var(--cream-dark);
+    position: relative;
+  }
+  .voice-head::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--voice-color);
+  }
+  .voice-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--voice-tint);
+    font-size: 20px;
+    margin-bottom: 14px;
+  }
+  .voice-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--voice-color);
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+  .voice-subtitle {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 18px;
+  }
+  .voice-intro {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  .voice-books {
+    padding: 28px 36px 32px;
+    background: var(--voice-tint);
+  }
+
+  .book {
+    padding: 22px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .book:first-child { padding-top: 4px; }
+  .book:last-child { border-bottom: none; padding-bottom: 4px; }
+
+  .book-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 19px;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--brown-deep);
+    line-height: 1.3;
+    margin-bottom: 4px;
+  }
+  .book-author {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    color: var(--voice-color);
+    margin-bottom: 12px;
+  }
+  .book-desc {
+    font-size: 15.5px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  .book-desc em {
+    font-style: italic;
+    color: var(--brown);
+  }
+
+  .voice-foot {
+    padding: 18px 36px;
+    background: var(--white);
+    border-top: 1px solid var(--cream-dark);
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--voice-color);
+    letter-spacing: 0.2px;
+  }
+
+  /* Voice-specific theming */
+  .voice.classical {
+    --voice-color: var(--classical);
+    --voice-tint: var(--classical-tint);
+  }
+  .voice.empathetic {
+    --voice-color: var(--empathetic);
+    --voice-tint: var(--empathetic-tint);
+  }
+  .voice.technical {
+    --voice-color: var(--technical);
+    --voice-tint: var(--technical-tint);
+  }
+  .voice.strategist {
+    --voice-color: var(--strategist);
+    --voice-tint: var(--strategist-tint);
+  }
+
+  /* ── NOTES SECTION ── */
+  .notes {
+    margin-top: 32px;
+    padding: 36px 36px;
+    border: 1px solid var(--cream-dark);
+    border-radius: 8px;
+    background: var(--cream-dark);
+  }
+  .notes h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--brown-deep);
+    margin-bottom: 16px;
+  }
+  .notes p {
+    font-size: 15px;
+    line-height: 1.75;
+    color: var(--text);
+    margin-bottom: 14px;
+  }
+  .notes p:last-child { margin-bottom: 0; }
+  .notes em {
+    font-style: italic;
+    color: var(--brown);
+  }
+
+  /* ── FOOTER ── */
+  .page-foot {
+    margin-top: 64px;
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+  .page-foot::before {
+    content: "";
+    display: block;
+    width: 40px;
+    height: 1px;
+    background: var(--gold);
+    margin: 0 auto 18px;
+  }
+
+  /* ── MOBILE ── */
+  @media (max-width: 600px) {
+    main { padding: 36px 16px 72px; }
+    .hero { margin-bottom: 44px; }
+    .voice { margin-bottom: 48px; }
+    .voice-head { padding: 26px 22px 22px; }
+    .voice-books { padding: 22px 22px 26px; }
+    .voice-foot { padding: 16px 22px; }
+    .voice-name { font-size: 22px; }
+    .voice-intro { font-size: 16px; }
+    .book-title { font-size: 17.5px; }
+    .book-desc { font-size: 15px; }
+    .notes { padding: 26px 22px; }
+    .nav { padding: 10px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/learn" class="nav-brand">Your Dressage <span>Journey</span></a>
+  <a href="/learn" class="nav-back">Back to Learn</a>
+</nav>
+
+<main>
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <div class="hero-eyebrow">From Your Four Coaches</div>
+    <h1>Recommended <em>Reading</em></h1>
+    <p class="hero-lede">A bibliography from the four coaching voices that guide riders through Your Dressage Journey. Each voice has selected the titles they most often press into a rider's hands — written in their own words, in their own register.</p>
+    <div class="hero-rule"></div>
+  </section>
+
+  <!-- ── CLASSICAL MASTER ── -->
+  <section class="voice classical">
+    <div class="voice-head">
+      <div class="voice-icon">🎯</div>
+      <div class="voice-name">The Classical Master</div>
+      <div class="voice-subtitle">Principles &amp; Philosophy</div>
+      <p class="voice-intro">There are books a rider returns to over the seasons, the way a horse returns to the rail to find its balance. These are mine. Read them slowly. Read them again. The horse you ride a year from now will thank you for the time you spent in their pages.</p>
+    </div>
+
+    <div class="voice-books">
+      <div class="book">
+        <div class="book-title">The Complete Training of Horse and Rider</div>
+        <div class="book-author">Alois Podhajsky</div>
+        <p class="book-desc">If a rider were to keep only one book on the shelf, I would gently suggest this one. Colonel Podhajsky distilled a quarter-century at the Spanish Riding School into a single volume, and what he gives you is not a recipe but a way of seeing — the rider's seat, the horse's gymnastic development, the long arc of correctness. He writes as a man who has lived inside the work, and he will not let you hurry. Keep it within reach for the years, not the weekends.</p>
+      </div>
+
+      <div class="book">
+        <div class="book-title">Gymnasium of the Horse</div>
+        <div class="book-author">Gustav Steinbrecht</div>
+        <p class="book-desc">This is the book that quietly underpins almost every German training manual that followed it, and you can feel that lineage on every page. Steinbrecht's most-quoted line — "ride your horse forward and set him straight" — is not a slogan; it is a whole philosophy compressed into seven words. The text is dense, sometimes severe, and that is precisely the gift: each sentence has been weighed. I ask my riders to read a single chapter, then put the book down and think for a week. <em>Why not the first time?</em> Because Steinbrecht teaches you that the first time is built from a thousand quiet, correct repetitions before it.</p>
+      </div>
+
+      <div class="book">
+        <div class="book-title">The Ethics and Passions of Dressage</div>
+        <div class="book-author">Charles de Kunffy</div>
+        <p class="book-desc">De Kunffy writes about dressage the way a philosopher writes about virtue, and that is not an accident — for him, the two are the same subject. He asks the questions our sport too often skips: what does competition do to classical horsemanship, what kind of person are we becoming as we ride, what do we owe the horse who carries us? Every page invites the rider to choose tradition, kindness, and patience over shortcuts. When I want a rider to remember <em>why</em> we do this work, this is the book I send them home with.</p>
+      </div>
+
+      <div class="book">
+        <div class="book-title">Reflections on Equestrian Art</div>
+        <div class="book-author">Nuno Oliveira</div>
+        <p class="book-desc">Oliveira is not in the central German-Austrian line that shapes much of my thinking, yet I recommend him without hesitation, because no one in the modern era has written more beautifully about <em>lightness</em> — and lightness is the moral center of classical riding. His chapters are short, almost like prose poems, and they emphasize harmony, respect, and the ear that listens for the horse's offer. Read him when you feel the work becoming mechanical, or when you have begun to mistake force for influence. He will return you to the art.</p>
+      </div>
+    </div>
+
+    <div class="voice-foot">"Why not the first time?"</div>
+  </section>
+
+  <!-- ── EMPATHETIC COACH ── -->
+  <section class="voice empathetic">
+    <div class="voice-head">
+      <div class="voice-icon">⭐</div>
+      <div class="voice-name">The Empathetic Coach</div>
+      <div class="voice-subtitle">Rider Psychology &amp; Partnership</div>
+      <p class="voice-intro">The books on this list aren't just about riding — they're about being a whole human in the saddle. They normalize the hard parts: the fear that shows up out of nowhere, the comparison spiral after a bad lesson, the way a rough day at work follows you into the arena. If any of that sounds familiar, you're not alone, and these authors will tell you so with so much warmth.</p>
+    </div>
+
+    <div class="voice-books">
+      <div class="book">
+        <div class="book-title">That Winning Feeling!</div>
+        <div class="book-author">Jane Savoie</div>
+        <p class="book-desc">Jane Savoie is the patron saint of every adult amateur who has ever frozen at the in-gate, and this is the book that started it all. She takes the dense world of sport psychology and translates it into language that feels like a kind friend talking you through your nerves — visualization, "as if" thinking, swapping "problem" for "challenge." What I love most is that she never makes you feel small for struggling; she assumes you're capable and worthy of feeling that way too. If your inner critic has been loud lately, start here. <em>You've got this.</em></p>
+      </div>
+
+      <div class="book">
+        <div class="book-title">It's Not Just About the Ribbons</div>
+        <div class="book-author">Jane Savoie</div>
+        <p class="book-desc">This is the Savoie book to read once you've made friends with the first one. Where <em>That Winning Feeling!</em> gives you the toolkit, <em>Ribbons</em> gives you the perspective — that the score sheet is not the relationship, that progress is not always visible, and that a rider's life with a horse is meant to enrich a whole life, not measure it. Savoie wrote it for the rider who keeps wondering "is this enough?" — and her answer is generous. I reach for it whenever a student is being too hard on herself.</p>
+      </div>
+
+      <div class="book">
+        <div class="book-title">How Two Minds Meet</div>
+        <div class="book-author">Beth Baumert</div>
+        <p class="book-desc">Baumert's first book lives on the Technical Coach's shelf, but this follow-up belongs squarely with us. Here she turns from the body to the mind — the rider's analytical mind, the rider's sensory mind, and the horse's beautifully different mind — and she gives you concrete ways to settle into the "non-thinking place" where partnership actually happens. It's the rare book that honors both your need to understand things <em>and</em> your need to feel them. Adult amateurs who tend to over-think will recognize themselves on every page, gently.</p>
+      </div>
+
+      <div class="book">
+        <div class="book-title">In the Middle Are the Horsemen</div>
+        <div class="book-author">Tik Maynard</div>
+        <p class="book-desc">This one isn't from the rider-psychology lineage — it's a memoir — and that is exactly why it belongs here. Maynard chronicles his years as a working student at rock bottom: heartbroken, injured, doubting himself, learning from world-class trainers and from his own discouragement. What he models, page after page, is the vulnerability of being an adult who is still learning, and that is the deepest emotional terrain our riders walk every week. When a student tells me she's embarrassed to still be struggling at her level, I hand her this book. Maynard's humility makes it safe to be a beginner forever.</p>
+      </div>
+
+      <div class="book">
+        <div class="book-title">Inside Your Ride: Mental Skills for Being Happy and Successful with Your Horse</div>
+        <div class="book-author">Tonya Johnston</div>
+        <p class="book-desc">Johnston is a sport psychology coach rather than a Savoie-or-Baumert lineage author, and I include her because she fills a very specific need: real, do-it-this-week tools for riders whose anxiety and comparison patterns are interfering right now. Her chapters on focus, pre-ride routines, and communicating with trainers and barn-mates speak directly to adult amateur life. If you're someone who wants warmth <em>and</em> a checklist, she gives you both. Read her alongside Savoie — the two voices complement each other beautifully.</p>
+      </div>
+    </div>
+
+    <div class="voice-foot">"You've got this."</div>
+  </section>
+
+  <!-- ── TECHNICAL COACH ── -->
+  <section class="voice technical">
+    <div class="voice-head">
+      <div class="voice-icon">🔬</div>
+      <div class="voice-name">The Technical Coach</div>
+      <div class="voice-subtitle">Biomechanics &amp; Precision</div>
+      <p class="voice-intro">Position is not decoration. Every degree of pelvic tilt, every millimeter of rein length, every micro-second of timing changes what your horse feels under you — and these authors will show you exactly how. Read with a mirror, a video camera, and a willingness to test what you read. <em>Did you feel that?</em> You will, after these.</p>
+    </div>
+
+    <div class="voice-books">
+      <div class="book">
+        <div class="book-title">Centered Riding</div>
+        <div class="book-author">Sally Swift</div>
+        <p class="book-desc">Swift built her teaching out of Alexander Technique, anatomy, and a pioneer's willingness to use imagery — soft eyes, building blocks, growing roots from your seat — to bypass the rider's tense, overthinking left brain and let the body actually do the thing. Don't be fooled by how gentle the language sounds: every image she gives you is anatomically precise and produces measurable change in your seat. I ask new riders to read one chapter, take one image into their next ride, and tell me what they noticed. Almost without fail, the horse tells them the same thing the book did.</p>
+      </div>
+
+      <div class="book">
+        <div class="book-title">Balance in Movement: How to Achieve the Perfect Seat</div>
+        <div class="book-author">Susanne von Dietze</div>
+        <p class="book-desc">Von Dietze is a physiotherapist, a dressage rider, and a clinician — and that combination is exactly why this book is on the USDF Instructor Certification reading list. She analyzes the seat the way an engineer analyzes a load-bearing structure: where the forces go, why a particular fault produces a particular consequence in the horse, and which unmounted exercises will fix the cause rather than nag at the symptom. If you have ever been told "sit straighter" without anyone explaining how, this book is your translator.</p>
+      </div>
+
+      <div class="book">
+        <div class="book-title">Ride With Your Mind: A Right Brain Approach to Riding</div>
+        <div class="book-author">Mary Wanless</div>
+        <p class="book-desc">Wanless spent forty years decoding what "talented" riders do that they themselves can't articulate, and she turned the answers into a teachable system of rider biomechanics. She is precise about bearing-down, plumb lines, the bowl of the pelvis, and the muscular tone that allows a horse to actually receive your aids. Her writing demands attention, but the payoff is enormous: you stop guessing and start knowing. Pair this with her <em>Rider Biomechanics: An Illustrated Guide</em> if you want the diagrams to match the prose.</p>
+      </div>
+
+      <div class="book">
+        <div class="book-title">When Two Spines Align: Dressage Dynamics</div>
+        <div class="book-author">Beth Baumert</div>
+        <p class="book-desc">Baumert's "Powerlines" — Vertical, Connecting, Spiraling, Visual — give the rider a vocabulary for what an effective seat is actually doing in three dimensions. She then turns the same analytical eye on the horse's balance challenges and shows you how the rider's alignment regulates rhythm, energy, flexion, and line of travel. Carl Hester has said he quotes this book frequently in his clinics, and that should tell you something. Read it with a pencil; you will be marking it.</p>
+      </div>
+
+      <div class="book">
+        <div class="book-title">Activate Your Horse's Core</div>
+        <div class="book-author">Hilary M. Clayton &amp; Narelle C. Stubbs</div>
+        <p class="book-desc">Clayton is a veterinary biomechanist rather than a rider-position author, so this title sits outside the canonical lineage — and I include it deliberately. Everything we ask the rider to do with biomechanics ultimately has to be received by a horse with a functional, mobilized, switched-on core, and this manual (with its companion DVD) gives you the unmounted carrot-stretches, rein-back exercises, and pelvic tucks that science actually validates. If the rider's biomechanics is the question on one side of the saddle, this is the answer on the other side. Use it as a daily ten-minute warm-up and watch what your half-halts can do six weeks later.</p>
+      </div>
+    </div>
+
+    <div class="voice-foot">"Did you feel that?"</div>
+  </section>
+
+  <!-- ── PRACTICAL STRATEGIST ── -->
+  <section class="voice strategist">
+    <div class="voice-head">
+      <div class="voice-icon">📋</div>
+      <div class="voice-name">The Practical Strategist</div>
+      <div class="voice-subtitle">Goal Achievement &amp; Planning</div>
+      <p class="voice-intro">Time is finite, lessons cost money, and your horse is not getting younger. The books here aren't for browsing — they're for working. Pick one, build a plan from it, mark your calendar, and execute. <em>Be accurate!</em> That goes for the work in the saddle and the work on the page.</p>
+    </div>
+
+    <div class="voice-books">
+      <div class="book">
+        <div class="book-title">The New Basic Training of the Young Horse</div>
+        <div class="book-author">Reiner Klimke &amp; Ingrid Klimke</div>
+        <p class="book-desc">This is the book I want every rider with a green or restarting horse to keep in the tack room. The Klimkes lay out a stage-by-stage progression — handling, longeing, backing, the development of the basic gaits, the introduction of impulsion and lateral work, the first competition — with clear timelines and clear indicators of when to move on and when to wait. It is the German training scale rendered as a real-world program, written by two of the most successful trainer-competitors in the sport's history. If you don't know what your horse should be doing this month, start reading.</p>
+      </div>
+
+      <div class="book">
+        <div class="book-title">Cavalletti: For Dressage and Jumping</div>
+        <div class="book-author">Ingrid Klimke &amp; Reiner Klimke</div>
+        <p class="book-desc">A standard reference since 1969, and updated by Ingrid into a working manual with exact distances, layouts, and four-to-six-week training schedules for basic, dressage, and jumping horses. What I value most is that Klimke gives you measurable structure: which patterns build rhythm, which build cadence, which build fitness, and how to slot them into a weekly plan without grinding the horse. Cavalletti is one of the most efficient training tools you own — this book turns it into a system.</p>
+      </div>
+
+      <div class="book">
+        <div class="book-title">The Principles of Riding: Basic Training for Horse and Rider</div>
+        <div class="book-author">German National Equestrian Federation (FN)</div>
+        <p class="book-desc">This is the official manual. It is required reading on the USDF and USEA Instructor Certification lists for a reason: it is the single most consistent, codified, rider-tested framework in the sport. When riders ask me what the "right" answer is — for a seat fault, an aid sequence, a stage of training — I check this book first, because it represents fifty-plus years of revision against actual results. Buy the current Kenilworth Press edition, not an out-of-date one. Then use it as a reference, not a novel.</p>
+      </div>
+
+      <div class="book">
+        <div class="book-title">101 Dressage Exercises for Horse &amp; Rider</div>
+        <div class="book-author">Jec Aristotle Ballou</div>
+        <p class="book-desc">Ballou is not in the Klimke-FN lineage, and I recommend her anyway — for one practical reason: this book is built to be hung on a hook in your arena and ridden from. Each of the 101 exercises has a full arena diagram, step-by-step instructions, and a stated training purpose, organized by what you're trying to develop. It solves the most common adult-amateur problem I see, which is showing up to ride with no plan and leaving with no progress. Pick three exercises a week, ride them with intent, log what changed. That's a program.</p>
+      </div>
+
+      <div class="book">
+        <div class="book-title">Pressure Proof Your Riding</div>
+        <div class="book-author">Daniel Stewart</div>
+        <p class="book-desc">Stewart is a sport psychologist rather than a German-system trainer, and that's exactly why this book belongs on a goal-oriented rider's shelf. Competition readiness is not just biomechanics and conditioning — it's the show-morning nerves, the warm-up plan, the after-the-mistake reset, and Stewart gives you specific, testable tools for each. His "Plan the Ride, Ride the Plan" framework is the most practical thing I've read on translating training into a successful test. If your scores at home don't match your scores at shows, this is your gap to close.</p>
+      </div>
+    </div>
+
+    <div class="voice-foot">"Be accurate!"</div>
+  </section>
+
+  <!-- ── NOTES / CAVEATS ── -->
+  <section class="notes">
+    <h2>A Few Honest Notes</h2>
+    <p>Several of these books — particularly Steinbrecht's <em>Gymnasium of the Horse</em> and Podhajsky's <em>Complete Training</em> — exist in multiple editions and translations of varying quality; the editions cited here (Xenophon Press for Steinbrecht, the modern reprints for Podhajsky and the Klimkes) are the versions most readers will be able to find new.</p>
+    <p>Walter Zettl's <em>Dressage in Harmony</em>, Erik Herbermann's <em>Dressage Formula</em>, and Charles de Kunffy's <em>The Athletic Development of the Dressage Horse</em> are excellent additional Classical Master titles that didn't make the final cut purely for length; readers ready for a deeper bookshelf should add them.</p>
+    <p>Beth Baumert's <em>When Two Spines Align</em> (Technical) and <em>How Two Minds Meet</em> (Empathetic) are by the same author but address genuinely different territory, which is why they appear on different voices' lists.</p>
+  </section>
+
+  <div class="page-foot">Illuminate Your Journey.</div>
+
+</main>
+
+</body>
+</html>

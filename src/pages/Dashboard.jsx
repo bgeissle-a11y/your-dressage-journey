@@ -34,6 +34,7 @@ const DEFAULT_ORDER = ['stats', 'focus', 'data'];
 const DM_LEARN = [
   { icon: '\uD83D\uDCD0', label: 'Arena Geometry Trainer', desc: 'Letters, lines, geometry', href: '/arena-geometry-trainer.html' },
   { icon: '\uD83D\uDDD2', label: 'Test Explorer', desc: 'Browse test movements & scores', to: '/learn/test-explorer' },
+  { icon: '\uD83D\uDCDA', label: 'Recommended Reading', desc: "From your four coaches \u2014 the books they most often press into a rider's hands", to: '/learn/recommended-reading' },
   { icon: '\uD83D\uDD2C', label: 'Science & Research', desc: 'Learning theory behind YDJ', href: '/ydj-science.html' },
 ];
 
