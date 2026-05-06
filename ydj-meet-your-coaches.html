@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meet Your Coaches — Your Dressage Journey</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Brand palette */
+    --brown: #5C3D2E;
+    --brown-deep: #3D2518;
+    --brown-light: #7A5240;
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --gold-pale: #F7EDCF;
+    --cream: #FDF8F2;
+    --cream-dark: #F0E8DB;
+    --cream-deeper: #E4D5C2;
+    --text: #2C1810;
+    --text-muted: #7A6055;
+    --white: #FFFFFF;
+
+    /* Canonical voice colors (aiService.js VOICE_META) */
+    --classical: #5C4033;
+    --empathetic: #C67B5C;
+    --technical: #6B8E5F;
+    --strategist: #4A6274;
+
+    /* Tinted voice backgrounds */
+    --classical-tint: #F4ECE6;
+    --empathetic-tint: #FBEEE5;
+    --technical-tint: #EEF2EA;
+    --strategist-tint: #E9EDF1;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Work Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Subtle paper texture */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.35;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/><feColorMatrix values='0 0 0 0 0.36  0 0 0 0 0.24  0 0 0 0 0.18  0 0 0 0.045 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  /* ── NAV ── */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(253,248,242,0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--cream-dark);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .nav-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--brown);
+    text-decoration: none;
+  }
+  .nav-brand span { color: var(--gold); }
+  .nav-back {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-back:hover { color: var(--brown); }
+  .nav-back::before { content: "← "; }
+
+  /* ── PAGE WRAPPER ── */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 56px 24px 96px;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+  .hero-eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 5vw, 44px);
+    font-weight: 700;
+    color: var(--brown-deep);
+    line-height: 1.15;
+    margin-bottom: 20px;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--brown);
+  }
+  .hero-lede {
+    font-size: 17px;
+    color: var(--text-muted);
+    max-width: 620px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+  .hero-rule {
+    width: 60px;
+    height: 1px;
+    background: var(--gold);
+    margin: 32px auto 0;
+  }
+
+  /* ── COACH CARD ── */
+  .coach {
+    margin-bottom: 56px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--cream-dark);
+    background: var(--white);
+    box-shadow: 0 1px 3px rgba(60, 30, 10, 0.04);
+  }
+
+  .coach-head {
+    padding: 32px 36px 24px;
+    position: relative;
+    background: var(--coach-tint);
+  }
+  .coach-head::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--coach-color);
+  }
+
+  .coach-icon-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .coach-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--white);
+    font-size: 22px;
+    border: 1px solid rgba(0,0,0,0.06);
+  }
+  .coach-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--coach-color);
+    line-height: 1.2;
+  }
+
+  .coach-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 4px;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .coach-meta-row {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+  }
+  .coach-meta-label {
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-size: 11px;
+    color: var(--coach-color);
+    flex-shrink: 0;
+    min-width: 60px;
+  }
+  .coach-meta-value {
+    color: var(--text-muted);
+  }
+
+  .coach-body {
+    padding: 28px 36px 32px;
+  }
+  .coach-intro {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 17px;
+    line-height: 1.75;
+    color: var(--text);
+  }
+  .coach-intro em {
+    font-style: italic;
+    color: var(--coach-color);
+    font-weight: 600;
+  }
+
+  .coach-foot {
+    padding: 18px 36px;
+    background: var(--coach-tint);
+    border-top: 1px solid var(--cream-dark);
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--coach-color);
+    letter-spacing: 0.2px;
+  }
+
+  /* Coach-specific theming */
+  .coach.classical {
+    --coach-color: var(--classical);
+    --coach-tint: var(--classical-tint);
+  }
+  .coach.empathetic {
+    --coach-color: var(--empathetic);
+    --coach-tint: var(--empathetic-tint);
+  }
+  .coach.technical {
+    --coach-color: var(--technical);
+    --coach-tint: var(--technical-tint);
+  }
+  .coach.strategist {
+    --coach-color: var(--strategist);
+    --coach-tint: var(--strategist-tint);
+  }
+
+  /* ── CROSS-LINK CARD ── */
+  .cross-link {
+    margin-top: 8px;
+    padding: 28px 32px;
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+    background: var(--gold-pale);
+    text-align: center;
+  }
+  .cross-link h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--brown-deep);
+    margin-bottom: 8px;
+  }
+  .cross-link p {
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 16px;
+    line-height: 1.65;
+  }
+  .cross-link a {
+    display: inline-block;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--brown);
+    background: var(--white);
+    border: 1.5px solid var(--brown);
+    border-radius: 4px;
+    padding: 10px 22px;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+  }
+  .cross-link a:hover {
+    background: var(--brown);
+    color: var(--white);
+  }
+  .cross-link a::after { content: " →"; }
+
+  /* ── FOOTER ── */
+  .page-foot {
+    margin-top: 64px;
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+  .page-foot::before {
+    content: "";
+    display: block;
+    width: 40px;
+    height: 1px;
+    background: var(--gold);
+    margin: 0 auto 18px;
+  }
+
+  /* ── MOBILE ── */
+  @media (max-width: 600px) {
+    main { padding: 36px 16px 72px; }
+    .hero { margin-bottom: 44px; }
+    .coach { margin-bottom: 36px; }
+    .coach-head { padding: 24px 22px 20px; }
+    .coach-body { padding: 22px 22px 26px; }
+    .coach-foot { padding: 16px 22px; }
+    .coach-name { font-size: 22px; }
+    .coach-icon { width: 40px; height: 40px; font-size: 20px; }
+    .coach-intro { font-size: 16px; }
+    .coach-meta-label { min-width: 52px; }
+    .cross-link { padding: 24px 20px; }
+    .nav { padding: 10px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/learn" class="nav-brand">Your Dressage <span>Journey</span></a>
+  <a href="/learn" class="nav-back">Back to Learn</a>
+</nav>
+
+<main>
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <div class="hero-eyebrow">Four Voices, One Journey</div>
+    <h1>Meet Your <em>Coaches</em></h1>
+    <p class="hero-lede">Every output Your Dressage Journey produces is shaped by four distinct coaching voices — different lineages, different lenses, different registers. Together they offer a fuller view than any single coach could. Meet them, in their own words.</p>
+    <div class="hero-rule"></div>
+  </section>
+
+  <!-- ── CLASSICAL MASTER ── -->
+  <section class="coach classical">
+    <div class="coach-head">
+      <div class="coach-icon-row">
+        <div class="coach-icon">🎯</div>
+        <div class="coach-name">The Classical Master</div>
+      </div>
+      <div class="coach-meta">
+        <div class="coach-meta-row">
+          <div class="coach-meta-label">Lens</div>
+          <div class="coach-meta-value">Training Scale, classical principles, horse welfare, long-term development</div>
+        </div>
+        <div class="coach-meta-row">
+          <div class="coach-meta-label">Lineage</div>
+          <div class="coach-meta-value">Podhajsky, de Kunffy, Kyrklund</div>
+        </div>
+      </div>
+    </div>
+    <div class="coach-body">
+      <p class="coach-intro">I come from the classical tradition — Podhajsky and the Spanish Riding School, de Kunffy's articulation of <em>why</em> we do this work, Kyra Kyrklund's proof that the old principles still win at the highest modern levels. When you read what I write, you are reading what those riders would say to you if they could. I am not the voice for this week's lesson plan; I am the voice for the long arc of your riding. Come to me when the work begins to feel mechanical, when shortcuts start to look reasonable, when you want to remember <em>why</em> we ride this way at all. <em>Why not the first time?</em> Because correctness is built from a thousand quiet repetitions before the moment it appears.</p>
+    </div>
+    <div class="coach-foot">"Why not the first time?"</div>
+  </section>
+
+  <!-- ── EMPATHETIC COACH ── -->
+  <section class="coach empathetic">
+    <div class="coach-head">
+      <div class="coach-icon-row">
+        <div class="coach-icon">⭐</div>
+        <div class="coach-name">The Empathetic Coach</div>
+      </div>
+      <div class="coach-meta">
+        <div class="coach-meta-row">
+          <div class="coach-meta-label">Lens</div>
+          <div class="coach-meta-value">Rider psychology, confidence, partnership, the human side of riding</div>
+        </div>
+        <div class="coach-meta-row">
+          <div class="coach-meta-label">Lineage</div>
+          <div class="coach-meta-value">Jane Savoie</div>
+        </div>
+      </div>
+    </div>
+    <div class="coach-body">
+      <p class="coach-intro">I am the voice that knows you bring more than your body to the saddle. The bad day at work, the rough night of sleep, the comparison spiral after a hard lesson — those things ride with you whether we want them to or not, and I'm here for that part. Adult amateurs are doing one of the hardest things in this sport: showing up consistently, in real life, without anyone owing them progress — and that is worthy work. My lineage is Jane Savoie, who taught a generation of riders that confidence is a learnable skill, not a fixed trait. Come to me when you're being too hard on yourself, when fear arrives unannounced, when you need someone to remind you that you're allowed to still be learning. <em>You've got this</em> — and I mean it.</p>
+    </div>
+    <div class="coach-foot">"You've got this."</div>
+  </section>
+
+  <!-- ── TECHNICAL COACH ── -->
+  <section class="coach technical">
+    <div class="coach-head">
+      <div class="coach-icon-row">
+        <div class="coach-icon">🔬</div>
+        <div class="coach-name">The Technical Coach</div>
+      </div>
+      <div class="coach-meta">
+        <div class="coach-meta-row">
+          <div class="coach-meta-label">Lens</div>
+          <div class="coach-meta-value">Biomechanics, position, aids, timing, cause-and-effect</div>
+        </div>
+        <div class="coach-meta-row">
+          <div class="coach-meta-label">Lineage</div>
+          <div class="coach-meta-value">Beth Baumert, Sally Swift, Susanne von Dietze, Mary Wanless</div>
+        </div>
+      </div>
+    </div>
+    <div class="coach-body">
+      <p class="coach-intro">I am the voice for the body — yours and your horse's — and the precise mechanics of how one shapes the other. My language comes from Sally Swift, Mary Wanless, Susanne von Dietze, and Beth Baumert: the writers who turned "sit straighter" into a teachable, testable system. I will not tell you to relax; I will tell you which muscle to soften, which line to align, which image to carry into your next ride. Come to me when you've been told what to fix but not how, when something feels off in the saddle and you can't name it, when you want to stop guessing and start knowing. <em>Did you feel that?</em> You will.</p>
+    </div>
+    <div class="coach-foot">"Did you feel that?"</div>
+  </section>
+
+  <!-- ── PRACTICAL STRATEGIST ── -->
+  <section class="coach strategist">
+    <div class="coach-head">
+      <div class="coach-icon-row">
+        <div class="coach-icon">📋</div>
+        <div class="coach-name">The Practical Strategist</div>
+      </div>
+      <div class="coach-meta">
+        <div class="coach-meta-row">
+          <div class="coach-meta-label">Lens</div>
+          <div class="coach-meta-value">Goals, timelines, training plans, competition prep, measurable progress</div>
+        </div>
+        <div class="coach-meta-row">
+          <div class="coach-meta-label">Lineage</div>
+          <div class="coach-meta-value">Reiner and Ingrid Klimke; the systematic German tradition</div>
+        </div>
+      </div>
+    </div>
+    <div class="coach-body">
+      <p class="coach-intro">I am the voice that respects your time. You have lessons that cost money, a horse who isn't getting younger, and a calendar full of life that has nothing to do with riding — and I will help you turn that reality into a program. My lineage is Reiner and Ingrid Klimke and the systematic German tradition: writers who give you measurable structure instead of inspiration — stage-by-stage progressions, exact timelines, and clear indicators of when to move on and when to wait. I will not give you motivational pep talks. I will give you what to ride this week, what to aim for this month, what to watch for at the next show. Come to me when you have a goal — a level, a score, an event — and you need a plan that fits your real life. <em>Be accurate!</em></p>
+    </div>
+    <div class="coach-foot">"Be accurate!"</div>
+  </section>
+
+  <!-- ── CROSS-LINK ── -->
+  <section class="cross-link">
+    <h3>Want to read what they read?</h3>
+    <p>Each coach has selected the books they most often press into a rider's hands — the titles that shaped their voice, in their own words.</p>
+    <a href="/learn/recommended-reading">See Recommended Reading</a>
+  </section>
+
+  <div class="page-foot">Illuminate Your Journey.</div>
+
+</main>
+
+</body>
+</html>

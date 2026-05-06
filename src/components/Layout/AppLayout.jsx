@@ -81,6 +81,7 @@ const NAV_GROUPS = [
         links: [
           { icon: '\uD83D\uDCD0', label: 'Arena Geometry Trainer', href: '/arena-geometry-trainer.html' },
           { icon: '\uD83D\uDDD2', label: 'Test Explorer', to: '/learn/test-explorer' },
+          { icon: '\uD83D\uDC65', label: 'Meet Your Coaches', to: '/learn/your-coaches' },
           { icon: '\uD83D\uDCDA', label: 'Recommended Reading', to: '/learn/recommended-reading' },
         ],
       },

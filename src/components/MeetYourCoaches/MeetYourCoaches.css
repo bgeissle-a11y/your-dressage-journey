@@ -1,0 +1,306 @@
+/* ============================================
+   Meet Your Coaches — Learn page
+   Scoped under .myc-page to avoid global conflicts
+   ============================================ */
+
+.myc-page {
+  /* Brand palette (page-local; mirrors prototype) */
+  --myc-brown: #5C3D2E;
+  --myc-brown-deep: #3D2518;
+  --myc-brown-light: #7A5240;
+  --myc-gold: #C9A84C;
+  --myc-gold-light: #E8C97A;
+  --myc-gold-pale: #F7EDCF;
+  --myc-cream: #FDF8F2;
+  --myc-cream-dark: #F0E8DB;
+  --myc-cream-deeper: #E4D5C2;
+  --myc-text: #2C1810;
+  --myc-text-muted: #7A6055;
+  --myc-white: #FFFFFF;
+
+  /* Canonical voice colors (aiService.js VOICE_META) */
+  --myc-classical: #5C4033;
+  --myc-empathetic: #C67B5C;
+  --myc-technical: #6B8E5F;
+  --myc-strategist: #4A6274;
+
+  /* Tinted voice backgrounds */
+  --myc-classical-tint: #F4ECE6;
+  --myc-empathetic-tint: #FBEEE5;
+  --myc-technical-tint: #EEF2EA;
+  --myc-strategist-tint: #E9EDF1;
+
+  position: relative;
+  font-family: 'Work Sans', sans-serif;
+  background: var(--myc-cream);
+  color: var(--myc-text);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  min-height: calc(100vh - 80px);
+  isolation: isolate;
+}
+
+/* Subtle paper texture overlay */
+.myc-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/><feColorMatrix values='0 0 0 0 0.36  0 0 0 0 0.24  0 0 0 0 0.18  0 0 0 0.045 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+/* ── PAGE WRAPPER ── */
+.myc-main {
+  position: relative;
+  z-index: 1;
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 56px 24px 96px;
+}
+
+.myc-back {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--myc-text-muted);
+  text-decoration: none;
+  margin-bottom: 24px;
+  transition: color 0.2s;
+}
+.myc-back:hover { color: var(--myc-brown); }
+.myc-back::before { content: "\2190  "; }
+
+/* ── HERO ── */
+.myc-hero {
+  text-align: center;
+  margin-bottom: 64px;
+}
+.myc-hero-eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--myc-gold);
+  margin-bottom: 16px;
+}
+.myc-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(32px, 5vw, 44px);
+  font-weight: 700;
+  color: var(--myc-brown-deep);
+  line-height: 1.15;
+  margin-bottom: 20px;
+}
+.myc-hero h1 em {
+  font-style: italic;
+  color: var(--myc-brown);
+}
+.myc-hero-lede {
+  font-size: 17px;
+  color: var(--myc-text-muted);
+  max-width: 620px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+.myc-hero-rule {
+  width: 60px;
+  height: 1px;
+  background: var(--myc-gold);
+  margin: 32px auto 0;
+}
+
+/* ── COACH CARD ── */
+.myc-coach {
+  margin-bottom: 56px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--myc-cream-dark);
+  background: var(--myc-white);
+  box-shadow: 0 1px 3px rgba(60, 30, 10, 0.04);
+}
+
+.myc-coach-head {
+  padding: 32px 36px 24px;
+  position: relative;
+  background: var(--myc-coach-tint);
+}
+.myc-coach-head::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--myc-coach-color);
+}
+
+.myc-coach-icon-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.myc-coach-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--myc-white);
+  font-size: 22px;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+.myc-coach-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--myc-coach-color);
+  line-height: 1.2;
+}
+
+.myc-coach-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.55;
+}
+.myc-coach-meta-row {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+.myc-coach-meta-label {
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: var(--myc-coach-color);
+  flex-shrink: 0;
+  min-width: 60px;
+}
+.myc-coach-meta-value {
+  color: var(--myc-text-muted);
+}
+
+.myc-coach-body {
+  padding: 28px 36px 32px;
+}
+.myc-coach-intro {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 17px;
+  line-height: 1.75;
+  color: var(--myc-text);
+}
+.myc-coach-intro em {
+  font-style: italic;
+  color: var(--myc-coach-color);
+  font-weight: 600;
+}
+
+.myc-coach-foot {
+  padding: 18px 36px;
+  background: var(--myc-coach-tint);
+  border-top: 1px solid var(--myc-cream-dark);
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 16px;
+  color: var(--myc-coach-color);
+  letter-spacing: 0.2px;
+}
+
+/* Coach-specific theming */
+.myc-coach.myc-classical {
+  --myc-coach-color: var(--myc-classical);
+  --myc-coach-tint: var(--myc-classical-tint);
+}
+.myc-coach.myc-empathetic {
+  --myc-coach-color: var(--myc-empathetic);
+  --myc-coach-tint: var(--myc-empathetic-tint);
+}
+.myc-coach.myc-technical {
+  --myc-coach-color: var(--myc-technical);
+  --myc-coach-tint: var(--myc-technical-tint);
+}
+.myc-coach.myc-strategist {
+  --myc-coach-color: var(--myc-strategist);
+  --myc-coach-tint: var(--myc-strategist-tint);
+}
+
+/* ── CROSS-LINK CARD ── */
+.myc-cross-link {
+  margin-top: 8px;
+  padding: 28px 32px;
+  border: 1px solid var(--myc-gold);
+  border-radius: 8px;
+  background: var(--myc-gold-pale);
+  text-align: center;
+}
+.myc-cross-link h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--myc-brown-deep);
+  margin-bottom: 8px;
+}
+.myc-cross-link p {
+  font-size: 15px;
+  color: var(--myc-text);
+  margin-bottom: 16px;
+  line-height: 1.65;
+}
+.myc-cross-link a {
+  display: inline-block;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--myc-brown);
+  background: var(--myc-white);
+  border: 1.5px solid var(--myc-brown);
+  border-radius: 4px;
+  padding: 10px 22px;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+.myc-cross-link a:hover {
+  background: var(--myc-brown);
+  color: var(--myc-white);
+}
+.myc-cross-link a::after { content: " \2192"; }
+
+/* ── FOOTER ── */
+.myc-page-foot {
+  margin-top: 64px;
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--myc-text-muted);
+}
+.myc-page-foot::before {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 1px;
+  background: var(--myc-gold);
+  margin: 0 auto 18px;
+}
+
+/* ── MOBILE ── */
+@media (max-width: 600px) {
+  .myc-main { padding: 36px 16px 72px; }
+  .myc-hero { margin-bottom: 44px; }
+  .myc-coach { margin-bottom: 36px; }
+  .myc-coach-head { padding: 24px 22px 20px; }
+  .myc-coach-body { padding: 22px 22px 26px; }
+  .myc-coach-foot { padding: 16px 22px; }
+  .myc-coach-name { font-size: 22px; }
+  .myc-coach-icon { width: 40px; height: 40px; font-size: 20px; }
+  .myc-coach-intro { font-size: 16px; }
+  .myc-coach-meta-label { min-width: 52px; }
+  .myc-cross-link { padding: 24px 20px; }
+}
