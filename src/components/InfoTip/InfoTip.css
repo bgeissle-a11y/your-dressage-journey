@@ -30,8 +30,8 @@
 }
 
 .info-tip__panel {
-  position: absolute;
-  z-index: 250;
+  position: fixed;
+  z-index: 9999;
   width: max-content;
   max-width: 280px;
   padding: 12px 14px;
@@ -80,24 +80,6 @@
   font-style: italic;
   display: block;
   margin-bottom: 6px;
-}
-
-.info-tip__panel--top {
-  bottom: calc(100% + 8px);
-}
-.info-tip__panel--bottom {
-  top: calc(100% + 8px);
-}
-
-.info-tip__panel--align-center {
-  left: 50%;
-  transform: translateX(-50%);
-}
-.info-tip__panel--align-start {
-  left: 0;
-}
-.info-tip__panel--align-end {
-  right: 0;
 }
 
 @media (max-width: 480px) {

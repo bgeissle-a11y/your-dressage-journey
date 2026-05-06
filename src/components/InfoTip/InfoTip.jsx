@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import './InfoTip.css';
 
 const HOVER_OPEN_DELAY_MS = 200;
 const VIEWPORT_MARGIN = 8;
+const PANEL_GAP = 8;
 
 function isHoverCapable() {
   if (typeof window === 'undefined' || !window.matchMedia) return false;
@@ -18,7 +20,7 @@ export default function InfoTip({
   triggerClassName = '',
 }) {
   const [open, setOpen] = useState(false);
-  const [position, setPosition] = useState({ side: 'top', align: 'center' });
+  const [coords, setCoords] = useState({ left: 0, top: 0, side: 'top' });
   const triggerRef = useRef(null);
   const panelRef = useRef(null);
   const openTimerRef = useRef(null);
@@ -46,27 +48,42 @@ export default function InfoTip({
     setOpen((v) => !v);
   }, []);
 
-  useLayoutEffect(() => {
-    if (!open || !triggerRef.current || !panelRef.current) return;
+  const updatePosition = useCallback(() => {
+    if (!triggerRef.current || !panelRef.current) return;
     const trigger = triggerRef.current.getBoundingClientRect();
     const panel = panelRef.current.getBoundingClientRect();
     const vw = window.innerWidth;
     const vh = window.innerHeight;
 
     const preferAbove = isHoverCapable();
-    const fitsAbove = trigger.top - panel.height - VIEWPORT_MARGIN >= 0;
-    const fitsBelow = trigger.bottom + panel.height + VIEWPORT_MARGIN <= vh;
+    const fitsAbove = trigger.top - panel.height - PANEL_GAP - VIEWPORT_MARGIN >= 0;
+    const fitsBelow = trigger.bottom + panel.height + PANEL_GAP + VIEWPORT_MARGIN <= vh;
     let side;
-    if (preferAbove) side = fitsAbove ? 'top' : 'bottom';
-    else side = fitsBelow ? 'bottom' : 'top';
+    if (preferAbove) side = fitsAbove ? 'top' : (fitsBelow ? 'bottom' : 'top');
+    else side = fitsBelow ? 'bottom' : (fitsAbove ? 'top' : 'bottom');
 
-    const centerLeft = trigger.left + trigger.width / 2 - panel.width / 2;
-    let align = 'center';
-    if (centerLeft < VIEWPORT_MARGIN) align = 'start';
-    else if (centerLeft + panel.width > vw - VIEWPORT_MARGIN) align = 'end';
+    const top = side === 'top'
+      ? trigger.top - panel.height - PANEL_GAP
+      : trigger.bottom + PANEL_GAP;
 
-    setPosition({ side, align });
-  }, [open]);
+    let left = trigger.left + trigger.width / 2 - panel.width / 2;
+    left = Math.max(VIEWPORT_MARGIN, Math.min(left, vw - panel.width - VIEWPORT_MARGIN));
+
+    setCoords({ left, top, side });
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!open) return undefined;
+    updatePosition();
+    const onScroll = () => updatePosition();
+    const onResize = () => updatePosition();
+    window.addEventListener('scroll', onScroll, true);
+    window.addEventListener('resize', onResize);
+    return () => {
+      window.removeEventListener('scroll', onScroll, true);
+      window.removeEventListener('resize', onResize);
+    };
+  }, [open, updatePosition]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -116,10 +133,24 @@ export default function InfoTip({
   };
 
   const variantClass = variant === 'voice' ? 'info-tip__panel--voice' : '';
-  const sideClass = `info-tip__panel--${position.side}`;
-  const alignClass = `info-tip__panel--align-${position.align}`;
-  const panelStyle =
-    variant === 'voice' && voiceColor ? { borderLeftColor: voiceColor } : undefined;
+  const sideClass = `info-tip__panel--${coords.side}`;
+  const panelStyle = {
+    left: `${coords.left}px`,
+    top: `${coords.top}px`,
+    ...(variant === 'voice' && voiceColor ? { borderLeftColor: voiceColor } : {}),
+  };
+
+  const panel = open && (
+    <div
+      ref={panelRef}
+      id={tipId}
+      role="tooltip"
+      className={`info-tip__panel ${variantClass} ${sideClass}`.trim()}
+      style={panelStyle}
+    >
+      {content}
+    </div>
+  );
 
   return (
     <span className={`info-tip ${triggerClassName}`.trim()}>
@@ -150,17 +181,7 @@ export default function InfoTip({
           <rect x="7.15" y="6.7" width="1.7" height="5.0" rx="0.55" fill="currentColor" />
         </svg>
       </button>
-      {open && (
-        <div
-          ref={panelRef}
-          id={tipId}
-          role="tooltip"
-          className={`info-tip__panel ${variantClass} ${sideClass} ${alignClass}`.trim()}
-          style={panelStyle}
-        >
-          {content}
-        </div>
-      )}
+      {panel && createPortal(panel, document.body)}
     </span>
   );
 }
