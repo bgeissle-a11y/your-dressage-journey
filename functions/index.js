@@ -138,8 +138,12 @@ exports.getVisualizationScript = onCall(
 
 // Physical Guidance: physical pattern analysis + exercise prescription
 // Input: { forceRefresh?: boolean }
+// Timeout: 540s (HTTP max). Two sequential Sonnet calls each producing up to
+// 8192 output tokens routinely take 4-6 minutes combined; the previous 300s
+// budget timed out mid-Call-2 and left the cache untouched. 1 GiB memory to
+// give parsing room for the 8k-token JSON outputs.
 exports.getPhysicalGuidance = onCall(
-  { secrets: [anthropicKey], timeoutSeconds: 300, memory: "512MiB" },
+  { secrets: [anthropicKey], timeoutSeconds: 540, memory: "1GiB" },
   physicalGuidance.handler
 );
 
