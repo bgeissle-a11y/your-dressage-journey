@@ -101,15 +101,25 @@ export default function PhysicalGuidancePanel() {
     })();
   }, [currentUser]);
 
+  // Derive status='expired' from cycleStartDate once the 30-day mark has passed —
+  // the backend computes expiry at request time but never persists it to the cycle doc,
+  // so the "Ready to refresh?" prompt relies on this client-side derivation.
+  const cycleStartDateObj = cycleState?.cycleStartDate ? new Date(cycleState.cycleStartDate) : null;
+  const cycleExpiresAtObj = cycleStartDateObj
+    ? new Date(cycleStartDateObj.getTime() + 30 * 24 * 60 * 60 * 1000)
+    : null;
+  const backendCycleStatus = cycleState?.status || 'active';
+  const isCycleExpired = cycleExpiresAtObj
+    && cycleExpiresAtObj < new Date()
+    && (backendCycleStatus === 'active' || backendCycleStatus === 'truncated');
+
   const cycleInfo = cycleState ? {
-    startDate: cycleState.cycleStartDate ? new Date(cycleState.cycleStartDate) : null,
+    startDate: cycleStartDateObj,
     currentWeek: cycleState.currentWeek || 1,
-    status: cycleState.status || 'active',
+    status: isCycleExpired ? 'expired' : backendCycleStatus,
     tier: cycleState.tier || 'standard',
     maxWeeks: cycleState.status === 'truncated' ? 2 : 4,
-    expiresAt: cycleState.cycleStartDate
-      ? new Date(new Date(cycleState.cycleStartDate).getTime() + 30 * 24 * 60 * 60 * 1000)
-      : null,
+    expiresAt: cycleExpiresAtObj,
   } : null;
 
   const daysUntilRefresh = cycleInfo?.expiresAt
@@ -203,11 +213,14 @@ export default function PhysicalGuidancePanel() {
 
   // Poll for fresh data while another session is regenerating. Checks
   // every 15s via staleOk (cache-only, no Claude calls), gives up after
-  // 3 minutes — well above typical Physical Guidance runtimes.
+  // 9 minutes — matches the function's 540s timeout. Two sequential 8k-token
+  // Sonnet calls regularly run 5-7 min, so 3 min was timing the polling
+  // out before legitimate regens completed and left users staring at a stale
+  // page after the navigate-away-and-come-back flow.
   useEffect(() => {
     if (!regenerating) return;
     const startedAt = Date.now();
-    const MAX_MS = 3 * 60 * 1000;
+    const MAX_MS = 9 * 60 * 1000;
     const timer = setInterval(async () => {
       if (Date.now() - startedAt > MAX_MS) {
         setRegenerating(false);
@@ -236,6 +249,10 @@ export default function PhysicalGuidancePanel() {
   const handleRegenerate = async () => {
     setShowRegenModal(null);
     setRefreshing(true);
+    // Also surface the regenerating UI so polling kicks in if the user
+    // navigates away and comes back before the call completes (the typical
+    // flow now that we expect 5-7 min runtimes).
+    setRegenerating(true);
     try {
       const result = await getPhysicalGuidance({ forceRefresh: true });
       if (result.success) {
@@ -245,10 +262,12 @@ export default function PhysicalGuidancePanel() {
           setCycleState(result.cycleState);
           setActiveWeek(result.cycleState.currentWeek || 1);
         }
+        setRegenerating(false);
       }
     } catch (err) {
       console.error('[Physical] Regenerate error:', err);
       setError({ message: 'Regeneration failed. Please try again.' });
+      setRegenerating(false);
     } finally {
       setRefreshing(false);
     }
@@ -360,8 +379,13 @@ export default function PhysicalGuidancePanel() {
     }
     if (cycleInfo.status === 'expired') {
       return (
-        <div className="cycle-bar cycle-bar--expired" onClick={handleRegenerate}>
-          <span>New cycle ready — tap to generate your next program.</span>
+        <div
+          className="cycle-bar cycle-bar--expired"
+          onClick={() => setShowRegenModal('confirm-refresh')}
+          role="button"
+          tabIndex={0}
+        >
+          <span>Ready to refresh? Tap here to generate your next 4-week program.</span>
         </div>
       );
     }
@@ -383,7 +407,7 @@ export default function PhysicalGuidancePanel() {
             {daysUntilRefresh != null && ` · ${daysUntilRefresh} days`}
           </span>
         </div>
-        <button className="cycle-regen" onClick={handleRegenerate} disabled={refreshing || regenerating}>
+        <button className="cycle-regen" onClick={() => setShowRegenModal('confirm-refresh')} disabled={refreshing || regenerating}>
           {refreshing || regenerating ? '⏳ Regenerating...' : '↺ Regenerate early'}
         </button>
       </div>
@@ -554,7 +578,7 @@ export default function PhysicalGuidancePanel() {
             <div className="cadence-text">
               <strong>This protocol was generated {formatDate(data.generatedAt)} and is stable for 30 days.</strong> It is based on your current body mapping results and your primary patterns. Exercises don't change week to week — your awareness of what they're training does.
             </div>
-            <button className="regen-btn-sm" onClick={handleRegenerate} disabled={refreshing || regenerating}>
+            <button className="regen-btn-sm" onClick={() => setShowRegenModal('confirm-refresh')} disabled={refreshing || regenerating}>
               {refreshing || regenerating ? '⏳ Regenerating...' : '↺ Regenerate protocol early'}
             </button>
           </div>
@@ -821,6 +845,27 @@ export default function PhysicalGuidancePanel() {
             <div className="gpt-modal-actions">
               <button className="gpt-modal-btn gpt-modal-btn--secondary" onClick={() => setShowRegenModal(null)}>Cancel</button>
               <button className="gpt-modal-btn" onClick={handleRegenerate}>Regenerate</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (showRegenModal === 'confirm-refresh') {
+      return (
+        <div className="gpt-modal-overlay" onClick={() => setShowRegenModal(null)}>
+          <div className="gpt-modal" onClick={e => e.stopPropagation()}>
+            <h3>Ready to refresh?</h3>
+            <p>
+              Regenerating your Physical Guidance program takes about <strong>5–8 minutes</strong>. Two large analyses run back-to-back —
+              your patterns and exercises, then your 4-week body awareness program.
+            </p>
+            <p>
+              You can leave this page and come back later — we'll keep working in the background and your home page will update automatically when it's ready.
+            </p>
+            <div className="gpt-modal-actions">
+              <button className="gpt-modal-btn gpt-modal-btn--secondary" onClick={() => setShowRegenModal(null)}>Not now</button>
+              <button className="gpt-modal-btn" onClick={handleRegenerate}>Start refresh</button>
             </div>
           </div>
         </div>

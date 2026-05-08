@@ -342,12 +342,13 @@ export default function GrandPrixPanel({ generationStatus }) {
 
   // Poll for fresh data while another session is regenerating.
   // Checks every 15s via staleOk (cache-only, no Claude calls), gives up
-  // after 3 minutes. Server lock releases at most 10 minutes after
-  // acquisition, so 3 min covers typical generation runtimes.
+  // after 9 minutes — matches the function's 540s timeout. The mental layer
+  // generates a 4-week program and can take 3-5 min for top-tier riders;
+  // 3 min was timing the polling out before legitimate regens completed.
   useEffect(() => {
     if (!mentalRegenerating) return;
     const startedAt = Date.now();
-    const MAX_MS = 3 * 60 * 1000;
+    const MAX_MS = 9 * 60 * 1000;
     const timer = setInterval(async () => {
       if (Date.now() - startedAt > MAX_MS) {
         setMentalRegenerating(false);
@@ -376,7 +377,7 @@ export default function GrandPrixPanel({ generationStatus }) {
   useEffect(() => {
     if (!trajectoryRegenerating) return;
     const startedAt = Date.now();
-    const MAX_MS = 3 * 60 * 1000;
+    const MAX_MS = 9 * 60 * 1000;
     const timer = setInterval(async () => {
       if (Date.now() - startedAt > MAX_MS) {
         setTrajectoryRegenerating(false);
@@ -399,10 +400,13 @@ export default function GrandPrixPanel({ generationStatus }) {
     return () => clearInterval(timer);
   }, [trajectoryRegenerating]);
 
-  // Handle regenerate — direct call, visible loading state
+  // Handle regenerate — direct call, visible loading state.
+  // Sets mentalRegenerating so the polling effect picks up the cache write
+  // even if the user navigates away and comes back before the call returns.
   const handleRegenerate = async () => {
     setShowRegenModal(null);
     setMentalRefreshing(true);
+    setMentalRegenerating(true);
     try {
       const result = await getGrandPrixThinking({ forceRefresh: true, layer: 'mental' });
       if (result.success) {
@@ -412,10 +416,12 @@ export default function GrandPrixPanel({ generationStatus }) {
           setCycleState(result.cycleState);
           setActiveWeek(result.cycleState.currentWeek || 1);
         }
+        setMentalRegenerating(false);
       }
     } catch (err) {
       console.error('[GPT] Regenerate error:', err);
       setMentalError({ message: 'Regeneration failed. Please try again.' });
+      setMentalRegenerating(false);
     } finally {
       setMentalRefreshing(false);
     }
@@ -503,12 +509,19 @@ export default function GrandPrixPanel({ generationStatus }) {
       );
     }
 
-    // Expired state
+    // Expired state — surface the confirm-refresh modal first so the rider
+    // sees the time estimate and "navigate away" guidance before kicking off
+    // a 3-5 minute Claude call.
     if (cycleInfo.status === 'expired') {
       return (
-        <div className="cycle-bar cycle-bar--expired" onClick={() => handleRegenerate()}>
+        <div
+          className="cycle-bar cycle-bar--expired"
+          onClick={() => setShowRegenModal('confirm-refresh')}
+          role="button"
+          tabIndex={0}
+        >
           <span className="cycle-expired-text">
-            New cycle ready — your data has grown since {formatDate(cycleInfo.startDate)}. Tap to generate your next 4-week program.
+            Ready to refresh? Tap here to generate your next 4-week program.
           </span>
         </div>
       );
@@ -531,7 +544,7 @@ export default function GrandPrixPanel({ generationStatus }) {
             {daysUntilRefresh != null && ` · ${daysUntilRefresh} days`}
           </span>
         </div>
-        <button className="cycle-regen" onClick={handleRegenerate} disabled={mentalRefreshing}>
+        <button className="cycle-regen" onClick={() => setShowRegenModal('confirm-refresh')} disabled={mentalRefreshing}>
           {mentalRefreshing ? '⏳ Regenerating...' : '↺ Regenerate early'}
         </button>
       </div>
@@ -1038,6 +1051,27 @@ export default function GrandPrixPanel({ generationStatus }) {
             <div className="gpt-modal-actions">
               <button className="gpt-modal-btn gpt-modal-btn--secondary" onClick={() => setShowRegenModal(null)}>Cancel</button>
               <button className="gpt-modal-btn" onClick={handleRegenerate}>Regenerate</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (showRegenModal === 'confirm-refresh') {
+      return (
+        <div className="gpt-modal-overlay" onClick={() => setShowRegenModal(null)}>
+          <div className="gpt-modal" onClick={e => e.stopPropagation()}>
+            <h3>Ready to refresh?</h3>
+            <p>
+              Regenerating your Grand Prix Thinking program takes about <strong>3–5 minutes</strong>. We analyze your latest rides,
+              reflections, and lessons to produce a fresh 4-week mental program.
+            </p>
+            <p>
+              You can leave this page and come back later — we'll keep working in the background and your home page will update automatically when it's ready.
+            </p>
+            <div className="gpt-modal-actions">
+              <button className="gpt-modal-btn gpt-modal-btn--secondary" onClick={() => setShowRegenModal(null)}>Not now</button>
+              <button className="gpt-modal-btn" onClick={handleRegenerate}>Start refresh</button>
             </div>
           </div>
         </div>
