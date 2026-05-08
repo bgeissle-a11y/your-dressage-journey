@@ -82,6 +82,10 @@ export default function GrandPrixPanel({ generationStatus }) {
   const [mentalRegenerating, setMentalRegenerating] = useState(false);
   const [trajectoryRegenerating, setTrajectoryRegenerating] = useState(false);
 
+  // Trajectory chunked-pipeline progress: 0=idle, 1=running step 1, 2=step 2, 3=step 3.
+  // Drives the "Step N of 3..." progress text during a manual regen.
+  const [trajectoryStep, setTrajectoryStep] = useState(0);
+
   // Rider display info
   const [riderInfo, setRiderInfo] = useState({ name: '', horse: '', level: '' });
 
@@ -255,65 +259,117 @@ export default function GrandPrixPanel({ generationStatus }) {
     }
   }, [mentalData]);
 
-  // Fetch trajectory layer
+  // Fetch trajectory layer.
+  //
+  // Reads use the legacy single-call path with staleOk:true (cache-only,
+  // returns the final assembled trajectory).
+  //
+  // Regenerations go through the 3-step chunked pipeline: each step is a
+  // separate Cloud Function call so individual Claude calls fit under the
+  // 540s timeout and the rider can navigate away mid-pipeline without
+  // losing partial progress (intermediate caches let step 2/3 resume).
   const fetchTrajectory = useCallback(async ({ forceRefresh = false, staleOk = false } = {}) => {
-    if (!staleOk) {
-      setTrajectoryLoading(true);
-      setTrajectoryError(null);
-    }
+    // ── Cache-only read path (mount, tab switch, post-regen verification) ──
+    if (!forceRefresh) {
+      if (!staleOk) {
+        setTrajectoryLoading(true);
+        setTrajectoryError(null);
+      }
 
-    try {
-      const result = await getGrandPrixThinking({ forceRefresh, staleOk, layer: 'trajectory' });
+      try {
+        const result = await getGrandPrixThinking({ forceRefresh: false, staleOk, layer: 'trajectory' });
 
-      if (!result.success) {
-        if (result.error === 'insufficient_data') {
-          // Insufficient data is not an error for trajectory — mental tab handles it
+        if (!result.success) {
+          if (result.error === 'insufficient_data') return;
+          if (result.regenerating) {
+            setTrajectoryRegenerating(true);
+            setTrajectoryError(null);
+            return;
+          }
+          if (staleOk) {
+            // No cache — try non-stale read (may also miss; that's fine —
+            // the empty state UI will offer a regen)
+            fetchTrajectory({ forceRefresh: false });
+            return;
+          }
+          setTrajectoryError({ message: 'Failed to load Training Trajectory.' });
           return;
         }
-        if (result.regenerating) {
-          // Another session is already generating — poll instead of firing another pipeline.
-          setTrajectoryRegenerating(true);
-          setTrajectoryError(null);
-          return;
-        }
+
+        setTrajectoryData(result);
+        setTrajectoryStale(!!result.stale);
+        if (result.activePath) setOpenTrajCard(result.activePath);
+
+        if (result.regenerating) setTrajectoryRegenerating(true);
+        else setTrajectoryRegenerating(false);
+      } catch (err) {
         if (staleOk) {
-          // No cache — trigger full load with loading UI
           fetchTrajectory({ forceRefresh: false });
           return;
         }
-        setTrajectoryError({ message: 'Failed to generate Training Trajectory.' });
-        return;
+        console.error('Grand Prix Thinking trajectory error:', err);
+        setTrajectoryError({ message: typeof err.message === 'string' ? err.message : 'Something went wrong.' });
+      } finally {
+        if (!staleOk) setTrajectoryLoading(false);
+      }
+      return;
+    }
+
+    // ── Chunked regen path: step 1 → 2 → 3 ──
+    setTrajectoryError(null);
+    setTrajectoryRegenerating(true);
+    try {
+      // Step 1: Current State Analysis (Opus, ~2-3 min)
+      setTrajectoryStep(1);
+      const step1 = await getGrandPrixThinking({
+        layer: 'trajectory',
+        step: 1,
+      });
+      if (!step1?.success) {
+        throw new Error('Trajectory step 1 failed');
       }
 
-      setTrajectoryData(result);
-      setTrajectoryStale(!!result.stale);
-
-      if (result.activePath) {
-        setOpenTrajCard(result.activePath);
+      // Step 2: Trajectory Paths (Opus) + Movement Maps (Sonnet) in parallel (~3-4 min)
+      setTrajectoryStep(2);
+      const step2 = await getGrandPrixThinking({
+        layer: 'trajectory',
+        step: 2,
+        priorResults: { currentStateAnalysis: step1.currentStateAnalysis },
+      });
+      if (!step2?.success) {
+        throw new Error('Trajectory step 2 failed');
       }
 
-      if (result.regenerating) {
-        setTrajectoryRegenerating(true);
-      } else {
-        setTrajectoryRegenerating(false);
+      // Step 3: Path Narratives (Sonnet) + assemble + cache final (~1-2 min)
+      setTrajectoryStep(3);
+      const step3 = await getGrandPrixThinking({
+        layer: 'trajectory',
+        step: 3,
+        priorResults: {
+          currentStateAnalysis: step1.currentStateAnalysis,
+          trajectoryPaths: step2.trajectoryPaths,
+          movementMaps: step2.movementMaps,
+          movementMapsError: step2.movementMapsError,
+        },
+      });
+      if (!step3?.success) {
+        throw new Error('Trajectory step 3 failed');
       }
 
-      // If stale cache returned from fast path and server isn't already
-      // regenerating, trigger background refresh.
-      if (result.stale && staleOk && !result.regenerating) {
-        fetchTrajectory({ forceRefresh: false });
-      }
+      // step3 is the full assembled trajectory result
+      setTrajectoryData(step3);
+      setTrajectoryStale(false);
+      if (step3.activePath) setOpenTrajCard(step3.activePath);
     } catch (err) {
-      if (staleOk) {
-        fetchTrajectory({ forceRefresh: false });
-        return;
-      }
-      console.error('Grand Prix Thinking trajectory error:', err);
-      setTrajectoryError({ message: typeof err.message === 'string' ? err.message : 'Something went wrong.' });
+      console.error('Grand Prix Thinking trajectory regen error:', err);
+      setTrajectoryError({
+        message: typeof err.message === 'string'
+          ? err.message
+          : 'Trajectory regeneration failed. Please try again.',
+      });
     } finally {
-      if (!staleOk) {
-        setTrajectoryLoading(false);
-      }
+      setTrajectoryStep(0);
+      setTrajectoryRegenerating(false);
     }
   }, []);
 
@@ -809,14 +865,23 @@ export default function GrandPrixPanel({ generationStatus }) {
     );
   }
 
+  // Map step number → label for the chunked-pipeline progress text.
+  const trajectoryStepLabel = (() => {
+    if (trajectoryStep === 1) return 'Step 1 of 3 · Analyzing your current state';
+    if (trajectoryStep === 2) return 'Step 2 of 3 · Mapping the three trajectory paths';
+    if (trajectoryStep === 3) return 'Step 3 of 3 · Writing your path narratives';
+    return null;
+  })();
+
   function renderTrajectoryTab() {
     if (trajectoryRegenerating && !trajectoryData) {
       return (
         <div className="gpt-loading">
-          <YDJLoading message="Your trajectory is being prepared" />
-          <p style={{ textAlign: 'center', color: '#8B7355', marginTop: 12, maxWidth: 420, padding: '0 16px' }}>
-            Another session is already generating your Training Trajectory.
-            This usually takes about 2 minutes — come back soon and it will be ready for you.
+          <YDJLoading message={trajectoryStepLabel || 'Your trajectory is being prepared'} />
+          <p style={{ textAlign: 'center', color: '#8B7355', marginTop: 12, maxWidth: 460, padding: '0 16px' }}>
+            {trajectoryStep > 0
+              ? "Each step takes 2-4 minutes. You can leave this page — we'll keep working in the background and the page will update when you come back."
+              : 'Your Training Trajectory is generating in another session. This usually takes 6-9 minutes — come back soon and it will be ready for you.'}
           </p>
         </div>
       );
@@ -1104,7 +1169,11 @@ export default function GrandPrixPanel({ generationStatus }) {
       {(trajectoryRegenerating && trajectoryData) && (
         <div className="gpt-gen-refreshing-bar">
           <div className="spinner spinner--small" />
-          <span>Your trajectory is refreshing in another session — come back soon.</span>
+          <span>
+            {trajectoryStepLabel
+              ? `${trajectoryStepLabel} — feel free to navigate away.`
+              : 'Your trajectory is refreshing in another session — come back soon.'}
+          </span>
         </div>
       )}
       {activeTab === 'mental' && renderMentalTab()}

@@ -48,6 +48,13 @@ const {
 const { refreshWeeklyFocusSnapshotSection } = require("../lib/weeklyFocusSnapshot");
 
 const OUTPUT_TYPE_MENTAL = "grandPrixThinking";
+// Intermediate caches for the chunked L2 trajectory pipeline. The full
+// 4-call pipeline routinely exceeded the 540s HTTP timeout when run as a
+// single onCall, so the client now orchestrates 3 sequential steps. Each
+// step caches its result so a navigate-away/come-back rider resumes from
+// the last completed step instead of starting over.
+const TRAJECTORY_STEP1_KEY = "grandPrixTrajectoryStep1";
+const TRAJECTORY_STEP2_KEY = "grandPrixTrajectoryStep2";
 const OUTPUT_TYPE_TRAJECTORY = "grandPrixTrajectory";
 const OPUS_MODEL = "claude-opus-4-6";
 
@@ -570,6 +577,221 @@ async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerC
 }
 
 /**
+ * Run a single step of the chunked L2 trajectory pipeline.
+ *
+ * The full 4-call pipeline (L2-1 Opus + L2-2 Opus || L2-3 Sonnet + L2-4 Sonnet)
+ * regularly takes 8-12 minutes — well above the 540s HTTP onCall timeout.
+ * Mirroring the Event Planner pattern, the client orchestrates 3 sequential
+ * steps and each step makes 1-2 Claude calls that comfortably fit under 540s:
+ *
+ *   Step 1 (Opus, ~2-3 min): currentStateAnalysis (L2-1)
+ *   Step 2 (Opus + Sonnet parallel, ~3-4 min): trajectoryPaths + movementMaps (L2-2 + L2-3)
+ *   Step 3 (Sonnet, ~1-2 min): pathNarratives (L2-4) + assemble + cache final
+ *
+ * Each step caches its intermediate result under a step-specific key so a
+ * rider who navigates away mid-pipeline resumes from the last completed step
+ * instead of restarting from scratch — important because Opus tokens are
+ * expensive and trajectory regen is rare.
+ *
+ * @param {string} uid
+ * @param {object} riderData - Output from prepareRiderData
+ * @param {1|2|3} step
+ * @param {object} priorResults - Results from prior steps (in-memory; falls back to intermediate cache)
+ * @param {object} crossLayerContext - Mental-layer context (built by handler)
+ * @returns {Promise<object>} Step result
+ */
+async function generateTrajectoryStep(uid, riderData, step, priorResults, crossLayerContext) {
+  const hash = riderData.dataSnapshot?.hash;
+  const currentLevel = riderData.profile?.currentLevel
+    || riderData.horseSummaries?.[0]?.level
+    || "Training";
+  const testContext = buildTestDatabaseContext(currentLevel);
+
+  const cacheMeta = {
+    dataSnapshotHash: hash,
+    tierLabel: riderData.tier?.label || "unknown",
+    dataTier: riderData.dataTier,
+  };
+
+  // ── Step 1: L2-1 Current State Analysis (Opus) ──
+  if (step === 1) {
+    console.log("[trajectory] Step 1: Current State Analysis (Opus)");
+    const { system, userMessage } = buildTrajectoryCall1Prompt(riderData, testContext, crossLayerContext);
+    const currentStateAnalysis = await callClaude({
+      system,
+      userMessage,
+      model: OPUS_MODEL,
+      jsonMode: true,
+      maxTokens: 8192,
+      context: "trajectory-call1-state-analysis",
+      uid,
+    });
+    logHorseNameUsage("L2-1", currentStateAnalysis, riderData);
+
+    await setCache(uid, TRAJECTORY_STEP1_KEY, { currentStateAnalysis }, cacheMeta);
+    return {
+      success: true,
+      step: 1,
+      currentStateAnalysis,
+      tier: riderData.tier,
+      dataTier: riderData.dataTier,
+      dataSnapshot: riderData.dataSnapshot,
+    };
+  }
+
+  // ── Step 2: L2-2 (Opus) + L2-3 (Sonnet) in parallel ──
+  if (step === 2) {
+    let { currentStateAnalysis } = priorResults || {};
+    if (!currentStateAnalysis) {
+      const c1 = await getCache(uid, TRAJECTORY_STEP1_KEY, { currentHash: hash, maxAgeDays: 30 });
+      currentStateAnalysis = c1?.result?.currentStateAnalysis;
+    }
+    if (!currentStateAnalysis) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Step 2 requires step 1 result. Run step 1 first or pass currentStateAnalysis in priorResults."
+      );
+    }
+
+    console.log("[trajectory] Step 2: trajectoryPaths (Opus) + movementMaps (Sonnet) in parallel");
+    const { system: sys2, userMessage: msg2 } = buildTrajectoryCall2Prompt(
+      riderData, currentStateAnalysis, testContext, crossLayerContext
+    );
+    const { system: sys3, userMessage: msg3 } = buildTrajectoryCall3Prompt(
+      riderData, currentStateAnalysis, testContext
+    );
+
+    const settled = await Promise.allSettled([
+      callClaude({
+        system: sys2,
+        userMessage: msg2,
+        model: OPUS_MODEL,
+        jsonMode: true,
+        maxTokens: 16384,
+        context: "trajectory-call2-three-paths",
+        uid,
+      }),
+      callClaude({
+        system: sys3,
+        userMessage: msg3,
+        jsonMode: true,
+        maxTokens: 8192,
+        context: "trajectory-call3-movement-maps",
+        uid,
+      }),
+    ]);
+
+    if (settled[0].status === "rejected") {
+      throw settled[0].reason || new Error("Failed to generate trajectory paths (L2-2).");
+    }
+    const trajectoryPaths = settled[0].value;
+    logHorseNameUsage("L2-2", trajectoryPaths, riderData);
+
+    let movementMaps;
+    let movementMapsError = false;
+    if (settled[1].status === "fulfilled") {
+      movementMaps = settled[1].value;
+      logHorseNameUsage("L2-3", movementMaps, riderData);
+    } else {
+      console.error("[trajectory] L2-3 movement maps failed, using fallback:", settled[1].reason?.message || settled[1].reason);
+      movementMapsError = true;
+      movementMaps = {
+        movement_maps: [],
+        overall_connection_narrative: "Movement mapping is temporarily unavailable. Your trajectory paths and narratives are still fully personalized.",
+      };
+    }
+
+    await setCache(uid, TRAJECTORY_STEP2_KEY, {
+      trajectoryPaths,
+      movementMaps,
+      ...(movementMapsError && { movementMapsError: true }),
+    }, cacheMeta);
+
+    return {
+      success: true,
+      step: 2,
+      trajectoryPaths,
+      movementMaps,
+      ...(movementMapsError && { movementMapsError: true }),
+      tier: riderData.tier,
+      dataTier: riderData.dataTier,
+      dataSnapshot: riderData.dataSnapshot,
+    };
+  }
+
+  // ── Step 3: L2-4 Path Narratives (Sonnet) + assemble + cache final ──
+  if (step === 3) {
+    let { currentStateAnalysis, trajectoryPaths, movementMaps, movementMapsError } = priorResults || {};
+
+    // Fall back to step caches if priorResults missing pieces
+    if (!currentStateAnalysis || !trajectoryPaths || !movementMaps) {
+      const [c1, c2] = await Promise.all([
+        getCache(uid, TRAJECTORY_STEP1_KEY, { currentHash: hash, maxAgeDays: 30 }),
+        getCache(uid, TRAJECTORY_STEP2_KEY, { currentHash: hash, maxAgeDays: 30 }),
+      ]);
+      currentStateAnalysis = currentStateAnalysis || c1?.result?.currentStateAnalysis;
+      trajectoryPaths = trajectoryPaths || c2?.result?.trajectoryPaths;
+      movementMaps = movementMaps || c2?.result?.movementMaps;
+      movementMapsError = movementMapsError ?? c2?.result?.movementMapsError;
+    }
+
+    if (!currentStateAnalysis || !trajectoryPaths || !movementMaps) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Step 3 requires steps 1 and 2 results. Run earlier steps first."
+      );
+    }
+
+    console.log("[trajectory] Step 3: pathNarratives (Sonnet) + assemble final");
+    const { system, userMessage } = buildTrajectoryCall4Prompt(
+      riderData, currentStateAnalysis, trajectoryPaths, movementMaps, crossLayerContext
+    );
+    const pathNarratives = await callClaude({
+      system,
+      userMessage,
+      jsonMode: true,
+      maxTokens: 4096,
+      context: "trajectory-call4-narratives",
+      uid,
+    });
+    logHorseNameUsage("L2-4", pathNarratives, riderData);
+
+    const activePath = trajectoryPaths.activePath
+      || extractActivePathFromPaths(trajectoryPaths.paths)
+      || "ambitious_competitor";
+    console.log(`[trajectory] Active path (Best Fit): ${activePath}`);
+
+    const result = {
+      currentStateAnalysis,
+      trajectoryPaths,
+      movementMaps,
+      pathNarratives,
+      activePath,
+      ...(movementMapsError && { partialResults: true, failedComponents: ["movementMaps"] }),
+    };
+
+    // Cache final to OUTPUT_TYPE_TRAJECTORY (only if all critical calls succeeded;
+    // movementMaps failure is non-blocking so we still cache).
+    if (!movementMapsError) {
+      await setCache(uid, OUTPUT_TYPE_TRAJECTORY, result, cacheMeta);
+    }
+
+    return {
+      success: true,
+      step: 3,
+      ...result,
+      fromCache: false,
+      tier: riderData.tier,
+      dataTier: riderData.dataTier,
+      dataSnapshot: riderData.dataSnapshot,
+      generatedAt: new Date().toISOString(),
+    };
+  }
+
+  throw new HttpsError("invalid-argument", `Invalid step: ${step}. Must be 1, 2, or 3.`);
+}
+
+/**
  * Cloud Function handler for Grand Prix Thinking.
  */
 async function handler(request) {
@@ -580,6 +802,8 @@ async function handler(request) {
       layer = "mental",
       staleOk = false,
       advanceWeek = false,
+      step,
+      priorResults,
     } = request.data || {};
 
     // Handle week advancement request (no API call — just reads cached doc)
@@ -658,6 +882,16 @@ async function handler(request) {
     }
 
     if (layer === "trajectory") {
+      // Chunked path: client orchestrates step 1 → 2 → 3.
+      // Each step is short enough to fit under 540s. The legacy single-call
+      // path below is preserved for cache-only reads via forceRefresh:false
+      // (the client uses staleOk:true which already returned above).
+      if (step) {
+        if (![1, 2, 3].includes(step)) {
+          throw new HttpsError("invalid-argument", `step must be 1, 2, or 3 (got ${step})`);
+        }
+        return await generateTrajectoryStep(uid, riderData, step, priorResults || {}, crossLayerContext);
+      }
       return await generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerContext);
     }
 
