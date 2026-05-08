@@ -95,22 +95,28 @@ exports.getMultiVoiceCoaching = onCall(
 
 // Journey Map: chronological narrative + milestones + visualization data
 // Input: { forceRefresh?: boolean }
+// 540s: top-tier outputs run 6-7k tokens; 300s was tight on slow Claude days.
 exports.getJourneyMap = onCall(
-  { secrets: [anthropicKey], timeoutSeconds: 300, memory: "512MiB" },
+  { secrets: [anthropicKey], timeoutSeconds: 540, memory: "1GiB" },
   journeyMap.handler
 );
 
 // Grand Prix Thinking Layer 1: 3-path mental performance dashboard
-// Input: { forceRefresh?: boolean }
+// Input: { forceRefresh?: boolean, layer?: "mental"|"trajectory" }
+// 540s: mental layer is one large Sonnet call (4-week program). Trajectory
+// layer is a 4-call Opus/Sonnet pipeline that can still exceed 540s — that
+// path needs client-side chunking like Event Planner before relying on it
+// in production for top-tier riders.
 exports.getGrandPrixThinking = onCall(
-  { secrets: [anthropicKey], timeoutSeconds: 300, memory: "512MiB" },
+  { secrets: [anthropicKey], timeoutSeconds: 540, memory: "1GiB" },
   grandPrixThinking.handler
 );
 
 // Data Visualizations: pattern extraction, goal mapping, insight narratives
 // Input: { forceRefresh?: boolean }
+// 540s: 3 sequential Sonnet calls; observed total runtime ~3-5 min.
 exports.getDataVisualizations = onCall(
-  { secrets: [anthropicKey], timeoutSeconds: 300, memory: "512MiB" },
+  { secrets: [anthropicKey], timeoutSeconds: 540, memory: "1GiB" },
   dataVisualizations.handler
 );
 
