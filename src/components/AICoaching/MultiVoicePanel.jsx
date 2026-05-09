@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { getMultiVoiceCoaching, getQuickInsights, VOICE_META } from '../../services/aiService';
 import { readInflightLock } from '../../services/weeklyFocusService';
 import { useAuth } from '../../contexts/AuthContext';
+import { useSettings } from '../../contexts/SettingsContext';
+import { getInitialActiveVoiceIndex } from '../../utils/voicePreferences';
 import CollapsibleSection from './CollapsibleSection';
 import CoachingVoiceCard from './CoachingVoiceCard';
 import ErrorDisplay from './ErrorDisplay';
@@ -34,9 +36,13 @@ function parseErrorDetails(err) {
  */
 export default function MultiVoicePanel({ generationStatus }) {
   const { currentUser } = useAuth();
+  const { preferences, loaded: settingsLoaded } = useSettings();
   const [voices, setVoices] = useState({});
   const [quickInsights, setQuickInsights] = useState(null);
-  const [activeVoice, setActiveVoice] = useState(0);
+  const [activeVoice, setActiveVoice] = useState(() => getInitialActiveVoiceIndex(preferences));
+  // Settings load async — seed the initial active voice once they're available.
+  // After this one-shot seed, the rider's tab clicks fully control activeVoice.
+  const seededActiveVoiceRef = useRef(false);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
@@ -158,6 +164,12 @@ export default function MultiVoicePanel({ generationStatus }) {
     // fetchCoaching is intentionally stable (empty deps) so this runs once.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!settingsLoaded || seededActiveVoiceRef.current) return;
+    setActiveVoice(getInitialActiveVoiceIndex(preferences));
+    seededActiveVoiceRef.current = true;
+  }, [settingsLoaded, preferences]);
 
   // If a regeneration started in a previous tab or visit is still running
   // when we mount, surface the regenerating UI immediately. The polling

@@ -36,7 +36,7 @@ export default function CoachCard({ coach, userId, showToast, onRemoved, onUpdat
   };
 
   const handleRemove = async () => {
-    if (!window.confirm(`Remove ${coach.name}? They will no longer receive your Weekly Coach Brief.`)) {
+    if (!window.confirm(`Remove ${coach.name}? They will no longer be on your Pre-Lesson Summary sharing list.`)) {
       return;
     }
 
@@ -74,7 +74,7 @@ export default function CoachCard({ coach, userId, showToast, onRemoved, onUpdat
       </div>
       <div className="coach-share-row">
         <div className="share-label-group">
-          <div className="share-label">Share Weekly Coach Brief</div>
+          <div className="share-label" title={`Pre-Lesson Summary sharing with ${coach.name}`}>Sharing enabled</div>
           {coach.sharingEnabled ? (
             <div className="share-consent-date">
               &#10003; Sharing on{coach.optInDate ? ` since ${formatDate(coach.optInDate)}` : ''}
@@ -94,8 +94,8 @@ export default function CoachCard({ coach, userId, showToast, onRemoved, onUpdat
       </div>
       {coach.sharingEnabled && (
         <div className="coach-brief-link-row">
-          <Link to="/coach-brief" className="coach-brief-link">
-            View & Send Weekly Brief {'\u2192'}
+          <Link to="/lesson-prep" className="coach-brief-link">
+            View & Send Pre-Lesson Summary {'\u2192'}
           </Link>
         </div>
       )}

@@ -22,9 +22,11 @@ export default function CoachSharingSection({ coaches, setCoaches, userId, showT
   return (
     <>
       <div className="settings-privacy-note" style={{ marginTop: 0, marginBottom: 18 }}>
-        When sharing is on, your coach receives a weekly training summary — themes, focus areas,
-        and questions you've flagged for them. They do <strong>not</strong> see your full reflections,
-        raw notes, or personal debrief entries.
+        Today, you send your Pre-Lesson Summary to a coach manually using the "Share with coach" link
+        on the summary itself — there is no automatic delivery. Adding coaches here keeps your sharing
+        preferences on file. Automatic delivery is a planned future enhancement. When you do share,
+        your coach receives only the Pre-Lesson Summary — never your full reflections, raw notes, or
+        personal debrief entries.
       </div>
 
       <div className="coach-list">
@@ -56,8 +58,8 @@ export default function CoachSharingSection({ coaches, setCoaches, userId, showT
       )}
 
       <div className="settings-privacy-note">
-        You can withdraw sharing consent at any time by toggling off. Your coach will stop receiving
-        briefs immediately. You can re-enable at any time.
+        You can withdraw sharing consent at any time by toggling off — your sharing preferences update
+        immediately. You can re-enable at any time.
       </div>
     </>
   );

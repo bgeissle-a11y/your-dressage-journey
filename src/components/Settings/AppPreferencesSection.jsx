@@ -75,11 +75,11 @@ export default function AppPreferencesSection({ preferences, onChange }) {
         </div>
       </div>
 
-      {/* Focus Mode Default Voice */}
+      {/* Default Coaching Voice */}
       <div className="setting-row">
         <div className="setting-label-block">
-          <div className="setting-label">Focus Mode Default Voice</div>
-          <div className="setting-description">Which coach leads when Focus Mode is active. You can always switch.</div>
+          <div className="setting-label">Default Coaching Voice</div>
+          <div className="setting-description">Which voice opens first when you view your coaching outputs. Applies in both Full and Focus modes. You can always switch tabs. Choose "All Voices" to default to The Classical Master.</div>
         </div>
         <div className="setting-control">
           <select

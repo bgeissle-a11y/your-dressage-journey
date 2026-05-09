@@ -196,7 +196,7 @@ export default function Settings() {
           <div className="settings-section-icon">👩‍🏫</div>
           <div className="settings-section-title-block">
             <div className="settings-section-title">Coach Sharing</div>
-            <div className="settings-section-subtitle">Share your Weekly Coach Brief with your trainers</div>
+            <div className="settings-section-subtitle">Manage which coaches you can share your Pre-Lesson Summary with</div>
           </div>
           <span className="settings-chevron">▾</span>
         </button>
