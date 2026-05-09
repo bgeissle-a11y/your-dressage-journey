@@ -50,6 +50,22 @@ service cloud.firestore {
       allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
+    // Micro-debriefs — lightweight ride entries; Cloud Function writes the
+    // empatheticResponse field after submission via admin SDK (bypasses rules).
+    match /microDebriefs/{docId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+
+    // Fresh Start submissions — re-onboarding entries; Cloud Function writes
+    // the empatheticResponse field after submission via admin SDK.
+    match /freshStarts/{docId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+
     match /journeyEvents/{docId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;

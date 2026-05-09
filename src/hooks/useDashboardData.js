@@ -7,6 +7,8 @@ import {
   getAllJourneyEvents,
   getAllShowPreparations,
   getAllHorseProfiles,
+  getAllMicroDebriefs,
+  getAllFreshStarts,
   REFLECTION_CATEGORIES
 } from '../services';
 
@@ -143,13 +145,15 @@ export default function useDashboardData() {
     async function fetchAll() {
       setLoading(true);
 
-      const [debRes, refRes, obsRes, evtRes, prepRes, horseRes] = await Promise.all([
+      const [debRes, refRes, obsRes, evtRes, prepRes, horseRes, microRes, freshRes] = await Promise.all([
         getAllDebriefs(currentUser.uid),
         getAllReflections(currentUser.uid),
         getAllObservations(currentUser.uid),
         getAllJourneyEvents(currentUser.uid),
         getAllShowPreparations(currentUser.uid),
-        getAllHorseProfiles(currentUser.uid)
+        getAllHorseProfiles(currentUser.uid),
+        getAllMicroDebriefs(currentUser.uid),
+        getAllFreshStarts(currentUser.uid)
       ]);
 
       if (cancelled) return;
@@ -160,6 +164,8 @@ export default function useDashboardData() {
       const journeyEvents = evtRes.success ? evtRes.data : [];
       const showPreps = prepRes.success ? prepRes.data : [];
       const horses = horseRes.success ? horseRes.data : [];
+      const microDebriefs = microRes.success ? microRes.data : [];
+      const freshStarts = freshRes.success ? freshRes.data : [];
 
       // Sort debriefs by rideDate descending
       const sortedDebriefs = [...debriefs].sort((a, b) =>
@@ -178,6 +184,29 @@ export default function useDashboardData() {
       const categoryCoverage = computeCategoryCoverage(reflections);
       const streak = computeStreak(debriefs);
 
+      // Most recent activity timestamp across debriefs + micros, used by the
+      // Fresh Start prompt to detect rider inactivity. Debriefs use rideDate
+      // (date-only); micros use submittedAt (full ISO). Coerce both to ms.
+      function toMs(s) {
+        if (!s) return 0;
+        // Date-only YYYY-MM-DD; coerce to local midnight to avoid TZ drift.
+        const t = s.length === 10 ? new Date(s + 'T00:00:00').getTime()
+                                  : new Date(s).getTime();
+        return Number.isFinite(t) ? t : 0;
+      }
+      const lastDebriefMs = debriefs.reduce((m, d) => Math.max(m, toMs(d.rideDate)), 0);
+      const lastMicroMs = microDebriefs.reduce((m, d) => Math.max(m, toMs(d.submittedAt) || toMs(d.date)), 0);
+      const lastActivityMs = Math.max(lastDebriefMs, lastMicroMs);
+      const lastFreshStartMs = freshStarts.reduce((m, d) => Math.max(m, toMs(d.submittedAt)), 0);
+
+      const dayMs = 24 * 60 * 60 * 1000;
+      const daysSinceLastActivity = lastActivityMs
+        ? Math.floor((Date.now() - lastActivityMs) / dayMs)
+        : null;
+      const daysSinceLastFreshStart = lastFreshStartMs
+        ? Math.floor((Date.now() - lastFreshStartMs) / dayMs)
+        : null;
+
       setStats({
         debriefCount: debriefs.length,
         reflectionCount: reflections.length,
@@ -186,6 +215,10 @@ export default function useDashboardData() {
         activeEventCount: activeEvents.length,
         showPrepCount: showPreps.length,
         horseCount: horses.length,
+        microDebriefCount: microDebriefs.length,
+        freshStartCount: freshStarts.length,
+        daysSinceLastActivity,
+        daysSinceLastFreshStart,
         categoryCoverage,
         streak
       });

@@ -19,7 +19,12 @@ const { validateAuth } = require("../lib/auth");
 const { wrapError } = require("../lib/errors");
 const { prepareRiderData } = require("../lib/prepareRiderData");
 const { callClaude } = require("../lib/claudeCall");
-const { buildCoachingPrompt, buildQuickInsightsPrompt, VOICE_META } = require("../lib/promptBuilder");
+const {
+  buildCoachingPrompt,
+  buildQuickInsightsPrompt,
+  buildMultiVoicePrecisPrompt,
+  VOICE_META,
+} = require("../lib/promptBuilder");
 const { getCache, setCache, getStaleCache } = require("../lib/cacheManager");
 const { getStatus: getGenStatus } = require("../lib/generationStatus");
 const { tryAcquireLock, releaseLock } = require("../lib/inflightLock");
@@ -143,6 +148,69 @@ async function generateQuickInsights(riderData, forceRefresh, uid) {
   });
 
   return { ...result, fromCache: false };
+}
+
+/**
+ * Generate the Multi-Voice Coaching précis: a ≤200-word voice-agnostic
+ * summary of the four voice analyses, cached as a side-extract for
+ * downstream consumers (micro-debrief and Fresh Start Empathetic Coach
+ * responses) that need rider context but can't ingest the full output.
+ *
+ * Per YDJ_MultiVoicePrecis_Spec.md — failure here must NOT fail the parent
+ * Multi-Voice generation. Returns null on error; caller continues without
+ * persisting a précis row, and consumers fall back to "no cached coaching
+ * context" behavior.
+ *
+ * @param {object} voiceResults - Map of voiceIndex → fulfilled voice result
+ *   (with _meta stripped before passing in).
+ * @param {object} riderData - Output from prepareRiderData()
+ * @param {string} uid - User ID
+ * @returns {Promise<{ precis: string } | null>}
+ */
+async function generatePrecis(voiceResults, riderData, uid) {
+  try {
+    const { system, userMessage } = buildMultiVoicePrecisPrompt(voiceResults);
+    const text = await callClaude({
+      system,
+      userMessage,
+      jsonMode: false,
+      maxTokens: 400,
+      context: "coaching-precis",
+      uid,
+    });
+    const precis = typeof text === "string" ? text.trim() : String(text ?? "").trim();
+    if (!precis) {
+      console.warn(`[coaching] Précis returned empty for ${uid} — skipping cache write`);
+      return null;
+    }
+    return { precis };
+  } catch (err) {
+    console.error(`[coaching] Précis generation failed for ${uid}:`, err.message || err);
+    return null;
+  }
+}
+
+/**
+ * Persist the précis side-extract to its dedicated cache row. The précis
+ * is cached as outputType "coaching_precis" (parallel to practiceCard /
+ * visualizationSuggestion) rather than embedded in the per-voice docs.
+ *
+ * Failure here is logged but never propagated — the Multi-Voice handler's
+ * core output (the four voices + quickInsights) is the more important
+ * artifact; the précis is supporting infrastructure.
+ */
+async function persistPrecis(precisResult, riderData) {
+  if (!precisResult) return;
+  const meta = {
+    dataSnapshotHash: riderData.dataSnapshot?.hash,
+    tierLabel: riderData.tier?.label || "unknown",
+    dataTier: riderData.dataTier,
+  };
+  try {
+    await setCache(riderData.uid, "coaching_precis", precisResult, meta);
+  } catch (err) {
+    console.error("[coaching] Failed to save précis:", err.message || err);
+  }
 }
 
 /**
@@ -345,6 +413,27 @@ async function handler(request) {
     // If ALL voices failed, throw so the client gets an error
     if (failedVoices.length === 4) {
       throw results[0].reason || new Error("All coaching voices failed to generate.");
+    }
+
+    // Multi-Voice Coaching précis — voice-agnostic ≤200-word summary used
+    // by downstream consumers (micro-debrief / Fresh Start). Generated
+    // synchronously after voices so the cache row exists before this
+    // handler returns; downstream Cloud Functions read it as "no context"
+    // when absent. Skip if fewer than 3 voices succeeded — too thin to
+    // produce a faithful gestalt.
+    if (failedVoices.length <= 1) {
+      const voiceJsonsForPrecis = {};
+      for (let i = 0; i < 4; i++) {
+        if (results[i].status === "fulfilled") {
+          // Strip _meta — the précis prompt expects raw analysis content
+          const { _meta, ...rest } = results[i].value || {};
+          voiceJsonsForPrecis[i] = rest;
+        }
+      }
+      const precisResult = await generatePrecis(voiceJsonsForPrecis, riderData, uid);
+      await persistPrecis(precisResult, riderData);
+    } else {
+      console.warn(`[coaching] Skipping précis — only ${4 - failedVoices.length}/4 voices succeeded`);
     }
 
     // Propagate fresh voice content into the home page's frozen weekly

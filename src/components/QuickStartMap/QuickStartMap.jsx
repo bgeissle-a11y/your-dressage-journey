@@ -170,6 +170,9 @@ export default function QuickStartMap() {
         </div>
       </div>
 
+      {/* Optional section header */}
+      <div className="qsm-opt-section-header">Optional · Available at any time</div>
+
       {/* Optional: Horse Health */}
       <div className="qsm-opt-cluster">
         <div className={`qsm-opt-card ${progress.hasHealthLog ? 'done' : ''}`}>
@@ -181,9 +184,6 @@ export default function QuickStartMap() {
           <Link to="/horse-health/new" className="qsm-opt-link-sm" onClick={(e) => e.stopPropagation()}>→ Open Health Log</Link>
         </div>
       </div>
-
-      {/* Optional section header */}
-      <div className="qsm-opt-section-header">Optional · Available at any time</div>
 
       {/* Optional: Self-assessments row 1 */}
       <div className="qsm-opt-cluster">
@@ -330,6 +330,13 @@ export default function QuickStartMap() {
             <div className="qsm-dual-sublabel">minimum to unlock outputs</div>
             <div className="qsm-dual-desc">Post-ride reflection with intentions. Captures what you felt, noticed, and are working toward.</div>
             <div className="qsm-dual-note">✎ Customize your intentions — don't keep the defaults. Make them specific to your current goals.</div>
+            <div
+              className="qsm-dual-note"
+              style={{ fontStyle: 'italic', color: '#7A7A7A', marginTop: '6px' }}
+              title="Micro-debriefs are real entries that the AI acknowledges in the moment, but full debriefs carry the texture downstream coaching outputs need. The 5-debrief unlock specifically counts full debriefs."
+            >
+              <em>Micro-debriefs (Quick Capture) are real entries, but they don't count toward the 5-debrief unlock — full debriefs carry the texture for the coaching outputs.</em>
+            </div>
             <div className="qsm-ticks">
               {[1, 2, 3, 4, 5].map((n) => (
                 <div

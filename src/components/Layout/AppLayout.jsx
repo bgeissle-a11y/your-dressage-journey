@@ -20,6 +20,7 @@ const NAV_GROUPS = [
         heading: 'After Your Ride',
         links: [
           { icon: '\uD83C\uDFC7', label: 'Post-Ride Debrief', to: '/debriefs/new' },
+          { icon: '\u26A1', label: 'Quick Capture', to: '/forms/micro-debrief', desc: "When you don't have time for the full debrief" },
           { icon: '\uD83D\uDCAD', label: 'Reflection', to: '/reflections/new' },
           { icon: '\uD83D\uDC41', label: 'Observation', to: '/observations/new' },
           { icon: '\uD83D\uDCDD', label: 'Lesson Notes', to: '/lesson-notes/new' },

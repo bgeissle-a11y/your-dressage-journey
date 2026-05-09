@@ -45,6 +45,8 @@ const visualizationScript = require("./api/visualizationScript");
 const processLessonTranscript = require("./api/processLessonTranscript");
 const stripeHandlers = require("./api/stripe");
 const firstLight = require("./api/firstLight");
+const microDebrief = require("./api/microDebrief");
+const freshStart = require("./api/freshStart");
 
 // Secrets — declared once, referenced by all functions that need them
 const anthropicKey = defineSecret("ANTHROPIC_API_KEY");
@@ -293,6 +295,29 @@ exports.onRiderAssessmentCreated = onDocumentCreated(
 exports.onHealthEntryCreated = onDocumentCreated(
   { document: "horseHealthEntries/{docId}", secrets: [anthropicKey], timeoutSeconds: 540, memory: "512MiB" },
   dataTriggeredRegeneration.handleImmediateChange
+);
+
+// --- Habit Loop: Empathetic Coach responses ---
+//
+// Both triggers fire on document creation in their respective collections.
+// Each function makes a single Sonnet call (text mode) and writes the
+// response back to the same document. Failures fall back to a canned
+// response so the rider always sees something.
+//
+// Specs:
+//   YDJ_MicroDebrief_EmpatheticResponse_PromptSpec.md
+//   YDJ_FreshStart_EmpatheticResponse_PromptSpec_v1_1.md
+
+// Micro-debrief reward: 30–50 word response, ~80 output tokens.
+exports.onMicroDebriefSubmit = onDocumentCreated(
+  { document: "microDebriefs/{docId}", secrets: [anthropicKey], timeoutSeconds: 60, memory: "256MiB" },
+  microDebrief.onSubmit
+);
+
+// Fresh Start re-onboarding response: 60–110 word response, ~200 output tokens.
+exports.onFreshStartSubmit = onDocumentCreated(
+  { document: "freshStarts/{docId}", secrets: [anthropicKey], timeoutSeconds: 60, memory: "256MiB" },
+  freshStart.onSubmit
 );
 
 // --- Stripe Subscription & Billing ---

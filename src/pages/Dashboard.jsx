@@ -11,6 +11,7 @@ import LessonPrepCompact from '../components/LessonPrep/LessonPrepCompact';
 import MovementCoverageHeatmap from '../components/Dashboard/MovementCoverageHeatmap';
 import ProcessGoalBars from '../components/Dashboard/ProcessGoalBars';
 import JourneySnapshot from '../components/Dashboard/JourneySnapshot';
+import FreshStartPrompt from '../components/Dashboard/FreshStartPrompt';
 import JourneyArchive from '../components/FirstLight/JourneyArchive';
 import {
   getAllDebriefs,
@@ -42,6 +43,7 @@ const DM_LEARN = [
 /* ── Record / Plan / Assess / Review card data ── */
 const DM_RECORD = [
   { icon: '\uD83C\uDFC7', label: 'Post-Ride Debrief', desc: 'Log your ride & intentions', to: '/debriefs/new', color: 'var(--c-debrief)' },
+  { icon: '\u26A1', label: 'Quick Capture', desc: "When you don't have time for the full debrief \u2014 about 60 seconds.", to: '/forms/micro-debrief', color: 'var(--c-debrief)' },
   { icon: '\u25C7', label: 'Reflection', desc: 'Milestones, aha moments, growth', to: '/reflections/new', color: 'var(--c-reflect)' },
   { icon: '\u25CE', label: 'Observation', desc: 'What you learned watching others', to: '/observations/new', color: 'var(--c-observe)' },
   { icon: '\uD83D\uDCDD', label: 'Lesson Notes', desc: 'Instructor guidance & cues', to: '/lesson-notes/new', color: 'var(--c-lesson)' },
@@ -548,6 +550,10 @@ export default function Dashboard() {
 
       {/* Toast */}
       <div className={`order-toast${showToast ? ' show' : ''}`}>Layout saved &#10003;</div>
+
+      {/* Fresh Start re-engagement prompt — only fires after 14d inactivity
+          for riders with prior debriefs and no recent Fresh Start. */}
+      <FreshStartPrompt stats={stats} />
 
       {/* "Your Journey So Far" — only renders for graduated riders */}
       <JourneyArchive />

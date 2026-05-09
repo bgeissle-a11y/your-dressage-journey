@@ -58,6 +58,27 @@ export {
   RIDE_ARC_OPTIONS
 } from './debriefService';
 
+// Micro-debriefs (lightweight ride entries)
+export {
+  createMicroDebrief,
+  getMicroDebrief,
+  getAllMicroDebriefs,
+  getMicroDebriefsByHorse,
+  updateMicroDebrief,
+  deleteMicroDebrief
+} from './microDebriefService';
+
+// Fresh Start (re-onboarding after a gap)
+export {
+  createFreshStart,
+  getFreshStart,
+  getAllFreshStarts,
+  getMostRecentFreshStart,
+  updateFreshStart,
+  deleteFreshStart,
+  FRESH_START_STATES
+} from './freshStartService';
+
 // Journey events
 export {
   createJourneyEvent,

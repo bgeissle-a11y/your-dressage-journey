@@ -27,6 +27,8 @@ import ReflectionList from './components/Reflection/ReflectionList';
 import ReflectionForm from './components/Reflection/ReflectionForm';
 import DebriefList from './components/Debrief/DebriefList';
 import DebriefForm from './components/Debrief/DebriefForm';
+import MicroDebriefForm from './components/MicroDebrief/MicroDebriefForm';
+import FreshStartForm from './components/FreshStart/FreshStartForm';
 import ObservationList from './components/Observation/ObservationList';
 import ObservationForm from './components/Observation/ObservationForm';
 import LessonNoteList from './components/LessonNotes/LessonNoteList';
@@ -142,6 +144,8 @@ function App() {
             <Route path="/debriefs" element={<DebriefList />} />
             <Route path="/debriefs/new" element={<DebriefForm />} />
             <Route path="/debriefs/:id/edit" element={<DebriefForm />} />
+            <Route path="/forms/micro-debrief" element={<MicroDebriefForm />} />
+            <Route path="/forms/fresh-start" element={<FreshStartForm />} />
 
             {/* Observations */}
             <Route path="/observations" element={<ObservationList />} />
