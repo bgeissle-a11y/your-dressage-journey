@@ -28,6 +28,7 @@ import ReflectionForm from './components/Reflection/ReflectionForm';
 import DebriefList from './components/Debrief/DebriefList';
 import DebriefForm from './components/Debrief/DebriefForm';
 import MicroDebriefForm from './components/MicroDebrief/MicroDebriefForm';
+import MicroDebriefList from './components/MicroDebrief/MicroDebriefList';
 import FreshStartForm from './components/FreshStart/FreshStartForm';
 import ObservationList from './components/Observation/ObservationList';
 import ObservationForm from './components/Observation/ObservationForm';
@@ -145,6 +146,7 @@ function App() {
             <Route path="/debriefs/new" element={<DebriefForm />} />
             <Route path="/debriefs/:id/edit" element={<DebriefForm />} />
             <Route path="/forms/micro-debrief" element={<MicroDebriefForm />} />
+            <Route path="/micro-debriefs" element={<MicroDebriefList />} />
             <Route path="/forms/fresh-start" element={<FreshStartForm />} />
 
             {/* Observations */}

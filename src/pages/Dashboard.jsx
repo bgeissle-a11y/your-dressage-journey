@@ -63,6 +63,7 @@ const DM_ASSESS = [
 const DM_REVIEW = [
   { icon: '\uD83D\uDCCA', label: 'Insights', desc: 'Quality patterns, training themes, goal progress, and your journey over time.', to: '/data-insights' },
   { icon: '\uD83D\uDCCB', label: 'All Debriefs', desc: 'Browse your ride history', to: '/debriefs' },
+  { icon: '\u26A1', label: 'Quick Captures', desc: 'Your micro-debrief entries', to: '/micro-debriefs' },
   { icon: '\u25C7', label: 'All Reflections', desc: 'Your reflection library', to: '/reflections' },
   { icon: '\u25CE', label: 'Observations', desc: 'Your observation notes', to: '/observations' },
   { icon: '\uD83D\uDCDD', label: 'Lesson Notes', desc: 'Your lesson library', to: '/lesson-notes' },

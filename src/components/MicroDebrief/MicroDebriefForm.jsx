@@ -29,7 +29,11 @@ import '../HabitLoop/HabitLoop.css';
  * inputs (per micro-debrief-prototype-v3.html).
  */
 
-const RESPONSE_TIMEOUT_MS = 8000;
+// Client-side fallback timeout. Cloud Function p50 is ~5-7s; cold starts can
+// push it to 10s+, so the fallback window is generous. When the real response
+// arrives after the fallback has shown, the listener stays subscribed and
+// swaps the fallback text for the real Empathetic Coach response.
+const RESPONSE_TIMEOUT_MS = 15000;
 const CLIENT_FALLBACK_RESPONSE =
   "Captured. Thanks for logging this one — we'll take it from here.";
 
@@ -81,23 +85,26 @@ export default function MicroDebriefForm() {
   }, [currentUser]);
 
   // Subscribe to the new doc once submitted, with a fallback timeout.
+  // The listener stays subscribed for the lifetime of the component — even
+  // after the fallback fires — so a late-arriving Cloud Function response
+  // replaces the canned fallback in place. (Earlier version tore the
+  // listener down at the timeout, leaving the rider stuck on the fallback
+  // when the real response arrived 1-3 seconds later.)
   useEffect(() => {
     if (!submittedDocId) return;
     let timeoutId = null;
-    let unsub = null;
-    let resolved = false;
+    let realArrived = false;
 
     const ref = doc(db, 'microDebriefs', submittedDocId);
-    unsub = onSnapshot(
+    const unsub = onSnapshot(
       ref,
       (snap) => {
-        if (!snap.exists() || resolved) return;
+        if (!snap.exists()) return;
         const data = snap.data();
-        if (data.empatheticResponse) {
-          resolved = true;
+        if (data.empatheticResponse && !realArrived) {
+          realArrived = true;
           setResponse({ text: data.empatheticResponse, fallback: false });
           if (timeoutId) clearTimeout(timeoutId);
-          if (unsub) unsub();
         }
       },
       (err) => {
@@ -105,16 +112,17 @@ export default function MicroDebriefForm() {
       }
     );
 
+    // Show the canned fallback if no real response by the timeout. Do NOT
+    // unsubscribe — the real response may still arrive and we want to
+    // upgrade the UI when it does.
     timeoutId = setTimeout(() => {
-      if (resolved) return;
-      resolved = true;
-      setResponse({ text: CLIENT_FALLBACK_RESPONSE, fallback: true });
-      if (unsub) unsub();
+      if (realArrived) return;
+      setResponse((prev) => prev || { text: CLIENT_FALLBACK_RESPONSE, fallback: true });
     }, RESPONSE_TIMEOUT_MS);
 
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
-      if (unsub) unsub();
+      unsub();
     };
   }, [submittedDocId]);
 

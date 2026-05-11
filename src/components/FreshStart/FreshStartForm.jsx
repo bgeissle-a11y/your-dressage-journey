@@ -32,7 +32,11 @@ import '../HabitLoop/HabitLoop.css';
  * preservation via white-space: pre-wrap on the .hl-voice-text class.
  */
 
-const RESPONSE_TIMEOUT_MS = 12000;
+// Fresh Start responses are longer than micros, so the Sonnet call takes
+// longer (smoke test showed 7-9s). Generous timeout window — and the listener
+// stays subscribed past the fallback so a late real response replaces the
+// canned text in place.
+const RESPONSE_TIMEOUT_MS = 20000;
 const CLIENT_FALLBACK_RESPONSE =
   "Welcome back. The dataset picks up from your next entry. No catch-up required.";
 
@@ -58,24 +62,25 @@ export default function FreshStartForm() {
   const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
 
-  // Subscribe to the new doc once submitted
+  // Subscribe to the new doc once submitted. Listener stays alive past the
+  // fallback timeout so a late-arriving Cloud Function response replaces the
+  // canned fallback. (Earlier version tore the listener down at the timeout,
+  // which stranded riders on the fallback.)
   useEffect(() => {
     if (!submittedDocId) return;
     let timeoutId = null;
-    let unsub = null;
-    let resolved = false;
+    let realArrived = false;
 
     const ref = doc(db, 'freshStarts', submittedDocId);
-    unsub = onSnapshot(
+    const unsub = onSnapshot(
       ref,
       (snap) => {
-        if (!snap.exists() || resolved) return;
+        if (!snap.exists()) return;
         const data = snap.data();
-        if (data.empatheticResponse) {
-          resolved = true;
+        if (data.empatheticResponse && !realArrived) {
+          realArrived = true;
           setResponse({ text: data.empatheticResponse, fallback: false });
           if (timeoutId) clearTimeout(timeoutId);
-          if (unsub) unsub();
         }
       },
       (err) => {
@@ -84,15 +89,13 @@ export default function FreshStartForm() {
     );
 
     timeoutId = setTimeout(() => {
-      if (resolved) return;
-      resolved = true;
-      setResponse({ text: CLIENT_FALLBACK_RESPONSE, fallback: true });
-      if (unsub) unsub();
+      if (realArrived) return;
+      setResponse((prev) => prev || { text: CLIENT_FALLBACK_RESPONSE, fallback: true });
     }, RESPONSE_TIMEOUT_MS);
 
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
-      if (unsub) unsub();
+      unsub();
     };
   }, [submittedDocId]);
 
