@@ -9,6 +9,7 @@ import {
   getAllHorseProfiles,
   getAllMicroDebriefs,
   getAllFreshStarts,
+  computeFreshStartCaps,
   REFLECTION_CATEGORIES
 } from '../services';
 
@@ -207,6 +208,10 @@ export default function useDashboardData() {
         ? Math.floor((Date.now() - lastFreshStartMs) / dayMs)
         : null;
 
+      // Fresh Start cap state — used by FreshStartPrompt to suppress the
+      // auto-invite when the rider has already hit monthly or yearly cap.
+      const freshStartCaps = computeFreshStartCaps(freshStarts);
+
       setStats({
         debriefCount: debriefs.length,
         reflectionCount: reflections.length,
@@ -219,6 +224,7 @@ export default function useDashboardData() {
         freshStartCount: freshStarts.length,
         daysSinceLastActivity,
         daysSinceLastFreshStart,
+        freshStartCaps,
         categoryCoverage,
         streak
       });

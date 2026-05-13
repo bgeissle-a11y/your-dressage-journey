@@ -54,6 +54,87 @@ export const FRESH_START_STATES = {
 };
 
 /**
+ * Submission caps. Layer 1 (client-side) defense — prevents accidental
+ * over-submission and signals to the rider that Fresh Start is meant to
+ * be occasional re-onboarding, not a daily reflection tool.
+ *
+ * Soft-deleted entries do NOT count toward the cap: getAllFreshStarts
+ * filters them out via the base service's `isDeleted == false` query, so a
+ * rider who deletes an accidental Fresh Start frees the slot.
+ */
+export const FRESH_START_MONTHLY_CAP = 1;
+export const FRESH_START_YEARLY_CAP = 4;
+
+function firstOfNextMonth(d = new Date()) {
+  return new Date(d.getFullYear(), d.getMonth() + 1, 1);
+}
+function firstOfNextYear(d = new Date()) {
+  return new Date(d.getFullYear() + 1, 0, 1);
+}
+function formatFriendlyDate(d) {
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+/**
+ * Compute cap state from an array of active (non-soft-deleted) Fresh Start
+ * entries. Counts entries in the current calendar month and calendar year.
+ *
+ * @param {Array<{submittedAt?: string}>} freshStarts
+ * @returns {{
+ *   thisMonthCount: number,
+ *   thisYearCount: number,
+ *   atMonthlyCap: boolean,
+ *   atYearlyCap: boolean,
+ *   atAnyCap: boolean,
+ *   nextAvailable: Date|null,        // first date a submission would be allowed
+ *   nextAvailableLabel: string|null, // friendly formatted
+ *   capReason: 'monthly'|'yearly'|null,
+ * }}
+ */
+export function computeFreshStartCaps(freshStarts) {
+  const now = new Date();
+  const thisMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const thisYearKey = now.getFullYear();
+
+  let thisMonthCount = 0;
+  let thisYearCount = 0;
+
+  for (const fs of freshStarts || []) {
+    if (!fs.submittedAt) continue;
+    const t = new Date(fs.submittedAt);
+    if (!Number.isFinite(t.getTime())) continue;
+    const monthKey = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}`;
+    if (monthKey === thisMonthKey) thisMonthCount += 1;
+    if (t.getFullYear() === thisYearKey) thisYearCount += 1;
+  }
+
+  const atMonthlyCap = thisMonthCount >= FRESH_START_MONTHLY_CAP;
+  const atYearlyCap = thisYearCount >= FRESH_START_YEARLY_CAP;
+  const atAnyCap = atMonthlyCap || atYearlyCap;
+
+  let capReason = null;
+  let nextAvailable = null;
+  if (atYearlyCap) {
+    capReason = 'yearly';
+    nextAvailable = firstOfNextYear(now);
+  } else if (atMonthlyCap) {
+    capReason = 'monthly';
+    nextAvailable = firstOfNextMonth(now);
+  }
+
+  return {
+    thisMonthCount,
+    thisYearCount,
+    atMonthlyCap,
+    atYearlyCap,
+    atAnyCap,
+    capReason,
+    nextAvailable,
+    nextAvailableLabel: nextAvailable ? formatFriendlyDate(nextAvailable) : null,
+  };
+}
+
+/**
  * Create a new Fresh Start submission.
  *
  * The Cloud Function `onFreshStartSubmit` is triggered on document creation.

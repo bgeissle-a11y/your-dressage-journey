@@ -45,8 +45,11 @@ export default function FreshStartPrompt({ stats }) {
   const recentlyTookFreshStart =
     stats.daysSinceLastFreshStart != null &&
     stats.daysSinceLastFreshStart < FRESH_START_SUPPRESS_DAYS;
+  // Respect the monthly / yearly cap — don't invite a Fresh Start the rider
+  // can't actually submit. (Caps live in freshStartService.computeFreshStartCaps.)
+  const atCap = !!stats.freshStartCaps?.atAnyCap;
 
-  const shouldShow = hasPriorDebrief && inactiveLongEnough && !recentlyTookFreshStart;
+  const shouldShow = hasPriorDebrief && inactiveLongEnough && !recentlyTookFreshStart && !atCap;
   if (!shouldShow) return null;
 
   function handleDismiss() {

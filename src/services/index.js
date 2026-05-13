@@ -76,7 +76,10 @@ export {
   getMostRecentFreshStart,
   updateFreshStart,
   deleteFreshStart,
-  FRESH_START_STATES
+  FRESH_START_STATES,
+  FRESH_START_MONTHLY_CAP,
+  FRESH_START_YEARLY_CAP,
+  computeFreshStartCaps
 } from './freshStartService';
 
 // Journey events

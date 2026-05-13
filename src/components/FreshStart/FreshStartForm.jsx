@@ -5,6 +5,8 @@ import { db } from '../../firebase-config';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   createFreshStart,
+  getAllFreshStarts,
+  computeFreshStartCaps,
   FRESH_START_STATES,
 } from '../../services';
 import VoiceInput from '../Forms/VoiceInput';
@@ -61,6 +63,25 @@ export default function FreshStartForm() {
   const [submittedDocId, setSubmittedDocId] = useState(null);
   const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
+  // Cap state — null while loading, then an object from computeFreshStartCaps.
+  // Layer 1 defense: don't let the rider submit if they're at the monthly or
+  // yearly cap. Soft-deleted entries are excluded by getAllFreshStarts itself.
+  const [capState, setCapState] = useState(null);
+  const [capLoading, setCapLoading] = useState(true);
+
+  // Load the rider's existing Fresh Starts on mount, compute cap state.
+  useEffect(() => {
+    if (!currentUser) return;
+    let cancelled = false;
+    (async () => {
+      const result = await getAllFreshStarts(currentUser.uid);
+      if (cancelled) return;
+      const list = result.success ? (result.data || []) : [];
+      setCapState(computeFreshStartCaps(list));
+      setCapLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, [currentUser]);
 
   // Subscribe to the new doc once submitted. Listener stays alive past the
   // fallback timeout so a late-arriving Cloud Function response replaces the
@@ -115,6 +136,22 @@ export default function FreshStartForm() {
   async function handleSubmit(e) {
     if (e) e.preventDefault();
     setError(null);
+
+    // Defense in depth: if cap state hasn't loaded yet, or the rider is
+    // already at cap (race window between mount and the load resolving),
+    // refuse the submit. The cap-notice UI normally replaces the form
+    // entirely, but this guard covers the brief loading window.
+    if (capLoading) {
+      setError('Just a moment — checking your Fresh Start history…');
+      return;
+    }
+    if (capState?.atAnyCap) {
+      const reason = capState.capReason === 'yearly'
+        ? `You've used all 4 Fresh Starts for the year. The next one unlocks on ${capState.nextAvailableLabel}.`
+        : `You've already done a Fresh Start this month. The next one unlocks on ${capState.nextAvailableLabel}.`;
+      setError(reason);
+      return;
+    }
 
     if (!formData.confidence) {
       setError('Tap a confidence number from 1 to 10. (Even just that is a real fresh start.)');
@@ -202,6 +239,63 @@ export default function FreshStartForm() {
           </div>
         </div>
 
+        {/* Cap notice — shown instead of the form when the rider has already
+            used their monthly or yearly Fresh Start allotment. The dataset
+            doesn't need another one; warmly redirect to the right tools. */}
+        {!capLoading && capState?.atAnyCap ? (
+          <div className="habit-loop-frame">
+            <div
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: '1.15em',
+                color: '#3A3A3A',
+                lineHeight: 1.65,
+                fontStyle: 'italic',
+              }}
+            >
+              {capState.capReason === 'yearly' ? (
+                <p style={{ margin: 0 }}>
+                  You've already taken your four Fresh Starts for the year. The
+                  dataset has what it needs from those — the next Fresh Start
+                  unlocks on{' '}
+                  <strong style={{ fontStyle: 'normal', color: '#8B7355' }}>
+                    {capState.nextAvailableLabel}
+                  </strong>
+                  . Until then, your next ride is the right place to pick up.
+                </p>
+              ) : (
+                <p style={{ margin: 0 }}>
+                  You've already done a Fresh Start this month — the dataset
+                  has what it needs from that one. The next Fresh Start
+                  unlocks on{' '}
+                  <strong style={{ fontStyle: 'normal', color: '#8B7355' }}>
+                    {capState.nextAvailableLabel}
+                  </strong>
+                  . In the meantime, the tools below are the right fit for
+                  whatever's next.
+                </p>
+              )}
+            </div>
+            <div className="hl-done-actions" style={{ marginTop: '20px' }}>
+              <a
+                href="/forms/micro-debrief"
+                className="primary"
+                onClick={(e) => { e.preventDefault(); navigate('/forms/micro-debrief'); }}
+              >
+                Quick Capture →
+              </a>
+              <a
+                href="/debriefs/new"
+                onClick={(e) => { e.preventDefault(); navigate('/debriefs/new'); }}
+              >
+                Post-Ride Debrief
+              </a>
+              <a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }}>
+                Back to dashboard
+              </a>
+            </div>
+          </div>
+        ) : (
         <form
           className="habit-loop-frame"
           onSubmit={handleSubmit}
@@ -381,6 +475,7 @@ export default function FreshStartForm() {
             </button>
           </div>
         </form>
+        )}
 
         <div id="hl-response-anchor" />
 
