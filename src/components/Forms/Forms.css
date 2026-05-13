@@ -425,6 +425,25 @@
   box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3);
 }
 
+.btn-new--disabled,
+.btn-new--disabled:hover {
+  background: #c8bca8;
+  color: #fff;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-new .locked-tag,
+.btn-new--disabled .locked-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.25);
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  margin-left: 0.25rem;
+}
+
 /* List Filters */
 .list-filters {
   display: flex;

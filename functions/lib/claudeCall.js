@@ -99,17 +99,19 @@ async function callClaude({
     const budgetResult = await _checkAndIncrementBudget(uid);
     if (!budgetResult.allowed) {
       if (budgetResult.reason === "monthly") {
-        const limitUSD = (budgetResult.limit / MILLICENTS_PER_USD).toFixed(0);
+        const limitUSD = Number((budgetResult.limit / MILLICENTS_PER_USD).toFixed(0));
         console.warn(`[${context}] ⛔ Monthly $ budget ($${limitUSD}) exceeded for user ${uid} (tier=${budgetResult.tier})`);
         const err = new Error(`Your monthly insights budget ($${limitUSD}) has been reached. Cached insights remain available; new generations resume next month.`);
         err.code = "monthly-budget-exceeded";
+        err.capExceeded = { kind: "monthly", limitUSD, tier: budgetResult.tier };
         throw err;
       }
       if (budgetResult.reason === "weekly") {
-        const limitUSD = (budgetResult.limit / MILLICENTS_PER_USD).toFixed(0);
+        const limitUSD = Number((budgetResult.limit / MILLICENTS_PER_USD).toFixed(0));
         console.warn(`[${context}] ⛔ Weekly $ budget ($${limitUSD}) exceeded for user ${uid} (tier=${budgetResult.tier})`);
         const err = new Error(`Your weekly insights budget ($${limitUSD}) has been reached. Cached insights remain available; new generations will resume at the start of next week.`);
         err.code = "weekly-budget-exceeded";
+        err.capExceeded = { kind: "weekly", limitUSD, tier: budgetResult.tier };
         throw err;
       }
       console.warn(`[${context}] ⛔ Daily API limit (${DAILY_CALL_LIMIT}) exceeded for user ${uid}`);

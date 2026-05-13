@@ -4,6 +4,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { getShowPreparation, resolveTestNames, getAllDebriefs } from '../../services';
 import { getTestData, getShortLabel } from '../../services/testDatabase';
 import { getEventPlannerStep } from '../../services/aiService';
+import { useEntitlements } from '../../hooks/useEntitlements';
+import { CAPABILITIES } from '../../constants/entitlements';
 import TestReferencePanel from '../TestReferencePanel/TestReferencePanel';
 import ReadinessSnapshotCard from '../ReadinessSnapshotCard';
 import YDJLoading from '../YDJLoading';
@@ -80,6 +82,8 @@ function normalizeWeek(week) {
 export default function ShowPlanner() {
   const { planId } = useParams();
   const { currentUser } = useAuth();
+  const ent = useEntitlements();
+  const canGeneratePlan = ent.can(CAPABILITIES.generateShowPrepPlan);
 
   const [plan, setPlan] = useState(null);
   const [weeks, setWeeks] = useState([]);
@@ -407,8 +411,18 @@ export default function ShowPlanner() {
       {needsGeneration && !generating && (
         <div className="slp-generate-prompt">
           <p>Your preparation plan hasn't been generated yet.</p>
+          {!canGeneratePlan && !ent.loading && (
+            <p className="slp-gen-error">
+              Generating a Show Plan requires the {ent.requiredTierLabel(CAPABILITIES.generateShowPrepPlan) || 'Medium'} plan.
+            </p>
+          )}
           {genError && <p className="slp-gen-error">{genError}</p>}
-          <button className="btn btn-primary" onClick={generatePlan}>
+          <button
+            className="btn btn-primary"
+            onClick={generatePlan}
+            disabled={!canGeneratePlan}
+            title={!canGeneratePlan ? `Requires the ${ent.requiredTierLabel(CAPABILITIES.generateShowPrepPlan) || 'Medium'} plan` : undefined}
+          >
             {genError ? 'Try Again' : 'Generate Plan →'}
           </button>
         </div>

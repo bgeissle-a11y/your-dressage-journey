@@ -16,6 +16,8 @@
 
 const { HttpsError } = require("firebase-functions/v2/https");
 const { validateAuth } = require("../lib/auth");
+const { enforceCapability } = require("../lib/loadSubscription");
+const { CAPABILITIES } = require("../lib/entitlements");
 const { wrapError } = require("../lib/errors");
 const { prepareRiderData } = require("../lib/prepareRiderData");
 const { callClaude } = require("../lib/claudeCall");
@@ -29,6 +31,8 @@ const { getCache, setCache, getStaleCache } = require("../lib/cacheManager");
 const { getStatus: getGenStatus } = require("../lib/generationStatus");
 const { tryAcquireLock, releaseLock } = require("../lib/inflightLock");
 const { refreshWeeklyFocusSnapshotSection } = require("../lib/weeklyFocusSnapshot");
+const { getMaxTokens, tierFromLabel } = require("../lib/tokenBudgets");
+const { isBudgetExceeded, buildGracefulResponse } = require("../lib/budgetExhaustion");
 
 const OUTPUT_TYPE = "coaching";
 const INSIGHTS_OUTPUT_TYPE = "coaching_insights";
@@ -41,15 +45,18 @@ const INSIGHTS_OUTPUT_TYPE = "coaching_insights";
  * @param {boolean} forceRefresh - Skip cache
  * @returns {Promise<object>} Voice result with meta + content
  */
-async function generateVoice(voiceIndex, riderData, forceRefresh, uid) {
+async function generateVoice(voiceIndex, riderData, forceRefresh, uid, budgetTier) {
   const meta = VOICE_META[voiceIndex];
   const hash = riderData.dataSnapshot?.hash;
 
-  // Check cache unless forced refresh
+  // Check cache unless forced refresh. Lever 1 (cache buffer) applies here:
+  // hash mismatch is tolerated until ≥5 debriefs or 3 debriefs + 1 reflection
+  // have accumulated since the cached generation.
   if (!forceRefresh) {
     const cached = await getCache(riderData.uid, OUTPUT_TYPE, {
       currentHash: hash,
       voiceIndex,
+      applyBuffer: true,
     });
     if (cached) {
       return {
@@ -85,7 +92,7 @@ async function generateVoice(voiceIndex, riderData, forceRefresh, uid) {
     system,
     userMessage,
     jsonMode: true,
-    maxTokens: 4096,
+    maxTokens: getMaxTokens("coaching-voice", budgetTier),
     context: `coaching-voice-${voiceIndex}`,
     uid,
   });
@@ -111,14 +118,17 @@ async function generateVoice(voiceIndex, riderData, forceRefresh, uid) {
  * @param {boolean} forceRefresh - Skip cache
  * @returns {Promise<object>} Quick insights result
  */
-async function generateQuickInsights(riderData, forceRefresh, uid) {
+async function generateQuickInsights(riderData, forceRefresh, uid, budgetTier) {
   const hash = riderData.dataSnapshot?.hash;
 
-  // Check cache
+  // Check cache. Quick Insights is regenerated weekly (maxAgeDays=7), so the
+  // buffer mechanic still applies inside that window — it stops a single new
+  // debrief from invalidating yesterday's celebration block.
   if (!forceRefresh) {
     const cached = await getCache(riderData.uid, INSIGHTS_OUTPUT_TYPE, {
       currentHash: hash,
-      maxAgeDays: 7, // Regenerate weekly so celebration/patterns stay fresh
+      maxAgeDays: 7,
+      applyBuffer: true,
     });
     if (cached) {
       return { ...cached.result, fromCache: true };
@@ -135,7 +145,7 @@ async function generateQuickInsights(riderData, forceRefresh, uid) {
     system,
     userMessage,
     jsonMode: true,
-    maxTokens: 4096,
+    maxTokens: getMaxTokens("coaching-quick-insights", budgetTier),
     context: "coaching-quick-insights",
     uid,
   });
@@ -187,6 +197,83 @@ async function generatePrecis(voiceResults, riderData, uid) {
   } catch (err) {
     console.error(`[coaching] Précis generation failed for ${uid}:`, err.message || err);
     return null;
+  }
+}
+
+/**
+ * Single-voice trailing précis generator. The frontend's progressive-render
+ * path fires 4 single-voice calls (one per voice index) instead of the
+ * single bulk fan-out — so the bulk path's précis-generation block never
+ * runs. This helper closes that gap: after each single-voice cache write,
+ * check whether all 4 voice rows now exist and share the same dataSnapshotHash.
+ * If they do, build the same précis the bulk path would have built and persist it.
+ *
+ * Lock-guarded so the 4 racing single-voice completions don't each fire
+ * their own précis generation. The first one to grab the lock generates;
+ * the others see the lock held and skip.
+ *
+ * Fire-and-forget contract — caller doesn't await; failure is logged only.
+ *
+ * @param {string} uid
+ * @param {object} riderData - same shape passed to generateVoice
+ */
+async function maybeGeneratePrecisFromCache(uid, riderData) {
+  const hash = riderData.dataSnapshot?.hash;
+  if (!hash) return; // Without a hash we can't tell if the 4 voices align.
+
+  // Read all 4 voice cache rows. Use getStaleCache so a hash-mismatch row
+  // still comes back — we'll filter on hash equality ourselves.
+  const cached = await Promise.all([0, 1, 2, 3].map((i) =>
+    getStaleCache(uid, OUTPUT_TYPE, { voiceIndex: i, maxAgeDays: 30 })
+  ));
+
+  // Require: all 4 exist AND all 4 have the same dataSnapshotHash AS THE
+  // CURRENT generation. If any voice hasn't refreshed yet (still on an old
+  // hash), we'd build a précis that's a frankensteined mix — better to skip.
+  for (let i = 0; i < 4; i++) {
+    if (!cached[i] || !cached[i].result) {
+      console.log(`[coaching] précis-trailing: voice ${i} cache missing — skip`);
+      return;
+    }
+    if (cached[i].dataSnapshotHash !== hash) {
+      console.log(`[coaching] précis-trailing: voice ${i} cache on stale hash — skip`);
+      return;
+    }
+  }
+
+  // Inflight lock — only one of the 4 racing completions actually generates.
+  const gotLock = await tryAcquireLock(uid, "coaching_precis");
+  if (!gotLock) {
+    console.log("[coaching] précis-trailing: another fan-out holds the précis lock — skip");
+    return;
+  }
+
+  try {
+    // Skip if a précis matching this hash is already cached. Cheap idempotency
+    // guard so a quick double-click doesn't burn two précis generations.
+    const existing = await getCache(uid, "coaching_precis", { currentHash: hash, maxAgeDays: 30 });
+    if (existing?.result?.precis) {
+      console.log("[coaching] précis-trailing: précis for this hash already cached — skip");
+      return;
+    }
+
+    const voiceJsonsForPrecis = {};
+    for (let i = 0; i < 4; i++) {
+      // Strip _meta so the prompt sees raw analysis content, matching the
+      // bulk path's behavior.
+      const { _meta, ...rest } = cached[i].result;
+      voiceJsonsForPrecis[i] = rest;
+    }
+
+    const precisResult = await generatePrecis(voiceJsonsForPrecis, riderData, uid);
+    await persistPrecis(precisResult, riderData);
+    if (precisResult) {
+      console.log("[coaching] précis-trailing: wrote précis after single-voice fan-out completion");
+    }
+  } catch (err) {
+    console.error("[coaching] précis-trailing failed:", err.message || err);
+  } finally {
+    await releaseLock(uid, "coaching_precis");
   }
 }
 
@@ -273,6 +360,10 @@ async function persistInsightsSideExtracts(quickInsights, riderData, generatedAt
 async function handler(request) {
   try {
     const uid = validateAuth(request);
+    const sub = await enforceCapability(uid, CAPABILITIES.generateCoaching);
+    // Budget tier: pilot maps to 'extended' inside tokenBudgets; non-pilot
+    // paid users use their actual tier; everyone else falls back conservatively.
+    const budgetTier = sub.isPilot ? "pilot" : tierFromLabel(sub.tier);
     const { voiceIndex, forceRefresh = false, quickInsightsOnly = false } = request.data || {};
 
     // Validate voiceIndex if provided
@@ -304,34 +395,96 @@ async function handler(request) {
 
     const generatedAt = new Date().toISOString();
 
+    // Helper: collect all 4 stale voice cards + stale insights for the
+    // graceful-exhaustion / partial-failure paths.
+    async function loadStaleCoaching() {
+      const staleVoices = await Promise.all([0, 1, 2, 3].map(async (i) => {
+        const s = await getStaleCache(riderData.uid, OUTPUT_TYPE, {
+          voiceIndex: i,
+          maxAgeDays: 90,
+        });
+        return s?.result
+          ? { ...s.result, _meta: { ...VOICE_META[i], fromCache: true, stale: true } }
+          : null;
+      }));
+      const staleInsights = await getStaleCache(riderData.uid, INSIGHTS_OUTPUT_TYPE, { maxAgeDays: 90 });
+      const voices = {};
+      staleVoices.forEach((v, i) => { if (v) voices[i] = v; });
+      return { voices, quickInsights: staleInsights?.result || null };
+    }
+
     // Generate quick insights only (for progressive voice rendering)
     if (quickInsightsOnly) {
-      const quickInsights = await generateQuickInsights(riderData, forceRefresh, uid);
-      await persistInsightsSideExtracts(quickInsights, riderData, generatedAt);
-      return {
-        success: true,
-        quickInsights,
-        tier: riderData.tier,
-        dataTier: riderData.dataTier,
-        dataSnapshot: riderData.dataSnapshot,
-        generatedAt,
-      };
+      try {
+        const quickInsights = await generateQuickInsights(riderData, forceRefresh, uid, budgetTier);
+        await persistInsightsSideExtracts(quickInsights, riderData, generatedAt);
+        return {
+          success: true,
+          quickInsights,
+          tier: riderData.tier,
+          dataTier: riderData.dataTier,
+          dataSnapshot: riderData.dataSnapshot,
+          generatedAt,
+        };
+      } catch (err) {
+        if (isBudgetExceeded(err)) {
+          const stale = await loadStaleCoaching();
+          return await buildGracefulResponse({
+            uid,
+            err,
+            staleResult: { quickInsights: stale.quickInsights },
+            extras: {
+              tier: riderData.tier,
+              dataTier: riderData.dataTier,
+              dataSnapshot: riderData.dataSnapshot,
+              generatedAt,
+            },
+          });
+        }
+        throw err;
+      }
     }
 
     // Generate specific voice (no quick insights for single-voice requests)
     if (voiceIndex !== undefined && voiceIndex !== null) {
-      const voiceResult = await generateVoice(voiceIndex, riderData, forceRefresh, uid);
-      // Re-extract the home page snapshot — even a single-voice refresh can
-      // change what the rotation picks if that voice is in the featured pair.
-      await refreshWeeklyFocusSnapshotSection(uid, "coaching");
-      return {
-        success: true,
-        voices: { [voiceIndex]: voiceResult },
-        tier: riderData.tier,
-        dataTier: riderData.dataTier,
-        dataSnapshot: riderData.dataSnapshot,
-        generatedAt,
-      };
+      try {
+        const voiceResult = await generateVoice(voiceIndex, riderData, forceRefresh, uid, budgetTier);
+        // Re-extract the home page snapshot — even a single-voice refresh can
+        // change what the rotation picks if that voice is in the featured pair.
+        await refreshWeeklyFocusSnapshotSection(uid, "coaching");
+        // Trailing précis generation. The frontend's progressive-render flow
+        // fires 4 single-voice calls in parallel; whichever one is last to
+        // complete will see all 4 voice cache rows on the current hash and
+        // generate the précis. Earlier completions skip due to incomplete
+        // cache or the lock. Fire-and-forget — never block the voice response.
+        maybeGeneratePrecisFromCache(uid, riderData).catch((err) =>
+          console.error("[coaching] précis-trailing fire-and-forget failed:", err.message || err)
+        );
+        return {
+          success: true,
+          voices: { [voiceIndex]: voiceResult },
+          tier: riderData.tier,
+          dataTier: riderData.dataTier,
+          dataSnapshot: riderData.dataSnapshot,
+          generatedAt,
+        };
+      } catch (err) {
+        if (isBudgetExceeded(err)) {
+          const stale = await loadStaleCoaching();
+          return await buildGracefulResponse({
+            uid,
+            err,
+            staleResult: { voices: stale.voices },
+            extras: {
+              tier: riderData.tier,
+              dataTier: riderData.dataTier,
+              dataSnapshot: riderData.dataSnapshot,
+              generatedAt,
+            },
+          });
+        }
+        throw err;
+      }
     }
 
     // In-flight lock: prevent a concurrent page load/refresh from firing a
@@ -376,11 +529,11 @@ async function handler(request) {
     // Generate all 4 voices + Quick Insights in parallel (5 calls)
     // Use Promise.allSettled so partial results can be returned if some voices fail
     results = await Promise.allSettled([
-      generateVoice(0, riderData, forceRefresh, uid),
-      generateVoice(1, riderData, forceRefresh, uid),
-      generateVoice(2, riderData, forceRefresh, uid),
-      generateVoice(3, riderData, forceRefresh, uid),
-      generateQuickInsights(riderData, forceRefresh, uid),
+      generateVoice(0, riderData, forceRefresh, uid, budgetTier),
+      generateVoice(1, riderData, forceRefresh, uid, budgetTier),
+      generateVoice(2, riderData, forceRefresh, uid, budgetTier),
+      generateVoice(3, riderData, forceRefresh, uid, budgetTier),
+      generateQuickInsights(riderData, forceRefresh, uid, budgetTier),
     ]);
     } finally {
       await releaseLock(uid, OUTPUT_TYPE);
@@ -410,9 +563,26 @@ async function handler(request) {
 
     await persistInsightsSideExtracts(quickInsights, riderData, generatedAt);
 
-    // If ALL voices failed, throw so the client gets an error
+    // If ALL voices failed AND the failure looks like a budget cap, serve
+    // the rider's stale cache with cacheServed:true (Phase 4, graceful
+    // exhaustion). Non-budget all-fails still throw so the client retries.
     if (failedVoices.length === 4) {
-      throw results[0].reason || new Error("All coaching voices failed to generate.");
+      const firstReason = results[0]?.reason;
+      if (isBudgetExceeded(firstReason)) {
+        const stale = await loadStaleCoaching();
+        return await buildGracefulResponse({
+          uid,
+          err: firstReason,
+          staleResult: { voices: stale.voices, quickInsights: stale.quickInsights },
+          extras: {
+            tier: riderData.tier,
+            dataTier: riderData.dataTier,
+            dataSnapshot: riderData.dataSnapshot,
+            generatedAt,
+          },
+        });
+      }
+      throw firstReason || new Error("All coaching voices failed to generate.");
     }
 
     // Multi-Voice Coaching précis — voice-agnostic ≤200-word summary used

@@ -56,6 +56,27 @@
   font-weight: 600;
 }
 
+.insights-tab--disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.insights-tab--disabled:hover {
+  color: inherit;
+  background: transparent;
+}
+
+.insights-tab__lock {
+  margin-left: 0.4rem;
+  background: var(--gold, #b89968);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+}
+
 .insights-tab__icon {
   font-size: 1.1em;
 }
@@ -4364,6 +4385,79 @@
 .btn-refresh:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+}
+
+.btn-refresh .locked-tag {
+  margin-left: 0.4rem;
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+}
+
+.upgrade-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: var(--parchment-off, #f3ebde);
+  border: 1px solid var(--gold, #b89968);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.88rem;
+  color: var(--ink, #4a3c2a);
+}
+
+.upgrade-notice__cta {
+  flex-shrink: 0;
+  background: var(--gold, #b89968);
+  color: white;
+  text-decoration: none;
+  padding: 0.4rem 0.85rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.upgrade-notice__cta:hover {
+  opacity: 0.88;
+}
+
+.budget-banner {
+  background: #FFF7E6;
+  border: 1px solid #E0C58A;
+  border-left: 4px solid #C29B3D;
+  border-radius: 8px;
+  padding: 0.85rem 1.1rem;
+  margin-bottom: 1.25rem;
+  font-family: 'Work Sans', sans-serif;
+  color: #4a3c2a;
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.budget-banner__line strong {
+  font-weight: 600;
+}
+
+.budget-banner__precis {
+  margin-top: 0.55rem;
+  padding-top: 0.55rem;
+  border-top: 1px dashed rgba(194, 155, 61, 0.4);
+  font-size: 0.92rem;
+  color: #5a4a32;
+}
+
+.budget-banner__precis em {
+  font-style: normal;
+  font-weight: 600;
+  color: #876a35;
+  margin-right: 0.35rem;
 }
 
 .panel-timestamp {

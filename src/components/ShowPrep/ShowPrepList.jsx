@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useEntitlements } from '../../hooks/useEntitlements';
+import { CAPABILITIES } from '../../constants/entitlements';
 import {
   getAllShowPreparations, deleteShowPreparation,
   SHOW_TYPES, SHOW_PREP_STATUSES, resolveTestNames
@@ -38,6 +40,9 @@ const EXPORT_COLS = [
 
 export default function ShowPrepList() {
   const { currentUser } = useAuth();
+  const ent = useEntitlements();
+  const canCreate = ent.can(CAPABILITIES.createShowPrep);
+  const requiredLabel = ent.requiredTierLabel(CAPABILITIES.createShowPrep) || 'Medium';
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -115,15 +120,37 @@ export default function ShowPrepList() {
               <button className="btn-export-sm" onClick={() => exportToJSON(plans, 'show-preps')}>JSON</button>
             </>
           )}
-          <Link to="/show-prep/new" className="btn-new">+ New Show Prep</Link>
+          {canCreate ? (
+            <Link to="/show-prep/new" className="btn-new">+ New Show Prep</Link>
+          ) : (
+            <span className="btn-new btn-new--disabled" aria-disabled="true">
+              + New Show Prep <span className="locked-tag">{requiredLabel}+</span>
+            </span>
+          )}
         </div>
       </div>
+
+      {!canCreate && !ent.loading && (
+        <div className="upgrade-notice" style={{ marginTop: '1rem' }}>
+          <span>
+            Creating a new Show Preparation is part of the {requiredLabel} plan.
+            {plans.length > 0 ? ' Your existing plans below remain readable.' : ''}
+          </span>
+          <Link to="/pricing" className="upgrade-notice__cta">View plans</Link>
+        </div>
+      )}
 
       {plans.length === 0 ? (
         <div className="empty-state">
           <h3>No show preparations yet</h3>
-          <p>Create your first preparation plan to get ready for a show.</p>
-          <Link to="/show-prep/new" className="btn-new">+ New Show Prep</Link>
+          {canCreate ? (
+            <>
+              <p>Create your first preparation plan to get ready for a show.</p>
+              <Link to="/show-prep/new" className="btn-new">+ New Show Prep</Link>
+            </>
+          ) : (
+            <p>Show Planner is part of the {requiredLabel} plan. <Link to="/pricing">Upgrade to start a preparation plan.</Link></p>
+          )}
         </div>
       ) : (
         <>

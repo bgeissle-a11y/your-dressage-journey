@@ -164,9 +164,25 @@
   white-space: nowrap;
 }
 
-.cycle-regen:hover {
+.cycle-regen:hover:not(:disabled) {
   color: rgba(255,255,255,.75);
   border-color: rgba(255,255,255,.25);
+}
+
+.cycle-regen:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.cycle-regen .locked-tag {
+  margin-left: 0.4rem;
+  font-size: 9px;
+  font-weight: 700;
+  background: rgba(255,255,255,.18);
+  color: rgba(255,255,255,.9);
+  padding: 1px 6px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
 }
 
 

@@ -3,6 +3,8 @@ import { getMultiVoiceCoaching, getQuickInsights, VOICE_META } from '../../servi
 import { readInflightLock } from '../../services/weeklyFocusService';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSettings } from '../../contexts/SettingsContext';
+import { useEntitlements } from '../../hooks/useEntitlements';
+import { CAPABILITIES } from '../../constants/entitlements';
 import { getInitialActiveVoiceIndex } from '../../utils/voicePreferences';
 import CollapsibleSection from './CollapsibleSection';
 import CoachingVoiceCard from './CoachingVoiceCard';
@@ -10,6 +12,8 @@ import ErrorDisplay from './ErrorDisplay';
 import ElapsedTimer from './ElapsedTimer';
 import OrientingQuestion from './OrientingQuestion';
 import PriorityCloser from './PriorityCloser';
+import UpgradeNotice from './UpgradeNotice';
+import BudgetExhaustionBanner from './BudgetExhaustionBanner';
 import YDJLoading from '../YDJLoading';
 import CadenceStrip from '../InfoTip/CadenceStrip';
 
@@ -37,6 +41,8 @@ function parseErrorDetails(err) {
 export default function MultiVoicePanel({ generationStatus }) {
   const { currentUser } = useAuth();
   const { preferences, loaded: settingsLoaded } = useSettings();
+  const ent = useEntitlements();
+  const canGenerate = ent.can(CAPABILITIES.generateCoaching);
   const [voices, setVoices] = useState({});
   const [quickInsights, setQuickInsights] = useState(null);
   const [activeVoice, setActiveVoice] = useState(() => getInitialActiveVoiceIndex(preferences));
@@ -51,6 +57,9 @@ export default function MultiVoicePanel({ generationStatus }) {
   const [meta, setMeta] = useState(null);
   const [loadStartedAt, setLoadStartedAt] = useState(null);
   const [isStale, setIsStale] = useState(false);
+  // Phase 4: graceful exhaustion. When the backend returns cacheServed:true
+  // we render a banner with the next refresh date and the cached précis.
+  const [budgetExhausted, setBudgetExhausted] = useState(null);
 
   const hasRealVoiceData = Object.values(voices).some(
     (v) => v && !v._loading && !v._error
@@ -94,6 +103,13 @@ export default function MultiVoicePanel({ generationStatus }) {
           }
           return;
         }
+        if (result.cacheServed && result.capExceeded) {
+          setBudgetExhausted({
+            capExceeded: result.capExceeded,
+            refreshEligibleAt: result.refreshEligibleAt,
+            precis: result.precis,
+          });
+        }
         setQuickInsights(result.quickInsights || null);
         setMeta((prev) => ({
           ...prev,
@@ -121,6 +137,13 @@ export default function MultiVoicePanel({ generationStatus }) {
               setInsufficientData(result);
             }
             return;
+          }
+          if (result.cacheServed && result.capExceeded) {
+            setBudgetExhausted({
+              capExceeded: result.capExceeded,
+              refreshEligibleAt: result.refreshEligibleAt,
+              precis: result.precis,
+            });
           }
           if (result.voices?.[idx]) {
             const voice = result.voices[idx];
@@ -300,12 +323,32 @@ export default function MultiVoicePanel({ generationStatus }) {
           <button
             className="btn-refresh"
             onClick={() => fetchCoaching(true)}
-            disabled={loading || refreshing || regenerating}
+            disabled={loading || refreshing || regenerating || !canGenerate}
+            aria-label={!canGenerate ? `Generate Fresh Insights — requires the ${ent.requiredTierLabel(CAPABILITIES.generateCoaching) || 'paid'} plan` : undefined}
           >
             {loading || refreshing || regenerating ? 'Generating...' : 'Generate Fresh Insights'}
+            {!canGenerate && (
+              <span className="locked-tag">{ent.requiredTierLabel(CAPABILITIES.generateCoaching) || 'Paid'}+</span>
+            )}
           </button>
         </div>
       </div>
+
+      {!canGenerate && !ent.loading && (
+        <UpgradeNotice
+          capability={CAPABILITIES.generateCoaching}
+          requiredTierLabel={ent.requiredTierLabel(CAPABILITIES.generateCoaching)}
+          status={ent.status}
+        />
+      )}
+
+      {budgetExhausted && (
+        <BudgetExhaustionBanner
+          capExceeded={budgetExhausted.capExceeded}
+          refreshEligibleAt={budgetExhausted.refreshEligibleAt}
+          precis={budgetExhausted.precis}
+        />
+      )}
 
       <CadenceStrip outputSlug="multi-voice" lastRefreshedAt={meta?.generatedAt} />
 

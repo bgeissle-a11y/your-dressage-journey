@@ -5,8 +5,11 @@ import { useAuth } from '../../contexts/AuthContext';
 import { getRiderProfile } from '../../services';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase-config';
+import { useEntitlements } from '../../hooks/useEntitlements';
+import { CAPABILITIES } from '../../constants/entitlements';
 import ErrorDisplay from './ErrorDisplay';
 import ElapsedTimer from './ElapsedTimer';
+import UpgradeNotice from './UpgradeNotice';
 import YDJLoading from '../YDJLoading';
 import CadenceStrip from '../InfoTip/CadenceStrip';
 import './ThirtyDayCycle.css';
@@ -25,6 +28,9 @@ import './ThirtyDayCycle.css';
  */
 export default function PhysicalGuidancePanel() {
   const { currentUser } = useAuth();
+  const ent = useEntitlements();
+  const canGenerate = ent.can(CAPABILITIES.generatePhysicalGuidance);
+  const canRegenerate = ent.can(CAPABILITIES.regeneratePhysicalGuidance);
   // Auto-switch to protocol tab when #barn-aisle-prep anchor is in the URL
   const initialTab = window.location.hash === '#barn-aisle-prep' ? 'protocol' : 'awareness';
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -407,8 +413,16 @@ export default function PhysicalGuidancePanel() {
             {daysUntilRefresh != null && ` · ${daysUntilRefresh} days`}
           </span>
         </div>
-        <button className="cycle-regen" onClick={() => setShowRegenModal('confirm-refresh')} disabled={refreshing || regenerating}>
+        <button
+          className="cycle-regen"
+          onClick={() => setShowRegenModal('confirm-refresh')}
+          disabled={refreshing || regenerating || !canRegenerate}
+          aria-label={!canRegenerate ? `Regenerate early — requires the ${ent.requiredTierLabel(CAPABILITIES.regeneratePhysicalGuidance) || 'Extended'} plan` : undefined}
+        >
           {refreshing || regenerating ? '⏳ Regenerating...' : '↺ Regenerate early'}
+          {!canRegenerate && (
+            <span className="locked-tag">{ent.requiredTierLabel(CAPABILITIES.regeneratePhysicalGuidance) || 'Extended'}+</span>
+          )}
         </button>
       </div>
     );
@@ -878,6 +892,13 @@ export default function PhysicalGuidancePanel() {
   return (
     <div className="phys-redesign">
       {renderHero()}
+      {!canGenerate && !ent.loading && (
+        <UpgradeNotice
+          capability={CAPABILITIES.generatePhysicalGuidance}
+          requiredTierLabel={ent.requiredTierLabel(CAPABILITIES.generatePhysicalGuidance)}
+          status={ent.status}
+        />
+      )}
       <CadenceStrip
         outputSlug="physical"
         lastRefreshedAt={data?.generatedAt}

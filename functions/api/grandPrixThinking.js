@@ -19,6 +19,8 @@
  */
 
 const { validateAuth } = require("../lib/auth");
+const { enforceCapability } = require("../lib/loadSubscription");
+const { CAPABILITIES } = require("../lib/entitlements");
 const { wrapError } = require("../lib/errors");
 const { prepareRiderData } = require("../lib/prepareRiderData");
 const { callClaude } = require("../lib/claudeCall");
@@ -46,6 +48,58 @@ const {
   computeCurrentWeek,
 } = require("../lib/cycleState");
 const { refreshWeeklyFocusSnapshotSection } = require("../lib/weeklyFocusSnapshot");
+const { getMaxTokens, tierFromLabel } = require("../lib/tokenBudgets");
+const { isBudgetExceeded, buildGracefulResponse } = require("../lib/budgetExhaustion");
+const { HttpsError } = require("firebase-functions/v2/https");
+const { db } = require("../lib/firebase");
+
+// L2 Opus monthly soft cap (Spec §Part 6 #4). Counts L2-1 starts —
+// one per trajectory generation — and throws when the cap is reached.
+// Configurable via env so we can widen it without redeploying code.
+// Math.max(0, ...) clamps negatives to 0 (cap of 0 = disabled). NaN from
+// a garbage env value falls back to the 4-default to keep the cap on.
+const _L2_CAP_PARSED = parseInt(process.env.GPT_L2_OPUS_MONTHLY_CAP, 10);
+const GPT_L2_OPUS_MONTHLY_CAP = Number.isFinite(_L2_CAP_PARSED)
+  ? Math.max(0, _L2_CAP_PARSED)
+  : 4;
+
+/**
+ * Count this user's L2 trajectory starts (L2-1 Opus calls) in the current
+ * UTC calendar month. We count L2-1 specifically (not all Opus calls) so
+ * the metric maps 1:1 to "trajectory generations" — each generation fires
+ * exactly one L2-1 call. Reading the timestamp string lets us do a range
+ * query without a composite index.
+ */
+async function _countL2OpusThisMonth(uid) {
+  const now = new Date();
+  const monthPrefix = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
+  // timestamp in usageLogs is an ISO string; "2026-05" prefix matches the month.
+  const snap = await db.collection("usageLogs")
+    .where("uid", "==", uid)
+    .where("context", "==", "trajectory-call1-state-analysis")
+    .get();
+  let count = 0;
+  snap.forEach((doc) => {
+    const d = doc.data();
+    if (typeof d.timestamp === "string" && d.timestamp.startsWith(monthPrefix)) {
+      if ((d.model || "").includes("opus")) count++;
+    }
+  });
+  return count;
+}
+
+async function _assertL2OpusUnderCap(uid) {
+  if (GPT_L2_OPUS_MONTHLY_CAP <= 0) return; // cap of 0 means "disabled"
+  const used = await _countL2OpusThisMonth(uid);
+  if (used >= GPT_L2_OPUS_MONTHLY_CAP) {
+    console.warn(`[trajectory] L2 Opus monthly cap reached for ${uid}: ${used}/${GPT_L2_OPUS_MONTHLY_CAP}`);
+    throw new HttpsError(
+      "resource-exhausted",
+      "Trajectory regeneration limit reached for this month.",
+      { reason: "L2_OPUS_MONTHLY_CAP", used, cap: GPT_L2_OPUS_MONTHLY_CAP }
+    );
+  }
+}
 
 const OUTPUT_TYPE_MENTAL = "grandPrixThinking";
 // Intermediate caches for the chunked L2 trajectory pipeline. The full
@@ -175,7 +229,7 @@ function extractActivePathFromPaths(paths) {
  * Single API call generates full 4-week program upfront.
  * weeklyAssignments extracted server-side from current week (Hard Rule 2).
  */
-async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerContext) {
+async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerContext, budgetTier) {
   const hash = riderData.dataSnapshot?.hash;
   const tier = await getUserTier(uid);
 
@@ -241,12 +295,11 @@ async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerConte
   if (cycleState && forceRefresh) {
     if (tier !== "top") {
       const lastGenAt = cycleState.cycleStartDate;
-      const extend = await shouldExtendCycle(uid, lastGenAt);
+      // shouldExtendCycle writes status="extended" internally when the third
+      // arg is passed (Phase 7a) — no separate setCycleState needed here.
+      const extend = await shouldExtendCycle(uid, lastGenAt, "gpt");
       if (extend) {
-        // Extend the cycle — serve cached content for another 30 days
-        await require("../lib/cycleState").setCycleState(uid, "gpt", {
-          status: "extended",
-        });
+        // Serve cached content for another 30 days.
         const cached = await getStaleCache(uid, OUTPUT_TYPE_MENTAL, { maxAgeDays: 90 });
         const updatedCycleState = await getCycleState(uid, "gpt");
         return {
@@ -308,11 +361,9 @@ async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerConte
   const isFirstGen = !cycleState;
   const truncated = isFirstGen && shouldTruncateFirstCycle();
 
-  // Determine max tokens based on tier
-  // Standard 8192: full 4-week program with 3 assignments/week, check-ins, success metrics
-  // (4000 was too low for a complete 4-week program — truncated mid-generation)
-  const topTierMaxTokens = parseInt(process.env.PHYSICAL_GPT_TOP_TIER_MAX_TOKENS, 10) || 8192;
-  const maxTokens = tier === "top" ? topTierMaxTokens : 8192;
+  // Per Token Budget Spec v2: GPT L1 = 6000 tokens (Medium and Extended).
+  // Sourced via tokenBudgets so env overrides apply uniformly.
+  const maxTokens = getMaxTokens("gpt-l1", budgetTier);
 
   // Single Claude call (Sonnet) for full 4-week program
   console.log(`[gpt-l1] Generating ${truncated ? "truncated 2-week" : "full 4-week"} Mental Performance (Sonnet)`);
@@ -383,7 +434,7 @@ async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerConte
  * Call graph:
  *   L2-1 (Opus) → [L2-2 (Opus) || L2-3 (Sonnet)] → L2-4 (Sonnet)
  */
-async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerContext) {
+async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerContext, budgetTier) {
   const hash = riderData.dataSnapshot?.hash;
 
   // Check cache (30-day monthly cycle)
@@ -461,15 +512,21 @@ async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerC
     || "Training";
   const testContext = buildTestDatabaseContext(currentLevel);
 
+  // --- L2 Opus monthly soft cap (Phase 6b) ---
+  // Throws resource-exhausted if this user has already hit
+  // GPT_L2_OPUS_MONTHLY_CAP trajectory generations this calendar month.
+  await _assertL2OpusUnderCap(uid);
+
   // --- L2-1: Current State Analysis (Opus) ---
   console.log("[trajectory] Starting L2-1: Current State Analysis (Opus)");
   const { system: sys1, userMessage: msg1 } = buildTrajectoryCall1Prompt(riderData, testContext, crossLayerContext);
+  const l2MaxTokens = getMaxTokens("gpt-l2", budgetTier);
   const currentStateAnalysis = await callClaude({
     system: sys1,
     userMessage: msg1,
     model: OPUS_MODEL,
     jsonMode: true,
-    maxTokens: 8192,
+    maxTokens: l2MaxTokens,
     context: "trajectory-call1-state-analysis",
     uid,
   });
@@ -486,7 +543,7 @@ async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerC
       userMessage: msg2,
       model: OPUS_MODEL,
       jsonMode: true,
-      maxTokens: 16384,
+      maxTokens: l2MaxTokens,
       context: "trajectory-call2-three-paths",
       uid,
     }),
@@ -494,7 +551,7 @@ async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerC
       system: sys3,
       userMessage: msg3,
       jsonMode: true,
-      maxTokens: 8192,
+      maxTokens: l2MaxTokens,
       context: "trajectory-call3-movement-maps",
       uid,
     }),
@@ -531,7 +588,7 @@ async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerC
     system: sys4,
     userMessage: msg4,
     jsonMode: true,
-    maxTokens: 4096,
+    maxTokens: l2MaxTokens,
     context: "trajectory-call4-narratives",
     uid,
   });
@@ -600,8 +657,9 @@ async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerC
  * @param {object} crossLayerContext - Mental-layer context (built by handler)
  * @returns {Promise<object>} Step result
  */
-async function generateTrajectoryStep(uid, riderData, step, priorResults, crossLayerContext) {
+async function generateTrajectoryStep(uid, riderData, step, priorResults, crossLayerContext, budgetTier) {
   const hash = riderData.dataSnapshot?.hash;
+  const l2MaxTokens = getMaxTokens("gpt-l2", budgetTier);
   const currentLevel = riderData.profile?.currentLevel
     || riderData.horseSummaries?.[0]?.level
     || "Training";
@@ -615,6 +673,10 @@ async function generateTrajectoryStep(uid, riderData, step, priorResults, crossL
 
   // ── Step 1: L2-1 Current State Analysis (Opus) ──
   if (step === 1) {
+    // L2 Opus monthly soft cap (Phase 6b). Gate the chunked-step entry too,
+    // so a rider can't bypass the cap by going through the step pipeline.
+    await _assertL2OpusUnderCap(uid);
+
     console.log("[trajectory] Step 1: Current State Analysis (Opus)");
     const { system, userMessage } = buildTrajectoryCall1Prompt(riderData, testContext, crossLayerContext);
     const currentStateAnalysis = await callClaude({
@@ -622,7 +684,7 @@ async function generateTrajectoryStep(uid, riderData, step, priorResults, crossL
       userMessage,
       model: OPUS_MODEL,
       jsonMode: true,
-      maxTokens: 8192,
+      maxTokens: l2MaxTokens,
       context: "trajectory-call1-state-analysis",
       uid,
     });
@@ -667,7 +729,7 @@ async function generateTrajectoryStep(uid, riderData, step, priorResults, crossL
         userMessage: msg2,
         model: OPUS_MODEL,
         jsonMode: true,
-        maxTokens: 16384,
+        maxTokens: l2MaxTokens,
         context: "trajectory-call2-three-paths",
         uid,
       }),
@@ -675,7 +737,7 @@ async function generateTrajectoryStep(uid, riderData, step, priorResults, crossL
         system: sys3,
         userMessage: msg3,
         jsonMode: true,
-        maxTokens: 8192,
+        maxTokens: l2MaxTokens,
         context: "trajectory-call3-movement-maps",
         uid,
       }),
@@ -750,7 +812,7 @@ async function generateTrajectoryStep(uid, riderData, step, priorResults, crossL
       system,
       userMessage,
       jsonMode: true,
-      maxTokens: 4096,
+      maxTokens: l2MaxTokens,
       context: "trajectory-call4-narratives",
       uid,
     });
@@ -805,6 +867,18 @@ async function handler(request) {
       step,
       priorResults,
     } = request.data || {};
+
+    // Capability gate. The trajectory layer's manual mid-cycle regen path
+    // (forceRefresh:true) is gated to Extended via `regenerateGrandPrixThinking`.
+    // First-time generation (no forceRefresh) and the chunked step pipeline
+    // ride on the base `generateGrandPrixThinking` cap so Medium can complete
+    // its initial monthly cycle.
+    const isManualRegen = layer === "trajectory" && forceRefresh === true;
+    const requiredCap = isManualRegen
+      ? CAPABILITIES.regenerateGrandPrixThinking
+      : CAPABILITIES.generateGrandPrixThinking;
+    const sub = await enforceCapability(uid, requiredCap);
+    const budgetTier = sub.isPilot ? "pilot" : tierFromLabel(sub.tier);
 
     // Handle week advancement request (no API call — just reads cached doc)
     if (advanceWeek) {
@@ -890,15 +964,37 @@ async function handler(request) {
         if (![1, 2, 3].includes(step)) {
           throw new HttpsError("invalid-argument", `step must be 1, 2, or 3 (got ${step})`);
         }
-        return await generateTrajectoryStep(uid, riderData, step, priorResults || {}, crossLayerContext);
+        return await generateTrajectoryStep(uid, riderData, step, priorResults || {}, crossLayerContext, budgetTier);
       }
-      return await generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerContext);
+      return await generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerContext, budgetTier);
     }
 
-    return await generateMentalLayer(uid, riderData, forceRefresh, crossLayerContext);
+    return await generateMentalLayer(uid, riderData, forceRefresh, crossLayerContext, budgetTier);
   } catch (error) {
+    // Phase 4: budget exhaustion on the mental layer serves stale cache.
+    // Trajectory layer is excluded from this contract (it's a 30-day cycle
+    // output, not a "main view" — see implementation brief).
+    if (isBudgetExceeded(error) && (request?.data?.layer ?? "mental") === "mental") {
+      try {
+        const staleCache = await getStaleCache(uid, OUTPUT_TYPE_MENTAL, { maxAgeDays: 90 });
+        const cycleState = await getCycleState(uid, "gpt");
+        return await buildGracefulResponse({
+          uid,
+          err: error,
+          staleResult: staleCache?.result || {},
+          extras: { fromCache: true, stale: true, cycleState },
+        });
+      } catch (innerErr) {
+        console.error("[gpt] graceful-exhaustion fallback failed:", innerErr.message);
+      }
+    }
     throw wrapError(error, "getGrandPrixThinking");
   }
 }
 
-module.exports = { handler };
+module.exports = {
+  handler,
+  // Exported for unit tests:
+  _countL2OpusThisMonth,
+  GPT_L2_OPUS_MONTHLY_CAP,
+};

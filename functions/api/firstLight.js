@@ -24,6 +24,8 @@ const { FieldValue } = require("firebase-admin/firestore");
 
 const { db } = require("../lib/firebase");
 const { validateAuth } = require("../lib/auth");
+const { enforceCapability } = require("../lib/loadSubscription");
+const { CAPABILITIES } = require("../lib/entitlements");
 const { wrapError } = require("../lib/errors");
 const { callClaude } = require("../lib/claudeCall");
 const { buildFirstLightPrompt } = require("../lib/promptBuilder");
@@ -259,7 +261,9 @@ async function generate(request) {
     const uid = validateAuth(request);
     const contextLabel = "firstLight-generate";
 
-    // Idempotency: if already generated, return existing document
+    // Idempotency: if already generated, return existing document.
+    // Cache reads bypass the capability gate so a converted-then-lapsed pilot
+    // can still see their existing First Light.
     const currentRef = firstLightDocRef(uid, "current");
     const currentSnap = await currentRef.get();
     if (currentSnap.exists) {
@@ -269,6 +273,11 @@ async function generate(request) {
         fromCache: true,
       };
     }
+
+    // Capability gate. Pilots short-circuit to allow inside `canAccess`, so
+    // gating on `generateCoaching` covers both pilot/pilot-grace (allowed)
+    // and post-pilot paid users (requires Working+).
+    await enforceCapability(uid, CAPABILITIES.generateCoaching);
 
     // Eligibility checks
     const riderProfile = await loadRiderProfile(uid);
@@ -347,6 +356,10 @@ async function regenerate(request) {
   try {
     const uid = validateAuth(request);
     const contextLabel = "firstLight-regenerate";
+
+    // Capability gate — same logic as `generate`. Pilots are allowed via the
+    // status short-circuit; post-pilot users need at least Working.
+    await enforceCapability(uid, CAPABILITIES.generateCoaching);
 
     const currentRef = firstLightDocRef(uid, "current");
     const currentSnap = await currentRef.get();

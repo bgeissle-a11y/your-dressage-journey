@@ -20,12 +20,15 @@
 const crypto = require("crypto");
 const { HttpsError } = require("firebase-functions/v2/https");
 const { validateAuth, validateOwnership } = require("../lib/auth");
+const { enforceCapability } = require("../lib/loadSubscription");
+const { CAPABILITIES } = require("../lib/entitlements");
 const { wrapError } = require("../lib/errors");
 const { prepareRiderData } = require("../lib/prepareRiderData");
 const { callClaude } = require("../lib/claudeCall");
 const { buildEventPlannerPrompt } = require("../lib/promptBuilder");
 const { buildDetailedTestContext, inferLevelFromTests } = require("../lib/testDatabase");
 const { getCache, setCache, getStaleCache } = require("../lib/cacheManager");
+const { getMaxTokens, tierFromLabel } = require("../lib/tokenBudgets");
 const { db } = require("../lib/firebase");
 
 /**
@@ -87,6 +90,12 @@ function computeEventPrepHash(prepPlan) {
 async function handler(request) {
   try {
     const uid = validateAuth(request);
+    const sub = await enforceCapability(uid, CAPABILITIES.generateShowPrepPlan);
+    const budgetTier = sub.isPilot ? "pilot" : tierFromLabel(sub.tier);
+    // Per Token Budget Spec v2: Show Planner per-call = 3000. This is the
+    // biggest single cost reduction in the brief; the previous 24576/12288
+    // ceilings are 4-8x spec.
+    const eventPlannerMaxTokens = getMaxTokens("event-planner", budgetTier);
     const {
       eventPrepPlanId,
       showPrepPlanId,
@@ -254,7 +263,7 @@ async function handler(request) {
           system,
           userMessage,
           jsonMode: true,
-          maxTokens: 24576,
+          maxTokens: eventPlannerMaxTokens,
           context: "ep-1-test-requirements",
           uid,
         });
@@ -302,7 +311,7 @@ async function handler(request) {
         system,
         userMessage,
         jsonMode: true,
-        maxTokens: 8192,
+        maxTokens: eventPlannerMaxTokens,
         context: "ep-2-readiness-analysis",
         uid,
       });
@@ -331,7 +340,7 @@ async function handler(request) {
         system,
         userMessage,
         jsonMode: true,
-        maxTokens: 24576,
+        maxTokens: eventPlannerMaxTokens,
         context: "ep-3-preparation-plan",
         uid,
       });
@@ -365,7 +374,7 @@ async function handler(request) {
         system,
         userMessage,
         jsonMode: true,
-        maxTokens: 12288,
+        maxTokens: eventPlannerMaxTokens,
         context: "ep-4-show-day-guidance",
         uid,
       });

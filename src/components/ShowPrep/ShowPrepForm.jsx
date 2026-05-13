@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useEntitlements } from '../../hooks/useEntitlements';
+import { CAPABILITIES } from '../../constants/entitlements';
 import {
   createShowPreparation, getShowPreparation, updateShowPreparation,
   getAllHorseProfiles,
@@ -23,6 +25,11 @@ export default function ShowPrepForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = Boolean(id);
+  const ent = useEntitlements();
+  // Editing an existing prep is allowed for any tier that can view it; only
+  // CREATING a new one is Medium-gated. Block the form entry point so a
+  // Working user never gets to "fill in everything then fail at generate".
+  const canCreate = isEdit || ent.can(CAPABILITIES.createShowPrep);
 
   const [horseNames, setHorseNames] = useState([]);
   const [formData, setFormData] = useState({
@@ -438,6 +445,27 @@ export default function ShowPrepForm() {
 
   if (loadingData) {
     return <div className="loading-state">Loading show preparation...</div>;
+  }
+
+  if (!canCreate && !ent.loading) {
+    const requiredLabel = ent.requiredTierLabel(CAPABILITIES.createShowPrep) || 'Medium';
+    return (
+      <div className="form-page">
+        <div className="form-page-header">
+          <h1>Show Preparation Planner</h1>
+        </div>
+        <div className="upgrade-notice" style={{ marginTop: '1.5rem' }}>
+          <span>
+            Show Planner is part of the {requiredLabel} plan. Upgrade to create a new show
+            preparation; your existing plans (if any) remain readable in your list.
+          </span>
+          <Link to="/pricing" className="upgrade-notice__cta">View plans</Link>
+        </div>
+        <div style={{ marginTop: '1rem' }}>
+          <Link to="/show-prep" className="btn btn-secondary">Back to your list</Link>
+        </div>
+      </div>
+    );
   }
 
   return (

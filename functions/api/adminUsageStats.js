@@ -178,6 +178,40 @@ async function handler(request) {
       }
     }
 
+    // Annotate per-user rows with their current usageBudgets accumulators —
+    // surfaces the live monthly + weekly cost ceiling state alongside the
+    // logs-derived totals. Per Phase 7b of the brief: `costAccruedThisPeriod`
+    // is exposed as an alias for `monthCostMillicents / 100_000` (USD). The
+    // underlying field name stays as-is to avoid a migration; only the admin
+    // readout uses the friendlier name.
+    if (uids.length > 0) {
+      const budgetRefs = uids.map((u) => db.collection("usageBudgets").doc(u));
+      try {
+        const budgetSnaps = await db.getAll(...budgetRefs);
+        for (let i = 0; i < uids.length; i++) {
+          const uid = uids[i];
+          const snap = budgetSnaps[i];
+          if (!byUser[uid] || !snap.exists) continue;
+          const b = snap.data() || {};
+          const monthMillicents = b.monthCostMillicents || 0;
+          const weekMillicents = b.weekCostMillicents || 0;
+          byUser[uid].budget = {
+            month: b.month || null,
+            week: b.week || null,
+            // Friendly alias (dollars). 100,000 millicents = $1.
+            costAccruedThisPeriod: Math.round((monthMillicents / 100_000) * 100) / 100,
+            weekCostAccruedThisPeriod: Math.round((weekMillicents / 100_000) * 100) / 100,
+            // Underlying millicent values for parity with raw doc shape.
+            monthCostMillicents: monthMillicents,
+            weekCostMillicents: weekMillicents,
+            dailyCallCount: b.count || 0,
+          };
+        }
+      } catch (err) {
+        console.warn(`[adminUsageStats] usageBudgets batch read failed: ${err.message}`);
+      }
+    }
+
     // Sort users by cost (highest first)
     const sortedUsers = Object.values(byUser).sort((a, b) => b.costCents - a.costCents);
 

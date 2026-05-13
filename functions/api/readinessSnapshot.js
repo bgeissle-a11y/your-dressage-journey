@@ -12,12 +12,15 @@
 
 const { HttpsError } = require("firebase-functions/v2/https");
 const { validateAuth } = require("../lib/auth");
+const { enforceCapability } = require("../lib/loadSubscription");
+const { CAPABILITIES } = require("../lib/entitlements");
 const { wrapError } = require("../lib/errors");
 const { prepareRiderData } = require("../lib/prepareRiderData");
 const { callClaude } = require("../lib/claudeCall");
 const { inferLevelFromTests } = require("../lib/testDatabase");
 const { db } = require("../lib/firebase");
 const { FieldValue } = require("firebase-admin/firestore");
+const { getMaxTokens, tierFromLabel } = require("../lib/tokenBudgets");
 
 /**
  * Format selected tests for prompt insertion.
@@ -73,9 +76,32 @@ Never recommend choreography that includes movements forbidden at the declared l
 Never recommend entering a freestyle class without confirming eligibility.
 ` : '';
 
-  const patternsBlock = ctx.patterns.length > 0
-    ? `RIDER TRAINING PATTERNS (pre-processed from recent debriefs):\n${ctx.patterns.map(p => `- ${p}`).join('\n')}`
-    : `RIDER TRAINING PATTERNS: Insufficient data — fewer than 5 debriefs logged. Note this honestly and calibrate the assessment accordingly.`;
+  // Multi-Voice précis as "current state" anchor (Phase 5.2). Placed directly
+  // above the patterns block so it primes the model with the rider's most
+  // recent coaching gestalt before it ingests the raw pattern aggregations.
+  // When absent (rider hasn't generated Multi-Voice yet), we silently omit.
+  const precisBlock = ctx.precis
+    ? `<rider_current_state>\n${ctx.precis}\n</rider_current_state>`
+    : '';
+
+  // Pattern block has three states:
+  //  1. patterns array populated → use them
+  //  2. patterns empty BUT précis present → précis is the authoritative
+  //     current-state input; tell the AI to lean on it instead of falsely
+  //     claiming the rider has insufficient logged data. The legacy
+  //     aggregator can return empty even for riders with hundreds of
+  //     debriefs (different output_type produces different aggregations);
+  //     hardcoding "fewer than 5 debriefs" was a stale assumption.
+  //  3. patterns empty AND no précis → first-time / brand-new rider;
+  //     keep the original honest "insufficient data" framing.
+  let patternsBlock;
+  if (ctx.patterns.length > 0) {
+    patternsBlock = `RIDER TRAINING PATTERNS (pre-processed from recent debriefs):\n${ctx.patterns.map(p => `- ${p}`).join('\n')}`;
+  } else if (ctx.precis) {
+    patternsBlock = `RIDER TRAINING PATTERNS: No detailed aggregation available for this analysis cycle. Rely on rider_current_state above as the authoritative source for the rider's current focus, recent breakthroughs, and active challenges. Do NOT claim the rider has insufficient debriefs — the précis is built from their accumulated coaching history.`;
+  } else {
+    patternsBlock = `RIDER TRAINING PATTERNS: Insufficient data — fewer than 5 debriefs logged AND no Multi-Voice coaching summary cached. Note this honestly and calibrate the assessment accordingly.`;
+  }
 
   const clinicBlock = ctx.clinicInsights.length > 0
     ? `RECENT TRAINER FEEDBACK (last 3 lesson note takeaways):\n${ctx.clinicInsights.map(c => `- ${c}`).join('\n')}`
@@ -89,6 +115,8 @@ ${multiTestNote}
 
 SELECTED TESTS:
 ${testsBlock}
+
+${precisBlock}
 
 ${patternsBlock}
 
@@ -122,7 +150,7 @@ Final sentence only: Switch briefly to The Empathetic Coach voice — one warm, 
 /**
  * Build context for the readiness snapshot from rider data and plan doc.
  */
-function buildSnapshotContext(planDoc, riderData, flagState) {
+function buildSnapshotContext(planDoc, riderData, flagState, precis = null) {
   const testsSelected = planDoc.selectedTests ||
     (planDoc.testsSelected) ||
     (planDoc.tests && planDoc.tests.selected) ||
@@ -217,6 +245,15 @@ function buildSnapshotContext(planDoc, riderData, flagState) {
     }
   }
 
+  // Diagnostic: when patterns is still empty but the rider has substantial
+  // debrief volume, the rideHistory aggregator probably isn't producing
+  // patterns for the "eventPlanner" output_type. Worth knowing for follow-up.
+  if (patterns.length === 0) {
+    const totalDb = riderData.overallStats?.totalDebriefs || 0;
+    const rhKeys = riderData.rideHistory ? Object.keys(riderData.rideHistory).join(",") : "(no rideHistory)";
+    console.warn(`[readinessSnapshot] empty patterns: totalDebriefs=${totalDb}, rideHistory keys=${rhKeys}`);
+  }
+
   const horseName = planDoc.horseName || planDoc.horse?.name ||
     (riderData.profile?.horses?.[0]?.name) || 'the horse';
   const riderName = riderData.profile?.displayName || riderData.profile?.name || 'Rider';
@@ -231,6 +268,7 @@ function buildSnapshotContext(planDoc, riderData, flagState) {
     totalDebriefs,
     patterns,
     clinicInsights,
+    precis,
     selectedTests,
     hasMultipleTests,
     hasFreestyle,
@@ -241,11 +279,30 @@ function buildSnapshotContext(planDoc, riderData, flagState) {
 }
 
 /**
+ * Read the rider's cached Multi-Voice précis. Returns null on miss/error so
+ * the snapshot prompt cleanly omits the rider_current_state block.
+ */
+async function loadCoachingPrecis(uid) {
+  try {
+    const snap = await db.collection("analysisCache").doc(`${uid}_coaching_precis`).get();
+    if (!snap.exists) return null;
+    const precis = snap.data()?.result?.precis;
+    return typeof precis === "string" && precis.trim() ? precis.trim() : null;
+  } catch (err) {
+    console.warn(`[readinessSnapshot] precis read failed for ${uid}: ${err.message}`);
+    return null;
+  }
+}
+
+/**
  * Cloud Function handler for Readiness Snapshot generation.
  */
 async function handler(request) {
   try {
     const uid = validateAuth(request);
+    // Readiness Snapshot lives under the Show Planner gate per the brief.
+    const sub = await enforceCapability(uid, CAPABILITIES.generateShowPrepPlan);
+    const budgetTier = sub.isPilot ? "pilot" : tierFromLabel(sub.tier);
     const { planId, refresh = false } = request.data || {};
 
     if (!planId || typeof planId !== "string") {
@@ -281,18 +338,40 @@ async function handler(request) {
         throw new HttpsError("failed-precondition", "Snapshot has already been refreshed once.");
       }
     } else if (existingSnap.exists) {
-      // Already generated — return existing
+      // Already generated — return existing IF the narrative survived. A doc
+      // missing the narrative field (manual deletion in Firebase Console, an
+      // older partial write, etc.) shouldn't short-circuit; fall through and
+      // regenerate. Without this guard the frontend gets back a "success"
+      // with undefined narrative, the listener can't hydrate, and the auto-
+      // trigger re-fires every 5 seconds in a loop.
       const existing = existingSnap.data();
-      return {
-        success: true,
-        narrative: existing.narrative,
-        generatedAt: existing.generatedAt,
-        fromCache: true,
-      };
+      const hasNarrative = typeof existing.narrative === "string" && existing.narrative.trim().length > 0;
+      if (hasNarrative) {
+        return {
+          success: true,
+          narrative: existing.narrative,
+          generatedAt: existing.generatedAt,
+          fromCache: true,
+        };
+      }
+      console.warn(
+        `[readinessSnapshot] doc exists for plan ${planId} but narrative is missing — regenerating`
+      );
     }
 
-    // Fetch rider data for prompt context
-    const riderData = await prepareRiderData(uid, "eventPlanner");
+    // Fetch rider data + précis in parallel. Précis becomes the
+    // rider_current_state anchor in the prompt (Phase 5.2 of the brief);
+    // failures here are non-blocking — the snapshot falls back to its
+    // original behavior when no précis is cached.
+    const [riderData, precis] = await Promise.all([
+      prepareRiderData(uid, "eventPlanner"),
+      loadCoachingPrecis(uid),
+    ]);
+    if (precis) {
+      console.log(`[readinessSnapshot] using précis (${precis.length} chars) as rider_current_state`);
+    } else {
+      console.log("[readinessSnapshot] no précis available — falling back to patterns-only prompt");
+    }
 
     // Load flag state from the show prep entry's test flags
     let flagState = {};
@@ -311,7 +390,7 @@ async function handler(request) {
     }
 
     // Build context
-    const ctx = buildSnapshotContext(planDoc, riderData, flagState);
+    const ctx = buildSnapshotContext(planDoc, riderData, flagState, precis);
 
     // Build prompts
     const system = buildReadinessSnapshotPrompt(ctx);
@@ -320,10 +399,13 @@ async function handler(request) {
     // Call Claude
     console.log(`[readinessSnapshot] Generating for plan ${planId}, ${ctx.selectedTests.length} test(s), ${ctx.daysOut} days out`);
 
+    // Per Token Budget Spec v2: Readiness Snapshot = 2500 tokens (was 700,
+    // which the brief flagged as under-spec for the 300–400 word narrative
+    // when ungenerous trims pushed it past the prior cap).
     const narrative = await callClaude({
       system,
       userMessage,
-      maxTokens: 700,
+      maxTokens: getMaxTokens("readiness-snapshot", budgetTier),
       jsonMode: false,
       context: "readiness-snapshot",
       uid,

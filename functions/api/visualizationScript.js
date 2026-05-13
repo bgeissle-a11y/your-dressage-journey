@@ -15,9 +15,12 @@
 
 const { HttpsError } = require("firebase-functions/v2/https");
 const { validateAuth } = require("../lib/auth");
+const { enforceCapability } = require("../lib/loadSubscription");
+const { CAPABILITIES } = require("../lib/entitlements");
 const { wrapError } = require("../lib/errors");
 const { callClaude } = require("../lib/claudeCall");
 const { buildVisualizationScriptPrompt } = require("../lib/promptBuilder");
+const { getMaxTokens, tierFromLabel } = require("../lib/tokenBudgets");
 const { db } = require("../lib/firebase");
 
 /**
@@ -102,18 +105,13 @@ async function fetchVisualizationContext(uid, formData) {
 }
 
 /**
- * Determine max tokens based on script length.
- */
-function getMaxTokens(scriptLength) {
-  return { short: 1400, standard: 2000, extended: 2800 }[scriptLength] || 2000;
-}
-
-/**
  * Cloud Function handler for Visualization Script generation.
  */
 async function handler(request) {
   try {
     const uid = validateAuth(request);
+    const sub = await enforceCapability(uid, CAPABILITIES.generateVisualizationScript);
+    const budgetTier = sub.isPilot ? "pilot" : tierFromLabel(sub.tier);
     const { formData } = request.data || {};
 
     if (!formData || !formData.movement || !formData.problemFocus ||
@@ -135,10 +133,13 @@ async function handler(request) {
     const scriptLength = formData.scriptLength || "standard";
     console.log(`[visualizationScript] Generating ${scriptLength} script for movement: ${formData.movement}`);
 
+    // Per Token Budget Spec v2: Visualization Scripts = 2000 tokens. Script
+    // length (short/standard/extended) used to drive the budget; it now drives
+    // only prompt instructions, with the cap unified across lengths.
     const script = await callClaude({
       system,
       userMessage,
-      maxTokens: getMaxTokens(scriptLength),
+      maxTokens: getMaxTokens("visualization-script", budgetTier),
       jsonMode: true,
       context: "visualization-script",
       uid,

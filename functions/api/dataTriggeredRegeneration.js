@@ -20,6 +20,9 @@
 
 const { db } = require("../lib/firebase");
 const { prepareRiderData } = require("../lib/prepareRiderData");
+const { silentCanAccess, loadSubscription } = require("../lib/loadSubscription");
+const { CAPABILITIES } = require("../lib/entitlements");
+const { tierFromLabel } = require("../lib/tokenBudgets");
 const {
   getStatus,
   startGeneration,
@@ -35,8 +38,13 @@ const {
 // via MONTHLY_REFRESH_MS below.
 const REGEN_THRESHOLD = 10;
 
-// Minimum time between regeneration runs for the same user (milliseconds)
-const REGEN_COOLDOWN_MS = 2 * 60 * 60 * 1000; // 2 hours
+// Minimum time between regeneration runs for the same user (Multi-Voice + the
+// outputs co-orchestrated with it). Token Budget Spec v2 §Part 6 #5: 4 hours
+// baseline across all tiers. Separate knob from `REGEN_COOLDOWN_HOURS` in
+// `cycleState.js`, which gates GPT/Physical mid-cycle regen at 2h — two
+// distinct concepts, two distinct env vars.
+const MULTIVOICE_COOLDOWN_HOURS = parseFloat(process.env.MULTIVOICE_COOLDOWN_HOURS || "4");
+const REGEN_COOLDOWN_MS = Math.max(0, MULTIVOICE_COOLDOWN_HOURS) * 60 * 60 * 1000;
 
 // Monthly floor: riders who log less than REGEN_THRESHOLD entries per month
 // still get a coaching refresh once 28 days have passed since the last run,
@@ -91,6 +99,15 @@ async function runRegeneration(uid, outputTypes, triggeredBy) {
   // Check kill switch
   if (await isKillSwitchActive()) {
     console.log(`[dataRegen] Kill switch active — skipping regeneration for ${uid}`);
+    return;
+  }
+
+  // Capability gate (silent). Pilot-grace and pilot-expired users keep
+  // writing data but should not trigger background AI runs against their
+  // own dollar budget. canAccess returns true for active pilots / paid
+  // tiers that own `generateCoaching`; otherwise we no-op.
+  if (!(await silentCanAccess(uid, CAPABILITIES.generateCoaching))) {
+    console.log(`[dataRegen] ${uid} lacks generateCoaching capability — skipping ${triggeredBy} regen`);
     return;
   }
 
@@ -178,6 +195,21 @@ async function runRegeneration(uid, outputTypes, triggeredBy) {
 }
 
 /**
+ * Returns true iff a regeneration on `generationStatus/{uid}` completed
+ * within the current calendar UTC month. Used to enforce the Working-tier
+ * max-1-monthly rule (Token Budget Spec v2 §Part 6 #3).
+ */
+function _regenCompletedThisMonth(status, now = new Date()) {
+  if (!status?.completedAt) return false;
+  const completed = new Date(status.completedAt);
+  if (Number.isNaN(completed.getTime())) return false;
+  return (
+    completed.getUTCFullYear() === now.getUTCFullYear() &&
+    completed.getUTCMonth() === now.getUTCMonth()
+  );
+}
+
+/**
  * Handler for debrief creation.
  * Threshold trigger: only regenerate after 5 new debriefs since last regen.
  *
@@ -216,6 +248,17 @@ async function handleDebriefCreated(event) {
 
     if (!thresholdReached && !monthlyFloorReached) {
       console.log(`[dataRegen] ${uid}: ${delta} new debriefs (threshold ${REGEN_THRESHOLD}) and monthly floor not reached — skipping`);
+      return;
+    }
+
+    // Working-tier max-1-monthly gate (Spec §Part 6 #3). If the user is on
+    // Working AND a regeneration already completed this calendar month, skip.
+    // Medium/Extended bypass this gate. Pilots and unpaid users also bypass
+    // (no enforcement at the data-trigger layer for them).
+    const sub = await loadSubscription(uid);
+    const budgetTier = sub.isPilot ? "extended" : tierFromLabel(sub.tier);
+    if (budgetTier === "working" && _regenCompletedThisMonth(status)) {
+      console.log(`[dataRegen] ${uid}: Working tier already had a regen this calendar month — skipping (max-1-monthly)`);
       return;
     }
 
@@ -325,4 +368,8 @@ module.exports = {
   handleDebriefCreated,
   handleReflectionCreated,
   handleImmediateChange,
+  // Exported for unit tests:
+  _regenCompletedThisMonth,
+  REGEN_COOLDOWN_MS,
+  MULTIVOICE_COOLDOWN_HOURS,
 };

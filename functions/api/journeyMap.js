@@ -13,6 +13,8 @@
  */
 
 const { validateAuth } = require("../lib/auth");
+const { enforceCapability } = require("../lib/loadSubscription");
+const { CAPABILITIES } = require("../lib/entitlements");
 const { wrapError } = require("../lib/errors");
 const { prepareRiderData } = require("../lib/prepareRiderData");
 const { callClaude } = require("../lib/claudeCall");
@@ -20,6 +22,8 @@ const { buildJourneyMapPrompt } = require("../lib/promptBuilder");
 const { getCache, setCache, getStaleCache } = require("../lib/cacheManager");
 const { getStatus: getGenStatus } = require("../lib/generationStatus");
 const { tryAcquireLock, releaseLock } = require("../lib/inflightLock");
+const { getMaxTokens, tierFromLabel } = require("../lib/tokenBudgets");
+const { isBudgetExceeded, buildGracefulResponse } = require("../lib/budgetExhaustion");
 const { db } = require("../lib/firebase");
 const { FieldValue } = require("firebase-admin/firestore");
 
@@ -93,6 +97,8 @@ async function backfillDashboardSummary(uid, summary) {
 async function handler(request) {
   try {
     const uid = validateAuth(request);
+    const sub = await enforceCapability(uid, CAPABILITIES.generateJourneyMap);
+    const budgetTier = sub.isPilot ? "pilot" : tierFromLabel(sub.tier);
     const { forceRefresh = false, staleOk = false } = request.data || {};
 
     // Fast path: return cached data immediately without preparing rider data.
@@ -131,9 +137,10 @@ async function handler(request) {
       };
     }
 
-    // Check cache
+    // Check cache. Lever 1 (cache buffer) applies — Journey Map shares the
+    // Multi-Voice staleness model per the brief.
     if (!forceRefresh) {
-      const cached = await getCache(uid, OUTPUT_TYPE, { currentHash: hash });
+      const cached = await getCache(uid, OUTPUT_TYPE, { currentHash: hash, applyBuffer: true });
       if (cached) {
         // Backfill dashboardSummary if cache has synthesis but analysis doc is missing
         if (cached.result?.synthesis?.dashboardSummary) {
@@ -205,7 +212,7 @@ async function handler(request) {
       system: sys1,
       userMessage: msg1,
       jsonMode: true,
-      maxTokens: 8192,
+      maxTokens: getMaxTokens("journey-map-synthesis", budgetTier),
       context: "journey-map-synthesis",
       uid,
     });
@@ -232,7 +239,7 @@ async function handler(request) {
         system: sys2,
         userMessage: msg2,
         jsonMode: false,
-        maxTokens: 4096,
+        maxTokens: getMaxTokens("journey-map-narrative", budgetTier),
         context: "journey-map-narrative",
         uid,
       }),
@@ -240,7 +247,7 @@ async function handler(request) {
         system: sys3,
         userMessage: msg3,
         jsonMode: true,
-        maxTokens: 2048,
+        maxTokens: getMaxTokens("journey-map-visualization", budgetTier),
         context: "journey-map-visualization",
         uid,
       }),
@@ -291,6 +298,20 @@ async function handler(request) {
       await releaseLock(uid, OUTPUT_TYPE);
     }
   } catch (error) {
+    // Phase 4: budget exhaustion serves stale cache instead of throwing.
+    if (isBudgetExceeded(error)) {
+      try {
+        const staleCache = await getStaleCache(uid, OUTPUT_TYPE, { maxAgeDays: 90 });
+        return await buildGracefulResponse({
+          uid,
+          err: error,
+          staleResult: staleCache?.result || {},
+          extras: { fromCache: true, stale: true },
+        });
+      } catch (innerErr) {
+        console.error("[journeyMap] graceful-exhaustion fallback failed:", innerErr.message);
+      }
+    }
     throw wrapError(error, "getJourneyMap");
   }
 }

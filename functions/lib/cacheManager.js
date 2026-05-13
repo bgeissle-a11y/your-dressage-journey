@@ -10,6 +10,7 @@
  */
 
 const { db } = require("./firebase");
+const { bufferThresholdMet } = require("./cacheBuffer");
 
 const COLLECTION = "analysisCache";
 
@@ -39,19 +40,27 @@ function buildDocId(uid, outputType, voiceIndex) {
 
 /**
  * Retrieve a cached analysis result.
- * Returns null if no cache exists, or if the cached hash doesn't match
- * the current hash (meaning data has changed since generation).
+ * Returns null if no cache exists, or if the cache is stale.
  *
- * @param {string} uid - User ID
+ * Default staleness rule: cached `dataSnapshotHash` ≠ current hash → stale.
+ *
+ * With `applyBuffer: true` (Lever 1, see `cacheBuffer.js`): the buffer rule
+ * decides instead — hash mismatch is ignored unless enough new debriefs /
+ * reflections have accumulated since the cached generation. Wire ONLY into
+ * Multi-Voice Coaching and Journey Map; Show Planner / GPT / Physical have
+ * their own 30-day cycle cadence and must keep the default behavior.
+ *
+ * @param {string} uid
  * @param {string} outputType - "coaching", "journeyMap", "grandPrixThinking"
  * @param {object} [options]
  * @param {string} [options.currentHash] - Current dataSnapshot hash to compare
  * @param {number} [options.voiceIndex] - For coaching voice cache
  * @param {number} [options.maxAgeDays] - Maximum age in days before considered stale
- * @returns {Promise<object|null>} Cached result or null
+ * @param {boolean} [options.applyBuffer] - Use buffer-based staleness (Lever 1)
+ * @returns {Promise<object|null>}
  */
 async function getCache(uid, outputType, options = {}) {
-  const { currentHash, voiceIndex, maxAgeDays = 30 } = options;
+  const { currentHash, voiceIndex, maxAgeDays = 30, applyBuffer = false } = options;
   const docId = buildDocId(uid, outputType, voiceIndex);
 
   const docRef = db.collection(COLLECTION).doc(docId);
@@ -61,12 +70,27 @@ async function getCache(uid, outputType, options = {}) {
 
   const data = docSnap.data();
 
-  // Check hash staleness
+  // Check hash staleness. With applyBuffer, defer the decision to
+  // bufferThresholdMet so light loggers stay on cache through the week.
   if (currentHash && data.dataSnapshotHash !== currentHash) {
-    console.log(
-      `[cache] Hash mismatch for ${docId}: cached=${data.dataSnapshotHash}, current=${currentHash}`
-    );
-    return null;
+    if (applyBuffer) {
+      const tripped = await bufferThresholdMet({ uid, generatedAt: data.generatedAt });
+      if (!tripped) {
+        console.log(
+          `[cache] Hash mismatch but buffer threshold NOT met for ${docId} — serving cache as fresh`
+        );
+      } else {
+        console.log(
+          `[cache] Hash mismatch AND buffer threshold met for ${docId} — invalidating`
+        );
+        return null;
+      }
+    } else {
+      console.log(
+        `[cache] Hash mismatch for ${docId}: cached=${data.dataSnapshotHash}, current=${currentHash}`
+      );
+      return null;
+    }
   }
 
   // Check age staleness

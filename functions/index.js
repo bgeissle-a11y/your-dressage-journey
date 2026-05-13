@@ -47,6 +47,7 @@ const stripeHandlers = require("./api/stripe");
 const firstLight = require("./api/firstLight");
 const microDebrief = require("./api/microDebrief");
 const freshStart = require("./api/freshStart");
+const showPlannerBiweeklyContent = require("./api/showPlannerBiweeklyContent");
 
 // Secrets — declared once, referenced by all functions that need them
 const anthropicKey = defineSecret("ANTHROPIC_API_KEY");
@@ -232,6 +233,39 @@ exports.weeklyFocusRefresh = onSchedule(
     memory: "512MiB",
   },
   weeklyFocusRefresh.handler
+);
+
+// --- Show Planner Bi-Weekly Content (Token Budget Spec v2 Lever 2) ---
+// Fires at 06:00 ET on the 1st and 15th of every month (~14-day cadence).
+// App Engine cron has no native "every 14 days" syntax, so we use unix
+// cron with explicit day-of-month list — gives spec-equivalent behavior
+// (2 fires/month, ~14 days apart).
+//
+// For each fire, iterate active show plans (showDateStart within the next 90
+// days) and append a Sonnet-generated check-in to each plan's
+// biweeklyContent array. Grounded in the rider's cached Multi-Voice précis
+// (NOT a full prepareRiderData run — cost win).
+//
+// The trigger is always registered so it shows up in `firebase functions:list`,
+// but the handler is gated by env flag SHOW_PLANNER_BIWEEKLY_ENABLED. Default
+// "false" — flip to "true" only when you've validated the prompt against a
+// couple of plans via the manual `runShowPlannerBiweekly` callable below.
+exports.showPlannerBiweeklyContent = onSchedule(
+  {
+    schedule: "0 6 1,15 * *",
+    timeZone: "America/New_York",
+    secrets: [anthropicKey],
+    timeoutSeconds: 540,
+    memory: "512MiB",
+  },
+  showPlannerBiweeklyContent.scheduledHandler
+);
+
+// Admin-only manual trigger for the bi-weekly run. Useful for prompt
+// validation without waiting 14 days, or for one-off content backfills.
+exports.runShowPlannerBiweekly = onCall(
+  { secrets: [anthropicKey], timeoutSeconds: 540, memory: "512MiB" },
+  showPlannerBiweeklyContent.callableHandler
 );
 
 // --- Admin ---

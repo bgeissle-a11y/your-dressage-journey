@@ -14,6 +14,8 @@
  */
 
 const { validateAuth } = require("../lib/auth");
+const { enforceCapability } = require("../lib/loadSubscription");
+const { CAPABILITIES } = require("../lib/entitlements");
 const { wrapError } = require("../lib/errors");
 const { prepareRiderData } = require("../lib/prepareRiderData");
 const { callClaude } = require("../lib/claudeCall");
@@ -21,6 +23,7 @@ const { buildDataVisualizationPrompt } = require("../lib/promptBuilder");
 const { getCache, setCache, getStaleCache } = require("../lib/cacheManager");
 const { getStatus: getGenStatus } = require("../lib/generationStatus");
 const { tryAcquireLock, releaseLock } = require("../lib/inflightLock");
+const { isBudgetExceeded, buildGracefulResponse } = require("../lib/budgetExhaustion");
 
 const OUTPUT_TYPE = "dataVisualizations";
 
@@ -33,6 +36,7 @@ const OUTPUT_TYPE = "dataVisualizations";
 async function handler(request) {
   try {
     const uid = validateAuth(request);
+    await enforceCapability(uid, CAPABILITIES.generateDataVisualizations);
     const { forceRefresh = false, staleOk = false } = request.data || {};
 
     // Fast path: return cached data immediately without preparing rider data.
@@ -199,6 +203,20 @@ async function handler(request) {
       await releaseLock(uid, OUTPUT_TYPE);
     }
   } catch (error) {
+    // Phase 4: budget exhaustion serves stale cache.
+    if (isBudgetExceeded(error)) {
+      try {
+        const staleCache = await getStaleCache(uid, OUTPUT_TYPE, { maxAgeDays: 90 });
+        return await buildGracefulResponse({
+          uid,
+          err: error,
+          staleResult: staleCache?.result || {},
+          extras: { fromCache: true, stale: true },
+        });
+      } catch (innerErr) {
+        console.error("[dataVisualizations] graceful-exhaustion fallback failed:", innerErr.message);
+      }
+    }
     throw wrapError(error, "getDataVisualizations");
   }
 }

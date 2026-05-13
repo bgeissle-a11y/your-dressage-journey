@@ -2,9 +2,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { getJourneyMap } from '../../services/aiService';
 import { readInflightLock } from '../../services/weeklyFocusService';
 import { useAuth } from '../../contexts/AuthContext';
+import { useEntitlements } from '../../hooks/useEntitlements';
+import { CAPABILITIES } from '../../constants/entitlements';
 import CollapsibleSection from './CollapsibleSection';
 import ErrorDisplay from './ErrorDisplay';
 import ElapsedTimer from './ElapsedTimer';
+import UpgradeNotice from './UpgradeNotice';
+import BudgetExhaustionBanner from './BudgetExhaustionBanner';
 import YDJLoading from '../YDJLoading';
 import CadenceStrip from '../InfoTip/CadenceStrip';
 
@@ -13,6 +17,8 @@ import CadenceStrip from '../InfoTip/CadenceStrip';
  * and collapsible detail sections.
  */
 export default function JourneyMapPanel({ generationStatus }) {
+  const ent = useEntitlements();
+  const canGenerate = ent.can(CAPABILITIES.generateJourneyMap);
   const { currentUser } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -22,6 +28,7 @@ export default function JourneyMapPanel({ generationStatus }) {
   const [insufficientData, setInsufficientData] = useState(null);
   const [loadStartedAt, setLoadStartedAt] = useState(null);
   const [isStale, setIsStale] = useState(false);
+  const [budgetExhausted, setBudgetExhausted] = useState(null);
 
   const fetchJourneyMap = useCallback(async ({ forceRefresh = false, staleOk = false } = {}) => {
     // Stale-while-revalidate: keep existing data visible during refresh
@@ -53,6 +60,15 @@ export default function JourneyMapPanel({ generationStatus }) {
 
       setData(result);
       setIsStale(!!result.stale);
+      if (result.cacheServed && result.capExceeded) {
+        setBudgetExhausted({
+          capExceeded: result.capExceeded,
+          refreshEligibleAt: result.refreshEligibleAt,
+          precis: result.precis,
+        });
+      } else {
+        setBudgetExhausted(null);
+      }
 
       // Backend signals another generation is in flight (lock held by an
       // earlier call from this or another session). Show regenerating UI
@@ -239,12 +255,32 @@ export default function JourneyMapPanel({ generationStatus }) {
           <button
             className="btn-refresh"
             onClick={() => fetchJourneyMap({ forceRefresh: true })}
-            disabled={loading || refreshing || regenerating}
+            disabled={loading || refreshing || regenerating || !canGenerate}
+            aria-label={!canGenerate ? `Regenerate — requires the ${ent.requiredTierLabel(CAPABILITIES.generateJourneyMap) || 'paid'} plan` : undefined}
           >
             {loading || refreshing || regenerating ? 'Regenerating...' : 'Regenerate'}
+            {!canGenerate && (
+              <span className="locked-tag">{ent.requiredTierLabel(CAPABILITIES.generateJourneyMap) || 'Paid'}+</span>
+            )}
           </button>
         </div>
       </div>
+
+      {!canGenerate && !ent.loading && (
+        <UpgradeNotice
+          capability={CAPABILITIES.generateJourneyMap}
+          requiredTierLabel={ent.requiredTierLabel(CAPABILITIES.generateJourneyMap)}
+          status={ent.status}
+        />
+      )}
+
+      {budgetExhausted && (
+        <BudgetExhaustionBanner
+          capExceeded={budgetExhausted.capExceeded}
+          refreshEligibleAt={budgetExhausted.refreshEligibleAt}
+          precis={budgetExhausted.precis}
+        />
+      )}
 
       <CadenceStrip outputSlug="journey-map" lastRefreshedAt={generatedAt} />
 

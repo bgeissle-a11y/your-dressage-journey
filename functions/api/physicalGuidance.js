@@ -21,6 +21,8 @@
  */
 
 const { validateAuth } = require("../lib/auth");
+const { enforceCapability } = require("../lib/loadSubscription");
+const { CAPABILITIES } = require("../lib/entitlements");
 const { wrapError } = require("../lib/errors");
 const { prepareRiderData } = require("../lib/prepareRiderData");
 const { callClaude } = require("../lib/claudeCall");
@@ -38,6 +40,7 @@ const {
   getUserTier,
 } = require("../lib/cycleState");
 const { refreshWeeklyFocusSnapshotSection } = require("../lib/weeklyFocusSnapshot");
+const { getMaxTokens, tierFromLabel } = require("../lib/tokenBudgets");
 
 const OUTPUT_TYPE = "physicalGuidance";
 
@@ -52,6 +55,15 @@ async function handler(request) {
       staleOk = false,
       advanceWeek = false,
     } = request.data || {};
+
+    // Capability gate. Manual mid-cycle regen (forceRefresh:true) requires
+    // the Extended-only `regeneratePhysicalGuidance`. Initial cycle generation
+    // and week advancement / staleOk reads use the base capability.
+    const requiredCap = forceRefresh
+      ? CAPABILITIES.regeneratePhysicalGuidance
+      : CAPABILITIES.generatePhysicalGuidance;
+    const sub = await enforceCapability(uid, requiredCap);
+    const budgetTier = sub.isPilot ? "pilot" : tierFromLabel(sub.tier);
 
     // Handle week advancement request (no API call)
     if (advanceWeek) {
@@ -151,10 +163,10 @@ async function handler(request) {
 
     // Check if cycle expired but insufficient new data → extend
     if (cycleState && forceRefresh && tier !== "top") {
-      const extend = await shouldExtendCycle(uid, cycleState.cycleStartDate);
+      // shouldExtendCycle writes status="extended" internally when the third
+      // arg is passed (Phase 7a) — no separate setCycleState needed here.
+      const extend = await shouldExtendCycle(uid, cycleState.cycleStartDate, "physical");
       if (extend) {
-        const { setCycleState } = require("../lib/cycleState");
-        await setCycleState(uid, "physical", { status: "extended" });
         const cached = await getStaleCache(uid, OUTPUT_TYPE, { maxAgeDays: 90 });
         const updatedCycleState = await getCycleState(uid, "physical");
         return {
@@ -211,12 +223,8 @@ async function handler(request) {
     const isFirstGen = !cycleState;
     const truncated = isFirstGen && shouldTruncateFirstCycle();
 
-    // --- Call 1: Exercise Protocol (pattern analysis + exercises + pre-ride ritual) ---
-    // Standard 8192: pattern analysis + 5-8 exercises + pre-ride ritual + body awareness profile
-    // Top tier: configurable via env var, defaults to 8192
-    const protocolMaxTokens = tier === "top"
-      ? (parseInt(process.env.PHYSICAL_PROTOCOL_TOP_TIER_MAX_TOKENS, 10) || 8192)
-      : 8192;
+    // Per Token Budget Spec v2: Physical Protocol = 5000 tokens (Medium and Extended).
+    const protocolMaxTokens = getMaxTokens("physical-protocol", budgetTier);
 
     console.log("[physical] Starting Call 1: Exercise Protocol");
     const { system: sys1, userMessage: msg1 } = buildPhysicalGuidancePrompt(
@@ -233,12 +241,9 @@ async function handler(request) {
     });
 
     // --- Call 2: Body Awareness (4-Week Program) ---
-    // Receives Exercise Protocol from Call 1 as input context (Hard Rule 1)
-    // Standard 8192: full 4-week program with patterns, noticing cues, debrief prompts
-    // (4000 was too low — truncated at ~2 weeks; 8192 fits full 4 weeks comfortably)
-    const awarenessMaxTokens = tier === "top"
-      ? (parseInt(process.env.PHYSICAL_AWARENESS_TOP_TIER_MAX_TOKENS, 10) || 8192)
-      : 8192;
+    // Receives Exercise Protocol from Call 1 as input context (Hard Rule 1).
+    // Per Token Budget Spec v2: Physical Awareness = 5000 tokens.
+    const awarenessMaxTokens = getMaxTokens("physical-awareness", budgetTier);
 
     console.log(`[physical] Starting Call 2: Body Awareness ${truncated ? "(truncated 2-week)" : "(4-week program)"}`);
     const { system: sys2, userMessage: msg2 } = buildPhysicalGuidancePrompt(

@@ -5,8 +5,12 @@ import { getRiderProfile } from '../../services';
 import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { db } from '../../firebase-config';
 import { readCycleState, readInflightLock } from '../../services/weeklyFocusService';
+import { useEntitlements } from '../../hooks/useEntitlements';
+import { CAPABILITIES } from '../../constants/entitlements';
 import ErrorDisplay from './ErrorDisplay';
 import ElapsedTimer from './ElapsedTimer';
+import UpgradeNotice from './UpgradeNotice';
+import BudgetExhaustionBanner from './BudgetExhaustionBanner';
 import YDJLoading from '../YDJLoading';
 import CadenceStrip from '../InfoTip/CadenceStrip';
 import './ThirtyDayCycle.css';
@@ -24,6 +28,9 @@ import './ThirtyDayCycle.css';
  *   - 30-day cycle with week pointer advancement
  */
 export default function GrandPrixPanel({ generationStatus }) {
+  const ent = useEntitlements();
+  const canGenerate = ent.can(CAPABILITIES.generateGrandPrixThinking);
+  const canRegenerate = ent.can(CAPABILITIES.regenerateGrandPrixThinking);
   const { currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState('mental');
 
@@ -31,6 +38,7 @@ export default function GrandPrixPanel({ generationStatus }) {
   const [mentalData, setMentalData] = useState(null);
   const [mentalLoading, setMentalLoading] = useState(false);
   const [mentalError, setMentalError] = useState(null);
+  const [budgetExhausted, setBudgetExhausted] = useState(null);
 
   // Trajectory layer state
   const [trajectoryData, setTrajectoryData] = useState(null);
@@ -219,6 +227,15 @@ export default function GrandPrixPanel({ generationStatus }) {
 
       setMentalData(result);
       setMentalStale(!!result.stale);
+      if (result.cacheServed && result.capExceeded) {
+        setBudgetExhausted({
+          capExceeded: result.capExceeded,
+          refreshEligibleAt: result.refreshEligibleAt,
+          precis: result.precis,
+        });
+      } else {
+        setBudgetExhausted(null);
+      }
 
       // Update cycle state from response
       if (result.cycleState) {
@@ -600,8 +617,16 @@ export default function GrandPrixPanel({ generationStatus }) {
             {daysUntilRefresh != null && ` · ${daysUntilRefresh} days`}
           </span>
         </div>
-        <button className="cycle-regen" onClick={() => setShowRegenModal('confirm-refresh')} disabled={mentalRefreshing}>
+        <button
+          className="cycle-regen"
+          onClick={() => setShowRegenModal('confirm-refresh')}
+          disabled={mentalRefreshing || !canRegenerate}
+          aria-label={!canRegenerate ? `Regenerate early — requires the ${ent.requiredTierLabel(CAPABILITIES.regenerateGrandPrixThinking) || 'Extended'} plan` : undefined}
+        >
           {mentalRefreshing ? '⏳ Regenerating...' : '↺ Regenerate early'}
+          {!canRegenerate && (
+            <span className="locked-tag">{ent.requiredTierLabel(CAPABILITIES.regenerateGrandPrixThinking) || 'Extended'}+</span>
+          )}
         </button>
       </div>
     );
@@ -1149,6 +1174,20 @@ export default function GrandPrixPanel({ generationStatus }) {
   return (
     <div className="gpt-redesign">
       {renderHero()}
+      {!canGenerate && !ent.loading && (
+        <UpgradeNotice
+          capability={CAPABILITIES.generateGrandPrixThinking}
+          requiredTierLabel={ent.requiredTierLabel(CAPABILITIES.generateGrandPrixThinking)}
+          status={ent.status}
+        />
+      )}
+      {budgetExhausted && activeTab === 'mental' && (
+        <BudgetExhaustionBanner
+          capExceeded={budgetExhausted.capExceeded}
+          refreshEligibleAt={budgetExhausted.refreshEligibleAt}
+          precis={budgetExhausted.precis}
+        />
+      )}
       <CadenceStrip
         outputSlug="grand-prix"
         lastRefreshedAt={mentalData?.generatedAt}

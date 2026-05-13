@@ -304,11 +304,18 @@ async function advanceWeekAndExtract(userId, outputType) {
  * Check if a cycle should be extended (insufficient new data).
  * Returns true if fewer than 5 new debriefs since last generation.
  *
+ * When `outputType` is provided AND the cycle should be extended, this
+ * function also flips the cycle doc's `status` to `"extended"`. The panel
+ * UI keys off `status === "extended"` to render the "Cycle extended — Log
+ * 5+ rides…" callout, so consumers no longer have to remember to do the
+ * write themselves (Phase 7a of the brief).
+ *
  * @param {string} userId
  * @param {string} generatedAt - ISO timestamp of last generation
+ * @param {"gpt"|"physical"} [outputType] - When provided, writes the status.
  * @returns {Promise<boolean>} true if should extend (not enough data)
  */
-async function shouldExtendCycle(userId, generatedAt) {
+async function shouldExtendCycle(userId, generatedAt, outputType) {
   if (!generatedAt) return false;
 
   const generatedDate = new Date(generatedAt);
@@ -320,7 +327,21 @@ async function shouldExtendCycle(userId, generatedAt) {
 
   const newDebriefCount = debriefSnap.docs.filter((d) => !d.data().isDeleted).length;
   console.log(`[cycle] New debriefs since last gen: ${newDebriefCount}`);
-  return newDebriefCount < 5;
+  const extend = newDebriefCount < 5;
+
+  if (extend && outputType) {
+    try {
+      await setCycleState(userId, outputType, { status: "extended" });
+      console.log(`[cycle] Marked ${outputType} cycle status=extended for ${userId}`);
+    } catch (err) {
+      // Don't fail the calling pipeline over a status-write hiccup —
+      // the caller can still serve cached content; the UI just won't
+      // render the extended-cycle callout this cycle.
+      console.warn(`[cycle] Failed to write status=extended for ${userId}: ${err.message}`);
+    }
+  }
+
+  return extend;
 }
 
 /**

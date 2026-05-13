@@ -18,15 +18,28 @@ export default function ReadinessSnapshotCard({ planId, userId, currentDebriefsC
   const [error, setError]         = useState(null);
   const [showConfirm, setConfirm] = useState(false);
   const [retrying, setRetrying]   = useState(false);
+  // One-shot guard: only auto-fire generation once per (planId) mount.
+  // Without this, a backend that returns success without writing the doc
+  // (or any other "soft" failure that leaves snapshot null) would retrigger
+  // the 5-second auto-fire forever.
+  const [autoFired, setAutoFired] = useState(false);
 
-  // Realtime listener — card hydrates when snapshot doc is written
+  // Realtime listener — card hydrates when snapshot doc is written.
+  // Only adopt the doc into state if it has a non-empty narrative; a doc
+  // missing that field means a partial / corrupt write (or an old schema)
+  // and we'd rather stay in loading state than crash on .split() below.
   useEffect(() => {
     if (!planId || !userId) return;
     const ref = doc(db, `showPreparations/${planId}/readinessSnapshot`, 'data');
     const unsub = onSnapshot(ref, (snap) => {
       if (snap.exists()) {
-        setSnapshot(snap.data());
-        setError(null);
+        const data = snap.data();
+        if (typeof data.narrative === 'string' && data.narrative.trim().length > 0) {
+          setSnapshot(data);
+          setError(null);
+        } else {
+          console.warn('[YDJ] Snapshot doc exists but has no narrative — treating as missing', { planId });
+        }
       }
     }, (err) => {
       console.error('[YDJ] Snapshot listener error:', err);
@@ -34,14 +47,24 @@ export default function ReadinessSnapshotCard({ planId, userId, currentDebriefsC
     return unsub;
   }, [planId, userId]);
 
-  // Auto-trigger generation for plans without a snapshot (2-minute delay for backward compat)
+  // Auto-trigger generation for plans without a snapshot. Fires AT MOST
+  // once per mount — see autoFired guard. After that the rider can use the
+  // Retry button on the error state if needed.
   useEffect(() => {
-    if (snapshot !== null || retrying) return;
+    if (snapshot !== null || retrying || autoFired) return;
     const timer = setTimeout(() => {
+      setAutoFired(true);
       triggerGeneration();
-    }, 5000); // 5s initial delay — shorter than the 2-min spec since most plans are new
+    }, 5000);
     return () => clearTimeout(timer);
-  }, [snapshot, planId, retrying]);
+  }, [snapshot, planId, retrying, autoFired]);
+
+  // Reset the one-shot guard if the parent navigates to a different plan.
+  useEffect(() => {
+    setAutoFired(false);
+    setSnapshot(null);
+    setError(null);
+  }, [planId]);
 
   async function triggerGeneration() {
     if (retrying) return;
@@ -138,9 +161,10 @@ export default function ReadinessSnapshotCard({ planId, userId, currentDebriefsC
         </div>
       )}
 
-      {/* Narrative */}
+      {/* Narrative — defensive split, in case a malformed doc slipped past
+          the listener guard (older deploy, manual edit, etc.). */}
       <div className="snapshot-narrative">
-        {snapshot.narrative.split('\n\n').map((para, i) => (
+        {(snapshot.narrative || '').split('\n\n').filter(Boolean).map((para, i) => (
           <p key={i}>{para}</p>
         ))}
       </div>
