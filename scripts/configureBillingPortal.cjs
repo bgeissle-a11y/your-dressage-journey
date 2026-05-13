@@ -2,9 +2,9 @@
  * Lock down the Stripe Customer Portal so plan/tier changes go ONLY through
  * /pricing where our coupon logic (IC, pilot monthly) is enforced.
  *
- *   node configureBillingPortal.cjs           # dry-run, shows what would change
- *   node configureBillingPortal.cjs --commit  # creates the config + stores its
- *                                                ID at /admin/stripeConfig
+ *   node configureBillingPortal.cjs                       # dry-run (test key)
+ *   node configureBillingPortal.cjs --commit              # commit (test key only)
+ *   node configureBillingPortal.cjs --commit --allow-live # commit against live key
  *
  * The default Stripe-provided configuration enables `subscription_update`,
  * which lets users self-serve plan switches in the portal — bypassing our
@@ -17,6 +17,12 @@
  * Stripe doesn't allow `is_default` to be set via API, so we store the new
  * configuration's ID in Firestore at /admin/stripeConfig.billingPortalConfigId
  * and pass it explicitly when creating portal sessions.
+ *
+ * Live mode: portal configurations are scoped per Stripe account (test ≠ live).
+ * When the production project swaps from the test key to the live key, this
+ * script must be re-run with --allow-live so the live-mode portal is also
+ * locked down. Without that flag, live keys abort by default to prevent
+ * accidental production changes.
  */
 
 const path = require("path");
@@ -26,6 +32,7 @@ const admin = require("firebase-admin");
 const Stripe = require(path.join(__dirname, "..", "functions", "node_modules", "stripe"));
 
 const COMMIT = process.argv.includes("--commit");
+const ALLOW_LIVE = process.argv.includes("--allow-live");
 
 const STRIPE_CONFIG_DOC = "admin/stripeConfig";
 const APP_BASE_URL = "https://your-dressage-journey.web.app";
@@ -72,12 +79,29 @@ async function run() {
   console.log(`Mode: ${COMMIT ? "COMMIT" : "DRY RUN (pass --commit to apply)"}\n`);
 
   const key = fetchStripeKey();
-  if (!key.startsWith("sk_test_")) {
+  const isLiveKey = key.startsWith("sk_live_");
+  const isTestKey = key.startsWith("sk_test_");
+
+  if (!isLiveKey && !isTestKey) {
     console.log(
-      `⚠ STRIPE_SECRET_KEY is not a TEST key (got ${key.slice(0, 7)}...). Aborting.`
+      `⚠ STRIPE_SECRET_KEY is neither a test nor live key (got ${key.slice(0, 7)}...). Aborting.`
     );
     process.exit(1);
   }
+
+  if (isLiveKey && !ALLOW_LIVE) {
+    console.log(
+      `⚠ STRIPE_SECRET_KEY is a LIVE key (sk_live_...). Aborting by default.\n` +
+        `   Re-run with --allow-live to apply the portal lockdown to the live\n` +
+        `   Stripe account. This is required after the production key swap.`
+    );
+    process.exit(1);
+  }
+
+  if (isLiveKey && ALLOW_LIVE) {
+    console.log("⚠ LIVE MODE — operating against the production Stripe account.\n");
+  }
+
   const stripe = new Stripe(key);
 
   const serviceAccount = require(path.join(__dirname, "serviceAccountKey.json"));

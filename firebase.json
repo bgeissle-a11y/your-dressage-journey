@@ -19,9 +19,18 @@
         "source": "/",
         "destination": "/ydj-learn-more.html",
         "type": 302
+      },
+      {
+        "source": "/ydj-how-it-works.html",
+        "destination": "/ydj-the-process.html",
+        "type": 301
       }
     ],
     "rewrites": [
+      {
+        "source": "/api/stripe/webhook",
+        "function": "stripeWebhook"
+      },
       {
         "source": "/firstGlimpse",
         "function": "firstGlimpse"

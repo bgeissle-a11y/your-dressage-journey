@@ -236,5 +236,13 @@ service cloud.firestore {
       allow read: if true;
       allow write: if false;
     }
+
+    // Stripe webhook event dedupe ledger — written exclusively by the
+    // stripeWebhook Cloud Function (admin SDK bypasses rules). No client
+    // read/write access; client never needs to see this. Consider adding
+    // a Firestore TTL policy on this collection (~30 days) to bound growth.
+    match /stripeWebhookEvents/{eventId} {
+      allow read, write: if false;
+    }
   }
 }

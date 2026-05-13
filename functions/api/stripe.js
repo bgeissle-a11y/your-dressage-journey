@@ -393,6 +393,14 @@ async function createCheckoutSession(request) {
     line_items: [{ price: prices.data[0].id, quantity: 1 }],
     success_url: `${origin}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}/subscription/cancel`,
+    // Stripe Tax: collect a billing address at Checkout and compute sales
+    // tax for US states where YDJ has nexus. Requires Stripe Tax to be
+    // enabled and onboarded in the live Dashboard. `customer_update.address`
+    // is required so Checkout can persist the collected address onto the
+    // existing customer for renewal invoices.
+    automatic_tax: { enabled: true },
+    customer_update: { address: "auto", name: "auto" },
+    tax_id_collection: { enabled: true },
     subscription_data: {
       metadata: {
         firebaseUID: uid,
@@ -627,6 +635,34 @@ async function handleWebhook(req, res) {
     return;
   }
 
+  // Idempotency: Stripe retries on non-2xx and occasionally double-delivers
+  // successful events. Without this guard, retries can re-claim IC spots,
+  // double-reset usage counters, and double-write subscription state. We
+  // short-circuit only when the prior delivery completed; if a previous
+  // attempt failed mid-handler (status != "completed"), we reprocess.
+  const eventRef = db.collection("stripeWebhookEvents").doc(event.id);
+  try {
+    const existing = await eventRef.get();
+    if (existing.exists && existing.data()?.status === "completed") {
+      console.log(`Duplicate webhook ${event.id} (${event.type}) — already completed`);
+      res.status(200).json({ received: true, duplicate: true });
+      return;
+    }
+    await eventRef.set(
+      {
+        type: event.type,
+        livemode: event.livemode,
+        receivedAt: admin.firestore.FieldValue.serverTimestamp(),
+        status: "processing",
+      },
+      { merge: true }
+    );
+  } catch (err) {
+    // Firestore unavailable — log and fall through to process. Better to
+    // double-process on a rare retry than drop the event entirely.
+    console.error(`Failed to read/record webhook event ${event.id}:`, err);
+  }
+
   try {
     switch (event.type) {
       case "customer.subscription.created":
@@ -647,6 +683,10 @@ async function handleWebhook(req, res) {
       default:
         console.log(`Unhandled event type: ${event.type}`);
     }
+    await eventRef.set(
+      { processedAt: admin.firestore.FieldValue.serverTimestamp(), status: "completed" },
+      { merge: true }
+    );
     res.status(200).json({ received: true });
   } catch (err) {
     console.error(`Error processing ${event.type}:`, err);
