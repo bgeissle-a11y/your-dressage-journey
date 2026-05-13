@@ -309,14 +309,35 @@ Layer 2 uses Opus for the analysis calls because it requires simultaneous reason
 
 ## Subscription Tiers
 
-| Tier | Price | Outputs |
+YDJ uses a **3-tier paid model** plus a **free Pilot tier** with a date-driven grace period. The authoritative tier × capability mapping lives in [`src/constants/entitlements.js`](src/constants/entitlements.js) and its backend mirror [`functions/lib/entitlements.js`](functions/lib/entitlements.js) — update both together when changing what a tier unlocks. The price/feature definitions live in [`src/services/subscriptionService.js`](src/services/subscriptionService.js) (`TIERS`).
+
+| Tier | Monthly | Annual (effective /mo) | What's Included |
+|---|---|---|---|
+| **Pilot** | Free | — | Full platform access through 2026-05-15. Read-only grace through 2026-07-07; blocked thereafter unless converted. |
+| **Working** | $30/mo | $300/yr ($25/mo) | All data entry forms, Multi-Voice Coaching (all 4 voices), Journey Map (12-month history), Weekly Focus, Weekly Coach Brief, Learn section & Rider's Toolkit |
+| **Medium** ★ popular | $50/mo | $500/yr ($41.67/mo) | Everything in Working + Grand Prix Thinking (monthly cycle), Physical Guidance (monthly cycle), Show Planner (10 shows/yr), Journey Map (full history), Visualization Scripts, Practice Card, Readiness Snapshot |
+| **Extended** | $130/mo | $1,300/yr ($108.33/mo) | Everything in Medium + unrestricted GPT & Physical Guidance regeneration, unlimited Show Planner, priority processing |
+
+### Discount Programs
+- **Initial Centerline (IC) — Founder cohort.** Annual-only, capped at 100 spots, enrollment closes 2026-07-08. Locked-in tier-specific discount; 6-month upgrade window during which the founder rate carries to a higher annual tier. Lifetime rate while continuously subscribed. Coupon IDs: `IC_WORKING_2026`, `IC_MEDIUM_2026`, `IC_EXTENDED_2026`.
+- **Pilot Monthly Discount.** 10% off any monthly tier for the lifetime of continuous subscription. Lapsing (cancel, downgrade, or switch to annual) forfeits the discount permanently. Coupon: `PILOT_MONTHLY_10`.
+- **30-Day Free Trial.** 30 days free on Medium monthly + 10% off the first year on whatever plan the user ultimately chooses. Coupon: `TRIAL_FIRSTYEAR_10`.
+
+### Pilot Lifecycle (Critical Dates)
+| Date Range | Status | Effect |
 |---|---|---|
-| **Pilot** | Free | Full platform access (all inputs and outputs) through mid-May 2026 |
-| **Tier 1** | $9.99/mo | Static Journey Map, 2 coaching voices |
-| **Tier 2a** | $19.99/mo | + All 4 voices, full dashboard |
-| **Tier 2b** | $29.99/mo | + GP Thinking, Event Planner |
-| **Tier 2c** | $39.99/mo | + Physical Guidance |
-| **Tier 3** | $49.99/mo | Complete suite, priority processing |
+| ≤ 2026-05-15 | `pilot` | Full access — same capabilities as Extended tier |
+| 2026-05-16 → 2026-07-07 | `pilot-grace` | Read-only on existing data; cannot create new entries or generate new AI outputs |
+| ≥ 2026-07-08 | `pilot-expired` | Blocked until conversion to a paid plan |
+
+These boundary dates live in `entitlements.js` (`PILOT_END_ISO`, `PILOT_GRACE_END_ISO`). Status transitions are **computed at access time** — there is no migration step on June 1 or July 8.
+
+### Stripe & Billing Wiring
+- **Coupon + tier definitions:** [`functions/api/stripe.js`](functions/api/stripe.js) (`COUPON_IDS`, `IC_TIER_COUPONS`).
+- **Subscription state:** Firestore `users/{uid}` document — fields: `subscriptionTier` (`working`/`medium`/`extended`/`none`), `subscriptionStatus` (`active`/`trialing`/`past_due`/`unpaid`/`canceled`/`none`), `subscriptionInterval` (`monthly`/`annual`), `isInitialCenterline`, `icTier`, `icStatus`, `icEnrollmentDate`, `isPilot`, `pilotDiscountActive`, `trialStarted`, `trialConverted`.
+- **Tier-change flows that preserve coupons:** `changeSubscriptionPlan` callable supports `flow: "ic_upgrade"` (IC member upgrading within their 6-month window) and `flow: "pilot_monthly_upgrade"` (pilot upgrading monthly tier, retains 10% lifetime).
+- **Customer Portal lockdown:** plan switching is disabled in the portal — config ID stored at Firestore `/admin/stripeConfig.billingPortalConfigId`. All tier changes route through `/pricing` so coupon swap logic isn't bypassed. Configured by `scripts/configureBillingPortal.cjs` (test-mode by default; pass `--allow-live` after the live-key swap).
+- **Live ↔ test scope:** Stripe portal configurations are per-account (test ≠ live). When production swaps to a live key, re-run the portal-config script with `--allow-live`.
 
 ---
 
