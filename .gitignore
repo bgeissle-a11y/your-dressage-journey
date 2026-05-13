@@ -83,6 +83,13 @@ ydj-visualization-form.html
 # Local-only audit/data outputs
 audit-default-ratings.csv
 
+# Bulk dumps and archive artifacts — never commit zips or unzipped working
+# folders. Copy individual files into the appropriate repo location if you
+# need them tracked.
+*.zip
+newdebriefs/
+website files/
+
 # Local-only public asset (not part of the deployed app)
 public/assets/ydj-testimonials.html
 
