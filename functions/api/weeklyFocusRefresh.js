@@ -129,114 +129,127 @@ async function handler(_event) {
   const weekId = getWeekId();
   console.log(`[weeklyFocusRefresh] Starting for ${weekId}`);
 
-  // Get all users
-  const listResult = await auth.listUsers(200);
-  const users = listResult.users;
-  console.log(`[weeklyFocusRefresh] Processing ${users.length} users`);
-
   let processed = 0;
   let skipped = 0;
   let errors = 0;
+  let pageNum = 0;
+  let pageToken;
 
-  for (const user of users) {
-    const uid = user.uid;
-    const displayName = user.displayName || user.email || uid;
+  // Paginate through all users — listUsers caps at 1000 per page.
+  do {
+    pageNum++;
+    const listResult = await auth.listUsers(1000, pageToken);
+    const users = listResult.users;
+    console.log(`[weeklyFocusRefresh] Processing page ${pageNum} (${users.length} users)`);
 
-    try {
-      // 1. Advance week pointers (no-op if cycle doesn't exist or week hasn't changed)
-      await Promise.all([
-        advanceWeekAndExtract(uid, "gpt").catch(() => ({ advanced: false, currentWeek: 1 })),
-        advanceWeekAndExtract(uid, "physical").catch(() => ({ advanced: false, currentWeek: 1 })),
-      ]);
+    for (const user of users) {
+      const uid = user.uid;
+      const displayName = user.displayName || user.email || uid;
 
-      // 2. Read cached AI outputs in parallel
-      const [coachV0, coachV1, coachV2, coachV3, gptCache, physCache, gptCycle, physCycle] =
+      try {
+        // 1. Advance week pointers (no-op if cycle doesn't exist or week hasn't changed)
         await Promise.all([
-          readCacheResult(uid, "coaching_0"),
-          readCacheResult(uid, "coaching_1"),
-          readCacheResult(uid, "coaching_2"),
-          readCacheResult(uid, "coaching_3"),
-          readCacheResult(uid, "grandPrixThinking"),
-          readCacheResult(uid, "physicalGuidance"),
-          getCycleState(uid, "gpt"),
-          getCycleState(uid, "physical"),
+          advanceWeekAndExtract(uid, "gpt").catch((err) => {
+            console.error(`[weeklyFocusRefresh] advanceWeekAndExtract failed for ${uid} (gpt):`, err.message);
+            return { advanced: false, currentWeek: 1 };
+          }),
+          advanceWeekAndExtract(uid, "physical").catch((err) => {
+            console.error(`[weeklyFocusRefresh] advanceWeekAndExtract failed for ${uid} (physical):`, err.message);
+            return { advanced: false, currentWeek: 1 };
+          }),
         ]);
 
-      // Skip users with no AI data at all
-      if (!coachV0 && !gptCache && !physCache) {
-        skipped++;
-        continue;
+        // 2. Read cached AI outputs in parallel
+        const [coachV0, coachV1, coachV2, coachV3, gptCache, physCache, gptCycle, physCycle] =
+          await Promise.all([
+            readCacheResult(uid, "coaching_0"),
+            readCacheResult(uid, "coaching_1"),
+            readCacheResult(uid, "coaching_2"),
+            readCacheResult(uid, "coaching_3"),
+            readCacheResult(uid, "grandPrixThinking"),
+            readCacheResult(uid, "physicalGuidance"),
+            getCycleState(uid, "gpt"),
+            getCycleState(uid, "physical"),
+          ]);
+
+        // Skip users with no AI data at all
+        if (!coachV0 && !gptCache && !physCache) {
+          skipped++;
+          continue;
+        }
+
+        // 3. Extract snapshots
+        const voices = { 0: coachV0, 1: coachV1, 2: coachV2, 3: coachV3 };
+        const coachingSnap = extractCoachingSnapshot(voices, weekId);
+        const gptSnap = extractGPTSnapshot(gptCache?.result, gptCycle);
+        const physSnap = extractPhysicalSnapshot(physCache?.result, physCycle);
+
+        // 4. Show card — read show preps and nearest show plan cache
+        const showPrepsSnap = await db.collection("showPreparations")
+          .where("userId", "==", uid)
+          .where("isDeleted", "==", false)
+          .get();
+        const showPreps = showPrepsSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+
+        let showSnap = { state: "no_shows" };
+        if (showPreps.length > 0) {
+          // Find nearest upcoming show to load its plan cache
+          const todayStr = new Date().toISOString().split("T")[0];
+          const upcoming = showPreps
+            .filter((p) => (p.showDateStart || "") >= todayStr && p.status !== "completed")
+            .sort((a, b) => (a.showDateStart || "").localeCompare(b.showDateStart || ""));
+          const activeShow = upcoming[0];
+          const showPlanCache = activeShow
+            ? await readCacheResult(uid, `showPlanner_${activeShow.id}`)
+            : null;
+          showSnap = buildShowSnapshot(showPreps, showPlanCache);
+        }
+
+        // 5. Celebration — deterministic per weekId
+        const reflSnap = await db.collection("reflections")
+          .where("userId", "==", uid)
+          .where("isDeleted", "==", false)
+          .get();
+        const reflections = reflSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        const cel = selectCelebration(reflections, weekId);
+
+        // 6. Write the frozen snapshot for this week
+        const contentSnapshot = {
+          coaching: coachingSnap || null,
+          gpt: gptSnap || null,
+          physical: physSnap || null,
+          show: showSnap,
+          visualization: null, // visualization suggestion is low-priority, stays client-side
+        };
+
+        const weekDoc = {
+          weekId,
+          contentSnapshot,
+          lastUpdated: new Date().toISOString(),
+          updatedBy: "weeklyFocusRefresh",
+        };
+        if (cel?.id) weekDoc.celebrationId = cel.id;
+
+        // Merge — preserves user's pinnedSections, completedSections, checkedItems
+        await db.collection("users").doc(uid).collection("weeklyFocus").doc(weekId)
+          .set(weekDoc, { merge: true });
+
+        processed++;
+        const sections = [
+          coachingSnap ? "coaching" : null,
+          gptSnap ? "gpt" : null,
+          physSnap ? "physical" : null,
+          showSnap.state === "active_show" ? "show" : null,
+        ].filter(Boolean);
+        console.log(`[weeklyFocusRefresh] ${displayName}: ${sections.join(", ") || "no sections"}`);
+      } catch (err) {
+        console.error(`[weeklyFocusRefresh] Error for ${displayName}:`, err.message);
+        errors++;
       }
-
-      // 3. Extract snapshots
-      const voices = { 0: coachV0, 1: coachV1, 2: coachV2, 3: coachV3 };
-      const coachingSnap = extractCoachingSnapshot(voices, weekId);
-      const gptSnap = extractGPTSnapshot(gptCache?.result, gptCycle);
-      const physSnap = extractPhysicalSnapshot(physCache?.result, physCycle);
-
-      // 4. Show card — read show preps and nearest show plan cache
-      const showPrepsSnap = await db.collection("showPreparations")
-        .where("userId", "==", uid)
-        .where("isDeleted", "==", false)
-        .get();
-      const showPreps = showPrepsSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
-
-      let showSnap = { state: "no_shows" };
-      if (showPreps.length > 0) {
-        // Find nearest upcoming show to load its plan cache
-        const todayStr = new Date().toISOString().split("T")[0];
-        const upcoming = showPreps
-          .filter((p) => (p.showDateStart || "") >= todayStr && p.status !== "completed")
-          .sort((a, b) => (a.showDateStart || "").localeCompare(b.showDateStart || ""));
-        const activeShow = upcoming[0];
-        const showPlanCache = activeShow
-          ? await readCacheResult(uid, `showPlanner_${activeShow.id}`)
-          : null;
-        showSnap = buildShowSnapshot(showPreps, showPlanCache);
-      }
-
-      // 5. Celebration — deterministic per weekId
-      const reflSnap = await db.collection("reflections")
-        .where("userId", "==", uid)
-        .where("isDeleted", "==", false)
-        .get();
-      const reflections = reflSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
-      const cel = selectCelebration(reflections, weekId);
-
-      // 6. Write the frozen snapshot for this week
-      const contentSnapshot = {
-        coaching: coachingSnap || null,
-        gpt: gptSnap || null,
-        physical: physSnap || null,
-        show: showSnap,
-        visualization: null, // visualization suggestion is low-priority, stays client-side
-      };
-
-      const weekDoc = {
-        weekId,
-        contentSnapshot,
-        lastUpdated: new Date().toISOString(),
-        updatedBy: "weeklyFocusRefresh",
-      };
-      if (cel?.id) weekDoc.celebrationId = cel.id;
-
-      // Merge — preserves user's pinnedSections, completedSections, checkedItems
-      await db.collection("users").doc(uid).collection("weeklyFocus").doc(weekId)
-        .set(weekDoc, { merge: true });
-
-      processed++;
-      const sections = [
-        coachingSnap ? "coaching" : null,
-        gptSnap ? "gpt" : null,
-        physSnap ? "physical" : null,
-        showSnap.state === "active_show" ? "show" : null,
-      ].filter(Boolean);
-      console.log(`[weeklyFocusRefresh] ${displayName}: ${sections.join(", ") || "no sections"}`);
-    } catch (err) {
-      console.error(`[weeklyFocusRefresh] Error for ${displayName}:`, err.message);
-      errors++;
     }
-  }
+
+    pageToken = listResult.pageToken;
+  } while (pageToken);
 
   console.log(`[weeklyFocusRefresh] Done: ${processed} updated, ${skipped} skipped, ${errors} errors`);
   return { processed, skipped, errors, weekId };

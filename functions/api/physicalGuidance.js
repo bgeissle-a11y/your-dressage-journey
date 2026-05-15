@@ -325,7 +325,12 @@ async function handler(request) {
     // Propagate the new content into the home page's frozen weekly snapshot
     // so the user sees the regen on next page load instead of waiting for
     // next Monday's cron.
-    await refreshWeeklyFocusSnapshotSection(uid, "physical");
+    try {
+      await refreshWeeklyFocusSnapshotSection(uid, "physical");
+    } catch (snapshotErr) {
+      console.error(`[physical] Weekly focus snapshot refresh failed for ${uid}:`, snapshotErr.message);
+      // Non-fatal — main output already succeeded.
+    }
 
     return {
       success: true,

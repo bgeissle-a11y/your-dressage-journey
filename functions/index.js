@@ -229,7 +229,8 @@ exports.weeklyFocusRefresh = onSchedule(
   {
     schedule: "every monday 05:00",
     timeZone: "America/New_York",
-    timeoutSeconds: 120,
+    // Bumped from 120s — post-pagination this iterates every user, not just the first 200.
+    timeoutSeconds: 540,
     memory: "512MiB",
   },
   weeklyFocusRefresh.handler
