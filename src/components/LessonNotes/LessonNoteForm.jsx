@@ -2,17 +2,20 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { httpsCallable } from 'firebase/functions';
-import { functions } from '../../firebase-config';
+import { waitForPendingWrites } from 'firebase/firestore';
+import { db, functions } from '../../firebase-config';
 import {
   createLessonNote, getLessonNote, updateLessonNote,
   getAllLessonNotes, getAllHorseProfiles, getAllDebriefs,
   LESSON_TYPES
 } from '../../services';
 import useFormRecovery from '../../hooks/useFormRecovery';
+import useIsIOSSafari from '../../hooks/useIsIOSSafari';
 import FormSection from '../Forms/FormSection';
 import FormField from '../Forms/FormField';
 import VoiceInput from '../Forms/VoiceInput';
 import YDJLoading from '../YDJLoading';
+import SaveConfirmation from '../shared/SaveConfirmation';
 import '../Forms/Forms.css';
 import './LessonNotes.css';
 
@@ -80,12 +83,15 @@ export default function LessonNoteForm() {
   const isEdit = Boolean(id);
   const textareaRefs = useRef({});
 
+  const isIOSSafari = useIsIOSSafari();
+
   const [horses, setHorses] = useState([]);
   const [instructorSuggestions, setInstructorSuggestions] = useState([]);
   const [debriefs, setDebriefs] = useState([]);
   const [draftId, setDraftId] = useState(null);
   const [showCompletion, setShowCompletion] = useState(false);
   const [savedData, setSavedData] = useState(null);
+  const [syncWarning, setSyncWarning] = useState(false);
 
   const [formData, setFormData] = useState({
     lessonDate: new Date().toISOString().split('T')[0],
@@ -257,6 +263,27 @@ export default function LessonNoteForm() {
     };
   }
 
+  // Confirm the write actually flushed to the server before claiming success.
+  // Without this, iOS Safari can resolve the SDK promise from local cache when
+  // the tab is backgrounded, leaving the user thinking they saved when they
+  // didn't. Returns true on confirmed flush, false on timeout. On timeout,
+  // the caller MUST keep the draft (do not clearRecovery) and surface the
+  // sync warning so the user keeps the page open until it does sync.
+  async function waitForServerFlush() {
+    try {
+      await Promise.race([
+        waitForPendingWrites(db),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('READBACK_TIMEOUT')), 10000)
+        ),
+      ]);
+      return true;
+    } catch (err) {
+      if (err.message === 'READBACK_TIMEOUT') return false;
+      throw err;
+    }
+  }
+
   async function handleSubmit(e) {
     if (e) e.preventDefault();
     if (!validateForm()) return;
@@ -272,18 +299,26 @@ export default function LessonNoteForm() {
       result = await createLessonNote(currentUser.uid, data);
     }
 
+    if (!result.success) {
+      setLoading(false);
+      setErrors({ submit: result.error });
+      return;
+    }
+
+    const flushed = await waitForServerFlush();
     setLoading(false);
 
-    if (result.success) {
-      clearRecovery();
-      if (isEdit) {
-        navigate('/lesson-notes');
-      } else {
-        setSavedData(data);
-        setShowCompletion(true);
-      }
+    if (!flushed) {
+      setSyncWarning(true);
+      return;
+    }
+
+    clearRecovery();
+    if (isEdit) {
+      navigate('/lesson-notes');
     } else {
-      setErrors({ submit: result.error });
+      setSavedData(data);
+      setShowCompletion(true);
     }
   }
 
@@ -300,14 +335,22 @@ export default function LessonNoteForm() {
       if (result.success && result.id) setDraftId(result.id);
     }
 
+    if (!result.success) {
+      setLoading(false);
+      setErrors({ submit: result.error });
+      return;
+    }
+
+    const flushed = await waitForServerFlush();
     setLoading(false);
 
-    if (result.success) {
-      clearRecovery();
-      navigate('/lesson-notes');
-    } else {
-      setErrors({ submit: result.error });
+    if (!flushed) {
+      setSyncWarning(true);
+      return;
     }
+
+    clearRecovery();
+    navigate('/lesson-notes');
   }
 
   function resetForm() {
@@ -335,6 +378,7 @@ export default function LessonNoteForm() {
     setTranscriptOpen(false);
     setTranscriptDone(false);
     setProcessingError('');
+    setSyncWarning(false);
   }
 
   async function processTranscript() {
@@ -397,48 +441,45 @@ export default function LessonNoteForm() {
     return <div className="loading-state">Loading lesson note...</div>;
   }
 
+  // Sync warning (readback timed out \u2014 keep user on page until SDK flushes)
+  if (syncWarning) {
+    return <SaveConfirmation syncWarning />;
+  }
+
   // Completion screen (new entry only)
   if (showCompletion && savedData) {
     return (
-      <div className="form-page">
-        <div className="form-card">
-          <div className="completion-screen">
-            <div className="completion-icon">{'\u2713'}</div>
-            <h2>Lesson Notes Saved</h2>
-            <p>Your instructor guidance and reflections have been added to your journey data and are ready for coaching analysis.</p>
-
-            <div className="completion-meta">
-              <div className="completion-meta-row">
-                <span>Date</span>
-                <span>{formatDate(savedData.lessonDate)}</span>
-              </div>
-              <div className="completion-meta-row">
-                <span>Horse</span>
-                <span>{savedData.horseName}</span>
-              </div>
-              <div className="completion-meta-row">
-                <span>Instructor</span>
-                <span>{savedData.instructorName}</span>
-              </div>
-              <div className="completion-meta-row">
-                <span>Type</span>
-                <span>{LESSON_TYPE_LABELS[savedData.lessonType] || savedData.lessonType}</span>
-              </div>
-              {savedData.takeaways.length > 0 && (
-                <div className="completion-meta-row">
-                  <span>Takeaways captured</span>
-                  <span>{savedData.takeaways.length}</span>
-                </div>
-              )}
-            </div>
-
-            <div className="completion-actions">
-              <button className="btn btn-secondary" onClick={resetForm}>Log Another</button>
-              <button className="btn btn-primary" onClick={() => navigate('/lesson-notes')}>View My Notes</button>
-            </div>
+      <SaveConfirmation
+        title="Lesson Notes Saved"
+        message="Your instructor guidance and reflections have been added to your journey data and are ready for coaching analysis."
+        primaryAction={{ label: 'View My Notes', onClick: () => navigate('/lesson-notes') }}
+        secondaryAction={{ label: 'Log Another', onClick: resetForm }}
+      >
+        <div className="completion-meta">
+          <div className="completion-meta-row">
+            <span>Date</span>
+            <span>{formatDate(savedData.lessonDate)}</span>
           </div>
+          <div className="completion-meta-row">
+            <span>Horse</span>
+            <span>{savedData.horseName}</span>
+          </div>
+          <div className="completion-meta-row">
+            <span>Instructor</span>
+            <span>{savedData.instructorName}</span>
+          </div>
+          <div className="completion-meta-row">
+            <span>Type</span>
+            <span>{LESSON_TYPE_LABELS[savedData.lessonType] || savedData.lessonType}</span>
+          </div>
+          {savedData.takeaways.length > 0 && (
+            <div className="completion-meta-row">
+              <span>Takeaways captured</span>
+              <span>{savedData.takeaways.length}</span>
+            </div>
+          )}
         </div>
-      </div>
+      </SaveConfirmation>
     );
   }
 
@@ -736,6 +777,11 @@ export default function LessonNoteForm() {
               {loading ? 'Saving...' : (isEdit ? 'Update Lesson Notes' : 'Save Lesson Notes')}
             </button>
           </div>
+          {isIOSSafari && (
+            <p className="ios-save-cue" role="note">
+              Stay on this page until you see the green confirmation.
+            </p>
+          )}
         </div>
       </form>
     </div>

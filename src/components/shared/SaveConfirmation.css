@@ -1,0 +1,96 @@
+/* Shared full-screen save confirmation. Mirrors the visual language of
+   LessonNoteForm's original completion screen so the experience is
+   consistent across forms. */
+
+.save-confirm {
+  text-align: center;
+  padding: 60px 40px;
+  animation: saveConfirmFadeIn 0.5s ease-out;
+}
+
+.save-confirm-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #D4A574, #C67B5C);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  font-size: 2em;
+  color: white;
+}
+
+.save-confirm h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2em;
+  color: #8B7355;
+  margin-bottom: 14px;
+  font-weight: 600;
+}
+
+.save-confirm p {
+  font-size: 1em;
+  color: #7A7A7A;
+  margin-bottom: 10px;
+  line-height: 1.8;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.save-confirm-actions {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  margin-top: 28px;
+  flex-wrap: wrap;
+}
+
+/* Amber "still syncing" state — shown when waitForPendingWrites hasn't
+   confirmed the server flush within the readback timeout. */
+.save-confirm-warning {
+  background: #FFF8EC;
+  border: 2px solid #E8C97A;
+  border-radius: 14px;
+  margin: 1rem;
+}
+
+.save-confirm-warning h2 {
+  color: #7A5C1E;
+}
+
+.save-confirm-warning p {
+  color: #5A4A1E;
+}
+
+.save-confirm-warning-note {
+  font-size: 0.9em !important;
+  font-style: italic;
+  margin-top: 1rem !important;
+}
+
+.save-confirm-spinner {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 24px;
+  border: 5px solid #F0E1B6;
+  border-top-color: #C67B5C;
+  border-radius: 50%;
+  animation: saveConfirmSpin 0.9s linear infinite;
+}
+
+@keyframes saveConfirmFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes saveConfirmSpin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 640px) {
+  .save-confirm {
+    padding: 40px 20px;
+  }
+}
