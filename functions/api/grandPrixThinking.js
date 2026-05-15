@@ -410,7 +410,12 @@ async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerConte
   // Propagate the new content into the home page's frozen weekly snapshot.
   // Without this, the home page keeps showing last Monday's snapshot until
   // the next cron run — exactly the desync that bit us on 2026-05-04.
-  await refreshWeeklyFocusSnapshotSection(uid, "gpt");
+  try {
+    await refreshWeeklyFocusSnapshotSection(uid, "gpt");
+  } catch (snapshotErr) {
+    console.error(`[gpt-l1] Weekly focus snapshot refresh failed for ${uid}:`, snapshotErr.message);
+    // Non-fatal — main output already succeeded.
+  }
 
   return {
     success: true,

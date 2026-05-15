@@ -451,7 +451,12 @@ async function handler(request) {
         const voiceResult = await generateVoice(voiceIndex, riderData, forceRefresh, uid, budgetTier);
         // Re-extract the home page snapshot — even a single-voice refresh can
         // change what the rotation picks if that voice is in the featured pair.
-        await refreshWeeklyFocusSnapshotSection(uid, "coaching");
+        try {
+          await refreshWeeklyFocusSnapshotSection(uid, "coaching");
+        } catch (snapshotErr) {
+          console.error(`[coaching] Weekly focus snapshot refresh failed for ${uid}:`, snapshotErr.message);
+          // Non-fatal — main output already succeeded.
+        }
         // Trailing précis generation. The frontend's progressive-render flow
         // fires 4 single-voice calls in parallel; whichever one is last to
         // complete will see all 4 voice cache rows on the current hash and
@@ -610,7 +615,12 @@ async function handler(request) {
     // snapshot so the coaching card updates without waiting for Monday's
     // cron. Only worth doing when at least one voice succeeded; if all
     // four failed we'd have thrown above.
-    await refreshWeeklyFocusSnapshotSection(uid, "coaching");
+    try {
+      await refreshWeeklyFocusSnapshotSection(uid, "coaching");
+    } catch (snapshotErr) {
+      console.error(`[coaching] Weekly focus snapshot refresh failed for ${uid}:`, snapshotErr.message);
+      // Non-fatal — main output already succeeded.
+    }
 
     return {
       success: true,
