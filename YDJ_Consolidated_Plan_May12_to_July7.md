@@ -135,7 +135,7 @@
 - [ ] **[BLOCKER]** Stripe webhook delivery test — trigger every event type against production endpoint, confirm Firestore updates
 - [ ] **[BLOCKER]** Backup pilot Firestore database to GCS bucket — pre-launch snapshot
 - [ ] **[BLOCKER]** ToS / Privacy / Refund published live (lawyer review back)
-- [ ] **[BLOCKER]** DNS & SSL verification — custom domain → Netlify, cert valid + not expiring within 60 days, www + apex resolve
+- [ ] **[BLOCKER]** DNS & SSL verification — custom domain → Firebase Hosting, cert valid + not expiring within 60 days, www + apex resolve
 - [ ] **[BLOCKER]** Rate-limit/abuse protection — reCAPTCHA Enterprise on signup, password-reset rate-limited, per-user Cloud Function quotas
 - [ ] `weeklyFocusRefresh` advance-error logging — surface `lastCycleAdvanceError` (`weeklyFocusRefresh.js:147`) *(0.5h)*
 - [ ] Cycle-state extension try/catch — explicit logging in `physicalGuidance.js:165–183` + `grandPrixThinking.js:294–318` *(1h)*

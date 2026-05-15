@@ -82,7 +82,7 @@ How to use it: work the buckets in order. Anything in the "This Week" bucket is 
 - [ ] **[BLOCKER] Stripe webhook delivery test.** Trigger every webhook event type (subscription.created/updated/deleted, invoice.payment_succeeded/failed) from Stripe dashboard against production endpoint. Confirm Firestore user document updates correctly each time.
 - [ ] **[BLOCKER] Backup the pilot Firestore database.** Export to GCS bucket. This is your pre-launch snapshot if anything goes sideways.
 - [ ] **Rate-limit and abuse protection.** Confirm Firebase Auth has reCAPTCHA Enterprise on signup, password reset is rate-limited, and Cloud Functions have per-user quotas to prevent runaway costs.
-- [ ] **DNS & SSL verification.** Custom domain points to Netlify, SSL cert valid and not expiring within 60 days, www and apex both resolve.
+- [ ] **DNS & SSL verification.** Custom domain points to Firebase Hosting, SSL cert valid and not expiring within 60 days, www and apex both resolve.
 - [ ] **Performance budget check.** Lighthouse score on key pages — Home, Pricing, Dashboard, Insights — should be ≥85 on mobile.
 
 ### Pilot → paid migration

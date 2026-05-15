@@ -20,7 +20,7 @@ Add the Horse Health & Soundness Tracker to the YDJ webapp as a new form under t
    horse-health-soundness-tracker.html
    ```
 
-3. Add it to `netlify.toml` (or equivalent routing config) if the project uses explicit route declarations.
+3. Add a rewrite to `firebase.json` if the file needs an explicit route declaration; otherwise Firebase Hosting will serve it directly from `public/`.
 
 ---
 

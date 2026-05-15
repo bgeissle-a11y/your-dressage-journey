@@ -87,7 +87,7 @@ This guide will walk you through setting up Firebase for your project. **Estimat
 3. **Add Web App**
    - Click the web icon `</>` (looks like code brackets)
    - Enter app nickname: `Your Dressage Journey Web App`
-   - **DO NOT** check "Also set up Firebase Hosting" (we're using Netlify)
+   - Check "Also set up Firebase Hosting" — we deploy the frontend to Firebase Hosting
    - Click "Register app"
 
 4. **Copy Configuration Values**

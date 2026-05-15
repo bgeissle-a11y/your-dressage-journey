@@ -358,7 +358,7 @@ All links in the HTML reference file point to the HTML pilot forms. In the React
 | `ydj-outputs-tips-and-faq.html` | `/outputs` |
 | `event-preparation-form.html` | `/forms/show-prep` |
 
-Adjust route paths to match whatever routing structure already exists in the app. If routes don't exist yet for some forms, use `href` with the Netlify HTML URL as a temporary fallback and add a `// TODO: replace with React route` comment.
+Adjust route paths to match whatever routing structure already exists in the app. If routes don't exist yet for some forms, use `href` with the static HTML URL served from Firebase Hosting as a temporary fallback and add a `// TODO: replace with React route` comment.
 
 ### 5.5 Loading State
 

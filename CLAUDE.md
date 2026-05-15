@@ -30,7 +30,7 @@ Your Dressage Journey is an AI-powered coaching platform for adult amateur dress
 - Barb facilitating data review and coaching output generation during pilot
 
 ### Target State (Production — May 2026+)
-- React frontend on Netlify
+- React frontend on Firebase Hosting
 - Firebase (Firestore + Auth + Cloud Functions)
 - Server-side Claude API calls (27 unique call patterns)
 - Stripe subscription billing
@@ -41,7 +41,7 @@ Your Dressage Journey is an AI-powered coaching platform for adult amateur dress
 - **Backend:** Firebase (Firestore, Auth, Cloud Functions)
 - **AI:** Anthropic Claude API (Sonnet for most calls, Opus for Grand Prix Thinking Layer 2)
 - **Payments:** Stripe
-- **Hosting:** Netlify (frontend), Firebase (functions)
+- **Hosting:** Firebase Hosting (frontend) + Firebase Cloud Functions (backend). **Not Netlify** — Netlify was retired earlier in development; any older doc that says otherwise is stale.
 - **Email:** Resend (transactional)
 - **Monitoring:** Sentry, UptimeRobot
 
