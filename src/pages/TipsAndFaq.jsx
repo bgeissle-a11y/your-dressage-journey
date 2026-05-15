@@ -483,6 +483,9 @@ export default function TipsAndFaq() {
         <h3>Pair Preparation with Follow-Up</h3>
         <p>Use the Show Preparation form before shows, then log the event and complete a debrief afterward. This before/after pairing is one of the richest sources of insight the AI can work with.</p>
 
+        <h3>Why did my save not work on my iPhone?</h3>
+        <p>iPhone and iPad Safari sometimes pause network activity when you switch apps or lock your screen, even if our app already showed a save message. When you save a debrief, lesson note, or assessment, please stay on the page until you see the full green confirmation card before navigating away or closing the tab. If your save didn&#39;t go through, your draft is stored locally for 7 days &mdash; re-open the same form and a recovery banner will offer to restore it.</p>
+
         <div className="tips-tip-box">
           <h4>The 2-Minute Rule</h4>
           <p>If completing a form feels like it&#39;s taking more than 5 minutes, you&#39;re overthinking it. Capture the key details and move on. Consistent 2-minute entries beat sporadic 20-minute essays.</p>

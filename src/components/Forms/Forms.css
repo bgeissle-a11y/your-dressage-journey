@@ -322,6 +322,16 @@
   background-color: #E0D5C7;
 }
 
+/* iOS Safari save cue — sits below the action row when the user is on
+   iOS Safari, where backgrounding a tab can stall the Firestore sync. */
+.ios-save-cue {
+  margin: 0.5rem 2.5rem 1rem;
+  font-size: 0.75rem;
+  color: #7A5C1E;
+  text-align: right;
+  font-style: italic;
+}
+
 /* Packing List Button */
 .packing-list-btn {
   display: inline-flex;

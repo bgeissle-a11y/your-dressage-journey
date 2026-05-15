@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 
 const DEBOUNCE_MS = 2000;
-const MAX_AGE_MS = 24 * 60 * 60 * 1000;
+// 7 days: users may report a missing save days later (e.g. iOS Safari
+// backgrounding the tab between Save click and sync). Per-record scoping in
+// the storage key already prevents cross-record bleed, so longer TTL is safe.
+const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
 /**
  * Auto-saves form data to localStorage and offers recovery when the user

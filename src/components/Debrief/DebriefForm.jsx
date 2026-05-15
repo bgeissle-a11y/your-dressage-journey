@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { waitForPendingWrites } from 'firebase/firestore';
+import { db } from '../../firebase-config';
 import {
   createDebrief, getDebrief, updateDebrief,
   getAllHorseProfiles, getAllDebriefs,
@@ -11,11 +13,13 @@ import {
 } from '../../services';
 import { readPracticeCardCache } from '../../services/weeklyFocusService';
 import useFormRecovery from '../../hooks/useFormRecovery';
+import useIsIOSSafari from '../../hooks/useIsIOSSafari';
 import FormSection from '../Forms/FormSection';
 import FormField from '../Forms/FormField';
 import RadioGroup from '../Forms/RadioGroup';
 import VoiceInput from '../Forms/VoiceInput';
 import GuidingQuestions from '../Forms/GuidingQuestions';
+import SaveConfirmation from '../shared/SaveConfirmation';
 import '../Forms/Forms.css';
 
 const NARRATIVE_FIELDS = [
@@ -61,9 +65,12 @@ export default function DebriefForm() {
   const isEdit = Boolean(id);
 
   const narrativeRefs = useRef({});
+  const isIOSSafari = useIsIOSSafari();
 
   const [draftId, setDraftId] = useState(null);
   const [horseNames, setHorseNames] = useState([]);
+  const [showCompletion, setShowCompletion] = useState(false);
+  const [syncWarning, setSyncWarning] = useState(false);
 
   // Practice Card confirmed goals (fetched from cache)
   const [practiceCardGoals, setPracticeCardGoals] = useState(null); // string[] or null
@@ -354,18 +361,61 @@ export default function DebriefForm() {
       if (result.success && result.id) setDraftId(result.id);
     }
 
+    if (!result.success) {
+      setLoading(false);
+      setErrors({ submit: result.error });
+      return;
+    }
+
+    // Confirm the write actually flushed to the server before claiming success.
+    // Without this, iOS Safari can resolve the SDK promise from local cache when
+    // the tab is backgrounded, leaving the user thinking they saved when they
+    // didn't. On timeout we KEEP the draft (no clearRecovery) and surface the
+    // sync warning until the SDK finishes the flush.
+    let flushed = true;
+    try {
+      await Promise.race([
+        waitForPendingWrites(db),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('READBACK_TIMEOUT')), 10000)
+        ),
+      ]);
+    } catch (err) {
+      if (err.message === 'READBACK_TIMEOUT') flushed = false;
+      else throw err;
+    }
+
     setLoading(false);
 
-    if (result.success) {
-      clearRecovery();
+    if (!flushed) {
+      setSyncWarning(true);
+      return;
+    }
+
+    clearRecovery();
+    if (isEdit || isDraft) {
       navigate('/debriefs');
     } else {
-      setErrors({ submit: result.error });
+      setShowCompletion(true);
     }
   }
 
   if (loadingData) {
     return <div className="loading-state">Loading debrief...</div>;
+  }
+
+  if (syncWarning) {
+    return <SaveConfirmation syncWarning />;
+  }
+
+  if (showCompletion) {
+    return (
+      <SaveConfirmation
+        title="Debrief Saved"
+        message="Your session is now part of your journey data and ready for coaching analysis."
+        primaryAction={{ label: 'View My Debriefs', onClick: () => navigate('/debriefs') }}
+      />
+    );
   }
 
   return (
@@ -898,6 +948,11 @@ export default function DebriefForm() {
               {loading ? 'Saving...' : (isEdit ? 'Update Debrief' : 'Complete Debrief')}
             </button>
           </div>
+          {isIOSSafari && (
+            <p className="ios-save-cue" role="note">
+              Stay on this page until you see the green confirmation.
+            </p>
+          )}
         </div>
       </form>
     </div>

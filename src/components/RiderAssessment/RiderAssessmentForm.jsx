@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { waitForPendingWrites } from 'firebase/firestore';
+import { db } from '../../firebase-config';
 import {
   createRiderAssessment,
   getRiderAssessment,
@@ -9,9 +11,11 @@ import {
   SELF_RATING_SCALES
 } from '../../services';
 import useFormRecovery from '../../hooks/useFormRecovery';
+import useIsIOSSafari from '../../hooks/useIsIOSSafari';
 import FormSection from '../Forms/FormSection';
 import FormField from '../Forms/FormField';
 import VoiceInput from '../Forms/VoiceInput';
+import SaveConfirmation from '../shared/SaveConfirmation';
 import '../Forms/Forms.css';
 
 const MAX_ATTRIBUTES = 4;
@@ -23,7 +27,10 @@ export default function RiderAssessmentForm() {
   const isEdit = Boolean(id);
 
   const textareaRefs = useRef({});
+  const isIOSSafari = useIsIOSSafari();
   const [draftId, setDraftId] = useState(null);
+  const [showCompletion, setShowCompletion] = useState(false);
+  const [syncWarning, setSyncWarning] = useState(false);
 
   const [formData, setFormData] = useState({
     // Awareness scenarios
@@ -177,18 +184,60 @@ export default function RiderAssessmentForm() {
       if (result.success && result.id) setDraftId(result.id);
     }
 
+    if (!result.success) {
+      setLoading(false);
+      setErrors({ submit: result.error });
+      return;
+    }
+
+    // Confirm the write actually flushed to the server before claiming success.
+    // Without this, iOS Safari can resolve the SDK promise from local cache when
+    // the tab is backgrounded, leaving the user thinking they saved when they
+    // didn't. On timeout we KEEP the draft and surface the sync warning.
+    let flushed = true;
+    try {
+      await Promise.race([
+        waitForPendingWrites(db),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('READBACK_TIMEOUT')), 10000)
+        ),
+      ]);
+    } catch (err) {
+      if (err.message === 'READBACK_TIMEOUT') flushed = false;
+      else throw err;
+    }
+
     setLoading(false);
 
-    if (result.success) {
-      clearRecovery();
+    if (!flushed) {
+      setSyncWarning(true);
+      return;
+    }
+
+    clearRecovery();
+    if (isEdit || isDraft) {
       navigate('/rider-assessments');
     } else {
-      setErrors({ submit: result.error });
+      setShowCompletion(true);
     }
   }
 
   if (loadingData) {
     return <div className="loading-state">Loading assessment...</div>;
+  }
+
+  if (syncWarning) {
+    return <SaveConfirmation syncWarning />;
+  }
+
+  if (showCompletion) {
+    return (
+      <SaveConfirmation
+        title="Assessment Saved"
+        message="Your rider self-assessment is now part of your journey data and ready for coaching analysis."
+        primaryAction={{ label: 'View My Assessments', onClick: () => navigate('/rider-assessments') }}
+      />
+    );
   }
 
   return (
@@ -527,6 +576,11 @@ export default function RiderAssessmentForm() {
               {loading ? 'Saving...' : (isEdit ? 'Update Assessment' : 'Complete Assessment')}
             </button>
           </div>
+          {isIOSSafari && (
+            <p className="ios-save-cue" role="note">
+              Stay on this page until you see the green confirmation.
+            </p>
+          )}
         </div>
       </form>
     </div>
