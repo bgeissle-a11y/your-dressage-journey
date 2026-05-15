@@ -104,3 +104,6 @@ public/assets/TDLogoLargewhite-01.png
 public/assets/WorkMarkHorizontalBlack-01.svg
 public/assets/WorkMarkHorizontalColor-01.svg
 public/assets/WorkMarkHorizontalWhite-01.svg
+
+# Local-only video clips (large files, not deployed)
+videos/
