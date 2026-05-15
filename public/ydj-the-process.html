@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Process — Your Dressage Journey</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brown: #5C3D2E;
+    --brown-deep: #3D2518;
+    --brown-light: #7A5240;
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --gold-pale: #F7EDCF;
+    --cream: #FDF8F2;
+    --cream-dark: #F0E8DB;
+    --cream-deeper: #E4D5C2;
+    --text: #2C1810;
+    --text-muted: #7A6055;
+    --white: #FFFFFF;
+    --classical: #5C7A4A;
+    --rust: #B43520;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Work Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(253,248,242,0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--cream-dark);
+    padding: 12px 24px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  }
+  .nav-links { display: flex; gap: 24px; list-style: none; }
+  .nav-links a {
+    font-size: 13px; font-weight: 500; color: var(--text-muted);
+    text-decoration: none; transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--brown); }
+  .nav-links a.active { color: var(--brown); font-weight: 600; }
+  .nav-buttons { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .btn-glimpse {
+    font-size: 13px; font-weight: 600; color: var(--brown);
+    background: var(--gold-pale); border: 1.5px solid var(--gold);
+    border-radius: 4px; padding: 7px 16px; text-decoration: none;
+    white-space: nowrap; transition: background 0.2s, color 0.2s;
+  }
+  .btn-glimpse:hover { background: var(--gold); color: var(--brown-deep); }
+  .btn-login {
+    font-size: 13px; font-weight: 600; color: var(--brown);
+    border: 1.5px solid var(--brown); border-radius: 4px;
+    padding: 7px 16px; text-decoration: none; white-space: nowrap;
+    transition: background 0.2s, color 0.2s;
+  }
+  .btn-login:hover { background: var(--brown); color: var(--cream); }
+  @media (max-width: 720px) { .nav-links { display: none; } .btn-glimpse { display: none; } }
+
+  /* ── HERO ── */
+  .hero {
+    background: var(--brown-deep);
+    color: var(--cream);
+    padding: 80px 24px 64px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 25% 60%, rgba(201,168,76,0.18) 0%, transparent 55%),
+      radial-gradient(ellipse at 75% 20%, rgba(201,168,76,0.10) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid rgba(201,168,76,0.4);
+    color: var(--gold-light);
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    padding: 7px 18px; border-radius: 24px; margin-bottom: 28px;
+    position: relative;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(34px, 6vw, 60px);
+    font-weight: 700; line-height: 1.08;
+    margin-bottom: 22px; color: var(--cream);
+    position: relative;
+  }
+  .hero h1 em { color: var(--gold-light); font-style: italic; }
+  .hero-description {
+    font-size: clamp(15px, 2.5vw, 18px);
+    color: rgba(253,248,242,0.78);
+    max-width: 660px; margin: 0 auto;
+    font-weight: 300; line-height: 1.8;
+    position: relative;
+  }
+  .hero-description strong { color: var(--gold-light); font-weight: 500; }
+
+  /* ── SHARED LAYOUT ── */
+  .section { padding: 80px 24px; max-width: 1000px; margin: 0 auto; }
+  .section-label {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 12px;
+  }
+  .section-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(26px, 4vw, 38px);
+    font-weight: 700; color: var(--brown);
+    line-height: 1.2; margin-bottom: 18px;
+  }
+  .section-heading em { color: var(--gold); font-style: italic; }
+  .section-body {
+    font-size: 16px; color: var(--text-muted);
+    font-weight: 300; line-height: 1.8;
+    max-width: 700px; margin-bottom: 16px;
+  }
+  .divider {
+    width: 60px; height: 2px;
+    background: var(--gold);
+    margin: 24px 0 28px;
+  }
+  .divider-left { margin-left: 0; }
+
+  /* ── HOW IT WORKS / STEPS ── */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+    margin-top: 40px;
+  }
+  .step {
+    background: var(--white);
+    border: 1px solid var(--cream-dark);
+    border-radius: 16px;
+    padding: 28px 24px;
+    text-align: center;
+  }
+  .step-num {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--gold-pale);
+    color: var(--brown);
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+  }
+  .step-icon { font-size: 28px; margin-bottom: 12px; }
+  .step h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    color: var(--brown);
+    margin-bottom: 8px;
+  }
+  .step p {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  /* ── SCREENSHOTS ── */
+  .screenshot-real {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(92,61,46,0.15);
+    margin: 32px 0;
+    border: 1px solid var(--cream-deeper);
+  }
+  .screenshot-real img { width: 100%; display: block; }
+  .screenshot-caption {
+    background: var(--brown);
+    color: rgba(253,248,242,0.8);
+    font-size: 13px;
+    font-style: italic;
+    font-weight: 300;
+    padding: 12px 20px;
+    line-height: 1.5;
+  }
+
+  /* ── INSIGHT STRIP ── */
+  .insight-strip {
+    background: var(--brown-deep);
+    color: var(--cream);
+    padding: 56px 24px;
+    text-align: center;
+  }
+  .insight-strip .insight-quote {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(18px, 3.5vw, 28px);
+    font-style: italic;
+    color: var(--gold-light);
+    max-width: 680px;
+    margin: 0 auto 12px;
+    line-height: 1.5;
+  }
+  .insight-strip .insight-sub {
+    font-size: 14px;
+    color: rgba(253,248,242,0.5);
+    font-weight: 300;
+  }
+
+  /* ── OUTPUTS GRID ── */
+  .outputs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    margin-top: 40px;
+  }
+  .output-card {
+    background: var(--white);
+    border: 1px solid var(--cream-dark);
+    border-radius: 16px;
+    padding: 28px 24px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .output-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(92,61,46,0.1);
+  }
+  .output-card.featured {
+    background: var(--gold-pale);
+    border-color: var(--gold);
+  }
+  .output-icon { font-size: 30px; margin-bottom: 14px; }
+  .output-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--brown);
+    margin-bottom: 8px;
+  }
+  .output-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.65;
+    font-weight: 300;
+  }
+  .output-card.featured .output-desc { color: var(--brown); }
+
+  /* ── TRAINER OBSERVATION ── */
+  .trainer-observation {
+    margin: 40px 0 0;
+    padding: 28px 32px;
+    background: var(--cream-dark);
+    border-radius: 12px;
+    border: 1px solid var(--cream-deeper);
+  }
+  .trainer-observation .attribution {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .trainer-observation blockquote {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(15px, 2.2vw, 18px);
+    font-style: italic;
+    color: var(--brown);
+    line-height: 1.7;
+  }
+
+  /* ── INLINE QUOTE ── */
+  .inline-quote {
+    margin-top: 48px;
+    text-align: center;
+    padding: 0 24px;
+  }
+  .inline-quote p.quote {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(16px, 2.5vw, 21px);
+    font-style: italic;
+    color: var(--brown);
+    line-height: 1.65;
+    max-width: 680px;
+    margin: 0 auto 10px;
+  }
+  .inline-quote p.cite {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* ── DEMO CALLOUT (Margaret) ── */
+  .demo-callout {
+    background: var(--gold-pale);
+    border-top: 1px solid var(--gold);
+    border-bottom: 1px solid var(--gold);
+    padding: 56px 24px;
+  }
+  .demo-callout-inner {
+    max-width: 780px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .demo-callout-eyebrow {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 14px;
+  }
+  .demo-callout h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 4vw, 34px);
+    font-weight: 700;
+    color: var(--brown);
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+  .demo-callout h2 em { color: var(--gold); font-style: italic; }
+  .demo-callout p {
+    font-size: 16px;
+    color: var(--text-muted);
+    line-height: 1.8;
+    font-weight: 300;
+    margin-bottom: 24px;
+    max-width: 620px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .demo-callout p strong { color: var(--brown); font-weight: 500; }
+  .demo-callout-cta {
+    display: inline-block;
+    background: var(--brown);
+    color: var(--cream);
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.3px;
+    padding: 14px 32px;
+    border-radius: 100px;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .demo-callout-cta:hover {
+    background: var(--brown-deep);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(60,37,24,0.25);
+  }
+
+  /* ── TWO ATHLETES ── */
+  .two-athletes-section {
+    padding: 64px 24px;
+    background: var(--cream-dark);
+  }
+  .two-athletes-inner {
+    max-width: 960px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 48px; align-items: center;
+  }
+  @media (max-width: 720px) {
+    .two-athletes-inner { grid-template-columns: 1fr; gap: 32px; }
+  }
+  .two-athletes-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 4vw, 36px);
+    font-weight: 700;
+    color: var(--brown);
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+  .two-athletes-section p {
+    font-size: 16px; color: var(--text-muted);
+    font-weight: 300; line-height: 1.8;
+    margin-bottom: 12px;
+  }
+  .two-athletes-cards {
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .two-athletes-card {
+    background: var(--white);
+    border: 1px solid var(--cream-deeper);
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+  .two-athletes-card.rider { border-left: 4px solid var(--gold); }
+  .two-athletes-card.horse { border-left: 4px solid var(--brown); }
+  .two-athletes-card .label {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .two-athletes-card.rider .label { color: var(--gold); }
+  .two-athletes-card.horse .label { color: var(--brown); }
+  .two-athletes-card p {
+    font-size: 14px; color: var(--text-muted);
+    line-height: 1.6; font-weight: 300; margin-bottom: 0;
+  }
+
+  /* ── FOCUS CALLOUT ── */
+  .focus-callout {
+    margin: 40px 0 20px;
+    padding: 24px 28px;
+    background: var(--gold-pale);
+    border-left: 4px solid var(--gold);
+    border-radius: 0 12px 12px 0;
+  }
+  .focus-callout p.title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--brown);
+    margin-bottom: 6px;
+  }
+  .focus-callout p.body {
+    font-size: 15px;
+    color: var(--text-muted);
+    font-weight: 300;
+    line-height: 1.7;
+  }
+
+  /* ── FINAL CTA ── */
+  .final-cta {
+    background: var(--brown);
+    padding: 88px 24px;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  .final-cta::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% -10%, rgba(201,168,76,0.2) 0%, transparent 55%);
+    pointer-events: none;
+  }
+  .final-cta h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 5vw, 44px);
+    color: var(--cream); margin-bottom: 16px;
+    line-height: 1.15; position: relative;
+  }
+  .final-cta h2 em { color: var(--gold-light); font-style: italic; }
+  .final-cta p {
+    font-size: 17px; color: rgba(253,248,242,0.7);
+    max-width: 540px; margin: 0 auto 36px;
+    font-weight: 300; line-height: 1.75; position: relative;
+  }
+  .btn-primary {
+    background: var(--gold); color: var(--brown-deep);
+    font-weight: 700; font-size: 14px;
+    letter-spacing: 0.3px; padding: 15px 36px;
+    border-radius: 100px; text-decoration: none;
+    transition: all 0.2s; border: none; cursor: pointer;
+    display: inline-block; position: relative;
+  }
+  .btn-primary:hover {
+    background: var(--gold-light);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(201,168,76,0.3);
+  }
+  .btn-outline {
+    background: transparent; color: var(--cream);
+    font-weight: 600; font-size: 14px;
+    padding: 14px 32px; border-radius: 100px;
+    text-decoration: none;
+    border: 1px solid rgba(253,248,242,0.3);
+    transition: all 0.2s;
+    display: inline-block; position: relative;
+  }
+  .btn-outline:hover {
+    border-color: rgba(253,248,242,0.7);
+    background: rgba(253,248,242,0.07);
+  }
+  .final-cta .cta-group {
+    display: flex; gap: 16px;
+    justify-content: center; flex-wrap: wrap;
+    position: relative;
+  }
+
+  /* ── FOOTER (UNIFIED) ── */
+  footer {
+    background: var(--brown-deep);
+    color: rgba(253,248,242,0.45);
+    padding: 36px 24px 32px;
+    font-size: 12px;
+    font-weight: 300;
+  }
+  .footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    text-align: center;
+  }
+  .footer-logo img {
+    height: 28px; width: auto; opacity: 0.5;
+  }
+  .footer-brand {
+    color: rgba(253,248,242,0.65);
+  }
+  .footer-brand strong { color: rgba(253,248,242,0.85); font-weight: 500; }
+  .footer-contact a {
+    color: var(--gold-light);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(232,201,122,0.3);
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .footer-contact a:hover {
+    color: var(--cream);
+    border-bottom-color: var(--cream);
+  }
+  .footer-legal {
+    font-size: 11px;
+    color: rgba(253,248,242,0.35);
+    letter-spacing: 0.5px;
+  }
+  .footer-legal a {
+    color: rgba(253,248,242,0.55);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-legal a:hover { color: rgba(253,248,242,0.9); }
+  .footer-legal .sep {
+    color: rgba(253,248,242,0.2);
+    margin: 0 8px;
+  }
+  .footer-copyright {
+    font-size: 11px;
+    color: rgba(253,248,242,0.45);
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+  }
+  h1 em, h2 em, h3 em { font-style: normal !important; }
+  .nav-hamburger {
+    display: none;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    color: var(--brown);
+    margin-left: 4px;
+  }
+  .nav-hamburger svg { display: block; width: 26px; height: 26px; }
+  .nav-mobile-panel {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--cream);
+    border-bottom: 1px solid var(--cream-dark);
+    padding: 12px 24px 20px;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    z-index: 99;
+  }
+  .nav-mobile-panel.open { display: flex; }
+  .nav-mobile-panel a {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--brown);
+    text-decoration: none;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--cream-dark);
+  }
+  .nav-mobile-panel a:last-child { border-bottom: none; }
+  .nav-mobile-panel a.btn-mobile-cta {
+    text-align: center;
+    background: var(--gold-pale);
+    border: 1.5px solid var(--gold);
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    color: var(--brown-deep);
+  }
+  .nav-mobile-panel a.btn-mobile-login {
+    text-align: center;
+    border: 1.5px solid var(--brown);
+    border-radius: 4px;
+    padding: 12px 16px;
+    color: var(--brown);
+    margin-top: 4px;
+  }
+  @media (max-width: 720px) {
+    .nav { position: relative; }
+    .nav-hamburger { display: block; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="ydj-learn-more.html" style="display:flex; align-items:center; text-decoration:none;">
+    <img src="assets/logo-color.svg" alt="Your Dressage Journey" style="height:48px; width:auto;">
+  </a>
+  <ul class="nav-links">
+    <li><a href="ydj-learn-more.html">Why YDJ</a></li>
+    <li><a href="ydj-the-process.html" class="active">The Process</a></li>
+    <li><a href="ydj-pricing.html">Pricing</a></li>
+    <li><a href="ydj-testimonials.html">Testimonials</a></li>
+    <li><a href="ydj-about.html">About</a></li>
+  </ul>
+  <div class="nav-buttons">
+    <a href="ydj-first-glimpse-quick.html" class="btn-glimpse">Try a Free First Glimpse</a>
+    <a href="https://your-dressage-journey.web.app/signin" class="btn-login">Log In</a>
+    <button class="nav-hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="navMobilePanel" onclick="toggleMobileMenu(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+  </div>
+  <div class="nav-mobile-panel" id="navMobilePanel">
+    <a href="ydj-learn-more.html">Why YDJ</a>
+    <a href="ydj-the-process.html">The Process</a>
+    <a href="ydj-pricing.html">Pricing</a>
+    <a href="ydj-testimonials.html">Testimonials</a>
+    <a href="ydj-about.html">About</a>
+    <a href="ydj-first-glimpse-quick.html" class="btn-mobile-cta">Try a Free First Glimpse</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">✦ The Process</div>
+  <h1>What it actually looks like to <em>ride with YDJ</em>.</h1>
+  <p class="hero-description">
+    Five minutes after a ride to capture it. A weekly reflection that goes deeper. AI analysis through four expert voices. A growing Journey Map. <strong>Here's the full picture</strong>, with sample screenshots, of how YDJ walks with you through every step of the learning cycle.
+  </p>
+  <p style="margin-top: 18px; font-size: 14px; color: rgba(253,248,242,0.7);">
+    Curious about the research behind these design choices? <a href="ydj-science.html" style="color: var(--gold-light); text-decoration: underline;">Read the research behind YDJ →</a>
+  </p>
+</section>
+
+<!-- THE LEARNING LOOP -->
+<section class="section">
+  <div class="section-label">The Learning Loop</div>
+  <h2 class="section-heading">The full loop.<br><em>Before, during, and after</em> every ride.</h2>
+  <div class="divider divider-left"></div>
+  <p class="section-body">Most apps only capture what happened. YDJ supports the whole learning cycle. Setting you up before you ride, capturing what happened after, extending learning off-horse, and bringing it all back to your next ride.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-icon">🎯</div>
+      <div class="step-num">1</div>
+      <h4>Prepare</h4>
+      <p>Show up ready for your ride or lesson. Set your intentions, warm up your body, and focus your mind.</p>
+    </div>
+    <div class="step">
+      <div class="step-icon">📱</div>
+      <div class="step-num">2</div>
+      <h4>Capture</h4>
+      <p>Debrief your ride at the barn. Takes 2 to 5 minutes on your phone while you untack. Voice input supported.</p>
+    </div>
+    <div class="step">
+      <div class="step-icon">💭</div>
+      <div class="step-num">3</div>
+      <h4>Reflect weekly</h4>
+      <p>Choose one of six reflection categories. Guided prompts help you go deeper in 10–15 minutes.</p>
+    </div>
+    <div class="step">
+      <div class="step-icon">🧩</div>
+      <div class="step-num">4</div>
+      <h4>Extend off-horse</h4>
+      <p>Visualization scripts, test study, physical awareness exercises, and habit tracking. Every hour away from the barn moves you forward.</p>
+    </div>
+    <div class="step">
+      <div class="step-icon">🎙️</div>
+      <div class="step-num">5</div>
+      <h4>Four voices analyze</h4>
+      <p>Your data and your horse's patterns, analyzed through four distinct coaching perspectives. Each voice reveals something the others might miss.</p>
+    </div>
+    <div class="step">
+      <div class="step-icon">🗺️</div>
+      <div class="step-num">6</div>
+      <h4>Return better</h4>
+      <p>Go back to your next ride with fresh clarity, a focused intention, and a growing map of where you've been and where you're going.</p>
+    </div>
+  </div>
+
+  <div class="focus-callout">
+    <p class="title">The "too much" problem, solved.</p>
+    <p class="body">Every output in YDJ feeds a single weekly surface, so you always know where to start, and nothing important gets buried.</p>
+  </div>
+
+  <div class="screenshot-real">
+    <div class="screenshot-caption">Your Weekly Focus. Four cards that surface what matters most this week, across coaching insight, mental performance, physical awareness, and show planning. One view. No wall of analysis.</div>
+    <img src="ScreenshotWF.png" alt="YDJ Weekly Focus showing four cards: Key Insight from Multi-Voice coaching, Grand Prix Thinking assignments, Physical Awareness guidance, and Show Planning countdown">
+  </div>
+</section>
+
+<!-- INSIGHT STRIP -->
+<div class="insight-strip">
+  <div class="insight-quote">Your trainer teaches you. Your rides give you the reps. YDJ is what happens in between.</div>
+  <div class="insight-sub">Before the ride. After it. And every hour away from the barn that most riders leave to chance.</div>
+</div>
+
+<!-- OUTPUTS -->
+<section class="section" id="outputs">
+  <div class="section-label">What You Get</div>
+  <h2 class="section-heading">Meaningful outputs.<br>Every dimension of your <em>journey</em>.</h2>
+  <div class="divider divider-left"></div>
+  <p class="section-body">Every piece of data you contribute feeds a suite of AI-powered analyses. Each is designed to reveal a different dimension of your riding life. The list keeps growing as the platform does.</p>
+
+  <div class="outputs-grid">
+    <div class="output-card featured">
+      <div class="output-icon">✦</div>
+      <div class="output-name">First Light</div>
+      <div class="output-desc">Your day-one analysis. A personal opening read drawn from your rider and horse profiles. Available before you've logged your first ride.</div>
+    </div>
+    <div class="output-card">
+      <div class="output-icon">🗺️</div>
+      <div class="output-name">Journey Map</div>
+      <div class="output-desc">Your visual and narrative timeline. Milestones, patterns, and progress you might not see yourself. Grows richer with every entry.</div>
+    </div>
+    <div class="output-card">
+      <div class="output-icon">🎙️</div>
+      <div class="output-name">Multi-Voice Coaching</div>
+      <div class="output-desc">Four expert coaching perspectives analyze your same data through completely different lenses. Like having a coaching team around the table.</div>
+    </div>
+    <div class="output-card">
+      <div class="output-icon">📋</div>
+      <div class="output-name">Lesson Prep</div>
+      <div class="output-desc">Read it before you get on. By the time you're warming up, you have a confident, concrete summary for your coach of what you've been working on, what clicked, and what's still sticky.</div>
+    </div>
+    <div class="output-card">
+      <div class="output-icon">📝</div>
+      <div class="output-name">Lesson Notes</div>
+      <div class="output-desc">You supply the video or audio transcript of your lesson and the AI does the analysis. Expand your dataset with lesson-specific insights.</div>
+    </div>
+    <div class="output-card">
+      <div class="output-icon">🧠</div>
+      <div class="output-name">Grand Prix Thinking</div>
+      <div class="output-desc">Daily mental performance practices and long-term training trajectory paths. Built from your patterns, not generic templates.</div>
+    </div>
+    <div class="output-card">
+      <div class="output-icon">🏋️</div>
+      <div class="output-name">Physical Guidance</div>
+      <div class="output-desc">Off-horse exercises and body awareness practices targeted to your documented challenges and asymmetries.</div>
+    </div>
+    <div class="output-card">
+      <div class="output-icon">📊</div>
+      <div class="output-name">Data Visualizations</div>
+      <div class="output-desc">Charts that make the invisible visible. Ride quality trends, mental state correlations, training focus distribution, and more.</div>
+    </div>
+    <div class="output-card">
+      <div class="output-icon">📅</div>
+      <div class="output-name">Show Planner</div>
+      <div class="output-desc">Personalized show preparation plans built around your history, your horse, and your specific test requirements.</div>
+    </div>
+    <div class="output-card">
+      <div class="output-icon">🧘</div>
+      <div class="output-name">Additional Tools</div>
+      <div class="output-desc">Personalized mental rehearsal scripts, arena geometry training, and pre-ride ritual building. Structured tools that turn every hour between rides into deliberate practice.</div>
+    </div>
+  </div>
+
+  <div class="screenshot-real">
+    <div class="screenshot-caption">Your Dashboard. Rides logged, all six reflection categories covered, your recent training themes, journey narrative, and process goal follow-through at a glance.</div>
+    <img src="Screenshotdb.png" alt="YDJ Dashboard showing Current Stats with 65 rides and 20 reflections, Your Journey narrative, What You've Been Working On training tags, and Process Goals follow-through rate">
+  </div>
+  <div class="screenshot-real" style="margin-top: 20px;">
+    <div class="screenshot-caption">Multi-Voice Coaching. The Empathetic Coach's read on emotional patterns, confidence trajectory, and partnership dynamics. Four voices, same data, completely different perspectives.</div>
+    <img src="ScreenshotCV.png" alt="YDJ Coaching Voices showing Empathetic Coach analysis with emotional patterns, confidence trajectory, and partnership insights sections">
+  </div>
+</section>
+
+<!-- TWO ATHLETES -->
+<section class="two-athletes-section">
+  <div class="two-athletes-inner">
+    <div>
+      <div class="section-label">One Journey. Two Athletes.</div>
+      <h2>Your horse has patterns too.</h2>
+      <p>YDJ is the only platform that tracks the body and mind of both horse and rider. Asymmetries, tendencies, good days and hard ones, for both of you.</p>
+      <p>Over time, the AI suggests ways to help you work better <em>together</em>. The platform tailors guidance to the partnership, not just the person. Because two athletes show up for every ride.</p>
+    </div>
+    <div class="two-athletes-cards">
+      <div class="two-athletes-card rider">
+        <div class="label">Rider</div>
+        <p>Position patterns, physical habits, mental state, learning style, off-horse practice. All tracked longitudinally and connected to what happens in the saddle.</p>
+      </div>
+      <div class="two-athletes-card horse">
+        <div class="label">Horse</div>
+        <p>Asymmetries, warm-up needs, tension patterns, soundness history, and how those patterns interact with yours. All surfaced from the data you're already capturing.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SHOW PLANNER SCREENSHOT -->
+<section class="section" style="padding-top: 64px;">
+  <div class="section-label">Show Preparation</div>
+  <h2 class="section-heading">Every event, <em>fully prepared for</em>.</h2>
+  <div class="divider divider-left"></div>
+  <p class="section-body">Show Planner builds week-by-week preparation around your test, your readiness, and your specific concerns. Nothing left to last-minute.</p>
+
+  <div class="screenshot-real">
+    <div class="screenshot-caption">Show Planner. Competition Countdown with week-by-week preparation structure, test reference panel, readiness snapshot, and prep progress tracking. Every opportunity, fully prepared for.</div>
+    <img src="Screenshotsp.png" alt="YDJ Show Planner showing Prix St. Georges competition countdown at 49 days out, with Horse Show Packing List, Test Reference, Readiness Snapshot, and Week 7 preparation tasks">
+  </div>
+</section>
+
+<!-- BEFORE YOU RIDE -->
+<section class="section">
+  <div class="section-label">Before You Ride</div>
+  <h2 class="section-heading">Fully prepare and <em>focus</em>.</h2>
+  <div class="divider divider-left"></div>
+  <p class="section-body">Create your personalized pre-ride ritual with links to what you want to work on. Review your Lesson Prep to give your coach a meaningful anchor. Check your Practice Card for a small set of focused process goals, the sensations to feel for in the saddle, and a mental image to carry with you.</p>
+
+  <div class="screenshot-real">
+    <div class="screenshot-caption">Your Practice Card. Three focused areas for today's ride, the sensations to feel for in the saddle, and a mental image to carry with you. Two or three things. Not twenty.</div>
+    <img src="ScreenshotPC.png" alt="YDJ Practice Card showing This Ride Focus On section with three numbered process goals, In The Saddle Feel For section, and This Week's Image with a visualization metaphor">
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <h2>Ready to <em>start your own</em>?</h2>
+  <p>Choose your tier. Build your profile. Receive your First Light. Start logging rides, and let the picture build itself.</p>
+  <div style="display: flex; justify-content: center;">
+    <a href="https://your-dressage-journey.web.app/signin" class="btn-primary">Sign Up</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-contact">
+      <a href="mailto:support@yourdressagejourney.com">support@yourdressagejourney.com</a>
+    </div>
+    <div class="footer-legal">
+      <a href="https://yourdressagejourney.com/terms">Terms</a><span class="sep">·</span><a href="https://yourdressagejourney.com/privacy">Privacy</a><span class="sep">·</span><a href="ydj-cookies.html">Cookies</a><span class="sep">·</span>AI analysis powered by Claude<span class="sep">·</span><a href="https://anthropic.com" target="_blank" rel="noopener">Anthropic</a>
+    </div>
+    <div class="footer-copyright">&copy; 2026 Your Training Journey, LLC</div>
+  </div>
+</footer>
+
+<script>
+function toggleMobileMenu(btn) {
+  var panel = document.getElementById('navMobilePanel');
+  if (!panel) return;
+  var open = panel.classList.toggle('open');
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+</script>
+
+</body>
+</html>

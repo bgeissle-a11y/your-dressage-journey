@@ -20,10 +20,10 @@
     --text-muted: #7A6055;
     --white: #FFFFFF;
 
-    --technical: #3B7DD8;
-    --empathetic: #C9784C;
-    --classical: #5C7A4A;
-    --strategist: #8B5C9E;
+    --technical: #6B8E5F;
+    --empathetic: #C67B5C;
+    --classical: #5C4033;
+    --strategist: #4A6274;
 
     --cat-milestone: #4A90E2;
     --cat-validation: #7ED321;
@@ -295,16 +295,15 @@
     background: var(--cream-dark);
     padding: 80px 24px;
   }
-  .problem-solution-inner {
+  .problem-solution-headers,
+  .problem-solution-grid {
     max-width: 960px;
     margin: 0 auto;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0 48px;
+    gap: 56px;
   }
-  @media (max-width: 700px) {
-    .problem-solution-inner { grid-template-columns: 1fr; }
-  }
+  .problem-solution-headers { margin-bottom: 24px; }
   .ps-label {
     font-size: 11px;
     font-weight: 700;
@@ -316,40 +315,40 @@
     display: inline-block;
   }
   .ps-label.problem { background: rgba(180,50,30,0.1); color: #B43520; }
-  .ps-label.solution { background: rgba(92,122,74,0.12); color: var(--classical); }
-  .ps-col h3 {
+  .ps-label.solution { background: rgba(92,122,74,0.12); color: #5C7A4A; }
+  .problem-solution-headers h3 {
     font-family: 'Playfair Display', serif;
-    font-size: 22px;
+    font-size: clamp(22px, 3vw, 28px);
+    font-weight: 600;
     color: var(--brown);
-    margin-bottom: 20px;
     line-height: 1.3;
-  }
-  .ps-paired-grid {
-    max-width: 960px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0 48px;
-  }
-  @media (max-width: 700px) {
-    .ps-paired-grid { grid-template-columns: 1fr; }
   }
   .ps-item {
     font-size: 15px;
     color: var(--text-muted);
-    padding: 12px 0;
+    padding: 14px 0;
     border-bottom: 1px solid var(--cream-deeper);
     display: flex;
     gap: 12px;
     align-items: flex-start;
-    line-height: 1.55;
-  }
-  .ps-item:nth-last-child(-n+2) { border-bottom: none; }
-  @media (max-width: 700px) {
-    .ps-item:nth-last-child(-n+2) { border-bottom: 1px solid var(--cream-deeper); }
-    .ps-item:last-child { border-bottom: none; }
+    line-height: 1.6;
   }
   .ps-item .icon { font-size: 16px; flex-shrink: 0; margin-top: 2px; }
+  @media (max-width: 800px) {
+    .problem-solution-headers,
+    .problem-solution-grid { grid-template-columns: 1fr; gap: 8px; }
+    .problem-solution-headers { margin-bottom: 16px; }
+    .ps-item {
+      padding: 12px 12px;
+      border-bottom: none;
+      border-left: 3px solid transparent;
+      background: var(--cream);
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 4px;
+    }
+    .ps-item.problem { border-left-color: #B43520; }
+    .ps-item.solution { border-left-color: #5C7A4A; }
+  }
 
   /* ── HOW IT WORKS ── */
   .steps {
@@ -553,10 +552,10 @@
     padding: 28px 22px;
     border: 1px solid;
   }
-  .voice-card.technical { background: rgba(59,125,216,0.05); border-color: rgba(59,125,216,0.2); }
-  .voice-card.empathetic { background: rgba(201,120,76,0.05); border-color: rgba(201,120,76,0.2); }
-  .voice-card.classical { background: rgba(92,122,74,0.05); border-color: rgba(92,122,74,0.2); }
-  .voice-card.strategist { background: rgba(139,92,158,0.05); border-color: rgba(139,92,158,0.2); }
+  .voice-card.technical { background: rgba(107,142,95,0.05); border-color: rgba(107,142,95,0.2); }
+  .voice-card.empathetic { background: rgba(198,123,92,0.05); border-color: rgba(198,123,92,0.2); }
+  .voice-card.classical { background: rgba(92,64,51,0.05); border-color: rgba(92,64,51,0.2); }
+  .voice-card.strategist { background: rgba(74,98,116,0.05); border-color: rgba(74,98,116,0.2); }
   .voice-icon-lg { font-size: 28px; margin-bottom: 14px; }
   .voice-card-name {
     font-family: 'Playfair Display', serif;
@@ -591,10 +590,10 @@
     border-radius: 20px;
     display: inline-block;
   }
-  .technical .voice-catchphrase { background: rgba(59,125,216,0.1); color: var(--technical); }
-  .empathetic .voice-catchphrase { background: rgba(201,120,76,0.1); color: var(--empathetic); }
-  .classical .voice-catchphrase { background: rgba(92,122,74,0.1); color: var(--classical); }
-  .strategist .voice-catchphrase { background: rgba(139,92,158,0.1); color: var(--strategist); }
+  .technical .voice-catchphrase { background: rgba(107,142,95,0.1); color: var(--technical); }
+  .empathetic .voice-catchphrase { background: rgba(198,123,92,0.1); color: var(--empathetic); }
+  .classical .voice-catchphrase { background: rgba(92,64,51,0.1); color: var(--classical); }
+  .strategist .voice-catchphrase { background: rgba(74,98,116,0.1); color: var(--strategist); }
 
   /* ── WHO IT'S FOR ── */
   .for-grid {
@@ -682,16 +681,120 @@
     color: rgba(253,248,242,0.4);
   }
 
-  /* ── FOOTER ── */
+  /* ── FOOTER (UNIFIED) ── */
   footer {
     background: var(--brown-deep);
     color: rgba(253,248,242,0.45);
-    text-align: center;
-    padding: 28px 24px;
+    padding: 36px 24px 32px;
     font-size: 12px;
     font-weight: 300;
   }
-  footer strong { color: rgba(253,248,242,0.7); }
+  .footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    text-align: center;
+  }
+  .footer-logo img {
+    height: 28px; width: auto; opacity: 0.5;
+  }
+  .footer-brand {
+    color: rgba(253,248,242,0.65);
+  }
+  .footer-brand strong { color: rgba(253,248,242,0.85); font-weight: 500; }
+  .footer-contact a {
+    color: var(--gold-light);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(232,201,122,0.3);
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .footer-contact a:hover {
+    color: var(--cream);
+    border-bottom-color: var(--cream);
+  }
+  .footer-legal {
+    font-size: 11px;
+    color: rgba(253,248,242,0.35);
+    letter-spacing: 0.5px;
+  }
+  .footer-legal a {
+    color: rgba(253,248,242,0.55);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-legal a:hover { color: rgba(253,248,242,0.9); }
+  .footer-legal .sep {
+    color: rgba(253,248,242,0.2);
+    margin: 0 8px;
+  }
+  .footer-copyright {
+    font-size: 11px;
+    color: rgba(253,248,242,0.45);
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+  }
+  /* Headings: keep contrasting color via existing rules, but render upright */
+  h1 em, h2 em, h3 em { font-style: normal !important; }
+  /* Mobile hamburger menu */
+  .nav-hamburger {
+    display: none;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    color: var(--brown);
+    margin-left: 4px;
+  }
+  .nav-hamburger svg { display: block; width: 26px; height: 26px; }
+  .nav-mobile-panel {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--cream);
+    border-bottom: 1px solid var(--cream-dark);
+    padding: 12px 24px 20px;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    z-index: 99;
+  }
+  .nav-mobile-panel.open { display: flex; }
+  .nav-mobile-panel a {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--brown);
+    text-decoration: none;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--cream-dark);
+  }
+  .nav-mobile-panel a:last-child { border-bottom: none; }
+  .nav-mobile-panel a.btn-mobile-cta {
+    text-align: center;
+    background: var(--gold-pale);
+    border: 1.5px solid var(--gold);
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    color: var(--brown-deep);
+  }
+  .nav-mobile-panel a.btn-mobile-login {
+    text-align: center;
+    border: 1.5px solid var(--brown);
+    border-radius: 4px;
+    padding: 12px 16px;
+    color: var(--brown);
+    margin-top: 4px;
+  }
+  @media (max-width: 720px) {
+    .nav { position: relative; }
+    .nav-hamburger { display: block; }
+  }
 </style>
 </head>
 <body>
@@ -704,219 +807,77 @@
      a one-time design task, not a code fix. -->
 <nav class="nav">
   <a href="https://yourdressagejourney.com" style="display:flex; align-items:center; text-decoration:none;">
-    <img src="/assets/logo-black-line.svg" alt="Your Dressage Journey" style="height:52px; width:auto;">
+    <img src="assets/logo-color.svg" alt="Your Dressage Journey" style="height:48px; width:auto;">
   </a>
   <ul class="nav-links">
-    <li><a href="#how-it-works">How It Works</a></li>
-    <li><a href="#outputs">What You Get</a></li>
-    <li><a href="#voices">Coaching Voices</a></li>
-    <li><a href="#get-started">Get Started</a></li>
+    <li><a href="ydj-learn-more.html" class="active">Why YDJ</a></li>
+    <li><a href="ydj-the-process.html">The Process</a></li>
+    <li><a href="ydj-pricing.html">Pricing</a></li>
+    <li><a href="ydj-testimonials.html">Testimonials</a></li>
+    <li><a href="ydj-about.html">About</a></li>
   </ul>
   <div class="nav-buttons">
     <a href="ydj-first-glimpse-quick.html" class="btn-glimpse">Try a Free First Glimpse</a>
     <a href="https://your-dressage-journey.web.app/signin" class="btn-login">Log In</a>
+    <button class="nav-hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="navMobilePanel" onclick="toggleMobileMenu(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+  </div>
+  <div class="nav-mobile-panel" id="navMobilePanel">
+    <a href="ydj-learn-more.html">Why YDJ</a>
+    <a href="ydj-the-process.html">The Process</a>
+    <a href="ydj-pricing.html">Pricing</a>
+    <a href="ydj-testimonials.html">Testimonials</a>
+    <a href="ydj-about.html">About</a>
+    <a href="ydj-first-glimpse-quick.html" class="btn-mobile-cta">Try a Free First Glimpse</a>
   </div>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
   <div style="margin-bottom: 28px;">
-    <img src="assets/ColorLogoLarge-01.svg" alt="Your Dressage Journey" style="height:180px; width:auto; opacity:0.92;">
+    <img src="assets/logo-color.svg" alt="Your Dressage Journey" style="height:140px; width:auto;">
   </div>
   <div class="hero-eyebrow">✦ Learning Acceleration for Serious Dressage Riders</div>
   <h1>Your Dressage Journey<br><em>Illuminated</em></h1>
   <p class="hero-description">
-    YDJ isn't an app that teaches you how to ride. It's a platform that <strong>accelerates your learning and enhances your partnership</strong> — before the ride, after it, and in every hour in between. Everything you experience, reflected back as insight you can actually use.
+    YDJ isn't an app that teaches you how to ride. It's a platform that <strong>accelerates your learning and enhances your partnership</strong>. Before the ride, after it, and in every hour in between. Everything you experience, reflected back as insight you can actually use.
   </p>
   <div class="hero-cta-group">
-    <a href="#get-started" class="btn-primary">Start Your Journey</a>
-    <a href="ydj-first-glimpse-quick.html" class="btn-outline">Try a Free First Glimpse →</a>
-    <a href="ydj-sample-analysis.html" class="btn-outline">See a Sample Analysis →</a>
+    <a href="ydj-pricing.html" class="btn-primary">See Pricing</a>
   </div>
 </section>
-
-<!-- PULL QUOTE 1 -->
-<div style="background: var(--cream); padding: 0 24px;">
-  <div class="pull-quote">
-    <blockquote>"Don't get me wrong, I work with lots and lots of coaches and they are all telling me the same thing your AI did. But it's finally sinking in. Provides a path. Puts it all in order."</blockquote>
-    <cite>— Linda Klarner, pilot participant</cite>
-  </div>
-</div>
 
 <!-- PROBLEM / SOLUTION -->
 <section class="problem-solution">
-  <div class="problem-solution-inner">
-    <div class="ps-col">
+  <div class="problem-solution-headers">
+    <div>
       <span class="ps-label problem">The Problem</span>
       <h3>Learning between rides is a missed opportunity.</h3>
     </div>
-    <div class="ps-col">
+    <div>
       <span class="ps-label solution">The Solution</span>
-      <h3>YDJ closes the loop — before, during, and after.</h3>
+      <h3>YDJ closes the loop. Before, during, and after every ride.</h3>
     </div>
   </div>
-  <div class="ps-paired-grid">
-    <div class="ps-item"><span class="icon">⏱️</span>Time at the barn is limited — away from it, most riders spend unlimited energy looping or scrolling</div>
-    <div class="ps-item"><span class="icon">🧩</span>Off-horse tools turn time away from the barn into purposeful learning</div>
+  <div class="problem-solution-grid">
+    <div class="ps-item problem"><span class="icon">⏱️</span><span>Time at the barn is limited. Away from it, most riders spend unlimited energy looping or scrolling.</span></div>
+    <div class="ps-item solution"><span class="icon">🧩</span><span>Off-horse tools turn time away from the barn into purposeful learning.</span></div>
 
-    <div class="ps-item"><span class="icon">🧠</span>Cognitive overload keeps you in your head instead of in your body</div>
-    <div class="ps-item"><span class="icon">🎯</span>Set intentions before you ride — reduce cognitive load so you can feel and respond</div>
+    <div class="ps-item problem"><span class="icon">🧠</span><span>Cognitive overload keeps you in your head instead of in your body.</span></div>
+    <div class="ps-item solution"><span class="icon">🎯</span><span>Set intentions before you ride. Reduce cognitive load so you can feel and respond.</span></div>
 
-    <div class="ps-item"><span class="icon">🐴</span>You track one athlete — but two show up for every ride</div>
-    <div class="ps-item"><span class="icon">✨</span>AI finds patterns across both athletes — over weeks and months, not just today</div>
+    <div class="ps-item problem"><span class="icon">🐴</span><span>You track one athlete. Two show up for every ride.</span></div>
+    <div class="ps-item solution"><span class="icon">✨</span><span>AI finds patterns across both athletes, over weeks and months, not just today.</span></div>
 
-    <div class="ps-item"><span class="icon">📍</span>Shows and events pass by without full preparation and sustained follow-through</div>
-    <div class="ps-item"><span class="icon">📅</span>Nothing left to last-minute — and every event's insights captured for next time</div>
+    <div class="ps-item problem"><span class="icon">📍</span><span>Shows and events pass by without full preparation and sustained follow-through.</span></div>
+    <div class="ps-item solution"><span class="icon">📅</span><span>Nothing left to last minute. Every event's insights captured for next time.</span></div>
 
-    <div class="ps-item"><span class="icon">🔀</span>Patterns across rides are impossible to see from inside them</div>
-    <div class="ps-item"><span class="icon">🗺️</span>Your Journey Map grows with you — every pattern, milestone, and breakthrough visible over time</div>
-  </div>
-</section>
-
-<!-- HOW IT WORKS -->
-<section class="section" id="how-it-works">
-  <div class="section-label">How It Works</div>
-  <h2 class="section-heading">The full learning loop.<br><em>Before, during, and after</em> every ride.</h2>
-  <div class="divider divider-left"></div>
-  <p class="section-body">Most apps only capture what happened. YDJ supports the whole learning cycle — setting you up before you ride, capturing what happened after, extending learning off-horse, and bringing it all back to your next ride.</p>
-
-  <div class="steps">
-    <div class="step">
-      <div class="step-icon">🎯</div>
-      <div class="step-num">1</div>
-      <h4>Prepare</h4>
-      <p>Set your intention before you ride. Focus the session, reduce cognitive load, and give the AI context for what you're working toward.</p>
-    </div>
-    <div class="step">
-      <div class="step-icon">📱</div>
-      <div class="step-num">2</div>
-      <h4>Capture at the barn</h4>
-      <p>Quick post-ride debrief on your phone. Takes 2–5 minutes while you untack. Voice input supported.</p>
-    </div>
-    <div class="step">
-      <div class="step-icon">💭</div>
-      <div class="step-num">3</div>
-      <h4>Reflect weekly</h4>
-      <p>Choose one of six reflection categories. Guided prompts help you go deeper in 10–15 minutes.</p>
-    </div>
-    <div class="step">
-      <div class="step-icon">🧩</div>
-      <div class="step-num">4</div>
-      <h4>Extend off-horse</h4>
-      <p>Visualization scripts, test study, physical awareness exercises, and habit tracking — every hour away from the barn moves you forward.</p>
-    </div>
-    <div class="step">
-      <div class="step-icon">🎙️</div>
-      <div class="step-num">5</div>
-      <h4>Four voices analyze</h4>
-      <p>Your data and your horse's patterns — analyzed through four distinct coaching perspectives, each revealing something the others might miss.</p>
-    </div>
-    <div class="step">
-      <div class="step-icon">🗺️</div>
-      <div class="step-num">6</div>
-      <h4>Return better</h4>
-      <p>Go back to your next ride with fresh clarity, a focused intention, and a growing map of where you've been and where you're going.</p>
-    </div>
-  </div>
-
-  <div style="margin: 40px 0 20px; padding: 24px 28px; background: var(--gold-pale); border-left: 4px solid var(--gold); border-radius: 0 12px 12px 0;">
-    <p style="font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; color: var(--brown); margin-bottom: 6px;">The "too much" problem, solved.</p>
-    <p style="font-size: 15px; color: var(--text-muted); font-weight: 300; line-height: 1.7;">Every output in YDJ feeds a single weekly surface — so you always know where to start, and nothing important gets buried.</p>
-  </div>
-
-  <div class="screenshot-real">
-    <div class="screenshot-caption">Your Weekly Focus — four cards that surface what matters most this week, across coaching insight, mental performance, physical awareness, and show planning. One view. No wall of analysis.</div>
-    <img src="ScreenshotWF.png" alt="YDJ Weekly Focus showing four cards: Key Insight from Multi-Voice coaching, Grand Prix Thinking assignments, Physical Awareness guidance, and Show Planning countdown">
+    <div class="ps-item problem"><span class="icon">🔀</span><span>Patterns across rides are impossible to see from inside them.</span></div>
+    <div class="ps-item solution"><span class="icon">🗺️</span><span>Your Journey Map grows with you. Every pattern, milestone, and breakthrough visible over time.</span></div>
   </div>
 </section>
 
-<!-- INSIGHT STRIP -->
-<div class="insight-strip">
-  <div class="insight-quote">"Your trainer teaches you. Your rides give you the reps. YDJ is what happens in between."</div>
-  <div class="insight-sub">Before the ride. After it. And every hour away from the barn that most riders leave to chance.</div>
-</div>
-
-<!-- SCIENCE BRIDGE -->
-<div style="background: var(--cream); padding: 20px 24px 0; text-align: center;">
-  <p style="font-size: 14px; color: var(--text-muted); font-weight: 300;">
-    Built on research into how adult riders actually learn, retain, and apply new skills. &nbsp;<a href="ydj-science.html" style="color: var(--brown); font-weight: 600; text-decoration: none; border-bottom: 1px solid var(--gold);">Read the science behind YDJ →</a>
-  </p>
-</div>
-
-<!-- OUTPUTS -->
-<section class="section" id="outputs">
-  <div class="section-label">What You Get</div>
-  <h2 class="section-heading">Meaningful outputs.<br>Every dimension of your <em>journey</em>.</h2>
-  <div class="divider divider-left"></div>
-  <p class="section-body">Every piece of data you contribute feeds a suite of AI-powered analyses — each designed to reveal a different dimension of your riding life. The list keeps growing as the platform does.</p>
-
-  <div class="outputs-grid">
-    <div class="output-card">
-      <div class="output-icon">🗺️</div>
-      <div class="output-name">Journey Map</div>
-      <div class="output-desc">Your visual and narrative timeline — milestones, patterns, and progress you might not see yourself. Grows richer with every entry.</div>
-    </div>
-    <div class="output-card">
-      <div class="output-icon">🎙️</div>
-      <div class="output-name">Multi-Voice Coaching</div>
-      <div class="output-desc">Four expert coaching perspectives analyze your same data through completely different lenses. Like having a coaching team around the table.</div>
-    </div>
-    <div class="output-card">
-      <div class="output-icon">📊</div>
-      <div class="output-name">Data Visualizations</div>
-      <div class="output-desc">Charts that make the invisible visible — ride quality trends, mental state correlations, training focus distribution, and more.</div>
-    </div>
-    <div class="output-card">
-      <div class="output-icon">🧠</div>
-      <div class="output-name">Grand Prix Thinking</div>
-      <div class="output-desc">Daily mental performance practices and long-term training trajectory paths — built from your patterns, not generic templates.</div>
-    </div>
-    <div class="output-card">
-      <div class="output-icon">🏋️</div>
-      <div class="output-name">Physical Guidance</div>
-      <div class="output-desc">Off-horse exercises and body awareness practices targeted to your documented challenges and asymmetries.</div>
-    </div>
-    <div class="output-card">
-      <div class="output-icon">📅</div>
-      <div class="output-name">Event Planner</div>
-      <div class="output-desc">Personalized show preparation plans built around your history, your horse, and your specific test requirements.</div>
-    </div>
-    <div class="output-card">
-      <div class="output-icon">🪞</div>
-      <div class="output-name">Self-Assessment Analysis</div>
-      <div class="output-desc">Longitudinal growth tracking across mental, emotional, and physical dimensions — showing how you're evolving as a rider over time.</div>
-    </div>
-    <div class="output-card">
-      <div class="output-icon">🧘</div>
-      <div class="output-name">Rider Visualizations</div>
-      <div class="output-desc">Personalized mental rehearsal scripts, arena geometry training, and pre-ride ritual building — structured tools that turn every hour between rides into deliberate practice.</div>
-    </div>
-    <div class="output-card">
-      <div class="output-icon">📋</div>
-      <div class="output-name">Pre-Lesson Summary</div>
-      <div class="output-desc">Read it in the car or at the barn before you get on. By the time you're walking to warm up, you have a confident, specific answer ready — what you've been working on, what clicked, what's still sticky. Your coach gets all of that, and gets credit for the growth in your awareness.</div>
-    </div>
-  </div>
-
-  <div class="trainer-observation">
-    <div class="attribution">Grand Prix riders and trainers Tae Erickson &amp; Kristen Becker</div>
-    <blockquote>observed together that the reports are "super valuable for students to read for themselves, and to help them summarize what's been happening between lessons — they can tell us that information as they're getting on and walking to warm up."</blockquote>
-  </div>
-
-  <div class="screenshot-real">
-    <div class="screenshot-caption">Your Dashboard — rides logged, all six reflection categories covered, your recent training themes, journey narrative, and process goal follow-through at a glance.</div>
-    <img src="Screenshotdb.png" alt="YDJ Dashboard showing Current Stats with 65 rides and 20 reflections, Your Journey narrative, What You've Been Working On training tags, and Process Goals follow-through rate">
-  </div>
-  <div class="screenshot-real" style="margin-top: 20px;">
-    <div class="screenshot-caption">Multi-Voice Coaching — the Empathetic Coach's read on emotional patterns, confidence trajectory, and partnership dynamics. Four voices, same data, completely different perspectives.</div>
-    <img src="ScreenshotCV.png" alt="YDJ Coaching Voices showing Empathetic Coach analysis with emotional patterns, confidence trajectory, and partnership insights sections">
-  </div>
-
-  <div style="margin-top: 48px; text-align: center; padding: 0 24px;">
-    <p style="font-family: 'Playfair Display', serif; font-size: clamp(16px, 2.5vw, 21px); font-style: italic; color: var(--brown); line-height: 1.65; max-width: 680px; margin: 0 auto 10px;">"I did the profiles and am amazed at how much more the insights grew and focused. I was sure that a human was reading and replying at super speeds."</p>
-    <p style="font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted);">— Linda Klarner, pilot participant</p>
-  </div>
-</section>
 
 <!-- TWO ATHLETES -->
 <section class="problem-solution" style="padding: 64px 24px;">
@@ -924,31 +885,22 @@
     <div>
       <div class="section-label">One Journey. Two Athletes.</div>
       <h2 style="font-family: 'Playfair Display', serif; font-size: clamp(24px, 4vw, 36px); font-weight: 700; color: var(--brown); line-height: 1.2; margin-bottom: 16px;">Your horse has patterns too.</h2>
-      <p style="font-size: 16px; color: var(--text-muted); font-weight: 300; line-height: 1.8; margin-bottom: 12px;">YDJ is the only platform that tracks the body and mind of both horse and rider. Asymmetries, tendencies, good days and hard ones — for both of you.</p>
-      <p style="font-size: 16px; color: var(--text-muted); font-weight: 300; line-height: 1.8;">Over time, the AI suggests ways to help you work better <em>together</em> — tailoring guidance to the partnership, not just the person. Because two athletes show up for every ride.</p>
+      <p style="font-size: 16px; color: var(--text-muted); font-weight: 300; line-height: 1.8; margin-bottom: 12px;">YDJ is the only platform that tracks the body and mind of both horse and rider. Asymmetries, tendencies, good days and hard ones, for both of you.</p>
+      <p style="font-size: 16px; color: var(--text-muted); font-weight: 300; line-height: 1.8;">Over time, the AI suggests ways to help you work better <em>together</em>. The platform tailors guidance to the partnership, not just the person. Because two athletes show up for every ride.</p>
     </div>
     <div style="display: flex; flex-direction: column; gap: 16px;">
       <div style="background: white; border: 1px solid var(--cream-dark); border-left: 4px solid var(--gold); border-radius: 12px; padding: 20px 24px;">
         <div style="font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px;">Rider</div>
-        <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6; font-weight: 300;">Position patterns, physical habits, mental state, learning style, off-horse practice — tracked longitudinally and connected to what happens in the saddle.</p>
+        <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6; font-weight: 300;">Position patterns, physical habits, mental state, learning style, off-horse practice. All tracked longitudinally and connected to what happens in the saddle.</p>
       </div>
       <div style="background: white; border: 1px solid var(--cream-dark); border-left: 4px solid var(--brown); border-radius: 12px; padding: 20px 24px;">
         <div style="font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--brown); margin-bottom: 8px;">Horse</div>
-        <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6; font-weight: 300;">Asymmetries, warm-up needs, tension patterns, soundness history, and how those patterns interact with yours — surfaced from the data you're already capturing.</p>
+        <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6; font-weight: 300;">Asymmetries, warm-up needs, tension patterns, soundness history, and how those patterns interact with yours. All surfaced from the data you're already capturing.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- SHOW PLANNER SCREENSHOT -->
-<div style="background: var(--cream-dark); padding: 0 24px 64px;">
-  <div style="max-width: 960px; margin: 0 auto;">
-    <div class="screenshot-real">
-      <div class="screenshot-caption">Show Planner — Competition Countdown with week-by-week preparation structure, test reference panel, readiness snapshot, and prep progress tracking. Every opportunity, fully prepared for.</div>
-      <img src="Screenshotsp.png" alt="YDJ Show Planner showing Prix St. Georges competition countdown at 49 days out, with Horse Show Packing List, Test Reference, Readiness Snapshot, and Week 7 preparation tasks">
-    </div>
-  </div>
-</div>
 
 <!-- SIX REFLECTION CATEGORIES -->
 <section class="categories-bg">
@@ -962,7 +914,7 @@
     <div class="cat-grid">
       <div class="cat-card milestone">
         <div class="cat-title">🟦 Personal Milestone</div>
-        <div class="cat-desc">Achievements and breakthroughs that matter to you — regardless of external recognition.</div>
+        <div class="cat-desc">Achievements and breakthroughs that matter to you, regardless of external recognition.</div>
       </div>
       <div class="cat-card validation">
         <div class="cat-title">🟩 External Validation</div>
@@ -974,15 +926,15 @@
       </div>
       <div class="cat-card obstacle">
         <div class="cat-title">🟥 Obstacle</div>
-        <div class="cat-desc">Challenges and frustrations — physical, mental, financial, or partnership. The hard parts matter too.</div>
+        <div class="cat-desc">Challenges and frustrations. Physical, mental, financial, or partnership. The hard parts matter too.</div>
       </div>
       <div class="cat-card feel">
         <div class="cat-title">🟧 Feel</div>
-        <div class="cat-desc">Body awareness and physical sensation — the subtle language between horse and rider.</div>
+        <div class="cat-desc">Body awareness and physical sensation. The subtle language between horse and rider.</div>
       </div>
       <div class="cat-card connection">
         <div class="cat-title">🟪 Connection</div>
-        <div class="cat-desc">The relationship with your horse — trust, understanding, partnership, and those moments of unity.</div>
+        <div class="cat-desc">The relationship with your horse. Trust, understanding, partnership, and those moments of unity.</div>
       </div>
     </div>
   </div>
@@ -993,15 +945,15 @@
   <div class="section-label">Your Coaching Team</div>
   <h2 class="section-heading">Four voices.<br>One rider's <em>data</em>.</h2>
   <div class="divider divider-left"></div>
-  <p class="section-body">The same rides and reflections — analyzed through four completely different expert lenses. Each voice sees something the others might miss. Together, they give you a coaching team that's always available and never generic.</p>
+  <p class="section-body">The same rides and reflections, analyzed through four completely different expert lenses. Each voice sees something the others might miss. Together, they give you a coaching team that's always available and never generic.</p>
 
   <div class="voices-grid">
-    <div class="voice-card technical">
-      <div class="voice-icon-lg">🔬</div>
-      <div class="voice-card-name">The Technical Coach</div>
-      <div class="voice-card-focus">Biomechanics · Position · Aids</div>
-      <div class="voice-card-desc">Clear, cause-and-effect analysis of your position, timing, and movement execution. Identifies the physical patterns beneath the surface.</div>
-      <span class="voice-catchphrase">"Did you feel that?"</span>
+    <div class="voice-card classical">
+      <div class="voice-icon-lg">🎯</div>
+      <div class="voice-card-name">The Classical Master</div>
+      <div class="voice-card-focus">Training Scale · Philosophy · Horse Welfare</div>
+      <div class="voice-card-desc">A wise, patient perspective grounded in classical principles and the long arc of dressage development. Occasionally poetic.</div>
+      <span class="voice-catchphrase">"Why not the first time?"</span>
     </div>
     <div class="voice-card empathetic">
       <div class="voice-icon-lg">⭐</div>
@@ -1010,12 +962,12 @@
       <div class="voice-card-desc">Warm, perceptive analysis of your mental patterns, fear, confidence arcs, and rider-horse relationship. Sees the whole person.</div>
       <span class="voice-catchphrase">"You've got this"</span>
     </div>
-    <div class="voice-card classical">
-      <div class="voice-icon-lg">🎯</div>
-      <div class="voice-card-name">The Classical Master</div>
-      <div class="voice-card-focus">Training Scale · Philosophy · Horse Welfare</div>
-      <div class="voice-card-desc">Wise, patient perspective grounded in classical principles and the long arc of dressage development. Patient and occasionally poetic.</div>
-      <span class="voice-catchphrase">"Why not the first time?"</span>
+    <div class="voice-card technical">
+      <div class="voice-icon-lg">🔬</div>
+      <div class="voice-card-name">The Technical Coach</div>
+      <div class="voice-card-focus">Biomechanics · Position · Aids</div>
+      <div class="voice-card-desc">Clear, cause-and-effect analysis of your position, timing, and movement execution. Identifies the physical patterns beneath the surface.</div>
+      <span class="voice-catchphrase">"Did you feel that?"</span>
     </div>
     <div class="voice-card strategist">
       <div class="voice-icon-lg">📋</div>
@@ -1025,11 +977,6 @@
       <span class="voice-catchphrase">"Be accurate!"</span>
     </div>
   </div>
-
-  <div class="screenshot-real" style="margin-top: 40px;">
-    <div class="screenshot-caption">Your Practice Card — three focused areas for today's ride, the sensations to feel for in the saddle, and a mental image to carry with you. Two or three things. Not twenty.</div>
-    <img src="ScreenshotPC.png" alt="YDJ Practice Card showing This Ride Focus On section with three numbered process goals, In The Saddle Feel For section, and This Week's Image with a visualization metaphor">
-  </div>
 </section>
 
 <!-- WHO IT'S FOR -->
@@ -1037,7 +984,7 @@
   <div class="section-label">Built For You</div>
   <h2 class="section-heading">For serious adult amateur dressage riders<br><em>at every level</em>.</h2>
   <div class="divider divider-left"></div>
-  <p class="section-body">If you train regularly, care about your progress, and want to make every ride — and every hour between rides — count, YDJ was built for you.</p>
+  <p class="section-body">If you train regularly, care about your progress, and want to make every ride count, including every hour between rides, YDJ was built for you.</p>
 
   <div class="for-grid">
     <div class="for-card">
@@ -1053,7 +1000,7 @@
     <div class="for-card">
       <div class="for-icon">🐴</div>
       <h4>Multi-horse riders</h4>
-      <p>Separate, personalized profiles and analysis for each horse — and for the partnerships that are different every time.</p>
+      <p>Separate, personalized profiles and analysis for each horse. Tailored to each partnership.</p>
     </div>
     <div class="for-card">
       <div class="for-icon">🏆</div>
@@ -1063,12 +1010,12 @@
     <div class="for-card">
       <div class="for-icon">🧠</div>
       <h4>The thinker between rides</h4>
-      <p>Riders who analyze, prepare, visualize, and want every moment to count — not just the time in the saddle.</p>
+      <p>Riders who analyze, prepare, visualize, and want every moment to count.</p>
     </div>
     <div class="for-card">
       <div class="for-icon">🫶</div>
       <h4>Partnership seekers</h4>
-      <p>Riders who want to understand their horse — not just improve their scores.</p>
+      <p>Riders who want to deeply explore their connection with their horse in order to improve their partnership.</p>
     </div>
   </div>
 </section>
@@ -1077,22 +1024,32 @@
 <section class="final-cta" id="get-started">
   <h2>Your journey is already<br><em>in progress</em>.</h2>
   <p>Let's illuminate it. Your Dressage Journey gives you the tools to collect, analyze, and understand your riding at a level you've never had access to before.</p>
-  <a href="https://yourdressagejourney.com" class="btn-primary">Start Your Journey</a>
-  <p style="font-family: 'Playfair Display', serif; font-size: clamp(14px, 2vw, 17px); font-style: italic; color: rgba(253,248,242,0.45); max-width: 540px; margin: 28px auto 0; line-height: 1.6;">Everything you need — except the horse and quality riding instruction — all at your fingertips.</p>
-  <div class="cta-note">Questions? Reach out at <a href="mailto:barb@yourdressagejourney.com" style="color: rgba(253,248,242,0.6);">barb@yourdressagejourney.com</a></div>
+  <div style="display: flex; justify-content: center;">
+    <a href="https://your-dressage-journey.web.app/signin" class="btn-primary">Sign Up</a>
+  </div>
+  <p style="font-family: 'Playfair Display', serif; font-size: clamp(14px, 2vw, 17px); font-style: italic; color: rgba(253,248,242,0.45); max-width: 540px; margin: 28px auto 0; line-height: 1.6;">Everything you need. Except the horse and quality riding instruction. All at your fingertips.</p>
 </section>
 
 <footer>
-  <div style="display:flex; flex-direction:column; align-items:center; gap:14px;">
-    <img src="assets/WordMarkWhite-01.svg" alt="Your Dressage Journey" style="height:28px; width:auto; opacity:0.5;">
-    <div>
-      <strong>Your Dressage Journey</strong> &nbsp;·&nbsp; yourdressagejourney.com &nbsp;·&nbsp; &copy; 2026 Your Training Journey, LLC
+  <div class="footer-inner">
+    <div class="footer-contact">
+      <a href="mailto:support@yourdressagejourney.com">support@yourdressagejourney.com</a>
     </div>
-    <div style="font-size:11px; color:rgba(253,248,242,0.3); letter-spacing:0.5px;">
-      AI analysis powered by Claude &nbsp;·&nbsp; <a href="https://anthropic.com" style="color:rgba(253,248,242,0.3); text-decoration:none;">Anthropic</a>
+    <div class="footer-legal">
+      <a href="https://yourdressagejourney.com/terms">Terms</a><span class="sep">·</span><a href="https://yourdressagejourney.com/privacy">Privacy</a><span class="sep">·</span><a href="ydj-cookies.html">Cookies</a><span class="sep">·</span>AI analysis powered by Claude<span class="sep">·</span><a href="https://anthropic.com" target="_blank" rel="noopener">Anthropic</a>
     </div>
+    <div class="footer-copyright">&copy; 2026 Your Training Journey, LLC</div>
   </div>
 </footer>
+
+<script>
+function toggleMobileMenu(btn) {
+  var panel = document.getElementById('navMobilePanel');
+  if (!panel) return;
+  var open = panel.classList.toggle('open');
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+</script>
 
 </body>
 </html>

@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — Your Dressage Journey</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!--
+  ╔═══════════════════════════════════════════════════════════════════╗
+  ║  PHOTO PLACEMENT GUIDE — BARB                                    ║
+  ║                                                                   ║
+  ║  Five photo zones marked in the page. Each <div class="photo-    ║
+  ║  zone"> contains specific direction for the photo that belongs   ║
+  ║  there. When you have the photos, replace each placeholder div   ║
+  ║  with: <img src="..." alt="..." class="story-photo">             ║
+  ║                                                                   ║
+  ║  Ideal photo set:                                                 ║
+  ║   1. Hero portrait — Barb in arena or at barn (landscape, warm)  ║
+  ║   2. Riding shot — Barb on Rocket Star or Pony (action moment)   ║
+  ║   3. Both horses together OR Pony alone (the surprise insight)   ║
+  ║   4. Behind-the-scenes — Barb at her desk / at the barn watching ║
+  ║   5. With trainers / closing portrait                            ║
+  ║                                                                   ║
+  ║  Aspect ratios are pre-styled but flexible — replace freely.     ║
+  ╚═══════════════════════════════════════════════════════════════════╝
+-->
+
+<style>
+  :root {
+    --brown: #5C3D2E;
+    --brown-deep: #3D2518;
+    --brown-light: #7A5240;
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --gold-pale: #F7EDCF;
+    --cream: #FDF8F2;
+    --cream-dark: #F0E8DB;
+    --cream-deeper: #E4D5C2;
+    --text: #2C1810;
+    --text-muted: #7A6055;
+    --white: #FFFFFF;
+    --classical: #5C7A4A;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Work Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(253,248,242,0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--cream-dark);
+    padding: 12px 24px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  }
+  .nav-links { display: flex; gap: 24px; list-style: none; }
+  .nav-links a {
+    font-size: 13px; font-weight: 500; color: var(--text-muted);
+    text-decoration: none; transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--brown); }
+  .nav-links a.active { color: var(--brown); font-weight: 600; }
+  .nav-buttons { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .btn-glimpse {
+    font-size: 13px; font-weight: 600; color: var(--brown);
+    background: var(--gold-pale); border: 1.5px solid var(--gold);
+    border-radius: 4px; padding: 7px 16px; text-decoration: none;
+    white-space: nowrap; transition: background 0.2s, color 0.2s;
+  }
+  .btn-glimpse:hover { background: var(--gold); color: var(--brown-deep); }
+  .btn-login {
+    font-size: 13px; font-weight: 600; color: var(--brown);
+    border: 1.5px solid var(--brown); border-radius: 4px;
+    padding: 7px 16px; text-decoration: none; white-space: nowrap;
+    transition: background 0.2s, color 0.2s;
+  }
+  .btn-login:hover { background: var(--brown); color: var(--cream); }
+  @media (max-width: 800px) { .nav-links { display: none; } .btn-glimpse { display: none; } }
+
+  /* ── HERO ── */
+  .hero {
+    background: var(--brown-deep);
+    color: var(--cream);
+    padding: 80px 24px 64px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 25% 60%, rgba(201,168,76,0.18) 0%, transparent 55%),
+      radial-gradient(ellipse at 75% 20%, rgba(201,168,76,0.10) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid rgba(201,168,76,0.4);
+    color: var(--gold-light);
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    padding: 7px 18px; border-radius: 24px; margin-bottom: 28px;
+    position: relative;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 6.5vw, 64px);
+    font-weight: 700; line-height: 1.05;
+    margin-bottom: 22px; color: var(--cream);
+    position: relative;
+  }
+  .hero h1 em { color: var(--gold-light); font-style: italic; }
+  .hero-description {
+    font-size: clamp(15px, 2.5vw, 18px);
+    color: rgba(253,248,242,0.78);
+    max-width: 640px; margin: 0 auto;
+    font-weight: 300; line-height: 1.8;
+    position: relative;
+  }
+  .hero-description strong { color: var(--gold-light); font-weight: 500; }
+
+  /* ── HERO PORTRAIT ── */
+  .hero-portrait-section {
+    background: var(--brown-deep);
+    padding: 0 24px 80px;
+    position: relative;
+  }
+  .hero-portrait-wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+  .photo-zone {
+    background: rgba(253,248,242,0.04);
+    border: 2px dashed rgba(201,168,76,0.4);
+    border-radius: 12px;
+    padding: 32px 28px;
+    text-align: center;
+    color: rgba(253,248,242,0.65);
+    font-size: 13px;
+    line-height: 1.7;
+    position: relative;
+  }
+  .photo-zone-light {
+    background: var(--cream-dark);
+    border: 2px dashed var(--cream-deeper);
+    color: var(--text-muted);
+  }
+  .photo-zone-icon {
+    display: block;
+    font-size: 28px;
+    margin-bottom: 10px;
+    opacity: 0.7;
+  }
+  .photo-zone-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .photo-zone-light .photo-zone-label {
+    color: var(--gold);
+  }
+  .photo-zone-direction {
+    font-style: italic;
+    margin-top: 10px;
+    font-size: 12px;
+    opacity: 0.85;
+  }
+
+  /* hero portrait specifically — big, landscape */
+  .photo-zone.hero-photo { aspect-ratio: 16 / 10; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+  /* in-story landscape photo */
+  .photo-zone.story-landscape { aspect-ratio: 16 / 10; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+  /* in-story portrait photo */
+  .photo-zone.story-portrait { aspect-ratio: 4 / 5; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+  /* in-story square photo */
+  .photo-zone.story-square { aspect-ratio: 1 / 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+  /* ── THE STORY ── */
+  .story-section {
+    background: var(--cream);
+    padding: 90px 24px;
+  }
+  .story-inner { max-width: 720px; margin: 0 auto; }
+
+  .section-label {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 14px;
+  }
+  .section-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 4.5vw, 42px);
+    font-weight: 700; color: var(--brown);
+    line-height: 1.18; margin-bottom: 18px;
+  }
+  .section-heading em { color: var(--gold); font-style: italic; }
+  .divider {
+    width: 60px; height: 2px;
+    background: var(--gold);
+    margin: 0 0 30px;
+  }
+
+  .story-body p {
+    font-size: 17px;
+    color: var(--text);
+    line-height: 1.85;
+    margin-bottom: 22px;
+    font-weight: 300;
+  }
+  .story-body p strong { font-weight: 500; color: var(--brown-deep); }
+  .story-body p em { font-style: italic; color: var(--brown); }
+  .story-body h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 3.2vw, 28px);
+    color: var(--brown);
+    margin: 48px 0 18px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .story-body h3 em { color: var(--gold); font-style: italic; }
+
+  .pull-line {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(20px, 3vw, 26px);
+    font-style: italic;
+    color: var(--brown);
+    line-height: 1.5;
+    text-align: center;
+    padding: 32px 24px;
+    margin: 32px 0;
+    border-top: 1px solid var(--cream-deeper);
+    border-bottom: 1px solid var(--cream-deeper);
+  }
+  .pull-line strong { color: var(--gold); font-weight: 600; font-style: normal; }
+
+  /* in-story photo wrapper for spacing */
+  .story-photo-wrap {
+    margin: 40px 0;
+  }
+  .story-photo-wrap .photo-zone-light {
+    margin-bottom: 12px;
+  }
+  .story-photo-caption {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.6;
+  }
+  .story-photo-credit {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    opacity: 0.6;
+    text-align: center;
+    margin-top: 6px;
+  }
+  .hero-photo-credit {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(253,248,242,0.45);
+    text-align: center;
+    margin-top: 12px;
+  }
+
+  /* ── THREE LOVES ── */
+  .three-loves {
+    background: var(--brown);
+    color: var(--cream);
+    padding: 80px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .three-loves::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.16) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .three-loves-inner { max-width: 880px; margin: 0 auto; position: relative; }
+  .three-loves-eyebrow {
+    display: inline-block;
+    border: 1px solid rgba(201,168,76,0.4);
+    color: var(--gold-light);
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    padding: 6px 16px; border-radius: 24px; margin-bottom: 20px;
+  }
+  .three-loves h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 4.5vw, 40px);
+    font-weight: 700;
+    color: var(--cream);
+    line-height: 1.2;
+    margin-bottom: 18px;
+  }
+  .three-loves h2 em { color: var(--gold-light); font-style: italic; }
+  .three-loves-lead {
+    font-size: clamp(15px, 2vw, 17px);
+    color: rgba(253,248,242,0.78);
+    line-height: 1.85; font-weight: 300;
+    max-width: 720px; margin-bottom: 36px;
+  }
+  .loves-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+  @media (max-width: 700px) { .loves-grid { grid-template-columns: 1fr; } }
+  .love-card {
+    background: rgba(253,248,242,0.05);
+    border: 1px solid rgba(253,248,242,0.12);
+    border-radius: 10px;
+    padding: 22px 24px;
+  }
+  .love-card .love-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--gold-light);
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+  .love-card h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--cream);
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .love-card p {
+    font-size: 14px;
+    color: rgba(253,248,242,0.7);
+    line-height: 1.65;
+    font-weight: 300;
+  }
+
+  /* ── COACHES PANEL ── */
+  .coaches-panel {
+    background: var(--cream-dark);
+    padding: 80px 24px;
+  }
+  .coaches-inner { max-width: 720px; margin: 0 auto; }
+  .coaches-panel .story-body p {
+    font-size: 17px;
+    color: var(--text);
+    line-height: 1.85;
+    font-weight: 300;
+    margin-bottom: 22px;
+  }
+  .coaches-panel .story-body p strong { color: var(--brown-deep); font-weight: 500; }
+
+  /* example callout — the PT/hip story */
+  .example-callout {
+    background: var(--white);
+    border: 1px solid var(--cream-deeper);
+    border-left: 4px solid var(--gold);
+    border-radius: 0 12px 12px 0;
+    padding: 28px 32px;
+    margin: 36px 0;
+  }
+  .example-callout-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+  .example-callout p {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--text);
+    margin-bottom: 14px;
+    font-weight: 300;
+  }
+  .example-callout p:last-child { margin-bottom: 0; }
+  .example-callout p strong { color: var(--brown-deep); font-weight: 500; }
+  .example-callout p em { color: var(--brown); font-style: italic; }
+
+  /* ── CLOSING ── */
+  .closing-section {
+    background: var(--cream);
+    padding: 80px 24px;
+  }
+  .closing-inner { max-width: 720px; margin: 0 auto; }
+
+  /* ── FINAL CTA ── */
+  .final-cta {
+    background: var(--brown);
+    padding: 88px 24px;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  .final-cta::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% -10%, rgba(201,168,76,0.2) 0%, transparent 55%);
+    pointer-events: none;
+  }
+  .final-cta h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 5vw, 44px);
+    color: var(--cream); margin-bottom: 16px;
+    line-height: 1.15; position: relative;
+  }
+  .final-cta h2 em { color: var(--gold-light); font-style: italic; }
+  .final-cta p {
+    font-size: 17px; color: rgba(253,248,242,0.7);
+    max-width: 540px; margin: 0 auto 36px;
+    font-weight: 300; line-height: 1.75; position: relative;
+  }
+  .btn-primary {
+    background: var(--gold); color: var(--brown-deep);
+    font-weight: 700; font-size: 14px;
+    letter-spacing: 0.3px; padding: 15px 36px;
+    border-radius: 100px; text-decoration: none;
+    transition: all 0.2s; border: none; cursor: pointer;
+    display: inline-block; position: relative;
+  }
+  .btn-primary:hover {
+    background: var(--gold-light);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(201,168,76,0.3);
+  }
+  .btn-outline {
+    background: transparent; color: var(--cream);
+    font-weight: 600; font-size: 14px;
+    padding: 14px 32px; border-radius: 100px;
+    text-decoration: none;
+    border: 1px solid rgba(253,248,242,0.3);
+    transition: all 0.2s;
+    display: inline-block; position: relative;
+  }
+  .btn-outline:hover {
+    border-color: rgba(253,248,242,0.7);
+    background: rgba(253,248,242,0.07);
+  }
+  .final-cta .cta-group {
+    display: flex; gap: 16px;
+    justify-content: center; flex-wrap: wrap;
+    position: relative;
+  }
+  .final-cta .cta-note {
+    margin-top: 22px; font-size: 13px;
+    color: rgba(253,248,242,0.4); position: relative;
+  }
+
+  /* ── FOOTER (UNIFIED) ── */
+  footer {
+    background: var(--brown-deep);
+    color: rgba(253,248,242,0.45);
+    padding: 36px 24px 32px;
+    font-size: 12px;
+    font-weight: 300;
+  }
+  .footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    text-align: center;
+  }
+  .footer-logo img {
+    height: 28px; width: auto; opacity: 0.5;
+  }
+  .footer-brand {
+    color: rgba(253,248,242,0.65);
+  }
+  .footer-brand strong { color: rgba(253,248,242,0.85); font-weight: 500; }
+  .footer-contact a {
+    color: var(--gold-light);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(232,201,122,0.3);
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .footer-contact a:hover {
+    color: var(--cream);
+    border-bottom-color: var(--cream);
+  }
+  .footer-legal {
+    font-size: 11px;
+    color: rgba(253,248,242,0.35);
+    letter-spacing: 0.5px;
+  }
+  .footer-legal a {
+    color: rgba(253,248,242,0.55);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-legal a:hover { color: rgba(253,248,242,0.9); }
+  .footer-legal .sep {
+    color: rgba(253,248,242,0.2);
+    margin: 0 8px;
+  }
+
+  /* ── REAL PHOTOS (replace dashed-border placeholders zone by zone) ── */
+  .story-photo {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 12px;
+    border: 1px solid var(--cream-deeper);
+  }
+  .story-photo.hero-photo {
+    border-color: rgba(201,168,76,0.3);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+  }
+  .footer-copyright {
+    font-size: 11px;
+    color: rgba(253,248,242,0.45);
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+  }
+  h1 em, h2 em, h3 em { font-style: normal !important; }
+  .nav-hamburger {
+    display: none;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    color: var(--brown);
+    margin-left: 4px;
+  }
+  .nav-hamburger svg { display: block; width: 26px; height: 26px; }
+  .nav-mobile-panel {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--cream);
+    border-bottom: 1px solid var(--cream-dark);
+    padding: 12px 24px 20px;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    z-index: 99;
+  }
+  .nav-mobile-panel.open { display: flex; }
+  .nav-mobile-panel a {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--brown);
+    text-decoration: none;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--cream-dark);
+  }
+  .nav-mobile-panel a:last-child { border-bottom: none; }
+  .nav-mobile-panel a.btn-mobile-cta {
+    text-align: center;
+    background: var(--gold-pale);
+    border: 1.5px solid var(--gold);
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    color: var(--brown-deep);
+  }
+  .nav-mobile-panel a.btn-mobile-login {
+    text-align: center;
+    border: 1.5px solid var(--brown);
+    border-radius: 4px;
+    padding: 12px 16px;
+    color: var(--brown);
+    margin-top: 4px;
+  }
+  @media (max-width: 720px) {
+    .nav { position: relative; }
+    .nav-hamburger { display: block; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="ydj-learn-more.html" style="display:flex; align-items:center; text-decoration:none;">
+    <img src="assets/logo-color.svg" alt="Your Dressage Journey" style="height:48px; width:auto;">
+  </a>
+  <ul class="nav-links">
+    <li><a href="ydj-learn-more.html">Why YDJ</a></li>
+    <li><a href="ydj-the-process.html">The Process</a></li>
+    <li><a href="ydj-pricing.html">Pricing</a></li>
+    <li><a href="ydj-testimonials.html">Testimonials</a></li>
+    <li><a href="ydj-about.html" class="active">About</a></li>
+  </ul>
+  <div class="nav-buttons">
+    <a href="ydj-first-glimpse-quick.html" class="btn-glimpse">Try a Free First Glimpse</a>
+    <a href="https://your-dressage-journey.web.app/signin" class="btn-login">Log In</a>
+    <button class="nav-hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="navMobilePanel" onclick="toggleMobileMenu(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+  </div>
+  <div class="nav-mobile-panel" id="navMobilePanel">
+    <a href="ydj-learn-more.html">Why YDJ</a>
+    <a href="ydj-the-process.html">The Process</a>
+    <a href="ydj-pricing.html">Pricing</a>
+    <a href="ydj-testimonials.html">Testimonials</a>
+    <a href="ydj-about.html">About</a>
+    <a href="ydj-first-glimpse-quick.html" class="btn-mobile-cta">Try a Free First Glimpse</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">✦ About</div>
+  <h1>Hi. I'm Barb.<br>I built <em>Your Dressage Journey</em>.</h1>
+  <p class="hero-description">
+    YDJ did not start with a business plan. It started with a paper journal, a lot of frustration, and one whim that turned everything sideways. <strong>Here's the story.</strong>
+  </p>
+</section>
+
+<!-- HERO PORTRAIT -->
+<section class="hero-portrait-section">
+  <div class="hero-portrait-wrap">
+    <!-- ── PHOTO ZONE 1 ── -->
+    <img src="barb-hero.jpg" alt="Barb in the arena with her horse" class="story-photo hero-photo">
+    <p class="hero-photo-credit">Photo: Martin Kuhn</p>
+  </div>
+</section>
+
+<!-- THE STORY -->
+<section class="story-section">
+  <div class="story-inner">
+
+    <div class="section-label">The Story</div>
+    <h2 class="section-heading">It started on <em>paper</em>.</h2>
+    <div class="divider"></div>
+
+    <div class="story-body">
+      <p>I've been riding for more than fifty years. Doing dressage seriously for more than thirty. Like a lot of adult amateurs, I think about my riding constantly. While in the car, in the shower, and definitely during meetings I should be paying attention to.</p>
+
+      <p>I started journaling about my rides. On paper. This felt productive, until I went back to read it and realized it was mostly a collection of <em>"felt good"</em> and <em>"ugh, the changes!"</em> Not exactly revelatory.</p>
+
+      <!-- ── PHOTO ZONE 2 ── -->
+      <div class="story-photo-wrap">
+        <img src="barb-rocket-journal.webp" alt="Barb with Rocket Star, holding the paper journal that started it all" class="story-photo">
+        <p class="story-photo-caption">Me, Rocket Star, and the paper journal that started it all.</p>
+        <p class="story-photo-credit">Photo: Kristin DeBates</p>
+      </div>
+
+      <p>So I did what anyone who has spent a career in databases and "working smarter, not harder" would do. I built myself a Google Form. I was pretty happy with it. It had fields, I captured ratings, and I was able to complete it at the barn, on my phone. Suddenly, my journaling had structure, data was accumulating, and I could revisit it. But, I hit a wall when I tried to analyze it. I used all my many spreadsheet skills: cross-tabs, pivot tables, text search. It was hours of drudgery, and not very revealing.</p>
+
+      <p>The data was there. The meaning wasn't. I was disappointed.</p>
+
+      <h3>Then I fed it all to <em>AI</em>.</h3>
+
+      <p>On a whim, really. I had no expectations. And I was blown away.</p>
+
+      <p>Two things surfaced that I genuinely could not have seen on my own. The first one was humbling. I had completely <strong>forgotten</strong> the insights from a biomechanics clinic I'd attended. The AI pulled the thread across months of entries and handed it back to me: <em>here, you learned this, and then you stopped using it.</em> Ugh! How many other great insights had I forgotten?</p>
+
+      <p>The second left me scratching my head. I ride multiple horses. The AI told me clearly, in the data, that I was <strong>measurably more confident on my Welsh Cob, Pony, than on Rocket Star</strong>. Rocket Star, my fancy Westfalen in training. Yet Pony was where I felt safe.</p>
+
+      <p>I had been riding both horses for years. I had not seen that pattern. No spreadsheet had told me. No journal had surfaced it. The AI did.</p>
+
+      <p class="pull-line">That's when I knew there was <strong>something here</strong>.</p>
+
+      <h3>Then three things <em>collided</em>.</h3>
+
+      <p>I had just finished a year working with a sports psychologist. I gained a new understanding of the mental aspects of the sport. I wanted to remember the concepts and use them consistently.</p>
+
+      <p>I was preparing a goals setting workshop for my local dressage club. And a friend of mine and I were having a conversation about building a dressage game for the icebreaker. She joked that any game about dressage would have to work like Chutes and Ladders. That both made me laugh and sparked an idea about reflecting on the journey as essential to the learning process.</p>
+
+      <p>The reflection prompts I developed for the game and the player's responses to them gave me an idea. What if I brought all of it together into one platform that did what my whim had accidentally done? Pull the threads. Surface the patterns. Make the meaning visible.</p>
+
+      <p>Cue a timely call with my nephew Tanner, a data engineer, who told me I could actually build the thing. He gave me the confidence to code. <strong>Claude</strong> gave me the tools to do it. Without those two, the idea would still be a folder of reflection prompts on my desktop.</p>
+
+      <!-- ── PHOTO ZONE 3 ── -->
+      <div class="story-photo-wrap">
+        <img src="barb-behind-scenes.webp" alt="Barb and her nephew Tanner" class="story-photo">
+        <p class="story-photo-caption">Me and Tanner, my nephew who gave me the courage to go for it.</p>
+        <p class="story-photo-credit">Photo: Kristin DeBates</p>
+      </div>
+
+      <p>That was the genesis of Your Dressage Journey.</p>
+    </div>
+  </div>
+</section>
+
+<!-- THREE LOVES -->
+<section class="three-loves">
+  <div class="three-loves-inner">
+    <div class="three-loves-eyebrow">✦ Where YDJ Came From</div>
+    <h2>Three loves.<br><em>One platform</em>.</h2>
+    <p class="three-loves-lead">
+      I didn't set out to build software. I set out to bring three threads of my own life into the same place. Because I needed them to talk to each other for my own riding to keep getting better.
+    </p>
+
+    <div class="loves-grid">
+      <div class="love-card">
+        <div class="love-num">01</div>
+        <h4>Dressage</h4>
+        <p>More than fifty years in the saddle. More than thirty in dressage. Currently competing at Prix St. Georges. Years learning from some of the best in the business. The discipline shapes the platform's language, structure, and instincts.</p>
+      </div>
+      <div class="love-card">
+        <div class="love-num">02</div>
+        <h4>Data</h4>
+        <p>Anyone who knew me professionally would tell you databases and "working smarter, not harder" are my jam. The Google Form. The cross-tabs. The pattern analysis. YDJ exists because riders generate enormous data, and most of it never gets read back to them.</p>
+      </div>
+      <div class="love-card">
+        <div class="love-num">03</div>
+        <h4>Adult Learning</h4>
+        <p>Most of my professional career has been spent in educational institutions, finding creative ways to support learning and skills acquisition. The principles that make adults actually retain what they learn (spacing, reflection, pattern recognition, integration) are baked into how YDJ works.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COACHES & EXAMPLE -->
+<section class="coaches-panel">
+  <div class="coaches-inner">
+
+    <div class="section-label">A Note About Coaches</div>
+    <h2 class="section-heading">YDJ doesn't <em>replace</em> them.</h2>
+    <div class="divider"></div>
+
+    <div class="story-body">
+      <p>I want to be clear about something. I have been incredibly privileged to work with great coaches and terrific clinicians. Kate Fleming-Kuhn and Martin Kuhn are my trainers, and they are extraordinary at what they do. I've cliniced regularly with Cindy Ishoy and Suzanne Galdun. And over my many years in dressage I've worked with other fantastic instructors and trainers.</p>
+
+      <p>YDJ is not meant to replace any of them. <strong>It's meant to help me show up to them better and to keep learning in the hours they're not with me.</strong></p>
+
+      <p>What YDJ does is bring the threads together. Mental, physical, training. It correlates information that used to live in separate conversations, with separate experts, in separate silos in my head.</p>
+
+      <div class="example-callout">
+        <div class="example-callout-label">A Concrete Example</div>
+        <p>My PT tells me my <strong>right hip is tight</strong>. My trainer is helping me improve my <strong>flying changes</strong>. Before YDJ, those lived in completely separate conversations.</p>
+        <p>Now I can put them together. I can see how the right hip tightness impacts my rides and how addressing my physical limitations changes my performance in the saddle.</p>
+        <p><em>That correlation used to live in my head, vaguely. Now it's visible.</em></p>
+      </div>
+
+      <p>That's what I mean by learning acceleration. Not a faster shortcut. A clearer picture, so the work I'm already doing with my coaches can land more deeply, and so I can do more of the work in the hours between rides.</p>
+
+      <!-- ── PHOTO ZONE 4 ── -->
+      <div class="story-photo-wrap">
+        <img src="barb-arena.webp" alt="Barb with trainers Martin Kuhn and Kate Fleming-Kuhn at StarWest Dressage" class="story-photo">
+        <p class="story-photo-caption">My trainers Martin Kuhn and Kate Fleming-Kuhn flanking me at StarWest Dressage.</p>
+        <p class="story-photo-credit">Photo: Ali Knight</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CLOSING -->
+<section class="closing-section">
+  <div class="closing-inner">
+
+    <h2 class="section-heading">The platform I kept <em>wishing existed</em>.</h2>
+    <div class="divider"></div>
+
+    <div class="story-body">
+      <p>YDJ is, at its core, the platform I kept wishing existed. Every piece of it came from a real moment in my own riding life where I thought: <em>there has to be a better way to do this</em> or <em>I'd like to capture this information because it may be relevant.</em></p>
+
+      <p>I ride daily and I use the platform every day. Every output, every form, every prompt has been pressure-tested against my own riding life.</p>
+
+      <p>But this is not a one-person project. I tested it with other riders and they made their mark on the app. Many features came directly from their comments about what didn't work, their requests, and their frustrations. My friends and family have been an endless source of ideas, questions, encouragement, and occasionally the pointed feedback only people who've known you a long time can deliver. The platform you're looking at carries their fingerprints alongside mine.</p>
+
+      <p>The Initial Centerline opens YDJ to the next hundred riders to ride down the centerline with us.</p>
+
+      <!-- ── PHOTO ZONE 5 ── -->
+      <div class="story-photo-wrap">
+        <img src="barb-closing.webp" alt="Barb with Pony" class="story-photo">
+        <p class="story-photo-caption">Pony!</p>
+        <p class="story-photo-credit">Photo: Monica Miller</p>
+      </div>
+
+      <p>If any of this sounds familiar, if you've had those same floating questions, those same separate conversations that never quite connect, I think you'll find the app useful.</p>
+
+      <p><strong>This is what learning between rides looks like.</strong> And for me, it has made every ride count more.</p>
+
+      <p style="font-family: 'Playfair Display', serif; font-style: italic; color: var(--brown); font-size: 18px; margin-top: 32px;">— Barb</p>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <h2>Ride down the <em>centerline</em>.</h2>
+  <p>The Initial Centerline closes <strong>July 7, 2026</strong>, or when 100 riders join. Whichever comes first.</p>
+  <div class="cta-group">
+    <a href="ydj-pricing.html" class="btn-primary">See Pricing</a>
+  </div>
+  <div class="cta-note">Questions for me directly? <a href="mailto:barb@yourdressagejourney.com" style="color: rgba(253,248,242,0.6);">barb@yourdressagejourney.com</a></div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-contact">
+      <a href="mailto:support@yourdressagejourney.com">support@yourdressagejourney.com</a>
+    </div>
+    <div class="footer-legal">
+      <a href="https://yourdressagejourney.com/terms">Terms</a><span class="sep">·</span><a href="https://yourdressagejourney.com/privacy">Privacy</a><span class="sep">·</span><a href="ydj-cookies.html">Cookies</a><span class="sep">·</span>AI analysis powered by Claude<span class="sep">·</span><a href="https://anthropic.com" target="_blank" rel="noopener">Anthropic</a>
+    </div>
+    <div class="footer-copyright">&copy; 2026 Your Training Journey, LLC</div>
+  </div>
+</footer>
+
+<script>
+function toggleMobileMenu(btn) {
+  var panel = document.getElementById('navMobilePanel');
+  if (!panel) return;
+  var open = panel.classList.toggle('open');
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+</script>
+
+</body>
+</html>
