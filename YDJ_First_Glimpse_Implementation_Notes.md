@@ -3,6 +3,25 @@
 
 ---
 
+> ⚠️ **STALE: HOSTING REFERENCES PRE-DATE FIREBASE MIGRATION.** This guide
+> was written when YDJ was deployed on Netlify. The platform now runs on
+> **Firebase Hosting + Firebase Cloud Functions** (see `CLAUDE.md` and
+> `YDJ_Complete_Technical_Plan_v2.docx.md`). Any references below to
+> `netlify/functions/`, `/.netlify/functions/`, Netlify Edge Functions,
+> or `ydj.netlify.app` URLs should be translated to Firebase equivalents:
+>
+> - `netlify/functions/<name>.js` → `functions/api/<name>.js` (in the
+>   existing `functions/` workspace, exported from `functions/index.js`)
+> - Netlify Edge Function → Firebase Cloud Function (`onCall` or `onRequest`)
+> - `ydj.netlify.app/...` → `your-dressage-journey.web.app/...` or the
+>   custom domain pointed at Firebase Hosting
+> - Netlify env vars → `firebase functions:secrets:set ANTHROPIC_API_KEY`
+>
+> The prompt language and parsing logic in this guide remain authoritative.
+> Only the serverless wiring needs translation.
+
+---
+
 ## The Prompt (Embedded in HTML — `buildPrompt()` function)
 
 The full prompt is in `ydj-first-glimpse.html` inside the `buildPrompt(answers)` JavaScript function. 

@@ -39,7 +39,7 @@ The following table defines every third-party service required across the full l
 
 | Function | Provider | Purpose | Cost Estimate |
 | :---- | :---- | :---- | :---- |
-| **Hosting** | Netlify | Static site hosting, CDN, CI/CD, form handling, SSL | Free – $19/mo (Pro) |
+| **Hosting** | Firebase Hosting | Static site hosting, CDN, atomic deploys, SSL, SPA rewrites | Free (Spark) → pay-as-you-go (Blaze) |
 | **Source Control** | GitHub | Version control, PR review, Actions CI/CD | Free (public/private repos) |
 | **Database** | Firebase / Firestore | NoSQL database, offline sync, real-time listeners, automatic backups | Free tier → $25–100/mo |
 | **Authentication** | Firebase Auth | Email/password, social login, session management, email verification | Free (up to 50K MAU) |
@@ -64,11 +64,11 @@ The following table defines every third-party service required across the full l
 
 ## **3.1 High-Level Architecture**
 
-The platform follows a three-tier architecture: a React frontend served via Netlify, Firebase as the data and authentication layer, and server-side Cloud Functions orchestrating Claude API calls. During the pilot phase, the AI output tier is replaced by manual Claude artifact usage.
+The platform follows a three-tier architecture: a React frontend served via Firebase Hosting, Firebase as the data and authentication layer, and server-side Firebase Cloud Functions orchestrating Claude API calls. During the pilot phase, the AI output tier is replaced by manual Claude artifact usage.
 
 **Pilot Architecture (Feb–Mar 2026\)**
 
-* User enters data via hosted web forms on Netlify
+* User enters data via hosted web forms on Firebase Hosting
 
 * Forms save to Firebase Firestore (resolves iOS localStorage issue)
 
@@ -171,7 +171,7 @@ Firestore’s document-oriented model maps naturally to YDJ’s data structure. 
 
 **Technical Deliverables**
 
-* Deploy all data collection forms to Netlify with SSL
+* Deploy all data collection forms to Firebase Hosting with SSL
 
 * Set up Firebase project (Firestore, Auth) on free/Spark tier
 
@@ -195,7 +195,7 @@ Firestore’s document-oriented model maps naturally to YDJ’s data structure. 
 
 | Provider | Action | Tier | Est. Hours |
 | :---- | :---- | :---- | :---- |
-| Netlify | Create account, connect GitHub repo, deploy | Free | 4 |
+| Firebase Hosting | Initialize via `firebase init hosting`, configure SPA rewrite, deploy via `firebase deploy --only hosting` | Spark (free) | 3 |
 | Firebase | Create project, configure Firestore \+ Auth \+ security rules | Spark (free) | 6 |
 | GitHub | Organize repo, set up branch protection, CI/CD Actions | Free | 4 |
 | ConvertKit | Create account, build pilot welcome sequence (Days 1, 3, 7, 14\) | Free | 6 |
@@ -610,19 +610,19 @@ A potential future optimization: use Google Gemini as an initial classification/
 
 ## **12.3 Continuous Deployment**
 
-* Netlify auto-deploys staging branch to staging URL
+* Firebase Hosting auto-deploys staging via preview channels (`firebase hosting:channel:deploy staging`)
 
-* Production deploy: manual approval after staging validation
+* Production deploy: manual approval after staging validation, then `firebase deploy --only hosting`
 
-* Rollback: one-click revert to previous deploy
+* Rollback: `firebase hosting:rollback` reverts to the previous release
 
-* Zero-downtime deploys via Netlify’s atomic deployment model
+* Zero-downtime deploys via Firebase Hosting's atomic release model
 
 # **13\. Immediate Next Actions**
 
 ## **This Week (Week of February 10, 2026\)**
 
-1. Create Netlify account and deploy existing forms from GitHub
+1. Initialize Firebase Hosting in the project and deploy existing forms from GitHub
 
 2. Create Firebase project on Spark (free) plan
 
@@ -646,7 +646,7 @@ A potential future optimization: use Google Gemini as an initial classification/
 
 ## **Before Pilot Data Collection Begins**
 
-1. All forms deployed to Netlify with Firestore backend
+1. All forms deployed to Firebase Hosting with Firestore backend
 
 2. Copy-to-clipboard export working on all forms
 

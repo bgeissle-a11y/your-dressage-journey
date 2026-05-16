@@ -709,7 +709,7 @@
             <p style="margin: 0; color: #856404; font-size: 0.95em;">
                 Voice input requires the form to be accessed through a web server with HTTPS.<br><br>
                 <strong>To enable voice input:</strong><br>
-                • Access this form via your Netlify URL (HTTPS is automatic)<br>
+                • Access this form via your Firebase Hosting URL (HTTPS is automatic)<br>
                 • Voice input will NOT work when opening files directly from your device
             </p>
         </div>
@@ -1584,7 +1584,7 @@
                 const targetId = this.getAttribute('data-target');
                 
                 if (!voiceInputAvailable) {
-                    alert('Voice input requires HTTPS or localhost access.\n\nPlease access this form via your Netlify URL to use voice input.');
+                    alert('Voice input requires HTTPS or localhost access.\n\nPlease access this form via your Firebase Hosting URL to use voice input.');
                     return;
                 }
                 

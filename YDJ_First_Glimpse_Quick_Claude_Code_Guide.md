@@ -3,6 +3,25 @@
 
 ---
 
+> ⚠️ **STALE: HOSTING REFERENCES PRE-DATE FIREBASE MIGRATION.** This guide
+> was written when YDJ was deployed on Netlify. The platform now runs on
+> **Firebase Hosting + Firebase Cloud Functions** (see `CLAUDE.md` and
+> `YDJ_Complete_Technical_Plan_v2.docx.md`). Any references below to
+> `netlify/functions/`, `/.netlify/functions/`, `netlify.toml`, or the
+> Netlify dashboard should be translated to Firebase equivalents:
+>
+> - `netlify/functions/<name>.js` → `functions/api/<name>.js` (in the
+>   existing `functions/` workspace, exported from `functions/index.js`)
+> - `/.netlify/functions/<name>` → `https://<region>-<project>.cloudfunctions.net/<name>`
+>   or `httpsCallable(functions, '<name>')` from the Firebase client SDK
+> - Netlify env vars → `firebase functions:secrets:set <NAME>`
+> - Netlify redirects in `netlify.toml` → `firebase.json` `rewrites` array
+>
+> The serverless-function patterns themselves still apply; only the
+> deployment surface has changed.
+
+---
+
 ## Overview
 
 `ydj-first-glimpse-quick.html` is a lighter, more playful alternative to the original `ydj-first-glimpse.html`. Both files are intentionally separate and serve different contexts. Do not merge them.
