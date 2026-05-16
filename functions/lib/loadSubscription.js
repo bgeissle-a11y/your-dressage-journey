@@ -23,6 +23,7 @@ async function loadSubscription(uid) {
     status: data.subscriptionStatus || "none",
     isPilot: !!data.isPilot,
     isFounder: !!data.isFounder,
+    isComp: !!data.isComp,
     interval: data.subscriptionInterval || null,
   };
 }

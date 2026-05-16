@@ -138,6 +138,7 @@ function effectiveCapsForTier(tier) {
 // ─── Status derivation ────────────────────────────────────────────────────
 const STATUS = {
   FOUNDER: "founder",
+  COMP: "comp",
   PILOT: "pilot",
   PILOT_GRACE: "pilot-grace",
   PILOT_EXPIRED: "pilot-expired",
@@ -160,6 +161,10 @@ function getTierStatus(subscription, now = new Date()) {
   // Founder flag is checked first and unconditionally — Barb keeps full
   // access regardless of any Stripe state, pilot dates, or migrations.
   if (subscription.isFounder === true) return STATUS.FOUNDER;
+
+  // Complimentary lifetime access — same unconditional bypass as founder,
+  // but labeled distinctly so the UI doesn't badge comp users as "Founder".
+  if (subscription.isComp === true) return STATUS.COMP;
 
   // Accept both Firestore-doc shape and useSubscription shape.
   const tier =
@@ -208,6 +213,8 @@ function canAccess(subscription, capability, now = new Date()) {
 
   switch (status) {
     case STATUS.FOUNDER:
+      return true;
+    case STATUS.COMP:
       return true;
     case STATUS.PILOT:
       return true;

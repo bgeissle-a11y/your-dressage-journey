@@ -151,6 +151,7 @@ function effectiveCapsForTier(tier) {
 // ─── Status derivation ────────────────────────────────────────────────────
 // Possible statuses returned by getTierStatus():
 //   'founder'       — Barb's founder account, unconditional full access
+//   'comp'          — complimentary lifetime access (set via isComp flag)
 //   'pilot'         — pilot user, before pilot end → full access
 //   'pilot-grace'   — pilot user, May 16 – Jul 7 → read-only existing data
 //   'pilot-expired' — pilot user past grace, no paid sub → blocked
@@ -161,6 +162,7 @@ function effectiveCapsForTier(tier) {
 //   'none'          — no subscription, not a pilot → blocked
 export const STATUS = {
   FOUNDER: 'founder',
+  COMP: 'comp',
   PILOT: 'pilot',
   PILOT_GRACE: 'pilot-grace',
   PILOT_EXPIRED: 'pilot-expired',
@@ -177,6 +179,10 @@ export function getTierStatus(subscription, now = new Date()) {
   // Founder flag is checked first and unconditionally — Barb keeps full
   // access regardless of any Stripe state, pilot dates, or migrations.
   if (subscription.isFounder === true) return STATUS.FOUNDER;
+
+  // Complimentary lifetime access — same unconditional bypass as founder,
+  // but labeled distinctly so the UI doesn't badge comp users as "Founder".
+  if (subscription.isComp === true) return STATUS.COMP;
 
   const tier = subscription.tier || TIERS.NONE;
   const status = subscription.status || 'none';
@@ -223,6 +229,9 @@ export function canAccess(subscription, capability, now = new Date()) {
   switch (status) {
     case STATUS.FOUNDER:
       return true; // founder gets everything, always
+
+    case STATUS.COMP:
+      return true; // complimentary lifetime access — same as founder
 
     case STATUS.PILOT:
       return true; // pilots get everything
@@ -277,6 +286,7 @@ export function canAccessAll(subscription, capabilities, now = new Date()) {
 export function statusLabel(status) {
   switch (status) {
     case STATUS.FOUNDER: return 'Founder';
+    case STATUS.COMP: return 'Complimentary';
     case STATUS.PILOT: return 'Pilot';
     case STATUS.PILOT_GRACE: return 'Pilot (grace period)';
     case STATUS.PILOT_EXPIRED: return 'Pilot ended';

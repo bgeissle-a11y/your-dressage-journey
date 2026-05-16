@@ -27,6 +27,7 @@ const DEFAULT_STATE = {
   trialEndDate: null,
   trialConverted: false,
   isFounder: false,
+  isComp: false,
   loading: true,
 };
 

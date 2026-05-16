@@ -229,6 +229,7 @@ export function onSubscriptionChange(uid, callback) {
       trialEndDate: data.trialEndDate || null,
       trialConverted: !!data.trialConverted,
       isFounder: !!data.isFounder,
+      isComp: !!data.isComp,
     });
   });
 }
