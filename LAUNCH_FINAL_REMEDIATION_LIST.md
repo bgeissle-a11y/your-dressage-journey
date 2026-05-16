@@ -1,13 +1,140 @@
 # YDJ Final Pre-Launch Remediation List
 
-**Audit complete:** 2026-05-12 · **Launch:** 2026-06-01 · **Days remaining:** 20
+**Audit complete:** 2026-05-12 · **Launch:** 2026-06-01 · **Last status update:** 2026-05-16
+**Items shipped:** 9 of 50 · **Effort remaining:** ~38 hours over ~16 days
 
-This is the consolidated remediation list across the full codebase audit:
-- Initial launch checklist (`LAUNCH_CHECKLIST_JUNE_1.md`)
-- Deep audit #1 — Précis · Show Planner · Coaching Voices · Fan-Out (`LAUNCH_AUDIT_PrecisShowMVCFanout.md`)
-- Deep audit #2 — Journey Map · GPT · Physical Guidance · Data Viz · Stripe · Firestore Rules · First Light · Micro-Debrief · Fresh Start · Frontend resilience (this file's findings)
+> **🎯 Read this section. Skip the rest unless you need detail.**
+>
+> Everything below the "FULL AUDIT REFERENCE" divider is the original audit
+> for lookup. The two sections immediately following — **WHAT'S SHIPPED** and
+> **WHAT'S LEFT (work this list)** — are your live priority view. Update them
+> as items complete; everything below stays as the reference of record.
 
-Every BLOCKER below has a file:line reference and a one-sentence fix. Every fix has an effort estimate. The action plan at the bottom orders them across the remaining 20 days.
+---
+
+## ✅ WHAT'S SHIPPED (as of 2026-05-16)
+
+**Weekly focus / fan-out scaling** — Claude Code session 1
+- ✅ B1 — `weeklyFocusRefresh` paginated past 200-user cap
+- ✅ B2 — `weeklyFocusRefresh` timeout bumped to 540s
+- ✅ B6 — `refreshWeeklyFocusSnapshotSection` wrapped in try/catch (3 handlers)
+- ✅ H5 — Silent `advanceWeekAndExtract` errors now logged
+
+**iOS data persistence** — Claude Code session 2
+- ✅ B25 — `useFormRecovery` TTL bumped to 7 days
+- ✅ B26 — `waitForPendingWrites` readback in 5 high-investment forms
+- ✅ B27 — Shared `SaveConfirmation` blocking interstitial
+- ✅ B28 — `useIsIOSSafari` hook + Save-button cue + FAQ entry
+
+**Stripe live mode**
+- ✅ B16 — Live keys swapped, live coupons created, billing portal lockdown re-run
+
+**Cleared from BLOCKER count: 8 of 28. Cleared from HIGH-RISK: 1 of 12.**
+**The two scariest classes of bug — silent fan-out failure and iOS save loss — are now neutralized.**
+
+---
+
+## 🎯 WHAT'S LEFT (work this list, top to bottom)
+
+> **🔥 = BLOCKER (must ship before June 1)** · **⚠️ = HIGH-RISK (will embarrass in week 1)** · **➖ = MEDIUM (post-launch ok)**
+> Time estimates are total engineering hours; budget realistic chunks against your day.
+
+### This week (May 16–17): finish the BLOCKER tier in code
+
+- 🔥 **B3** — `dataTriggeredRegeneration` recursion depth limit (1h)
+- 🔥 **B15** — Stripe webhook event-ID idempotency (2h)
+- 🔥 **B18** — Cloud Function error-rate alerting in Cloud Console (1h)
+- 🔥 **B19** — `lastRegenError` field + 5 panel banners (4h)
+- 🔥 **B20** — Anthropic production-tier API key swap (0.5h)
+- 🔥 **B21** — UptimeRobot pings on frontend, functions, Stripe webhook (0.5h)
+- 🔥 **B22** — Firestore + Anthropic + Stripe spend alerts (1h)
+- ⚠️ **H1** — Bump frontend timeouts from 300s to 540s for JM/GPT/Physical/DataViz (0.5h)
+- ⚠️ **H6** — `firstLight.graduate` use `count()` aggregation instead of full reads (1h)
+- ⚠️ **H12** — Tighten `microDebriefs`/`freshStarts` rules so AI fields are immutable to client (1h)
+- 📧 **Pilot conversion email Round 1** + apology to lesson-notes user (1.5h)
+
+**Subtotal this week: 14h.** This finishes off the operational-visibility tier and the highest-leverage UX fixes.
+
+### Next week (May 18–23): coaching/show-planner BLOCKERs + AI hardening
+
+- 🔥 **B4** — Multi-Voice partial-failure stale fallback (instead of red error tab) (3h)
+- 🔥 **B5** — Précis lock for bulk path (1h)
+- 🔥 **B7** — Show Planner "10 shows/yr" — drop the marketing claim OR enforce (0.5h for copy fix)
+- 🔥 **B8** — Event Planner Step 2–4 caching + locks + truncation handling (4h)
+- 🔥 **B10** — Bi-weekly cron same-day dedup (1h)
+- 🔥 **B11** — Bi-weekly cron global spend cap (1h)
+- 🔥 **B12** — GPT trajectory step 1 resume banner (2h)
+- 🔥 **B13** — `_countL2OpusThisMonth` add date-range filter (1h)
+- 🔥 **B14** — Data Viz `maxTokens` migrate to `tokenBudgets` (1.5h)
+- 🔥 **B17** — 14-day past-due → IC/pilot lapse scheduled job (2h)
+- ⚠️ **H2** — Multi-Voice backend timeout 120 → 240s (1h)
+- ⚠️ **H3** — Précis prompt verification for 3-of-4 voice path (1h)
+- ⚠️ **H4** — Tier-aware daily call limit (Working 30 / Medium 60 / Extended 100) (1h)
+- 📧 **Pilot conversion email Round 2** (1h)
+
+**Subtotal next week: 21h.**
+
+### Launch week (May 24–31): QA, deploy hardening, comms
+
+- 🔥 **B9** — Flip `SHOW_PLANNER_BIWEEKLY_ENABLED=true` after one validation run (1h)
+- 🔥 **B23** — ToS / Privacy / Refund finalized & published (external — lawyer)
+- 🔥 **B24** — End-to-end live-mode dry run (4h)
+- ⚠️ **H7** — Cycle-state extension try/catch with logging (1h)
+- ⚠️ **H8** — iOS Safari QA pass — full app on real iPhone (4h)
+- ⚠️ **H9** — Voice input QA on iOS + Android (1.5h)
+- ⚠️ **H10** — Pilot conversion email Round 3 (1h)
+- ⚠️ **H11** — Support runbook + canned responses (2h)
+- ➖ **M6** — 3 high-leverage unit tests (defer if tight) (4h)
+
+**Subtotal launch week: 14.5h** (or 10.5h with M6 deferred).
+
+### Launch day (June 1)
+
+- Morning: final smoke test on production
+- Send launch announcement; post to social
+- Watch dashboards: Sentry, Stripe, Firebase Functions, Anthropic, UptimeRobot
+- **Be at the keyboard. Don't schedule anything else.**
+
+### Week 1 post-launch (June 2–8) — backlog (not blocking)
+
+- ➖ **M11 (NEW)** — Vite chunk-size warning. Lazy-load Insights route + manualChunks for recharts/firebase. Improves new-user mobile first-load. (1.5h)
+- ➖ **M1** — Add test database hash to eventPrep cache key
+- ➖ **M2** — Tighten `getStaleCache` `maxAgeDays: 90` for coaching to something tighter
+- ➖ **M3** — Isolate budget exhaustion mid-pipeline in `runRegeneration`
+- ➖ **M4** — `silentCanAccess` denial path should set `generationStatus = skipped`
+- ➖ **M5** — Sanity-check repaired truncated JSON for required fields
+- ➖ **M7** — GitHub Actions CI workflow
+- ➖ **M8** — One-page diagnostic-script runbook
+- ➖ **M9** — Surface MicroDebrief/FreshStart failures in `lastRegenError`
+- ➖ **M10** — Verify `firstLight` 1500-token cap doesn't truncate rich riders
+
+---
+
+## 📊 EFFORT REMAINING
+
+| Bucket | Hours | Calendar window |
+|---|---|---|
+| This week (May 16–17) | 14 | 2 days |
+| Next week (May 18–23) | 21 | 6 days |
+| Launch week (May 24–31) | 14.5 (or 10.5) | 8 days |
+| **Total to launch** | **~50h** | **~16 days** |
+
+**Pace check:** ~3.1 hours/day average. The This-Week list is heavier per-day because the 2-day window is short — if you can clear B3, B15, B18, B20, B21, B22 today (6 hours of mostly-config work), the rest of the week is pure code at a comfortable pace.
+
+**If you slip, drop in this order:** M6 (tests) → H4 (tier-aware call limit) → H1 (frontend timeout flip) → H9 (voice input QA). Do NOT drop anything from BLOCKER tier.
+
+---
+
+## 🆕 ADDED SINCE INITIAL AUDIT
+
+- **M11** (May 16) — Vite chunk-size warning surfaced after a deploy. ~1.5h fix; lazy-load Insights route + `manualChunks` for recharts/firebase in `vite.config.js`. Affects new-user mobile first-load on the Insights page. Slot post-launch unless Week 1 has bandwidth. Full Claude Code prompt is in the chat thread that introduced this item.
+
+---
+
+# FULL AUDIT REFERENCE
+
+> Everything below this line is the original audit, kept for lookup.
+> Don't work from this section — work from "WHAT'S LEFT" above.
 
 ---
 
@@ -25,12 +152,13 @@ Every BLOCKER below has a file:line reference and a one-sentence fix. Every fix 
 - **The biggest single product gap** is Show Planner's "10 shows/yr" Medium-tier claim with zero enforcement.
 - **The biggest single UX foot-gun** is Multi-Voice partial-failure rendering error placeholders instead of stale fallback (audit #1 B5).
 - **The biggest single ops gap** is no Cloud Function error-rate alerting (audit #1 B8).
+- **🆕 The biggest single data-loss risk on mobile** is iOS Safari's tab-backgrounding race: forms show "Saved!" because the SDK promise resolved from the local cache, but the network sync never completed. CLAUDE.md flagged this category as a known issue, but no code-level defenses exist. **A pilot user already lost lesson notes this way (5/13).**
 
 **Total fix budget:** ~52 engineering hours over 20 days. Tight but doable for a focused single founder-engineer with no scope creep.
 
 ---
 
-## BLOCKERS (24 items — must fix before June 1)
+## BLOCKERS (28 items — must fix before June 1)
 
 ### 🚨 Bulk fan-out & scaling
 
@@ -134,6 +262,26 @@ Per launch checklist. Production-tier key with rate limits sized for projected w
 Per launch checklist. 50/80/100% spend alerts on each.
 **Fix:** Console config in three places. **Effort: 1h.**
 
+### 🚨 iOS Safari data persistence (NEW — added 2026-05-15)
+
+**Why this is now a first-class engineering concern, not just QA:** A pilot user lost Lesson Notes on 5/13 because iOS Safari backgrounded the tab between Save click and Firestore sync. The SDK promise resolved from the local cache write so the UI showed "Saved!", but the network flush never happened, and by the time she came back the recovery hook had purged the draft (24h TTL exceeded). **This bug pattern applies to every form that writes via Firestore SDK — meaning every high-investment form in the product.** CLAUDE.md flags iOS Safari as historically problematic but no code-level defenses exist. Promote from manual-QA-only to engineering-hardened.
+
+**B25. Bump `useFormRecovery` TTL from 24h to 7 days for high-investment forms.**
+File: `src/hooks/useFormRecovery.js:4`. `MAX_AGE_MS = 24 * 60 * 60 * 1000`. A user reporting a missing save on day 3 has zero recovery path because the hook silently purges on mount. Used by 5 forms: Debrief, PhysicalAssessment, RiderAssessment, TechnicalPhilosophical, LessonNote — every high-investment form in the product.
+**Fix:** Bump default `MAX_AGE_MS` to `7 * 24 * 60 * 60 * 1000`. Per-record scoping already prevents cross-record bleed; longer TTL is low-risk because each draft is one form's worth of data and `purgeLegacyRecoveryKeys` runs at boot. **Effort: 5 min.** Ship today.
+
+**B26. Save-readback pattern: confirm the doc actually exists before claiming success.**
+Files: `LessonNoteForm.jsx:260–280` (and the equivalent submit handlers in DebriefForm, RiderAssessmentForm, PhysicalAssessmentForm, TechnicalPhilosophicalForm). Today the flow is `await saveDoc → setLoading(false) → setSavedData(data)`. The SDK's resolved promise lies on iOS Safari when the tab hides mid-flight: the local cache write resolves, but the network sync never fires. Confirmation screen renders on a write that didn't actually happen.
+**Fix:** After `saveDoc` resolves, do a `getDoc(savedDoc.ref)` readback (or `await waitForPendingWrites(db)` from Firestore SDK) before transitioning to the success state. If readback fails or times out (10s), keep the draft in localStorage and show a "Still syncing — keep this page open" warning. Don't clear the recovery cache until the readback succeeds. **Effort: 3h** for the 5 forms.
+
+**B27. Make "Saved!" a blocking visual state, not a promise-trust transition.**
+LessonNotes already uses a full-screen confirmation (`LessonNoteForm.jsx:407`) which is the right pattern — but it fires on the SDK promise. The other 4 high-investment forms (`DebriefForm`, `PhysicalAssessmentForm`, `RiderAssessmentForm`, `TechnicalPhilosophicalForm`) use less-blocking confirmations (toasts, inline messages, immediate navigation). On iOS Safari with backgrounding, those confirmations can flash by while the actual write is still pending.
+**Fix:** Standardize on a blocking "Saved!" interstitial across all 5 forms — a card the user must click to dismiss, gated behind the readback from B26. Same component, reused. The interstitial is the user's unambiguous signal that the data is on the server, not just in the SDK queue. **Effort: 2h** to extract a shared `SaveConfirmation` component and wire it into the 4 forms that don't already have one.
+
+**B28. iOS-contextual cue at the Save button + FAQ entry.**
+Detect iOS Safari (cheap UA sniff: `/iPad|iPhone|iPod/.test(navigator.userAgent) && /Safari/.test(navigator.userAgent) && !/CriOS|FxiOS/.test(navigator.userAgent)`). On iOS Safari sessions only, render a one-line cue under the Save button on high-investment forms: *"Stay on this page until you see the green confirmation."* Add a corresponding FAQ entry to `src/pages/TipsAndFaq.jsx`: *"Why did my save not work on iPhone?"* explaining the backgrounding pattern and pointing at the recovery banner.
+**Fix:** Build `useIsIOSSafari()` hook in `src/hooks/`, render conditional cue in 5 form footers, add FAQ section. Skip the first-visit-only suppression — pre-launch budget doesn't justify it; the cue is one line. **Effort: 2h.**
+
 ### 🚨 Legal / compliance
 
 **B23. ToS / Privacy / Refund Policy published.**
@@ -231,10 +379,14 @@ File: `firestore.rules:55-67`. The empathetic response field is written by Cloud
 
 ## ACTION PLAN — 20-Day Schedule
 
-### Week 1 (May 12–17) — Land scaling + ops blockers (~16h)
+### Week 1 (May 15–17) — Land scaling + ops + iOS persistence blockers (~24h)
 
 | # | Item | Hours |
 |---|---|---|
+| **B25** | **Bump `useFormRecovery` TTL to 7 days (SHIP TODAY)** | **0.1** |
+| **B26** | **Save-readback pattern across 5 high-investment forms** | **3** |
+| **B27** | **Shared `SaveConfirmation` blocking interstitial component** | **2** |
+| **B28** | **`useIsIOSSafari` hook + Save-button cue + FAQ entry** | **2** |
 | B1 | `weeklyFocusRefresh` pagination | 2 |
 | B2 | `weeklyFocusRefresh` 540s timeout | 1 |
 | B3 | `dataTriggeredRegeneration` depth limit | 1 |
@@ -245,12 +397,12 @@ File: `firestore.rules:55-67`. The empathetic response field is written by Cloud
 | B20 | Anthropic prod-tier key swap | 0.5 |
 | B21 | UptimeRobot pings | 0.5 |
 | B22 | Firestore + Anthropic + Stripe spend alerts | 1 |
-| H10 | Pilot conversion email Round 1 (May 11–13) | 1 |
+| H10 | Pilot conversion email Round 1 + apology-with-context to the affected lesson-notes user | 1.5 |
 | H1 | Bump frontend timeouts to 540s | 0.5 |
 | H6 | `firstLight.graduate` count-aggregation | 1 |
 | H12 | Tighten `microDebriefs`/`freshStarts` update rules | 1 |
 
-**Subtotal: 17h**
+**Subtotal: 24h** (iOS hardening adds ~7h; we lose 2 calendar days vs. May 12 start but absorb it.)
 
 ### Week 2 (May 18–23) — Land coaching/show-planner blockers + AI hardening (~17h)
 
@@ -311,13 +463,13 @@ File: `firestore.rules:55-67`. The empathetic response field is written by Cloud
 
 ## TOTAL EFFORT
 
-- **Week 1: 17h** — scaling + ops (the silent-failure killers)
+- **Week 1: 24h** — scaling + ops + iOS persistence (the silent-failure killers, including the new lesson-notes-loss class of bug)
 - **Week 2: 21h** — coaching + show planner + AI hardening
 - **Week 3: 21h** (or 17h with M6 deferred) — QA + deploy hardening + comms
 
-**Grand total: 55–59 hours over 20 days = ~3 hours/day.** Achievable for a focused founder-engineer who clears the calendar.
+**Grand total: 62–66 hours over 17 days = ~3.7 hours/day.** Tight. Still achievable for a focused founder-engineer who clears the calendar, but you've used 3 days of the original 20-day budget — every weekday now matters.
 
-If you slip, drop in this order: M6 → M7 (CI) → H9 (voice input QA) → H4 (tier-aware call limit) → H1 (frontend timeout flip).
+If you slip, drop in this order: M6 → M7 (CI) → H9 (voice input QA) → H4 (tier-aware call limit) → H1 (frontend timeout flip). **Do NOT drop B25–B28 — the iOS save-loss bug is happening to real pilot users now and will hit new users on day 1.**
 
 If you want to add one item back: an explicit "founder office hours" calendar block May 24 → June 14 in the support runbook so pilots and new users have a clear "Barb is available" channel.
 
@@ -355,7 +507,20 @@ If you want to add one item back: an explicit "founder office hours" calendar bl
 | Frontend Physical / GPT / JM panels | various `*Panel.jsx` | Done — H1 |
 | Frontend AI service timeouts | `aiService.js` | Done — H1, H2 |
 
-Total: **27 subsystems** audited end-to-end. Findings: **24 BLOCKERs**, **12 HIGH-RISK**, **10 MEDIUM**, **27 confirmed-safe**.
+Total: **27 subsystems** audited end-to-end. Findings: **28 BLOCKERs** (24 from initial audit + 4 iOS persistence added 5/15), **12 HIGH-RISK**, **10 MEDIUM**, **27 confirmed-safe**.
+
+### Addendum: iOS Safari data persistence (5/15)
+
+After the original audit, a pilot user reported a Lesson Notes save loss on iOS Safari. The root cause class — SDK promise resolves before network sync flushes when the tab backgrounds — applies to **every form that writes via Firestore SDK**, not just Lesson Notes. CLAUDE.md flagged the area but the technical specs had no engineering requirements. Promoted to first-class concern with B25–B28. Files involved:
+
+- `src/hooks/useFormRecovery.js` (5 forms consume it)
+- `src/components/LessonNotes/LessonNoteForm.jsx`
+- `src/components/Debrief/DebriefForm.jsx`
+- `src/components/PhysicalAssessment/PhysicalAssessmentForm.jsx`
+- `src/components/RiderAssessment/RiderAssessmentForm.jsx`
+- `src/components/TechnicalPhilosophical/TechnicalPhilosophicalForm.jsx`
+- `src/pages/TipsAndFaq.jsx` (FAQ entry)
+- New: `src/hooks/useIsIOSSafari.js`, `src/components/shared/SaveConfirmation.jsx`
 
 ---
 
