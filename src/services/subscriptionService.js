@@ -228,6 +228,7 @@ export function onSubscriptionChange(uid, callback) {
       trialStarted: !!data.trialStarted,
       trialEndDate: data.trialEndDate || null,
       trialConverted: !!data.trialConverted,
+      isFounder: !!data.isFounder,
     });
   });
 }

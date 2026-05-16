@@ -22,6 +22,7 @@ async function loadSubscription(uid) {
     tier: data.subscriptionTier || "none",
     status: data.subscriptionStatus || "none",
     isPilot: !!data.isPilot,
+    isFounder: !!data.isFounder,
     interval: data.subscriptionInterval || null,
   };
 }
