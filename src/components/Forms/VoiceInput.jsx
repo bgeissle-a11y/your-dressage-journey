@@ -15,6 +15,7 @@ export default function VoiceInput({ textareaRef, onTranscript, disabled }) {
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)
   );
   const recognitionRef = useRef(null);
+  const processedCountRef = useRef(0);
 
   const startRecording = useCallback(() => {
     if (!available || disabled) return;
@@ -25,11 +26,18 @@ export default function VoiceInput({ textareaRef, onTranscript, disabled }) {
     recognition.interimResults = false;
     recognition.lang = 'en-US';
 
+    // iOS Safari (and some Android Chrome builds) report a buggy event.resultIndex
+    // in continuous mode — it can stay at 0 even after earlier results have been
+    // finalized and consumed, causing the same final results to be re-appended on
+    // every onresult event. Track processed count ourselves instead.
+    processedCountRef.current = 0;
+
     recognition.onresult = (event) => {
       let transcript = '';
-      for (let i = event.resultIndex; i < event.results.length; i++) {
+      for (let i = processedCountRef.current; i < event.results.length; i++) {
         if (event.results[i].isFinal) {
           transcript += event.results[i][0].transcript;
+          processedCountRef.current = i + 1;
         }
       }
 
