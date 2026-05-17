@@ -23,6 +23,7 @@ const { prepareRiderData } = require("../lib/prepareRiderData");
 const { silentCanAccess, loadSubscription } = require("../lib/loadSubscription");
 const { CAPABILITIES } = require("../lib/entitlements");
 const { tierFromLabel } = require("../lib/tokenBudgets");
+const { isBudgetExceeded } = require("../lib/budgetExhaustion");
 const {
   getStatus,
   startGeneration,
@@ -94,8 +95,11 @@ async function isKillSwitchActive() {
  * @param {string} uid - User ID
  * @param {string[]} outputTypes - Which outputs to regenerate
  * @param {string} triggeredBy - Trigger source for status tracking
+ * @param {number} [depth=0] - Recursion depth from `needsRerun` self-calls;
+ *   used to cap pathological rerun loops (a rapid logger or stuck trigger
+ *   could otherwise chew through the function's 540s budget).
  */
-async function runRegeneration(uid, outputTypes, triggeredBy) {
+async function runRegeneration(uid, outputTypes, triggeredBy, depth = 0) {
   // Check kill switch
   if (await isKillSwitchActive()) {
     console.log(`[dataRegen] Kill switch active — skipping regeneration for ${uid}`);
@@ -107,6 +111,15 @@ async function runRegeneration(uid, outputTypes, triggeredBy) {
   // own dollar budget. canAccess returns true for active pilots / paid
   // tiers that own `generateCoaching`; otherwise we no-op.
   if (!(await silentCanAccess(uid, CAPABILITIES.generateCoaching))) {
+    // If an earlier run left a generationStatus stuck at in_progress, close
+    // it out as skipped so any frontend poll doesn't hang waiting forever.
+    const priorStatus = await getStatus(uid);
+    if (priorStatus?.status === "in_progress") {
+      await completeGeneration(uid, {
+        skipped: true,
+        skippedReason: "capability_denied",
+      });
+    }
     console.log(`[dataRegen] ${uid} lacks generateCoaching capability — skipping ${triggeredBy} regen`);
     return;
   }
@@ -119,11 +132,21 @@ async function runRegeneration(uid, outputTypes, triggeredBy) {
     return;
   }
 
-  // Cooldown: skip if last regeneration completed less than 2 hours ago
+  // Cooldown: skip if last regeneration completed less than the configured
+  // window ago. Defensive in_progress sweep first — at this point the
+  // dedupe above should have caught a stuck status, but if a future caller
+  // ever lands here with an unresolved in_progress doc we don't want a
+  // frontend poll to hang waiting forever.
   if (currentStatus?.completedAt) {
     const lastCompleted = new Date(currentStatus.completedAt).getTime();
     const elapsed = Date.now() - lastCompleted;
     if (elapsed < REGEN_COOLDOWN_MS) {
+      if (currentStatus.status === "in_progress") {
+        await completeGeneration(uid, {
+          skipped: true,
+          skippedReason: "cooldown_active",
+        });
+      }
       const minutesLeft = Math.ceil((REGEN_COOLDOWN_MS - elapsed) / 60000);
       console.log(`[dataRegen] Cooldown active for ${uid} — ${minutesLeft}m remaining, skipping`);
       return;
@@ -169,7 +192,15 @@ async function runRegeneration(uid, outputTypes, triggeredBy) {
     } catch (err) {
       console.error(`[dataRegen] ${uid}: failed ${outputType}:`, err.message);
       await recordError(uid, `${outputType}: ${err.message}`);
-      // Continue with next output (don't abort the whole pipeline)
+      // Budget cap is per-rider — once it fires, every remaining handler
+      // will hit the same cap and waste function time + log noise. Bail
+      // out of the loop but still fall through to the completion path
+      // below so we record that we attempted the run.
+      if (isBudgetExceeded(err)) {
+        console.warn(`[dataRegen] ${uid}: budget exhausted on ${outputType} — aborting remaining outputs in this pipeline`);
+        break;
+      }
+      // Otherwise continue with next output.
     }
   }
 
@@ -187,10 +218,16 @@ async function runRegeneration(uid, outputTypes, triggeredBy) {
 
   console.log(`[dataRegen] ${uid}: regeneration complete (${completedCount}/${outputTypes.length} succeeded)`);
 
-  // If new data arrived during generation, re-run
+  // If new data arrived during generation, re-run — but cap the depth so
+  // a rapid logger or a stuck trigger can't recurse indefinitely. Anything
+  // beyond depth 2 will catch up on the next trigger.
   if (needsRerun) {
-    console.log(`[dataRegen] ${uid}: rerun requested — starting new cycle`);
-    await runRegeneration(uid, outputTypes, "data_change");
+    if (depth >= 2) {
+      console.warn(`[dataRegen] ${uid}: rerun depth limit reached (${depth + 1}) — skipping further rerun, data will catch up on next trigger`);
+      return;
+    }
+    console.log(`[dataRegen] ${uid}: rerun requested — starting new cycle (depth ${depth + 1})`);
+    await runRegeneration(uid, outputTypes, "data_change", depth + 1);
   }
 }
 

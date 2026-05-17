@@ -103,6 +103,17 @@ async function completeGeneration(uid, currentCounts = {}) {
     updateData.reflectionCountAtLastRegen = currentCounts.reflectionCount;
   }
 
+  // Optional skipped marker — set when a run completed without actually
+  // generating anything (e.g. capability denial). Lets the frontend
+  // distinguish a real completion from a no-op so its progress poll
+  // doesn't hang.
+  if (currentCounts.skipped !== undefined) {
+    updateData.skipped = currentCounts.skipped;
+  }
+  if (currentCounts.skippedReason !== undefined) {
+    updateData.skippedReason = currentCounts.skippedReason;
+  }
+
   if (hadPendingRerun) {
     updateData.pendingRerun = false;
   }
