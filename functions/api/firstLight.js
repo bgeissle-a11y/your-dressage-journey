@@ -480,12 +480,16 @@ async function graduate(event) {
     const current = currentSnap.data();
     if (current.graduatedAt) return; // already graduated
 
-    // Count debriefs (excluding soft-deleted)
+    // Count debriefs (excluding soft-deleted). Uses the count() aggregation
+    // to avoid downloading every debrief doc on each trigger fire — this
+    // runs once per new debrief AND once per new reflection, so a rider
+    // with 50+ debriefs would otherwise re-read all of them on every entry.
     const debriefsSnap = await db.collection("debriefs")
       .where("userId", "==", uid)
+      .where("isDeleted", "==", false)
+      .count()
       .get();
-    let debriefCount = 0;
-    debriefsSnap.forEach(d => { if (!d.data().isDeleted) debriefCount += 1; });
+    const debriefCount = debriefsSnap.data().count;
     if (debriefCount < GRADUATION_DEBRIEF_THRESHOLD) return;
 
     // Verify all six reflection categories present (any source counts)
