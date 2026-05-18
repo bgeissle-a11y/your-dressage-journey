@@ -60,18 +60,41 @@ service cloud.firestore {
 
     // Micro-debriefs — lightweight ride entries; Cloud Function writes the
     // empatheticResponse field after submission via admin SDK (bypasses rules).
+    // Client updates are blocked from touching AI-written fields so a curious
+    // or malicious client can't overwrite them locally.
     match /microDebriefs/{docId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null
+        && resource.data.userId == request.auth.uid
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'empatheticResponse',
+          'empatheticResponseGeneratedAt',
+          'riderState',
+          'cacheAgeAtSubmission',
+          'cacheBandAtSubmission',
+          'voiceUsed',
+          'empatheticResponseError',
+        ]);
     }
 
     // Fresh Start submissions — re-onboarding entries; Cloud Function writes
-    // the empatheticResponse field after submission via admin SDK.
+    // the empatheticResponse field after submission via admin SDK. Same
+    // AI-field protection as microDebriefs above.
     match /freshStarts/{docId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null
+        && resource.data.userId == request.auth.uid
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'empatheticResponse',
+          'empatheticResponseGeneratedAt',
+          'cacheAgeAtSubmission',
+          'cacheBandAtSubmission',
+          'empatheticResponseError',
+        ]);
     }
 
     match /journeyEvents/{docId} {
