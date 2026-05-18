@@ -1,7 +1,7 @@
 # YDJ Final Pre-Launch Remediation List
 
 **Audit complete:** 2026-05-12 · **Launch:** 2026-06-01 · **Last status update:** 2026-05-18
-**Items shipped:** 16 of 50 · **Effort remaining:** ~28 hours over ~14 days
+**Items shipped:** 20 of 50 · **Effort remaining:** ~26 hours over ~14 days
 
 > **🎯 Read this section. Skip the rest unless you need detail.**
 >
@@ -40,7 +40,15 @@
 - ✅ H2 — `getMultiVoiceCoaching` timeoutSeconds bumped 120 → 240s on both frontend (`aiService.js`) and backend (`functions/index.js`); covers `getQuickInsights` since it routes to the same Cloud Function.
 - ✅ M12 (new) — `FreshnessStrip` shows "Based on data through {date} · N new rides since · [Refresh now]" on Multi-Voice + Journey Map panels; hides on same-day cache. Pure visibility hint — no cache or threshold-logic changes.
 
-**Cleared from BLOCKER count: 12 of 28. Cleared from HIGH-RISK: 3 of 12.**
+**Regen pipeline hardening** — 2026-05-17 (commit `5525c98`)
+- ✅ B3 — `runRegeneration` self-rerun capped at `depth >= 2` ([functions/api/dataTriggeredRegeneration.js:225](functions/api/dataTriggeredRegeneration.js#L225)) so a rapid logger or stuck trigger can't burn the function's 540s budget on recursion; data catches up on next trigger.
+- ✅ M3 — Budget-exhaustion isolation: when a per-output handler throws a budget-exceeded error the pipeline loop `break`s instead of churning through remaining handlers that would hit the same cap; still falls through to the completion path so the run is recorded ([dataTriggeredRegeneration.js:199-202](functions/api/dataTriggeredRegeneration.js#L199-L202)).
+- ✅ M4 — `silentCanAccess` denial path now resolves any stale `in_progress` `generationStatus` as `skipped` (with reason) instead of leaving frontend progress polls hanging forever; same defensive sweep added at the cooldown-skip site. `completeGeneration` accepts `{skipped, skippedReason}` to distinguish a no-op close-out from a true completion.
+
+**First Light perf** — 2026-05-XX (commit `8f1b9ad`)
+- ✅ H6 — `firstLight.graduate` trigger uses `count()` aggregation instead of reading every debrief doc on each fire ([functions/api/firstLight.js:490](functions/api/firstLight.js#L490)); avoids O(n) reads on every new debrief/reflection for graduated-or-soon-to-graduate riders.
+
+**Cleared from BLOCKER count: 13 of 28. Cleared from HIGH-RISK: 4 of 12.**
 **The two scariest classes of bug — silent fan-out failure and iOS save loss — are now neutralized.**
 
 ---
@@ -52,14 +60,12 @@
 
 ### This week (May 16–17): finish the BLOCKER tier in code
 
-- 🔥 **B3** — `dataTriggeredRegeneration` recursion depth limit (1h)
 - 🔥 **B20** — Anthropic production-tier API key swap (0.5h)
 - 🔥 **B21** — UptimeRobot pings on frontend, functions, Stripe webhook (0.5h)
-- ⚠️ **H6** — `firstLight.graduate` use `count()` aggregation instead of full reads (1h)
 - ⚠️ **H12** — Tighten `microDebriefs`/`freshStarts` rules so AI fields are immutable to client (1h)
 - 📧 **Pilot conversion email Round 1** + apology to lesson-notes user (1.5h)
 
-**Subtotal this week: 5.5h.** B19 (4h) + H1 (0.5h) shipped 2026-05-18 — see WHAT'S SHIPPED.
+**Subtotal this week: 3.5h.** B3 (1h) + H6 (1h) shipped 2026-05-17; B19 (4h) + H1 (0.5h) shipped 2026-05-18 — see WHAT'S SHIPPED.
 
 ### Next week (May 18–23): coaching/show-planner BLOCKERs + AI hardening
 
@@ -105,8 +111,6 @@
 - ➖ **M11 (NEW)** — Vite chunk-size warning. Lazy-load Insights route + manualChunks for recharts/firebase. Improves new-user mobile first-load. (1.5h)
 - ➖ **M1** — Add test database hash to eventPrep cache key
 - ➖ **M2** — Tighten `getStaleCache` `maxAgeDays: 90` for coaching to something tighter
-- ➖ **M3** — Isolate budget exhaustion mid-pipeline in `runRegeneration`
-- ➖ **M4** — `silentCanAccess` denial path should set `generationStatus = skipped`
 - ➖ **M5** — Sanity-check repaired truncated JSON for required fields
 - ➖ **M7** — GitHub Actions CI workflow
 - ➖ **M8** — One-page diagnostic-script runbook
