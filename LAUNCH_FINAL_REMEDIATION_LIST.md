@@ -1,7 +1,7 @@
 # YDJ Final Pre-Launch Remediation List
 
-**Audit complete:** 2026-05-12 · **Launch:** 2026-06-01 · **Last status update:** 2026-05-16
-**Items shipped:** 9 of 50 · **Effort remaining:** ~38 hours over ~16 days
+**Audit complete:** 2026-05-12 · **Launch:** 2026-06-01 · **Last status update:** 2026-05-18
+**Items shipped:** 10 of 50 · **Effort remaining:** ~36 hours over ~14 days
 
 > **🎯 Read this section. Skip the rest unless you need detail.**
 >
@@ -28,8 +28,9 @@
 
 **Stripe live mode**
 - ✅ B16 — Live keys swapped, live coupons created, billing portal lockdown re-run
+- ✅ B15 — Webhook event-ID idempotency (`stripeWebhookEvents/{event.id}` ledger, status-based skip, 90d `expiresAt` Firestore Timestamp, TTL policy `ACTIVE` 2026-05-18, deployed live)
 
-**Cleared from BLOCKER count: 8 of 28. Cleared from HIGH-RISK: 1 of 12.**
+**Cleared from BLOCKER count: 9 of 28. Cleared from HIGH-RISK: 1 of 12.**
 **The two scariest classes of bug — silent fan-out failure and iOS save loss — are now neutralized.**
 
 ---
@@ -42,7 +43,6 @@
 ### This week (May 16–17): finish the BLOCKER tier in code
 
 - 🔥 **B3** — `dataTriggeredRegeneration` recursion depth limit (1h)
-- 🔥 **B15** — Stripe webhook event-ID idempotency (2h)
 - 🔥 **B18** — Cloud Function error-rate alerting in Cloud Console (1h)
 - 🔥 **B19** — `lastRegenError` field + 5 panel banners (4h)
 - 🔥 **B20** — Anthropic production-tier API key swap (0.5h)
@@ -119,7 +119,7 @@
 | Launch week (May 24–31) | 14.5 (or 10.5) | 8 days |
 | **Total to launch** | **~50h** | **~16 days** |
 
-**Pace check:** ~3.1 hours/day average. The This-Week list is heavier per-day because the 2-day window is short — if you can clear B3, B15, B18, B20, B21, B22 today (6 hours of mostly-config work), the rest of the week is pure code at a comfortable pace.
+**Pace check:** ~3.1 hours/day average. The This-Week list is heavier per-day because the 2-day window is short — if you can clear B3, B18, B20, B21, B22 today (4 hours of mostly-config work), the rest of the week is pure code at a comfortable pace.
 
 **If you slip, drop in this order:** M6 (tests) → H4 (tier-aware call limit) → H1 (frontend timeout flip) → H9 (voice input QA). Do NOT drop anything from BLOCKER tier.
 
