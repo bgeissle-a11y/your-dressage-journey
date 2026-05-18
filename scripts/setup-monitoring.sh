@@ -401,21 +401,38 @@ create_or_update_budget() {
     --budget-amount="${amount_usd}USD"
     --filter-projects="projects/$PROJECT_ID"
     --filter-services="$service_id"
+    --notifications-rule-monitoring-notification-channels="$CHANNEL_NAME"
+  )
+
+  # Threshold flag names diverged between `create` and `update` somewhere
+  # around gcloud 540+: `create` still takes --threshold-rule (repeatable),
+  # while `update` switched to --add-threshold-rule and exposes
+  # --clear-threshold-rules for replacement semantics. We use
+  # --clear-threshold-rules on update so re-runs replace rather than
+  # accumulate threshold rules.
+  local create_threshold_args=(
     --threshold-rule=percent=0.5
     --threshold-rule=percent=0.8
     --threshold-rule=percent=1.0
-    --notifications-rule-monitoring-notification-channels="$CHANNEL_NAME"
+  )
+  local update_threshold_args=(
+    --clear-threshold-rules
+    --add-threshold-rule=percent=0.5
+    --add-threshold-rule=percent=0.8
+    --add-threshold-rule=percent=1.0
   )
 
   if [ -n "$existing" ]; then
     # `budgets update` takes the short ID, not the full resource name.
     local budget_id="${existing##*/}"
-    gcloud billing budgets update "$budget_id" "${common_args[@]}" --quiet >/dev/null
+    gcloud billing budgets update "$budget_id" \
+      "${common_args[@]}" "${update_threshold_args[@]}" --quiet >/dev/null
     log_update "Budget: $display_name"
     log_info "budget: $existing"
   else
     local new_budget
-    new_budget=$(gcloud billing budgets create "${common_args[@]}" --format="value(name)")
+    new_budget=$(gcloud billing budgets create \
+      "${common_args[@]}" "${create_threshold_args[@]}" --format="value(name)")
     log_create "Budget: $display_name"
     log_info "budget: $new_budget"
   fi
