@@ -221,6 +221,27 @@ are crashing — investigate before deleting.
 
 ---
 
+## UptimeRobot monitors
+- YDJ — Frontend                  (HTTP/200)
+- YDJ — Functions health          (Keyword "ok")
+- YDJ — Stripe webhook reachable  (HTTP/405 treated as UP)
+Alert contact: bgeissle@gmail.com
+Public status page: https://stats.uptimerobot.com/KQ3YWozmK4
+Last verified: 2026-05-18
+
+---
+
+## Anthropic API key rotation log
+
+| Date | Action | Key (first / last 4) | Notes |
+|---|---|---|---|
+| 2026-05-18 | Created `ydj-production-2026-06-01` | (current production key — see Anthropic console) | Pre-launch rotation per B20. |
+| 2026-05-18 | **Disabled** prior key | (record first/last 4 from password manager) | **TODO: delete on or after 2026-06-08** once a week of clean launch operation confirms nothing was relying on it. Disabled (not deleted) so it can be re-enabled if a forgotten consumer surfaces. |
+
+**Next scheduled rotation:** ~2026-11-18 (6-month cadence). Add a calendar reminder.
+
+---
+
 ## Cross-references
 
 - [`LAUNCH_FINAL_REMEDIATION_LIST.md`](../LAUNCH_FINAL_REMEDIATION_LIST.md) — B18, B22 line items
