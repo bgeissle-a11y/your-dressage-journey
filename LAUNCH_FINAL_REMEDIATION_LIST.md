@@ -34,6 +34,10 @@
 - ✅ B18 — Cloud Function error-rate alert (>5 ERROR / 15 min across 22 monitored functions) + Stripe webhook failures alert; both routed to verified `barb@yourdressagejourney.com` notification channel via `scripts/setup-monitoring.sh`
 - ✅ B22 — Spend alerts across all three providers: GCP Cloud Functions $100/mo and Firestore $50/mo budgets at 50/80/100% (via setup-monitoring.sh); Anthropic API usage limit and Stripe billing thresholds configured in their respective provider dashboards
 
+**Anthropic API key rotation** — 2026-05-18
+- ✅ B20 — Production-tier key created (`ydj-production-2026-06-01`), set as Firebase secret, deployed, smoke-tested; prior key disabled (scheduled for deletion 2026-06-08 — logged in `docs/monitoring.md`)
+- ✅ B21 — UptimeRobot monitors live for Frontend, Functions health, Stripe webhook (Stripe monitor's 405 false-positives mitigated by pausing or relying on B18 alert + Stripe dashboard)
+
 **Coaching panel visibility & timeout alignment** — 2026-05-18 (commit `67daa5c`)
 - ✅ B19 — `users/{uid}/lastRegenError/{output}` written on regen failure + cleared on success across all 5 handlers (`coaching` / `journeyMap` / `grandPrixThinking` / `physicalGuidance` / `dataVisualizations`); rider-visible `RegenErrorBanner` wired into all 5 panels; `firestore.rules` locks the doc to read-only for the owner with no client write. Skips budget-exhaustion cases that already surface their own banner.
 - ✅ H1 — Frontend timeouts in `aiService.js` bumped 300s → 540s (Journey Map / GPT / Physical / DataViz) so the client no longer aborts on a regen that the backend successfully completed.
@@ -51,7 +55,7 @@
 **AI-field tamper protection** — 2026-05-18 (commit `a69d038`, deployed live)
 - ✅ H12 — Firestore update rules on `microDebriefs` and `freshStarts` use `diff().affectedKeys().hasAny([...])` to reject any client write that touches AI-written fields (`empatheticResponse`, `empatheticResponseGeneratedAt`, `riderState`/`voiceUsed` on microDebriefs, `cacheAgeAtSubmission`, `cacheBandAtSubmission`, `empatheticResponseError`). Cloud Functions unaffected — admin SDK bypasses rules. Read/create/delete unchanged.
 
-**Cleared from BLOCKER count: 13 of 28. Cleared from HIGH-RISK: 5 of 12.**
+**Cleared from BLOCKER count: 15 of 28. Cleared from HIGH-RISK: 5 of 12.**
 **The two scariest classes of bug — silent fan-out failure and iOS save loss — are now neutralized.**
 
 ---
@@ -63,8 +67,6 @@
 
 ### This week (May 16–17): finish the BLOCKER tier in code
 
-- 🔥 **B20** — Anthropic production-tier API key swap (0.5h)
-- 🔥 **B21** — UptimeRobot pings on frontend, functions, Stripe webhook (0.5h)
 - 📧 **Pilot conversion email Round 1** + apology to lesson-notes user (1.5h)
 
 **Subtotal this week: 2.5h.** B3 (1h) + H6 (1h) shipped 2026-05-17; B19 (4h) + H1 (0.5h) + H12 (1h) shipped 2026-05-18 — see WHAT'S SHIPPED.
