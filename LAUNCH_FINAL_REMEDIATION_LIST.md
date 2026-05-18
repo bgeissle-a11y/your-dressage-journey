@@ -1,7 +1,7 @@
 # YDJ Final Pre-Launch Remediation List
 
 **Audit complete:** 2026-05-12 · **Launch:** 2026-06-01 · **Last status update:** 2026-05-18
-**Items shipped:** 20 of 50 · **Effort remaining:** ~26 hours over ~14 days
+**Items shipped:** 21 of 50 · **Effort remaining:** ~25 hours over ~14 days
 
 > **🎯 Read this section. Skip the rest unless you need detail.**
 >
@@ -48,7 +48,10 @@
 **First Light perf** — 2026-05-XX (commit `8f1b9ad`)
 - ✅ H6 — `firstLight.graduate` trigger uses `count()` aggregation instead of reading every debrief doc on each fire ([functions/api/firstLight.js:490](functions/api/firstLight.js#L490)); avoids O(n) reads on every new debrief/reflection for graduated-or-soon-to-graduate riders.
 
-**Cleared from BLOCKER count: 13 of 28. Cleared from HIGH-RISK: 4 of 12.**
+**AI-field tamper protection** — 2026-05-18 (commit `a69d038`, deployed live)
+- ✅ H12 — Firestore update rules on `microDebriefs` and `freshStarts` use `diff().affectedKeys().hasAny([...])` to reject any client write that touches AI-written fields (`empatheticResponse`, `empatheticResponseGeneratedAt`, `riderState`/`voiceUsed` on microDebriefs, `cacheAgeAtSubmission`, `cacheBandAtSubmission`, `empatheticResponseError`). Cloud Functions unaffected — admin SDK bypasses rules. Read/create/delete unchanged.
+
+**Cleared from BLOCKER count: 13 of 28. Cleared from HIGH-RISK: 5 of 12.**
 **The two scariest classes of bug — silent fan-out failure and iOS save loss — are now neutralized.**
 
 ---
@@ -62,10 +65,9 @@
 
 - 🔥 **B20** — Anthropic production-tier API key swap (0.5h)
 - 🔥 **B21** — UptimeRobot pings on frontend, functions, Stripe webhook (0.5h)
-- ⚠️ **H12** — Tighten `microDebriefs`/`freshStarts` rules so AI fields are immutable to client (1h)
 - 📧 **Pilot conversion email Round 1** + apology to lesson-notes user (1.5h)
 
-**Subtotal this week: 3.5h.** B3 (1h) + H6 (1h) shipped 2026-05-17; B19 (4h) + H1 (0.5h) shipped 2026-05-18 — see WHAT'S SHIPPED.
+**Subtotal this week: 2.5h.** B3 (1h) + H6 (1h) shipped 2026-05-17; B19 (4h) + H1 (0.5h) + H12 (1h) shipped 2026-05-18 — see WHAT'S SHIPPED.
 
 ### Next week (May 18–23): coaching/show-planner BLOCKERs + AI hardening
 
