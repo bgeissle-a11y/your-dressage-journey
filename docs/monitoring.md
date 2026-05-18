@@ -200,18 +200,17 @@ Successful deliveries write an `expiresAt` Firestore Timestamp 90 days
 out — well past Stripe's max retry window — so the collection can be
 aged out by a Firestore TTL policy rather than growing forever.
 
-Enable the TTL policy once after first deploy:
+Enable the TTL policy once after first deploy. Single line on purpose
+— PowerShell uses backtick (`` ` ``) for line continuation, not `\`, so
+a multi-line bash form will break on the founder's Windows shell.
 
-```bash
-gcloud firestore fields ttls update expiresAt \
-  --collection-group=stripeWebhookEvents \
-  --enable-ttl \
-  --project=your-dressage-journey
+```
+gcloud firestore fields ttls update expiresAt --collection-group=stripeWebhookEvents --enable-ttl --project=your-dressage-journey
 ```
 
 Subsequent runs are no-ops. Verify with:
 
-```bash
+```
 gcloud firestore fields ttls list --project=your-dressage-journey
 ```
 
