@@ -683,8 +683,18 @@ async function handleWebhook(req, res) {
       default:
         console.log(`Unhandled event type: ${event.type}`);
     }
+    // expiresAt is a Firestore Timestamp so the collection-group TTL policy
+    // on this field can age the doc out (~90d, well past Stripe's max retry
+    // window). See docs/monitoring.md for the one-time gcloud enable command.
+    const ttlExpiresAt = admin.firestore.Timestamp.fromMillis(
+      Date.now() + 90 * 24 * 60 * 60 * 1000
+    );
     await eventRef.set(
-      { processedAt: admin.firestore.FieldValue.serverTimestamp(), status: "completed" },
+      {
+        processedAt: admin.firestore.FieldValue.serverTimestamp(),
+        status: "completed",
+        expiresAt: ttlExpiresAt,
+      },
       { merge: true }
     );
     res.status(200).json({ received: true });
