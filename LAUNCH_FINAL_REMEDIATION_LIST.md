@@ -1,7 +1,7 @@
 # YDJ Final Pre-Launch Remediation List
 
 **Audit complete:** 2026-05-12 · **Launch:** 2026-06-01 · **Last status update:** 2026-05-18
-**Items shipped:** 10 of 50 · **Effort remaining:** ~36 hours over ~14 days
+**Items shipped:** 12 of 50 · **Effort remaining:** ~34 hours over ~14 days
 
 > **🎯 Read this section. Skip the rest unless you need detail.**
 >
@@ -30,7 +30,11 @@
 - ✅ B16 — Live keys swapped, live coupons created, billing portal lockdown re-run
 - ✅ B15 — Webhook event-ID idempotency (`stripeWebhookEvents/{event.id}` ledger, status-based skip, 90d `expiresAt` Firestore Timestamp, TTL policy `ACTIVE` 2026-05-18, deployed live)
 
-**Cleared from BLOCKER count: 9 of 28. Cleared from HIGH-RISK: 1 of 12.**
+**Monitoring & alerting** — 2026-05-18
+- ✅ B18 — Cloud Function error-rate alert (>5 ERROR / 15 min across 22 monitored functions) + Stripe webhook failures alert; both routed to verified `barb@yourdressagejourney.com` notification channel via `scripts/setup-monitoring.sh`
+- ✅ B22 — Spend alerts across all three providers: GCP Cloud Functions $100/mo and Firestore $50/mo budgets at 50/80/100% (via setup-monitoring.sh); Anthropic API usage limit and Stripe billing thresholds configured in their respective provider dashboards
+
+**Cleared from BLOCKER count: 11 of 28. Cleared from HIGH-RISK: 1 of 12.**
 **The two scariest classes of bug — silent fan-out failure and iOS save loss — are now neutralized.**
 
 ---
@@ -43,11 +47,9 @@
 ### This week (May 16–17): finish the BLOCKER tier in code
 
 - 🔥 **B3** — `dataTriggeredRegeneration` recursion depth limit (1h)
-- 🔥 **B18** — Cloud Function error-rate alerting in Cloud Console (1h)
 - 🔥 **B19** — `lastRegenError` field + 5 panel banners (4h)
 - 🔥 **B20** — Anthropic production-tier API key swap (0.5h)
 - 🔥 **B21** — UptimeRobot pings on frontend, functions, Stripe webhook (0.5h)
-- 🔥 **B22** — Firestore + Anthropic + Stripe spend alerts (1h)
 - ⚠️ **H1** — Bump frontend timeouts from 300s to 540s for JM/GPT/Physical/DataViz (0.5h)
 - ⚠️ **H6** — `firstLight.graduate` use `count()` aggregation instead of full reads (1h)
 - ⚠️ **H12** — Tighten `microDebriefs`/`freshStarts` rules so AI fields are immutable to client (1h)
@@ -119,7 +121,7 @@
 | Launch week (May 24–31) | 14.5 (or 10.5) | 8 days |
 | **Total to launch** | **~50h** | **~16 days** |
 
-**Pace check:** ~3.1 hours/day average. The This-Week list is heavier per-day because the 2-day window is short — if you can clear B3, B18, B20, B21, B22 today (4 hours of mostly-config work), the rest of the week is pure code at a comfortable pace.
+**Pace check:** ~3.1 hours/day average. The This-Week list is heavier per-day because the 2-day window is short — if you can clear B3, B20, B21 today (2 hours of mostly-config work), the rest of the week is pure code at a comfortable pace.
 
 **If you slip, drop in this order:** M6 (tests) → H4 (tier-aware call limit) → H1 (frontend timeout flip) → H9 (voice input QA). Do NOT drop anything from BLOCKER tier.
 
