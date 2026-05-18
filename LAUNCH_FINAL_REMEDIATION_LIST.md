@@ -1,7 +1,7 @@
 # YDJ Final Pre-Launch Remediation List
 
 **Audit complete:** 2026-05-12 · **Launch:** 2026-06-01 · **Last status update:** 2026-05-18
-**Items shipped:** 12 of 50 · **Effort remaining:** ~34 hours over ~14 days
+**Items shipped:** 16 of 50 · **Effort remaining:** ~28 hours over ~14 days
 
 > **🎯 Read this section. Skip the rest unless you need detail.**
 >
@@ -34,7 +34,13 @@
 - ✅ B18 — Cloud Function error-rate alert (>5 ERROR / 15 min across 22 monitored functions) + Stripe webhook failures alert; both routed to verified `barb@yourdressagejourney.com` notification channel via `scripts/setup-monitoring.sh`
 - ✅ B22 — Spend alerts across all three providers: GCP Cloud Functions $100/mo and Firestore $50/mo budgets at 50/80/100% (via setup-monitoring.sh); Anthropic API usage limit and Stripe billing thresholds configured in their respective provider dashboards
 
-**Cleared from BLOCKER count: 11 of 28. Cleared from HIGH-RISK: 1 of 12.**
+**Coaching panel visibility & timeout alignment** — 2026-05-18 (commit `67daa5c`)
+- ✅ B19 — `users/{uid}/lastRegenError/{output}` written on regen failure + cleared on success across all 5 handlers (`coaching` / `journeyMap` / `grandPrixThinking` / `physicalGuidance` / `dataVisualizations`); rider-visible `RegenErrorBanner` wired into all 5 panels; `firestore.rules` locks the doc to read-only for the owner with no client write. Skips budget-exhaustion cases that already surface their own banner.
+- ✅ H1 — Frontend timeouts in `aiService.js` bumped 300s → 540s (Journey Map / GPT / Physical / DataViz) so the client no longer aborts on a regen that the backend successfully completed.
+- ✅ H2 — `getMultiVoiceCoaching` timeoutSeconds bumped 120 → 240s on both frontend (`aiService.js`) and backend (`functions/index.js`); covers `getQuickInsights` since it routes to the same Cloud Function.
+- ✅ M12 (new) — `FreshnessStrip` shows "Based on data through {date} · N new rides since · [Refresh now]" on Multi-Voice + Journey Map panels; hides on same-day cache. Pure visibility hint — no cache or threshold-logic changes.
+
+**Cleared from BLOCKER count: 12 of 28. Cleared from HIGH-RISK: 3 of 12.**
 **The two scariest classes of bug — silent fan-out failure and iOS save loss — are now neutralized.**
 
 ---
@@ -47,15 +53,13 @@
 ### This week (May 16–17): finish the BLOCKER tier in code
 
 - 🔥 **B3** — `dataTriggeredRegeneration` recursion depth limit (1h)
-- 🔥 **B19** — `lastRegenError` field + 5 panel banners (4h)
 - 🔥 **B20** — Anthropic production-tier API key swap (0.5h)
 - 🔥 **B21** — UptimeRobot pings on frontend, functions, Stripe webhook (0.5h)
-- ⚠️ **H1** — Bump frontend timeouts from 300s to 540s for JM/GPT/Physical/DataViz (0.5h)
 - ⚠️ **H6** — `firstLight.graduate` use `count()` aggregation instead of full reads (1h)
 - ⚠️ **H12** — Tighten `microDebriefs`/`freshStarts` rules so AI fields are immutable to client (1h)
 - 📧 **Pilot conversion email Round 1** + apology to lesson-notes user (1.5h)
 
-**Subtotal this week: 14h.** This finishes off the operational-visibility tier and the highest-leverage UX fixes.
+**Subtotal this week: 5.5h.** B19 (4h) + H1 (0.5h) shipped 2026-05-18 — see WHAT'S SHIPPED.
 
 ### Next week (May 18–23): coaching/show-planner BLOCKERs + AI hardening
 
@@ -69,12 +73,11 @@
 - 🔥 **B13** — `_countL2OpusThisMonth` add date-range filter (1h)
 - 🔥 **B14** — Data Viz `maxTokens` migrate to `tokenBudgets` (1.5h)
 - 🔥 **B17** — 14-day past-due → IC/pilot lapse scheduled job (2h)
-- ⚠️ **H2** — Multi-Voice backend timeout 120 → 240s (1h)
 - ⚠️ **H3** — Précis prompt verification for 3-of-4 voice path (1h)
 - ⚠️ **H4** — Tier-aware daily call limit (Working 30 / Medium 60 / Extended 100) (1h)
 - 📧 **Pilot conversion email Round 2** (1h)
 
-**Subtotal next week: 21h.**
+**Subtotal next week: 20h.** H2 (1h) shipped alongside H1 on 2026-05-18.
 
 ### Launch week (May 24–31): QA, deploy hardening, comms
 
