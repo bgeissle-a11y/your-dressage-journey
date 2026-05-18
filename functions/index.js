@@ -91,8 +91,11 @@ exports.prepareData = onCall(async (request) => {
 
 // Multi-Voice Coaching: 4 coaching voices analyzing rider data
 // Input: { voiceIndex?: 0|1|2|3, forceRefresh?: boolean }
+// 240s: the 5-call fan-out (4 voices + quick insights) was racing the older
+// 120s budget under slow Anthropic conditions. Frontend timeout is matched
+// in src/services/aiService.js (H1).
 exports.getMultiVoiceCoaching = onCall(
-  { secrets: [anthropicKey], timeoutSeconds: 120, memory: "512MiB" },
+  { secrets: [anthropicKey], timeoutSeconds: 240, memory: "512MiB" },
   coaching.handler
 );
 

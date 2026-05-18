@@ -24,6 +24,14 @@ service cloud.firestore {
       match /journeyMap/{docId} {
         allow read: if request.auth != null && request.auth.uid == userId;
       }
+
+      // Last regen error — written exclusively by Cloud Functions (admin SDK
+      // bypasses rules) when an AI coaching regen throws. Read-only by the
+      // authenticated user so the panel can render a rider-visible banner.
+      match /lastRegenError/{outputType} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow write: if false;
+      }
     }
 
     match /riderProfiles/{docId} {

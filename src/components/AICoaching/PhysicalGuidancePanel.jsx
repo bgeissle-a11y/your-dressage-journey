@@ -10,6 +10,7 @@ import { CAPABILITIES } from '../../constants/entitlements';
 import ErrorDisplay from './ErrorDisplay';
 import ElapsedTimer from './ElapsedTimer';
 import UpgradeNotice from './UpgradeNotice';
+import RegenErrorBanner from './RegenErrorBanner';
 import YDJLoading from '../YDJLoading';
 import CadenceStrip from '../InfoTip/CadenceStrip';
 import './ThirtyDayCycle.css';
@@ -899,6 +900,11 @@ export default function PhysicalGuidancePanel() {
           status={ent.status}
         />
       )}
+      <RegenErrorBanner
+        output="physicalGuidance"
+        onRetry={() => fetchData({ forceRefresh: true })}
+        retrying={loading || refreshing || regenerating}
+      />
       <CadenceStrip
         outputSlug="physical"
         lastRefreshedAt={data?.generatedAt}

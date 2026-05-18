@@ -50,6 +50,7 @@ const {
 const { refreshWeeklyFocusSnapshotSection } = require("../lib/weeklyFocusSnapshot");
 const { getMaxTokens, tierFromLabel } = require("../lib/tokenBudgets");
 const { isBudgetExceeded, buildGracefulResponse } = require("../lib/budgetExhaustion");
+const { writeLastRegenError, clearLastRegenError } = require("../lib/lastRegenError");
 const { HttpsError } = require("firebase-functions/v2/https");
 const { db } = require("../lib/firebase");
 
@@ -110,6 +111,10 @@ const OUTPUT_TYPE_MENTAL = "grandPrixThinking";
 const TRAJECTORY_STEP1_KEY = "grandPrixTrajectoryStep1";
 const TRAJECTORY_STEP2_KEY = "grandPrixTrajectoryStep2";
 const OUTPUT_TYPE_TRAJECTORY = "grandPrixTrajectory";
+// Banner key — one regen-error doc covers both GPT panel tabs. The most
+// recent failure (mental or trajectory) wins; "Try again" maps to whichever
+// regen the rider is looking at.
+const GPT_REGEN_ERROR_KEY = "grandPrixThinking";
 const OPUS_MODEL = "claude-opus-4-6";
 
 /**
@@ -417,6 +422,8 @@ async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerConte
     // Non-fatal — main output already succeeded.
   }
 
+  await clearLastRegenError(uid, GPT_REGEN_ERROR_KEY);
+
   return {
     success: true,
     ...l1Output,
@@ -622,6 +629,7 @@ async function generateTrajectoryLayer(uid, riderData, forceRefresh, crossLayerC
       tierLabel: riderData.tier?.label || "unknown",
       dataTier: riderData.dataTier,
     });
+    await clearLastRegenError(uid, GPT_REGEN_ERROR_KEY);
   }
 
   return {
@@ -841,6 +849,7 @@ async function generateTrajectoryStep(uid, riderData, step, priorResults, crossL
     // movementMaps failure is non-blocking so we still cache).
     if (!movementMapsError) {
       await setCache(uid, OUTPUT_TYPE_TRAJECTORY, result, cacheMeta);
+      await clearLastRegenError(uid, GPT_REGEN_ERROR_KEY);
     }
 
     return {
@@ -992,6 +1001,12 @@ async function handler(request) {
       } catch (innerErr) {
         console.error("[gpt] graceful-exhaustion fallback failed:", innerErr.message);
       }
+    }
+    // Record failure so the panel can render the regen-failure banner.
+    // Budget caps that surfaced a graceful response above are excluded.
+    if (!isBudgetExceeded(error)) {
+      const uidForError = request?.auth?.uid;
+      if (uidForError) await writeLastRegenError(uidForError, GPT_REGEN_ERROR_KEY, error);
     }
     throw wrapError(error, "getGrandPrixThinking");
   }

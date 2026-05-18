@@ -14,6 +14,8 @@ import OrientingQuestion from './OrientingQuestion';
 import PriorityCloser from './PriorityCloser';
 import UpgradeNotice from './UpgradeNotice';
 import BudgetExhaustionBanner from './BudgetExhaustionBanner';
+import RegenErrorBanner from './RegenErrorBanner';
+import FreshnessStrip from './FreshnessStrip';
 import YDJLoading from '../YDJLoading';
 import CadenceStrip from '../InfoTip/CadenceStrip';
 
@@ -341,6 +343,19 @@ export default function MultiVoicePanel({ generationStatus }) {
           status={ent.status}
         />
       )}
+
+      <RegenErrorBanner
+        output="coaching"
+        onRetry={() => fetchCoaching(true)}
+        retrying={loading || refreshing || regenerating}
+      />
+
+      <FreshnessStrip
+        generatedAt={meta?.generatedAt}
+        onRefresh={() => fetchCoaching(true)}
+        refreshing={loading || refreshing || regenerating}
+        canRefresh={canGenerate}
+      />
 
       {budgetExhausted && (
         <BudgetExhaustionBanner

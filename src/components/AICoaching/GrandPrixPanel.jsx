@@ -11,6 +11,7 @@ import ErrorDisplay from './ErrorDisplay';
 import ElapsedTimer from './ElapsedTimer';
 import UpgradeNotice from './UpgradeNotice';
 import BudgetExhaustionBanner from './BudgetExhaustionBanner';
+import RegenErrorBanner from './RegenErrorBanner';
 import YDJLoading from '../YDJLoading';
 import CadenceStrip from '../InfoTip/CadenceStrip';
 import './ThirtyDayCycle.css';
@@ -1181,6 +1182,21 @@ export default function GrandPrixPanel({ generationStatus }) {
           status={ent.status}
         />
       )}
+      <RegenErrorBanner
+        output="grandPrixThinking"
+        onRetry={() => {
+          if (activeTab === 'trajectory') {
+            fetchTrajectory({ forceRefresh: true });
+          } else {
+            fetchMental({ forceRefresh: true });
+          }
+        }}
+        retrying={
+          activeTab === 'trajectory'
+            ? trajectoryLoading || trajectoryRegenerating
+            : mentalLoading || mentalRefreshing || mentalRegenerating
+        }
+      />
       {budgetExhausted && activeTab === 'mental' && (
         <BudgetExhaustionBanner
           capExceeded={budgetExhausted.capExceeded}

@@ -33,6 +33,7 @@ const { tryAcquireLock, releaseLock } = require("../lib/inflightLock");
 const { refreshWeeklyFocusSnapshotSection } = require("../lib/weeklyFocusSnapshot");
 const { getMaxTokens, tierFromLabel } = require("../lib/tokenBudgets");
 const { isBudgetExceeded, buildGracefulResponse } = require("../lib/budgetExhaustion");
+const { writeLastRegenError, clearLastRegenError } = require("../lib/lastRegenError");
 
 const OUTPUT_TYPE = "coaching";
 const INSIGHTS_OUTPUT_TYPE = "coaching_insights";
@@ -418,6 +419,7 @@ async function handler(request) {
       try {
         const quickInsights = await generateQuickInsights(riderData, forceRefresh, uid, budgetTier);
         await persistInsightsSideExtracts(quickInsights, riderData, generatedAt);
+        await clearLastRegenError(uid, OUTPUT_TYPE);
         return {
           success: true,
           quickInsights,
@@ -465,6 +467,7 @@ async function handler(request) {
         maybeGeneratePrecisFromCache(uid, riderData).catch((err) =>
           console.error("[coaching] précis-trailing fire-and-forget failed:", err.message || err)
         );
+        await clearLastRegenError(uid, OUTPUT_TYPE);
         return {
           success: true,
           voices: { [voiceIndex]: voiceResult },
@@ -622,6 +625,8 @@ async function handler(request) {
       // Non-fatal — main output already succeeded.
     }
 
+    await clearLastRegenError(uid, OUTPUT_TYPE);
+
     return {
       success: true,
       voices,
@@ -633,6 +638,14 @@ async function handler(request) {
       generatedAt,
     };
   } catch (error) {
+    // Record the failure so the rider sees a banner on next panel mount.
+    // Budget caps already have their own rider-visible banner via the
+    // graceful-exhaustion paths above; only reach here when those paths
+    // also failed or the error was not budget-related.
+    if (!isBudgetExceeded(error)) {
+      const uidForError = request?.auth?.uid;
+      if (uidForError) await writeLastRegenError(uidForError, OUTPUT_TYPE, error);
+    }
     throw wrapError(error, "getMultiVoiceCoaching");
   }
 }

@@ -24,6 +24,7 @@ const { getStatus: getGenStatus } = require("../lib/generationStatus");
 const { tryAcquireLock, releaseLock } = require("../lib/inflightLock");
 const { getMaxTokens, tierFromLabel } = require("../lib/tokenBudgets");
 const { isBudgetExceeded, buildGracefulResponse } = require("../lib/budgetExhaustion");
+const { writeLastRegenError, clearLastRegenError } = require("../lib/lastRegenError");
 const { db } = require("../lib/firebase");
 const { FieldValue } = require("firebase-admin/firestore");
 
@@ -284,6 +285,10 @@ async function handler(request) {
       });
     }
 
+    if (!partialResults) {
+      await clearLastRegenError(uid, OUTPUT_TYPE);
+    }
+
     return {
       success: true,
       ...result,
@@ -311,6 +316,12 @@ async function handler(request) {
       } catch (innerErr) {
         console.error("[journeyMap] graceful-exhaustion fallback failed:", innerErr.message);
       }
+    }
+    // Record failure for the rider-visible banner — skip budget cases that
+    // already surfaced a graceful response.
+    if (!isBudgetExceeded(error)) {
+      const uidForError = request?.auth?.uid;
+      if (uidForError) await writeLastRegenError(uidForError, OUTPUT_TYPE, error);
     }
     throw wrapError(error, "getJourneyMap");
   }

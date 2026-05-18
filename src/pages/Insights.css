@@ -4483,6 +4483,110 @@
   color: var(--ink-light);
 }
 
+/* B19: rider-visible banner when the most recent regen failed.
+   Amber / warning tone — not red error; cached content still renders. */
+.regen-error-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: #FFF7E6;
+  border: 1px solid #E0C58A;
+  border-left: 3px solid #D4A574;
+  border-radius: 8px;
+  padding: 0.75rem 0.85rem;
+  margin: 0 0 1rem 0;
+  font-size: 0.88rem;
+  color: #5C4033;
+  font-family: 'Work Sans', sans-serif;
+}
+
+.regen-error-banner__text {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.regen-error-banner__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.regen-error-banner__retry {
+  background: transparent;
+  border: 1px solid #B98A4A;
+  color: #5C4033;
+  border-radius: 6px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'Work Sans', sans-serif;
+}
+
+.regen-error-banner__retry:hover:not(:disabled) {
+  background: #FCEFD2;
+}
+
+.regen-error-banner__retry:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.regen-error-banner__dismiss {
+  background: transparent;
+  border: none;
+  color: #8B7355;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+}
+
+.regen-error-banner__dismiss:hover {
+  color: #5C4033;
+}
+
+/* M12: freshness footer for data-driven AI outputs.
+   Low-emphasis metadata strip, not a banner. */
+.freshness-strip {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--ink-light);
+  font-family: 'Work Sans', sans-serif;
+  margin: 0.25rem 0 1rem 0;
+  line-height: 1.4;
+}
+
+.freshness-strip__sep {
+  color: var(--ink-light);
+  opacity: 0.5;
+}
+
+.freshness-strip__refresh {
+  background: transparent;
+  border: none;
+  color: var(--gold, #8B7355);
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-family: 'Work Sans', sans-serif;
+}
+
+.freshness-strip__refresh:hover:not(:disabled) {
+  color: #5C4033;
+}
+
+.freshness-strip__refresh:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .panel-loading-spinner {
   display: flex;
   flex-direction: column;

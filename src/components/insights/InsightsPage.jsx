@@ -13,6 +13,8 @@ import Section1Quality from './Section1Quality';
 import Section2Outcomes from './Section2Outcomes';
 import Section3Journey from './Section3Journey';
 import CadenceStrip from '../InfoTip/CadenceStrip';
+import RegenErrorBanner from '../AICoaching/RegenErrorBanner';
+import { getDataVisualizations } from '../../services/aiService';
 import './InsightsPage.css';
 
 const SECTIONS = [
@@ -24,6 +26,24 @@ const SECTIONS = [
 export default function InsightsPage({ embedded = false }) {
   const { data, loading, error, insufficientData } = useInsightsData();
   const [activeSection, setActiveSection] = useState('quality');
+  const [retryingDataViz, setRetryingDataViz] = useState(false);
+
+  // B19: rider-triggered retry for the most recent getDataVisualizations
+  // failure recorded server-side. Fires the same forceRefresh path the
+  // backend Cloud Function would invoke; success clears the banner via
+  // the handler's clearLastRegenError() call.
+  const handleRetryDataViz = async () => {
+    if (retryingDataViz) return;
+    setRetryingDataViz(true);
+    try {
+      await getDataVisualizations({ forceRefresh: true });
+    } catch {
+      // Banner will reappear next mount via the freshly written
+      // lastRegenError doc; no need to surface a second error here.
+    } finally {
+      setRetryingDataViz(false);
+    }
+  };
 
   const now = new Date();
   const monthYear = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
@@ -78,6 +98,12 @@ export default function InsightsPage({ embedded = false }) {
           </p>
         </div>
       )}
+
+      <RegenErrorBanner
+        output="dataVisualizations"
+        onRetry={handleRetryDataViz}
+        retrying={retryingDataViz}
+      />
 
       <CadenceStrip outputSlug="data-viz" liveData />
 

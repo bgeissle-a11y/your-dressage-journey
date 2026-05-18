@@ -9,6 +9,8 @@ import ErrorDisplay from './ErrorDisplay';
 import ElapsedTimer from './ElapsedTimer';
 import UpgradeNotice from './UpgradeNotice';
 import BudgetExhaustionBanner from './BudgetExhaustionBanner';
+import RegenErrorBanner from './RegenErrorBanner';
+import FreshnessStrip from './FreshnessStrip';
 import YDJLoading from '../YDJLoading';
 import CadenceStrip from '../InfoTip/CadenceStrip';
 
@@ -273,6 +275,19 @@ export default function JourneyMapPanel({ generationStatus }) {
           status={ent.status}
         />
       )}
+
+      <RegenErrorBanner
+        output="journeyMap"
+        onRetry={() => fetchJourneyMap({ forceRefresh: true })}
+        retrying={loading || refreshing || regenerating}
+      />
+
+      <FreshnessStrip
+        generatedAt={generatedAt}
+        onRefresh={() => fetchJourneyMap({ forceRefresh: true })}
+        refreshing={loading || refreshing || regenerating}
+        canRefresh={canGenerate}
+      />
 
       {budgetExhausted && (
         <BudgetExhaustionBanner

@@ -41,6 +41,7 @@ const {
 } = require("../lib/cycleState");
 const { refreshWeeklyFocusSnapshotSection } = require("../lib/weeklyFocusSnapshot");
 const { getMaxTokens, tierFromLabel } = require("../lib/tokenBudgets");
+const { writeLastRegenError, clearLastRegenError } = require("../lib/lastRegenError");
 
 const OUTPUT_TYPE = "physicalGuidance";
 
@@ -332,6 +333,8 @@ async function handler(request) {
       // Non-fatal — main output already succeeded.
     }
 
+    await clearLastRegenError(uid, OUTPUT_TYPE);
+
     return {
       success: true,
       ...result,
@@ -346,6 +349,11 @@ async function handler(request) {
       await releaseLock(uid, OUTPUT_TYPE);
     }
   } catch (error) {
+    // Record failure for the rider-visible banner. Physical Guidance has no
+    // budget-exhaustion graceful fallback today (it's a 30-day cycle output,
+    // not a main view), so every error reaches here and is worth recording.
+    const uidForError = request?.auth?.uid;
+    if (uidForError) await writeLastRegenError(uidForError, OUTPUT_TYPE, error);
     throw wrapError(error, "getPhysicalGuidance");
   }
 }

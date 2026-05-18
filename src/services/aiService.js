@@ -53,7 +53,10 @@ export const VOICE_META = [
  * @returns {Promise<object>} { success, voices, quickInsights, tier, dataTier, ... }
  */
 export async function getMultiVoiceCoaching(options = {}) {
-  const fn = httpsCallable(functions, 'getMultiVoiceCoaching', { timeout: 120_000 });
+  // 240s — the 5-call fan-out (4 voices + quick insights) can race the older
+  // 120s timeout under slow Anthropic conditions. Backend timeoutSeconds is
+  // bumped to match in functions/index.js (H1).
+  const fn = httpsCallable(functions, 'getMultiVoiceCoaching', { timeout: 240_000 });
   const result = await fn(options);
   return result.data;
 }
@@ -67,8 +70,10 @@ export async function getMultiVoiceCoaching(options = {}) {
  * @returns {Promise<object>} { success, synthesis, narrative, visualization, ... }
  */
 export async function getJourneyMap(options = {}) {
-  // staleOk fast path uses a shorter timeout — only reads cache, no Claude calls
-  const timeout = options.staleOk ? 30_000 : 300_000;
+  // staleOk fast path uses a shorter timeout — only reads cache, no Claude calls.
+  // Non-staleOk path aligns with the backend's 540s timeoutSeconds so the
+  // frontend doesn't bail out on a regen that actually succeeded (H1).
+  const timeout = options.staleOk ? 30_000 : 540_000;
   const fn = httpsCallable(functions, 'getJourneyMap', { timeout });
   const result = await fn(options);
   return result.data;
@@ -85,7 +90,8 @@ export async function getJourneyMap(options = {}) {
  *                            Trajectory: { success, currentStateAnalysis, trajectoryPaths, activePath, ... }
  */
 export async function getGrandPrixThinking(options = {}) {
-  const timeout = options.staleOk ? 30_000 : 300_000;
+  // 540s aligns with the backend timeoutSeconds (H1).
+  const timeout = options.staleOk ? 30_000 : 540_000;
   const fn = httpsCallable(functions, 'getGrandPrixThinking', { timeout });
   const result = await fn(options);
   return result.data;
@@ -114,7 +120,8 @@ export async function advanceWeekPointer(outputType = 'mental') {
  * @returns {Promise<object>} { success, patternExtraction, goalMapping, insightNarratives, ... }
  */
 export async function getDataVisualizations(options = {}) {
-  const timeout = options.staleOk ? 30_000 : 300_000;
+  // 540s aligns with the backend timeoutSeconds (H1).
+  const timeout = options.staleOk ? 30_000 : 540_000;
   const fn = httpsCallable(functions, 'getDataVisualizations', { timeout });
   const result = await fn(options);
   return result.data;
@@ -129,7 +136,8 @@ export async function getDataVisualizations(options = {}) {
  * @returns {Promise<object>} { success, patternAnalysis, exercisePrescription, ... }
  */
 export async function getPhysicalGuidance(options = {}) {
-  const timeout = options.staleOk ? 30_000 : 300_000;
+  // 540s aligns with the backend timeoutSeconds (H1).
+  const timeout = options.staleOk ? 30_000 : 540_000;
   const fn = httpsCallable(functions, 'getPhysicalGuidance', { timeout });
   const result = await fn(options);
   return result.data;
@@ -174,7 +182,9 @@ export async function getReadinessSnapshot(options = {}) {
  * @returns {Promise<object>} { success, quickInsights, ... }
  */
 export async function getQuickInsights(options = {}) {
-  const fn = httpsCallable(functions, 'getMultiVoiceCoaching', { timeout: 120_000 });
+  // Same backend handler as getMultiVoiceCoaching — must match the 240s
+  // timeout bump on that function to avoid premature client aborts (H1).
+  const fn = httpsCallable(functions, 'getMultiVoiceCoaching', { timeout: 240_000 });
   const result = await fn({ ...options, quickInsightsOnly: true });
   return result.data;
 }
