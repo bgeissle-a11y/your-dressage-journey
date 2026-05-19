@@ -304,10 +304,24 @@ echo
 
 echo "--- Step 4/6: alert policy ($WEBHOOK_POLICY_NAME) ---"
 
-# Uses the built-in function execution_count metric with status!=ok over
-# a 5-minute window. ANY non-2xx fires the alert because state drift
-# (failed checkout / failed coupon swap) is much costlier than a noisy
-# page during real Stripe retries.
+# Reuses the $LOG_METRIC_NAME log-based metric (defined in Step 2) but
+# scopes the alert filter to stripeWebhook ERROR logs only.
+#
+# The earlier design used cloudfunctions.googleapis.com/function/execution_count
+# with metric.labels.status!="ok". That filter classifies *any* non-2xx HTTP
+# response — including the handler's deliberate 405 to non-POST requests —
+# as a failure, which made the alert fire on the sibling UptimeRobot
+# reachability monitor (docs/monitoring.md notes "HTTP/405 treated as UP").
+#
+# Switching to an ERROR-log filter means the alert only fires when the
+# handler itself logs an error, which corresponds to the cases that
+# actually matter:
+#   - signature verification failure (console.error before 400)
+#   - dispatcher crash on a real Stripe event (console.error before 500)
+#   - Firestore failure on the dedup ledger read (console.error, falls
+#     through — soft failure, still worth knowing about)
+# The 405 path returns silently with no console.error and so no longer
+# trips this alert.
 
 WEBHOOK_POLICY_YAML="$TMPDIR_LOCAL/webhook-policy.yaml"
 cat >"$WEBHOOK_POLICY_YAML" <<EOF
@@ -315,21 +329,34 @@ displayName: "$WEBHOOK_POLICY_NAME"
 combiner: OR
 documentation:
   content: |
-    stripeWebhook returned a non-2xx response. Stripe retries automatically,
-    but subscription state can drift if the failure is persistent (e.g. a
-    signature verification regression or downstream Firestore write error).
+    stripeWebhook logged an ERROR-severity entry. Causes (in rough order
+    of likelihood):
+      - Signature verification failed → STRIPE_WEBHOOK_SECRET drift between
+        Stripe and the Cloud Function secret store, or Stripe rotated the
+        signing secret on the endpoint.
+      - Dispatcher crashed on a real event → handler bug, Firestore write
+        failure, or unexpected event payload shape. Returns 500; Stripe
+        retries on its own schedule.
+      - Dedup-ledger read failed → Firestore transient unavailability.
+        Handler proceeds (better to double-process on a rare retry than
+        drop the event), but a sustained spike suggests Firestore is
+        unhealthy.
 
-    Check stripeWebhook Cloud Function logs first, then the Stripe dashboard
-    webhook tab (Events → Failed). See docs/monitoring.md.
+    Triage:
+      1. node scripts/inspectFailedWebhookEvents.cjs — lists ledger docs
+         stuck in status="processing" (handler crashed mid-event).
+      2. If the script reports zero failed docs, the failure is in code
+         that runs before the ledger write — check the Stripe dashboard
+         Recent Deliveries tab for the response body.
+      3. Full runbook in docs/monitoring.md.
   mimeType: text/markdown
 conditions:
-  - displayName: "stripeWebhook non-2xx over ${WEBHOOK_WINDOW_SECONDS}s"
+  - displayName: "stripeWebhook ERROR log count > 0 over ${WEBHOOK_WINDOW_SECONDS}s"
     conditionThreshold:
       filter: |
-        metric.type="cloudfunctions.googleapis.com/function/execution_count"
+        metric.type="logging.googleapis.com/user/$LOG_METRIC_NAME"
         resource.type="cloud_function"
         resource.labels.function_name="stripeWebhook"
-        metric.labels.status!="ok"
       aggregations:
         - alignmentPeriod: ${WEBHOOK_WINDOW_SECONDS}s
           perSeriesAligner: ALIGN_DELTA

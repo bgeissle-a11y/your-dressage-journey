@@ -18,7 +18,7 @@ function to the watch list, or recover from a deleted resource.
 | 1 | Notification channel (email) | Routes every alert below to the founder | — |
 | 2 | Log-based metric `ydj_cloud_function_errors` | Counts ERROR-severity logs from the monitored function list | — |
 | 3 | Alert: **YDJ Cloud Function Error Rate** | Fires on elevated function errors | > 5 ERROR logs / 15 min |
-| 4 | Alert: **YDJ Stripe Webhook Failures** | Fires on any non-2xx from `stripeWebhook` | > 0 non-ok / 5 min |
+| 4 | Alert: **YDJ Stripe Webhook Failures** | Fires on any ERROR-severity log from `stripeWebhook` | > 0 ERROR logs / 5 min |
 | 5 | Budget: **YDJ Cloud Functions Spend** | Monthly spend cap on Functions | $100/mo, 50/80/100% notifications |
 | 6 | Budget: **YDJ Firestore Spend** | Monthly spend cap on Firestore | $50/mo, 50/80/100% notifications |
 
@@ -37,6 +37,17 @@ function to the watch list, or recover from a deleted resource.
 - **$50/mo on Firestore.** Read-heavy aggregation queries are the most
   expensive part of Firestore. A bug that double-reads on every render
   shows up here long before the Functions budget moves.
+- **ERROR-log filter (not `status!=ok`) for Stripe webhook failures.**
+  An earlier version of the alert counted any non-2xx execution of
+  `stripeWebhook`. That filter also tagged the handler's deliberate 405
+  to non-POST requests as a failure, which made the alert fire every
+  time the sibling UptimeRobot reachability monitor probed the endpoint
+  (see the UptimeRobot section below — that monitor explicitly treats
+  HTTP/405 as UP, so it polls with a non-POST on purpose). Switching to
+  an ERROR-log filter means the alert only fires when the handler itself
+  logs an error: signature verification failure, dispatcher crash on a
+  real event, or a Firestore failure on the dedup ledger. The 405 path
+  is silent and no longer trips the alert.
 - **5-minute window for Stripe webhook failures.** Stripe retries on its
   own schedule, but subscription state can drift if our endpoint is
   persistently broken. A short window catches a regression fast; we
@@ -48,25 +59,60 @@ function to the watch list, or recover from a deleted resource.
 
 ## Running the script
 
+The script itself is bash (heredocs + arrays) — PowerShell cannot execute it
+directly. On the founder's Windows laptop, invoke it via Git Bash. The
+commands below are single-line on purpose so they paste cleanly into
+PowerShell (a backslash-continued bash form errors with `bash: command not
+found` on Windows).
+
 ### One-time setup
 
-```bash
-gcloud components install alpha    # for: gcloud alpha monitoring ...
+Put `gcloud` on the session PATH and authenticate. The gcloud SDK installer
+on Windows places `gcloud.cmd` under `%LOCALAPPDATA%\Google\Cloud SDK\...`
+but does not always add it to PATH for new shells:
+
+```
+$env:PATH = "$env:LOCALAPPDATA\Google\Cloud SDK\google-cloud-sdk\bin;$env:PATH"
+```
+
+Then, once per shell session (skip if already authenticated for this
+project):
+
+```
+gcloud components install alpha
+```
+
+```
 gcloud auth login
+```
+
+```
 gcloud config set project your-dressage-journey
 ```
 
 ### Run it
 
-```bash
-FOUNDER_EMAIL=barb@example.com \
-GCP_BILLING_ACCOUNT_ID=XXXXXX-XXXXXX-XXXXXX \
-  ./scripts/setup-monitoring.sh
 ```
+$env:FOUNDER_EMAIL = "bgeissle@gmail.com"; $env:GCP_BILLING_ACCOUNT_ID = "0180A1-DC2C8B-13A0C2"; & "C:\Program Files\Git\bin\bash.exe" scripts/setup-monitoring.sh
+```
+
+Substitute a different email / billing account if the destinations ever
+change. To find the billing account ID without leaving the shell:
+
+```
+gcloud billing projects describe your-dressage-journey --format="value(billingAccountName)"
+```
+
+That prints `billingAccounts/<id>` — copy the part after the slash.
 
 The script prints `[create]`, `[update]`, or `[skip]` for each resource and a
 summary at the end with links to the relevant console pages. It is safe to
 re-run any number of times — existing resources are matched by display name.
+
+PowerShell will surface gcloud's stdout as a `NativeCommandError` because
+gcloud writes some status lines to stderr even on success. The actual
+`[create]` / `[update]` lines that follow each one are authoritative — if
+those appear, the resource updated cleanly.
 
 ### Required gcloud components
 
@@ -146,22 +192,43 @@ re-runs don't pile up duplicate channels.)
 
 ### "YDJ Stripe Webhook Failures"
 
-1. **Open the Stripe dashboard → Developers → Webhooks** and click the
-   endpoint pointed at our deployed `stripeWebhook` URL. The "Recent
-   deliveries" tab shows status code and response body for each retry.
-2. **Verify the endpoint URL** matches the deployed Cloud Function. If
+1. **List failed events from the Firestore ledger** — this is the
+   fastest way to enumerate which deliveries actually failed:
+   ```
+   node scripts/inspectFailedWebhookEvents.cjs
+   ```
+   Defaults to the last 24h; pass `--hours 72` to widen the window.
+   Anything reported under `status=processing` is a delivery the handler
+   picked up but crashed mid-dispatch.
+2. **If step 1 reports zero failed docs**, the failure is in the
+   pre-ledger code path — most likely signature verification (400) or a
+   dedup-ledger read error. Open the Stripe dashboard → Developers →
+   Webhooks → the deployed endpoint → "Recent deliveries". The response
+   body our handler returns is `Webhook Error: <message>` on 400 and
+   `{"error":"Webhook handler failed"}` on 500.
+3. **Verify the endpoint URL** matches the deployed Cloud Function. If
    we've redeployed under a new function URL, Stripe will be hitting a
    404 forever — re-point it.
-3. **Check `stripeWebhook` Cloud Function logs.** A 401 typically means
+4. **Check `stripeWebhook` Cloud Function logs.** A 400 typically means
    signature verification failed (env var rotation? wrong webhook
    secret?). A 500 means our handler crashed — look for the exception.
-4. **Don't manually replay events** unless you're certain idempotency
+5. **Don't manually replay events** unless you're certain idempotency
    (B15) is doing its job. The Firestore `stripeWebhookEvents` collection
    should already have a doc for each processed event ID; check before
    replaying.
-5. **If signature verification is broken**, rotate the webhook secret in
+6. **If signature verification is broken**, rotate the webhook secret in
    Stripe → Webhooks → endpoint → Signing secret, set the new value with
    `firebase functions:secrets:set STRIPE_WEBHOOK_SECRET`, and redeploy.
+
+#### Note on the metric switch (2026-05-18)
+
+This alert used to fire on `execution_count` with `status!="ok"`, which
+also tripped on the handler's deliberate 405 to non-POST requests —
+i.e. it would page every time the sibling UptimeRobot reachability
+monitor probed the endpoint. It's been switched to an ERROR-log filter
+scoped to `stripeWebhook` so only real handler failures fire it. If you
+revert the change in [`scripts/setup-monitoring.sh`](../scripts/setup-monitoring.sh),
+the UptimeRobot false-positives come back.
 
 ### Budget alert at 50%
 
