@@ -26,6 +26,7 @@ const COMMIT = process.argv.includes("--commit");
 const COMP_USERS = [
   { uid: "gHtSnyoufLVj7V79qKbke9j3otM2", note: "comp user #1" },
   { uid: "mtynInGuqkRgWjXx720NX8HgkkQ2", note: "comp user #2" },
+  { uid: "7nMTKCyLluSP48oBEXHuCIB6Cih1", note: "comp user #3 — First Light + Quick Start tester (Medium-scope intent)" },
 ];
 
 async function run() {
