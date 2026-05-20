@@ -72,6 +72,28 @@
   border-radius: 10px;
 }
 
+/* First Light card — distinguish as the onboarding-only output */
+.outputs-card--first-light {
+  background: linear-gradient(180deg, #FFFCF5 0%, #FFFFFF 100%);
+  border-color: #E8C97A;
+  position: relative;
+}
+
+.outputs-card--first-light::before {
+  content: 'First read';
+  position: absolute;
+  top: -10px;
+  right: 14px;
+  background: linear-gradient(135deg, #8B7355, #D4A574);
+  color: white;
+  font-size: 0.66em;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 10px;
+}
+
 /* Data flow diagram */
 .outputs-data-flow {
   background: linear-gradient(135deg, #F9F6F2, #F3EDE5);
@@ -413,12 +435,119 @@
   line-height: 1.7;
 }
 
+/* Schedule table (When Outputs Appear) */
+.outputs-schedule-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #E0D5C7;
+}
+
+.outputs-schedule-table thead th {
+  background: #F5F1EB;
+  padding: 12px 16px;
+  text-align: left;
+  font-family: 'Playfair Display', serif;
+  color: #8B7355;
+  font-weight: 600;
+  font-size: 0.95em;
+  border-bottom: 2px solid #D4A574;
+}
+
+.outputs-schedule-table tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #F0E9DF;
+  font-size: 0.93em;
+  color: #555;
+  line-height: 1.6;
+  vertical-align: top;
+}
+
+.outputs-schedule-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.outputs-schedule-table tbody td:first-child {
+  color: #8B7355;
+  white-space: nowrap;
+  width: 30%;
+}
+
+/* Tier grid (Subscription tiers) */
+.outputs-tier-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin: 25px 0;
+}
+
+.outputs-tier-card {
+  background: white;
+  border: 1px solid #E0D5C7;
+  border-radius: 14px;
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.outputs-tier-card--popular {
+  border-color: #D4A574;
+  box-shadow: 0 4px 18px rgba(212, 165, 116, 0.22);
+  background: linear-gradient(180deg, #FFFDF8 0%, white 100%);
+}
+
+.outputs-tier-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25em;
+  color: #8B7355;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.outputs-tier-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #8B7355, #D4A574);
+  color: white;
+  font-size: 0.6em;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  padding: 3px 10px;
+  border-radius: 10px;
+  text-transform: uppercase;
+}
+
+.outputs-tier-price {
+  font-size: 0.92em;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.outputs-tier-card ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.9em;
+  color: #555;
+  line-height: 1.7;
+}
+
+.outputs-tier-card ul li {
+  margin-bottom: 4px;
+}
+
 /* Mobile responsive */
 @media (max-width: 640px) {
   .outputs-card-grid,
   .outputs-voice-grid,
   .outputs-layer-compare,
-  .outputs-viz-grid {
+  .outputs-viz-grid,
+  .outputs-tier-grid {
     grid-template-columns: 1fr;
   }
 
@@ -432,5 +561,14 @@
 
   .outputs-mock-metrics {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .outputs-schedule-table {
+    font-size: 0.88em;
+  }
+
+  .outputs-schedule-table tbody td:first-child {
+    white-space: normal;
+    width: auto;
   }
 }

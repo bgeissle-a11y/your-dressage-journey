@@ -156,20 +156,22 @@ These are a core innovation of YDJ — a universal framework for skill developme
 
 ---
 
-## AI Output System (7 Outputs)
+## AI Output System (6 Outputs + First Light)
 
 Every output follows the same pattern: structured input → pre-processing → output-specific system prompt → Claude API → parsed response → rendered deliverable.
 
 | Output | API Calls | Model | Trigger |
 |---|---|---|---|
+| **First Light** | 4 | Sonnet | On completion of the First Light wizard (6 onboarding reflections, one per category). Regenerable once after new data. Retires automatically after the rider's 5th debrief, when Multi-Voice Coaching takes over. |
 | **Journey Map** | 3 | Sonnet | Weekly + on-demand |
 | **Multi-Voice Coaching** | 4 | Sonnet | Weekly + on-demand |
 | **Data Visualizations** | 3 | Sonnet | Weekly (with coaching) |
 | **Grand Prix Thinking L1** | 1 + pre-processing | Sonnet | Data threshold (5+ debriefs) or 30 days |
 | **Grand Prix Thinking L2** | 4 | Opus (2) + Sonnet (2) | Milestones: onboarding, Week 4, Week 8 |
-| **Physical Guidance** | 2 | Sonnet | Bi-weekly + on self-assessment |
-| **Event Planner** | 4 | Sonnet | On-demand (event form submission) |
-| **Self-Assessment Analysis** | 3 | Sonnet | On self-assessment submission |
+| **Physical Guidance** | 2 | Sonnet | 30-day cycle + on Physical Self-Assessment |
+| **Event Planner** | 4 | Sonnet | On-demand (Show Preparation form submission) |
+
+**Note:** Self-Assessment Analysis has been deferred to a future release. The Rider, Physical, and Technical & Philosophical Self-Assessments are still collected as inputs that contextualize other outputs, but no dedicated analysis output is produced at submission.
 
 **Weekly per-rider recurring:** ~10 API calls (Journey Map + Multi-Voice + Data Viz)
 
