@@ -37,7 +37,7 @@ const SPEC = {
   "coaching-precis":           { working:  400, medium:  400, extended:  400 },
 
   // Journey Map
-  "journey-map-synthesis":     { working: 3000, medium: 4000, extended: 4000 },
+  "journey-map-synthesis":     { working: 4000, medium: 8000, extended: 8000 },
   "journey-map-narrative":     { working: 2000, medium: 2000, extended: 2000 },
   "journey-map-visualization": { working: 2000, medium: 2000, extended: 2000 },
 

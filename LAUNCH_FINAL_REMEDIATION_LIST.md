@@ -55,7 +55,7 @@
 **AI-field tamper protection** — 2026-05-18 (commit `a69d038`, deployed live)
 - ✅ H12 — Firestore update rules on `microDebriefs` and `freshStarts` use `diff().affectedKeys().hasAny([...])` to reject any client write that touches AI-written fields (`empatheticResponse`, `empatheticResponseGeneratedAt`, `riderState`/`voiceUsed` on microDebriefs, `cacheAgeAtSubmission`, `cacheBandAtSubmission`, `empatheticResponseError`). Cloud Functions unaffected — admin SDK bypasses rules. Read/create/delete unchanged.
 
-**Cleared from BLOCKER count: 15 of 28. Cleared from HIGH-RISK: 5 of 12.**
+**Cleared from BLOCKER count: 15 of 28 (B29 added then downgraded to M14 on 2026-05-18). Cleared from HIGH-RISK: 5 of 14 (H13 + H14 added 2026-05-18).**
 **The two scariest classes of bug — silent fan-out failure and iOS save loss — are now neutralized.**
 
 ---
@@ -67,6 +67,8 @@
 
 ### This week (May 16–17): finish the BLOCKER tier in code
 
+- ⚠️ **H13 (NEW — DIAGNOSED)** — Goals progress bar regressed to 1 goal at 0%. **Root cause confirmed 2026-05-18 as token-budget truncation:** rider data has grown such that `themes`/`milestones`/`patterns` now consume the 4000-token output budget for `journey-map-synthesis`, leaving no room for `goal_progress` or `dashboardSummary` (the last two fields in the JSON spec). `repairTruncatedJSON` salvaged the surviving fields. Frontend falls back to `profile.longTermGoals` text rendered without progress info → looks like 1 goal at 0%. **Fix:** bump `journey-map-synthesis` in `functions/lib/tokenBudgets.js` from `{working: 3000, medium: 4000, extended: 4000}` to `{working: 4000, medium: 8000, extended: 8000}`, deploy, then force fresh regen to overwrite cache. ~5 min total. Cost-neutral in practice (tokens billed on usage, not budget).
+- ⚠️ **H14 (NEW)** — Client-side console spamming `FirebaseError: Missing or insufficient permissions` from `weeklyFocusService.readInflightLock(coaching)`. The client is trying to read an inflight-lock doc that the Firestore rules don't grant read access to. Function probably soft-fails (it's a check-before-do pattern) so user-invisible, but: (a) will trigger B18's error-rate alert under load, (b) fills logs with noise, (c) suggests inflight-lock reads should either be done server-side or rules should grant the user read access on their own lock doc. Either tighten `weeklyFocusService.readInflightLock` to skip the client read, or add a rule for `inflightLocks/{uid}_*` granting `read: if request.auth.uid` matches the doc-id prefix. ~30min–1h depending on approach chosen.
 - 📧 **Pilot conversion email Round 1** + apology to lesson-notes user (1.5h)
 
 **Subtotal this week: 2.5h.** B3 (1h) + H6 (1h) shipped 2026-05-17; B19 (4h) + H1 (0.5h) + H12 (1h) shipped 2026-05-18 — see WHAT'S SHIPPED.
@@ -112,6 +114,9 @@
 
 ### Week 1 post-launch (June 2–8) — backlog (not blocking)
 
+- ➖ **M15 (NEW 2026-05-18)** — Wider token-budget audit. H13 exposed that `journey-map-synthesis` quietly truncates trailing JSON fields when rider data grows. Same failure mode is silent for any output whose budget is now close to typical output size. Top suspects in `functions/lib/tokenBudgets.js`: `journey-map-narrative` (2000), `physical-awareness` (5000 for 4-week program), `gpt-l2` (4000). Audit by sampling actual `usageLogs` `outputTokens` vs. budget; if any output is regularly within 10% of budget for active riders, bump the budget. ~1h post-launch.
+- ➖ **M14 (NEW, downgraded from B29 on 2026-05-18)** — useFormRecovery auto-mounts the form on list-view entry when a draft exists, confusing users who think they're locked into the form rather than being offered recovery. Symptom resolved naturally for the original iPhone reporter (her drafts cleared) but the code path will recur for any user with stale drafts. Fix: move recovery from form-mount UX to a list-view banner ("You have an unfinished draft — resume?"). Touches `useFormRecovery.js` + 5 list pages. ~1.5h.
+- ➖ **M13 (NEW)** — "Moment worth keeping" dashboard card not visibly updating. **Diagnosed 2026-05-18 as cause (a):** picker is correctly selecting per design but lands on the same entries due to pool dynamics. Fix: modify `selectCelebration` in `weeklyFocusRefresh.js` to exclude reflectionIds chosen in the last 2–4 weeks before picking this week's. Stays deterministic (cron-fairness safe) and forces visible rotation. ~1h.
 - ➖ **M11 (NEW)** — Vite chunk-size warning. Lazy-load Insights route + manualChunks for recharts/firebase. Improves new-user mobile first-load. (1.5h)
 - ➖ **M1** — Add test database hash to eventPrep cache key
 - ➖ **M2** — Tighten `getStaleCache` `maxAgeDays: 90` for coaching to something tighter
