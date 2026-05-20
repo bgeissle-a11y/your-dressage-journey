@@ -27,6 +27,7 @@ const COMP_USERS = [
   { uid: "gHtSnyoufLVj7V79qKbke9j3otM2", note: "comp user #1" },
   { uid: "mtynInGuqkRgWjXx720NX8HgkkQ2", note: "comp user #2" },
   { uid: "7nMTKCyLluSP48oBEXHuCIB6Cih1", note: "comp user #3 — First Light + Quick Start tester (Medium-scope intent)" },
+  { uid: "YdNOtrho4HYOwQP0bWJB8b3mgpZ2", note: "comp user #4 — pilot user, access cut off too aggressively; extending through 2026-06-05 to make up for it (revoke manually after that date)" },
 ];
 
 async function run() {
