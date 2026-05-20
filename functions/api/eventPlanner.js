@@ -28,6 +28,7 @@ const { callClaude } = require("../lib/claudeCall");
 const { buildEventPlannerPrompt } = require("../lib/promptBuilder");
 const { buildDetailedTestContext, inferLevelFromTests } = require("../lib/testDatabase");
 const { getCache, setCache, getStaleCache } = require("../lib/cacheManager");
+const { tryAcquireLock, releaseLock } = require("../lib/inflightLock");
 const { getMaxTokens, tierFromLabel } = require("../lib/tokenBudgets");
 const { db } = require("../lib/firebase");
 
@@ -154,6 +155,23 @@ async function handler(request) {
     // Common setup
     const isShowPrep = Boolean(showPrepPlanId);
     const cacheKey = `${isShowPrep ? "showPlanner" : "eventPlanner"}_${planId}`;
+    const stepKey = (n) => `${cacheKey}_step${n}`;
+    const lockKey = `eventPlanner_${planId}_step${step}`;
+    const eventPrepHash = computeEventPrepHash(eventPrepPlan);
+    const cacheMeta = {
+      dataSnapshotHash: hash,
+      tierLabel: riderData.tier?.label || "unknown",
+      dataTier: riderData.dataTier,
+      eventPrepHash,
+    };
+    const inFlightResponse = {
+      success: false,
+      step,
+      inFlight: true,
+      message: "Another generation is in progress for this step. Try again in a moment.",
+      tier: riderData.tier,
+      dataTier: riderData.dataTier,
+    };
     // Resolve target level
     // For show preps: selected tests are the definitive source (chosen from test database dropdown)
     // For legacy event preps: use horse/plan level fields
@@ -173,8 +191,6 @@ async function handler(request) {
 
     // --- STEP 1: Test Requirements Assembly ---
     if (step === 1) {
-      const eventPrepHash = computeEventPrepHash(eventPrepPlan);
-
       // Cache check (only on step 1)
       if (!forceRefresh) {
         // 1. Try exact match (both rider data hash and event prep hash match)
@@ -252,45 +268,59 @@ async function handler(request) {
         return { success: true, step: 1, noCache: true };
       }
 
-      console.log("[eventPlanner] Step 1: Test Requirements Assembly");
-      const { system, userMessage } = buildEventPlannerPrompt(
-        1, riderData, eventPrepPlan, detailedTestContext, {}
-      );
-
-      let testRequirements;
-      try {
-        testRequirements = await callClaude({
-          system,
-          userMessage,
-          jsonMode: true,
-          maxTokens: eventPlannerMaxTokens,
-          context: "ep-1-test-requirements",
-          uid,
-        });
-      } catch (err) {
-        if (err.message && err.message.includes("TRUNCATED")) {
-          console.error(
-            `[eventPlanner] EP-1 truncated for level ${targetLevel}. ` +
-            `This level may require more output tokens than allocated.`
-          );
-          throw new HttpsError(
-            "resource-exhausted",
-            "The test requirements analysis was too large to complete. " +
-            "Please try again — if the issue persists, contact support."
-          );
-        }
-        throw err;
+      // In-flight lock: prevent concurrent Claude calls for the same step.
+      const gotLock = await tryAcquireLock(uid, lockKey);
+      if (!gotLock) {
+        console.log(`[eventPlanner] Step 1 in flight for ${uid} ${planId} — returning inFlight response`);
+        return inFlightResponse;
       }
 
-      return {
-        success: true,
-        step: 1,
-        fromCache: false,
-        testRequirements,
-        tier: riderData.tier,
-        dataTier: riderData.dataTier,
-        dataSnapshot: riderData.dataSnapshot,
-      };
+      try {
+        console.log("[eventPlanner] Step 1: Test Requirements Assembly");
+        const { system, userMessage } = buildEventPlannerPrompt(
+          1, riderData, eventPrepPlan, detailedTestContext, {}
+        );
+
+        let testRequirements;
+        try {
+          testRequirements = await callClaude({
+            system,
+            userMessage,
+            jsonMode: true,
+            maxTokens: eventPlannerMaxTokens,
+            context: "ep-1-test-requirements",
+            uid,
+          });
+        } catch (err) {
+          if (err.message && err.message.includes("TRUNCATED")) {
+            console.error(
+              `[eventPlanner] EP-1 truncated for level ${targetLevel}. ` +
+              `This level may require more output tokens than allocated.`
+            );
+            throw new HttpsError(
+              "resource-exhausted",
+              "The test requirements analysis was too large to complete. " +
+              "Please try again — if the issue persists, contact support."
+            );
+          }
+          throw err;
+        }
+
+        // Per-step cache write — backup for resuming after mid-flow reload.
+        await setCache(uid, stepKey(1), { testRequirements }, cacheMeta);
+
+        return {
+          success: true,
+          step: 1,
+          fromCache: false,
+          testRequirements,
+          tier: riderData.tier,
+          dataTier: riderData.dataTier,
+          dataSnapshot: riderData.dataSnapshot,
+        };
+      } finally {
+        await releaseLock(uid, lockKey);
+      }
     }
 
     // --- STEP 2: Readiness Analysis ---
@@ -302,21 +332,66 @@ async function handler(request) {
         );
       }
 
-      console.log("[eventPlanner] Step 2: Readiness Analysis");
-      const { system, userMessage } = buildEventPlannerPrompt(
-        2, riderData, eventPrepPlan, detailedTestContext,
-        { testRequirements: priorResults.testRequirements }
-      );
-      const readinessAnalysis = await callClaude({
-        system,
-        userMessage,
-        jsonMode: true,
-        maxTokens: eventPlannerMaxTokens,
-        context: "ep-2-readiness-analysis",
-        uid,
-      });
+      // Per-step cache check — mid-flow reload skips redundant Claude work.
+      if (!forceRefresh) {
+        const cached = await getCache(uid, stepKey(2), { currentHash: hash });
+        if (cached?.result?.readinessAnalysis) {
+          return {
+            success: true,
+            step: 2,
+            fromCache: true,
+            ...cached.result,
+            tier: riderData.tier,
+            dataTier: riderData.dataTier,
+          };
+        }
+      }
 
-      return { success: true, step: 2, readinessAnalysis };
+      // In-flight lock: prevent concurrent Claude calls for the same step.
+      const gotLock = await tryAcquireLock(uid, lockKey);
+      if (!gotLock) {
+        console.log(`[eventPlanner] Step 2 in flight for ${uid} ${planId} — returning inFlight response`);
+        return inFlightResponse;
+      }
+
+      try {
+        console.log("[eventPlanner] Step 2: Readiness Analysis");
+        const { system, userMessage } = buildEventPlannerPrompt(
+          2, riderData, eventPrepPlan, detailedTestContext,
+          { testRequirements: priorResults.testRequirements }
+        );
+
+        let readinessAnalysis;
+        try {
+          readinessAnalysis = await callClaude({
+            system,
+            userMessage,
+            jsonMode: true,
+            maxTokens: eventPlannerMaxTokens,
+            context: "ep-2-readiness-analysis",
+            uid,
+          });
+        } catch (err) {
+          if (err.message && err.message.includes("TRUNCATED")) {
+            console.error(
+              `[eventPlanner] EP-2 truncated for level ${targetLevel}. ` +
+              `This level may require more output tokens than allocated.`
+            );
+            throw new HttpsError(
+              "resource-exhausted",
+              "The readiness analysis was too large to complete. " +
+              "Please try again — if the issue persists, contact support."
+            );
+          }
+          throw err;
+        }
+
+        await setCache(uid, stepKey(2), { readinessAnalysis }, cacheMeta);
+
+        return { success: true, step: 2, readinessAnalysis };
+      } finally {
+        await releaseLock(uid, lockKey);
+      }
     }
 
     // --- STEP 3: Preparation Plan ---
@@ -328,24 +403,69 @@ async function handler(request) {
         );
       }
 
-      console.log("[eventPlanner] Step 3: Preparation Plan");
-      const { system, userMessage } = buildEventPlannerPrompt(
-        3, riderData, eventPrepPlan, detailedTestContext,
-        {
-          testRequirements: priorResults.testRequirements,
-          readinessAnalysis: priorResults.readinessAnalysis,
+      // Per-step cache check — mid-flow reload skips redundant Claude work.
+      if (!forceRefresh) {
+        const cached = await getCache(uid, stepKey(3), { currentHash: hash });
+        if (cached?.result?.preparationPlan) {
+          return {
+            success: true,
+            step: 3,
+            fromCache: true,
+            ...cached.result,
+            tier: riderData.tier,
+            dataTier: riderData.dataTier,
+          };
         }
-      );
-      const preparationPlan = await callClaude({
-        system,
-        userMessage,
-        jsonMode: true,
-        maxTokens: eventPlannerMaxTokens,
-        context: "ep-3-preparation-plan",
-        uid,
-      });
+      }
 
-      return { success: true, step: 3, preparationPlan };
+      // In-flight lock: prevent concurrent Claude calls for the same step.
+      const gotLock = await tryAcquireLock(uid, lockKey);
+      if (!gotLock) {
+        console.log(`[eventPlanner] Step 3 in flight for ${uid} ${planId} — returning inFlight response`);
+        return inFlightResponse;
+      }
+
+      try {
+        console.log("[eventPlanner] Step 3: Preparation Plan");
+        const { system, userMessage } = buildEventPlannerPrompt(
+          3, riderData, eventPrepPlan, detailedTestContext,
+          {
+            testRequirements: priorResults.testRequirements,
+            readinessAnalysis: priorResults.readinessAnalysis,
+          }
+        );
+
+        let preparationPlan;
+        try {
+          preparationPlan = await callClaude({
+            system,
+            userMessage,
+            jsonMode: true,
+            maxTokens: eventPlannerMaxTokens,
+            context: "ep-3-preparation-plan",
+            uid,
+          });
+        } catch (err) {
+          if (err.message && err.message.includes("TRUNCATED")) {
+            console.error(
+              `[eventPlanner] EP-3 truncated for level ${targetLevel}. ` +
+              `This level may require more output tokens than allocated.`
+            );
+            throw new HttpsError(
+              "resource-exhausted",
+              "The preparation plan was too large to complete. " +
+              "Please try again — if the issue persists, contact support."
+            );
+          }
+          throw err;
+        }
+
+        await setCache(uid, stepKey(3), { preparationPlan }, cacheMeta);
+
+        return { success: true, step: 3, preparationPlan };
+      } finally {
+        await releaseLock(uid, lockKey);
+      }
     }
 
     // --- STEP 4: Show-Day Guidance ---
@@ -361,54 +481,76 @@ async function handler(request) {
         );
       }
 
-      console.log("[eventPlanner] Step 4: Show-Day Guidance");
-      const { system, userMessage } = buildEventPlannerPrompt(
-        4, riderData, eventPrepPlan, detailedTestContext,
-        {
+      // In-flight lock: prevent concurrent Claude calls for the same step.
+      const gotLock = await tryAcquireLock(uid, lockKey);
+      if (!gotLock) {
+        console.log(`[eventPlanner] Step 4 in flight for ${uid} ${planId} — returning inFlight response`);
+        return inFlightResponse;
+      }
+
+      try {
+        console.log("[eventPlanner] Step 4: Show-Day Guidance");
+        const { system, userMessage } = buildEventPlannerPrompt(
+          4, riderData, eventPrepPlan, detailedTestContext,
+          {
+            testRequirements: priorResults.testRequirements,
+            readinessAnalysis: priorResults.readinessAnalysis,
+            preparationPlan: priorResults.preparationPlan,
+          }
+        );
+
+        let showDayGuidance;
+        try {
+          showDayGuidance = await callClaude({
+            system,
+            userMessage,
+            jsonMode: true,
+            maxTokens: eventPlannerMaxTokens,
+            context: "ep-4-show-day-guidance",
+            uid,
+          });
+        } catch (err) {
+          if (err.message && err.message.includes("TRUNCATED")) {
+            console.error(
+              `[eventPlanner] EP-4 truncated for level ${targetLevel}. ` +
+              `This level may require more output tokens than allocated.`
+            );
+            throw new HttpsError(
+              "resource-exhausted",
+              "The show-day guidance was too large to complete. " +
+              "Please try again — if the issue persists, contact support."
+            );
+          }
+          throw err;
+        }
+
+        // Cache the full assembled result — this IS the Step 4 cache.
+        const fullResult = {
           testRequirements: priorResults.testRequirements,
           readinessAnalysis: priorResults.readinessAnalysis,
           preparationPlan: priorResults.preparationPlan,
-        }
-      );
-      const showDayGuidance = await callClaude({
-        system,
-        userMessage,
-        jsonMode: true,
-        maxTokens: eventPlannerMaxTokens,
-        context: "ep-4-show-day-guidance",
-        uid,
-      });
+          showDayGuidance,
+        };
 
-      // Cache the full assembled result
-      const fullResult = {
-        testRequirements: priorResults.testRequirements,
-        readinessAnalysis: priorResults.readinessAnalysis,
-        preparationPlan: priorResults.preparationPlan,
-        showDayGuidance,
-      };
+        await setCache(uid, cacheKey, fullResult, cacheMeta);
 
-      const eventPrepHash = computeEventPrepHash(eventPrepPlan);
-      await setCache(uid, cacheKey, fullResult, {
-        dataSnapshotHash: hash,
-        tierLabel: riderData.tier?.label || "unknown",
-        dataTier: riderData.dataTier,
-        eventPrepHash,
-      });
+        // Write-back metadata to the prep plan document
+        const generatedAt = new Date().toISOString();
+        await db.collection(collectionName).doc(planId).update({
+          generatedPlan: {
+            cacheKey: `${uid}_${cacheKey}`,
+            generatedAt,
+            hasTestRequirements: true,
+            hasReadiness: true,
+            hasPreparationPlan: true,
+            hasShowDayGuidance: true,
+          },
+        });
 
-      // Write-back metadata to the prep plan document
-      const generatedAt = new Date().toISOString();
-      await db.collection(collectionName).doc(planId).update({
-        generatedPlan: {
-          cacheKey: `${uid}_${cacheKey}`,
-          generatedAt,
-          hasTestRequirements: true,
-          hasReadiness: true,
-          hasPreparationPlan: true,
-          hasShowDayGuidance: true,
-        },
-      });
-
-      return { success: true, step: 4, showDayGuidance, generatedAt };
+        return { success: true, step: 4, showDayGuidance, generatedAt };
+      } finally {
+        await releaseLock(uid, lockKey);
+      }
     }
   } catch (error) {
     throw wrapError(error, "getEventPlanner");
