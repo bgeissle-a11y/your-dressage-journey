@@ -138,7 +138,7 @@ Product: Your Dressage Journey — Extended
 
 **Downgrades:** Access to higher-tier features continues until end of current billing period. Downgrade takes effect at next renewal. No proration on downgrade — rider retains access through paid period.
 
-**Cancellations:** Access continues through end of paid period. Prorated refund for unused **full months** only (no partial month refunds). Annual subscribers: refund = (months remaining − current partial month) × monthly equivalent rate.
+**Cancellations:** Access continues through end of paid period. No refunds for partial periods, including annual subscriptions cancelled mid-year. Cancellation flips `cancel_at_period_end=true` on the Stripe subscription; the `customer.subscription.deleted` webhook fires at period end and sets `subscriptionStatus: "canceled"` in Firestore. No refund codepath is triggered.
 
 **Annual → Monthly migration:** Permitted at renewal only, not mid-cycle.
 
