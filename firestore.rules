@@ -250,6 +250,17 @@ service cloud.firestore {
       allow read: if request.auth != null && request.auth.uid == uid;
     }
 
+    // In-flight generation locks — written by Cloud Functions (admin SDK
+    // bypasses rules); read-only by the authenticated user so output panels
+    // can detect that a regeneration started in another tab/session is still
+    // running. Doc ID format: `{uid}_{outputType}`. Firebase Auth UIDs are
+    // [A-Za-z0-9-]+ (no underscores), so split('_')[0] safely isolates the uid.
+    match /generationLocks/{lockId} {
+      allow read: if request.auth != null
+        && lockId.split('_')[0] == request.auth.uid;
+      allow write: if false;
+    }
+
     // Usage logs — written by Cloud Functions (admin SDK bypasses rules),
     // no client read/write access (admin queries via Cloud Function)
     match /usageLogs/{docId} {
