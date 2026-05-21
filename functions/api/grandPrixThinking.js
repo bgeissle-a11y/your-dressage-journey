@@ -68,23 +68,24 @@ const GPT_L2_OPUS_MONTHLY_CAP = Number.isFinite(_L2_CAP_PARSED)
  * Count this user's L2 trajectory starts (L2-1 Opus calls) in the current
  * UTC calendar month. We count L2-1 specifically (not all Opus calls) so
  * the metric maps 1:1 to "trajectory generations" — each generation fires
- * exactly one L2-1 call. Reading the timestamp string lets us do a range
- * query without a composite index.
+ * exactly one L2-1 call. Range-filtering on timestamp in the query (not in
+ * memory) keeps reads scoped to the current month — requires the composite
+ * index on (uid, context, timestamp) declared in firestore.indexes.json.
  */
 async function _countL2OpusThisMonth(uid) {
   const now = new Date();
   const monthPrefix = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
-  // timestamp in usageLogs is an ISO string; "2026-05" prefix matches the month.
+  const monthStartIso = `${monthPrefix}-01T00:00:00.000Z`;
   const snap = await db.collection("usageLogs")
     .where("uid", "==", uid)
     .where("context", "==", "trajectory-call1-state-analysis")
+    .where("timestamp", ">=", monthStartIso)
     .get();
   let count = 0;
   snap.forEach((doc) => {
     const d = doc.data();
-    if (typeof d.timestamp === "string" && d.timestamp.startsWith(monthPrefix)) {
-      if ((d.model || "").includes("opus")) count++;
-    }
+    // Post-filter on model in memory since we don't index on it.
+    if ((d.model || "").includes("opus")) count++;
   });
   return count;
 }
@@ -880,6 +881,7 @@ async function handler(request) {
       advanceWeek = false,
       step,
       priorResults,
+      checkResume = false,
     } = request.data || {};
 
     // Capability gate. The trajectory layer's manual mid-cycle regen path
@@ -959,6 +961,28 @@ async function handler(request) {
     //   const regenCheck = await checkRegenPermission(uid, "gpt");
     //   if (!regenCheck.allowed) { ... }
     // }
+
+    // B12: Resume detection — return metadata about a potentially-resumable
+    // partial trajectory pipeline without firing any Claude calls. A resume
+    // is possible when a step 1 cache exists that's fresher than the most
+    // recent final trajectory (i.e. step 1 ran but steps 2/3 didn't finish).
+    if (layer === "trajectory" && checkResume === true) {
+      const hash = riderData.dataSnapshot?.hash;
+      const [step1, finalTrajectory] = await Promise.all([
+        getCache(uid, TRAJECTORY_STEP1_KEY, { currentHash: hash, maxAgeDays: 30 }),
+        getCache(uid, OUTPUT_TYPE_TRAJECTORY, { currentHash: hash, maxAgeDays: 30 }),
+      ]);
+      const step1At = step1?.generatedAt ? new Date(step1.generatedAt).getTime() : 0;
+      const finalAt = finalTrajectory?.generatedAt ? new Date(finalTrajectory.generatedAt).getTime() : 0;
+      const canResume = !!step1?.result && step1At > finalAt;
+      return {
+        success: true,
+        mode: "checkResume",
+        canResume,
+        step1GeneratedAt: step1?.generatedAt || null,
+        finalTrajectoryGeneratedAt: finalTrajectory?.generatedAt || null,
+      };
+    }
 
     // Build condensed cross-layer summary
     const crossLayerContext = buildCrossLayerSummary(

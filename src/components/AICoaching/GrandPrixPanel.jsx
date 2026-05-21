@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { getGrandPrixThinking, advanceWeekPointer } from '../../services/aiService';
+import { getGrandPrixThinking, advanceWeekPointer, checkTrajectoryResume } from '../../services/aiService';
 import { useAuth } from '../../contexts/AuthContext';
 import { getRiderProfile } from '../../services';
 import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
@@ -94,6 +94,14 @@ export default function GrandPrixPanel({ generationStatus }) {
   // Trajectory chunked-pipeline progress: 0=idle, 1=running step 1, 2=step 2, 3=step 3.
   // Drives the "Step N of 3..." progress text during a manual regen.
   const [trajectoryStep, setTrajectoryStep] = useState(0);
+
+  // B12: Trajectory resume banner — surfaces a partial step-1 cache so the
+  // rider can opt in to continuing from step 2 instead of paying for a fresh
+  // Opus call. canResumeTrajectory is set after the trajectory tab's mount
+  // staleOk read completes; dismiss is session-local.
+  const [canResumeTrajectory, setCanResumeTrajectory] = useState(false);
+  const [resumeBannerDismissed, setResumeBannerDismissed] = useState(false);
+  const [resumingTrajectory, setResumingTrajectory] = useState(false);
 
   // Rider display info
   const [riderInfo, setRiderInfo] = useState({ name: '', horse: '', level: '' });
@@ -396,11 +404,22 @@ export default function GrandPrixPanel({ generationStatus }) {
     fetchMental({ staleOk: true });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Lazy-load trajectory on first tab switch
+  // Lazy-load trajectory on first tab switch.
+  // After the staleOk read settles, check whether a partial step-1 cache is
+  // resumable. The resume banner is opt-in — we never auto-fire step 2 because
+  // it kicks off a $0.10–0.20 Opus chain.
   useEffect(() => {
     if (activeTab === 'trajectory' && !trajectoryLoaded.current) {
       trajectoryLoaded.current = true;
-      fetchTrajectory({ staleOk: true });
+      (async () => {
+        await fetchTrajectory({ staleOk: true });
+        try {
+          const resumeInfo = await checkTrajectoryResume();
+          if (resumeInfo?.canResume) setCanResumeTrajectory(true);
+        } catch (err) {
+          console.error('[GPT] Trajectory resume check failed:', err?.message || err);
+        }
+      })();
     }
   }, [activeTab]);
 
@@ -498,6 +517,49 @@ export default function GrandPrixPanel({ generationStatus }) {
       setMentalRegenerating(false);
     } finally {
       setMentalRefreshing(false);
+    }
+  };
+
+  // B12: Resume trajectory from cached step 1. Skips step 1 entirely and
+  // runs step 2 → step 3 using the same chunked pipeline as a fresh regen.
+  // Backend's generateTrajectoryStep reads TRAJECTORY_STEP1_KEY when
+  // priorResults.currentStateAnalysis is absent, so we don't need to pass it.
+  const handleResumeTrajectory = async () => {
+    setResumingTrajectory(true);
+    setTrajectoryRegenerating(true);
+    setTrajectoryError(null);
+    try {
+      setTrajectoryStep(2);
+      const step2 = await getGrandPrixThinking({ layer: 'trajectory', step: 2 });
+      if (!step2?.success) throw new Error('Trajectory step 2 failed');
+
+      setTrajectoryStep(3);
+      const step3 = await getGrandPrixThinking({
+        layer: 'trajectory',
+        step: 3,
+        priorResults: {
+          trajectoryPaths: step2.trajectoryPaths,
+          movementMaps: step2.movementMaps,
+          movementMapsError: step2.movementMapsError,
+        },
+      });
+      if (!step3?.success) throw new Error('Trajectory step 3 failed');
+
+      setTrajectoryData(step3);
+      setTrajectoryStale(false);
+      if (step3.activePath) setOpenTrajCard(step3.activePath);
+      setCanResumeTrajectory(false);
+    } catch (err) {
+      console.error('[GPT] Trajectory resume error:', err);
+      setTrajectoryError({
+        message: typeof err.message === 'string'
+          ? err.message
+          : 'Trajectory resume failed. Please try again.',
+      });
+    } finally {
+      setResumingTrajectory(false);
+      setTrajectoryStep(0);
+      setTrajectoryRegenerating(false);
     }
   };
 
@@ -967,6 +1029,42 @@ export default function GrandPrixPanel({ generationStatus }) {
           </span>
           <span className="section-note">Monthly · 3 paths · Choose your direction</span>
         </div>
+
+        {/* B12: Resume banner — surfaces a partial step-1 cache from a prior
+            session so the rider can opt in to continuing instead of paying
+            for a fresh Opus call. Dismiss is session-local; the cache lives
+            on either way and will be reused if the rider triggers a fresh regen. */}
+        {canResumeTrajectory && !resumeBannerDismissed && (
+          <div
+            className="gpt-stale-banner"
+            style={{
+              cursor: 'default',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 10,
+              alignItems: 'flex-start',
+            }}
+          >
+            <div>You have a trajectory refresh in progress. Continue from where it left off?</div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                className="regen-btn-sm"
+                onClick={handleResumeTrajectory}
+                disabled={resumingTrajectory || trajectoryRegenerating}
+              >
+                {resumingTrajectory ? 'Continuing...' : 'Continue'}
+              </button>
+              <button
+                className="regen-btn-sm"
+                style={{ background: 'transparent' }}
+                onClick={() => setResumeBannerDismissed(true)}
+                disabled={resumingTrajectory}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Cadence card */}
         <div className="cadence-card">

@@ -98,6 +98,18 @@ export async function getGrandPrixThinking(options = {}) {
 }
 
 /**
+ * Check whether a partial trajectory pipeline can be resumed.
+ * Reads intermediate caches only — no Claude calls, no budget burned.
+ *
+ * @returns {Promise<{success, mode, canResume, step1GeneratedAt, finalTrajectoryGeneratedAt}>}
+ */
+export async function checkTrajectoryResume() {
+  const fn = httpsCallable(functions, 'getGrandPrixThinking', { timeout: 30_000 });
+  const result = await fn({ layer: 'trajectory', checkResume: true });
+  return result.data;
+}
+
+/**
  * Advance the week pointer for a 30-day cycle output.
  * No API call — reads from cached document.
  *
