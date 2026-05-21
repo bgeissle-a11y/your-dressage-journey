@@ -1,7 +1,7 @@
 # YDJ Final Pre-Launch Remediation List
 
-**Audit complete:** 2026-05-12 · **Launch:** 2026-06-01 · **Last status update:** 2026-05-18
-**Items shipped:** 21 of 50 · **Effort remaining:** ~25 hours over ~14 days
+**Audit complete:** 2026-05-12 · **Launch:** 2026-06-01 · **Last status update:** 2026-05-21
+**Items shipped:** 23 of 50 · **Effort remaining:** ~21.5 hours over ~11 days
 
 > **🎯 Read this section. Skip the rest unless you need detail.**
 >
@@ -55,7 +55,11 @@
 **AI-field tamper protection** — 2026-05-18 (commit `a69d038`, deployed live)
 - ✅ H12 — Firestore update rules on `microDebriefs` and `freshStarts` use `diff().affectedKeys().hasAny([...])` to reject any client write that touches AI-written fields (`empatheticResponse`, `empatheticResponseGeneratedAt`, `riderState`/`voiceUsed` on microDebriefs, `cacheAgeAtSubmission`, `cacheBandAtSubmission`, `empatheticResponseError`). Cloud Functions unaffected — admin SDK bypasses rules. Read/create/delete unchanged.
 
-**Cleared from BLOCKER count: 15 of 28 (B29 added then downgraded to M14 on 2026-05-18). Cleared from HIGH-RISK: 5 of 14 (H13 + H14 added 2026-05-18).**
+**Token budgets + past-due lapse** — 2026-05-21 (deployed live)
+- ✅ B14 — Data Visualizations migrated to `tokenBudgets`: added `dataviz-pattern-extraction` / `dataviz-goal-mapping` / `dataviz-insight-narratives` SPEC rows (Working trimmed to 6000/3000/3000; Medium+Extended preserve 8192/4096/4096) plus three `TOKENS_DATAVIZ_*` env knobs. Handler now reads `getMaxTokens(...)` per call using `budgetTier` derived from the `enforceCapability` return. Also cleaned up the two remaining authenticated hardcoded sites: `coaching.js` précis and `processLessonTranscript.js` (new tier-flat `lesson-transcript` SPEC row at 5000). Only `firstGlimpse` and `arenaCoaching` still hardcode — both unauthenticated, no tier identity. Deployed: `getDataVisualizations`, `getMultiVoiceCoaching`, `processLessonTranscript`.
+- ✅ B17 — Stripe past-due lapse job shipped. `onPaymentFailed` now stamps `pastDueSince` on first transition; `onPaymentSucceeded` clears it via `FieldValue.delete()`. New `stripeLapseJob` daily at 04:00 ET pages users in batches of 50, lapses anyone past_due longer than `PAST_DUE_GRACE_DAYS` (default 14): clears subscription, lapses IC discount if `icStatus==active`, lapses pilot monthly discount if `pilotDiscountActive`. Per-user try/catch + one-line tally summary. Pure `decideOutcome()` exported and covered by 4 `node:test` cases (`functions/test/stripeLapseJob.test.js`). Doc: new "Stripe past-due lapse job" section in `docs/monitoring.md`. Deployed: `stripeWebhook`, `stripeLapseJob`.
+
+**Cleared from BLOCKER count: 17 of 28 (B29 added then downgraded to M14 on 2026-05-18). Cleared from HIGH-RISK: 5 of 14 (H13 + H14 added 2026-05-18).**
 **The two scariest classes of bug — silent fan-out failure and iOS save loss — are now neutralized.**
 
 ---
@@ -83,13 +87,11 @@
 - 🔥 **B11** — Bi-weekly cron global spend cap (1h)
 - 🔥 **B12** — GPT trajectory step 1 resume banner (2h)
 - 🔥 **B13** — `_countL2OpusThisMonth` add date-range filter (1h)
-- 🔥 **B14** — Data Viz `maxTokens` migrate to `tokenBudgets` (1.5h)
-- 🔥 **B17** — 14-day past-due → IC/pilot lapse scheduled job (2h)
 - ⚠️ **H3** — Précis prompt verification for 3-of-4 voice path (1h)
 - ⚠️ **H4** — Tier-aware daily call limit (Working 30 / Medium 60 / Extended 100) (1h)
 - 📧 **Pilot conversion email Round 2** (1h)
 
-**Subtotal next week: 20h.** H2 (1h) shipped alongside H1 on 2026-05-18.
+**Subtotal next week: 16.5h.** H2 (1h) shipped alongside H1 on 2026-05-18. B14 (1.5h) + B17 (2h) shipped 2026-05-21 — see WHAT'S SHIPPED.
 
 ### Launch week (May 24–31): QA, deploy hardening, comms
 
@@ -434,14 +436,14 @@ File: `firestore.rules:55-67`. The empathetic response field is written by Cloud
 | B11 | Bi-weekly cron global spend cap | 1 |
 | B12 | GPT trajectory step 1 resume banner | 2 |
 | B13 | `_countL2OpusThisMonth` date-range filter | 1 |
-| B14 | Data Viz `maxTokens` → tokenBudgets | 1.5 |
-| B17 | 14-day past-due lapse scheduled job | 2 |
+| ~~B14~~ | ~~Data Viz `maxTokens` → tokenBudgets~~ — shipped 2026-05-21 | — |
+| ~~B17~~ | ~~14-day past-due lapse scheduled job~~ — shipped 2026-05-21 | — |
 | H2 | Multi-Voice backend timeout 120 → 240s | 1 |
 | H3 | Précis prompt verification 3-of-4 path | 1 |
 | H4 | Tier-aware daily call limit | 1 |
 | H10 | Pilot conversion email Round 2 (May 19) | 1 |
 
-**Subtotal: 21h**
+**Subtotal: 17.5h** (B14 + B17 shipped 2026-05-21)
 
 ### Week 3 (May 24–31) — QA, deploy hardening, polish (~18h)
 
@@ -482,10 +484,10 @@ File: `firestore.rules:55-67`. The empathetic response field is written by Cloud
 ## TOTAL EFFORT
 
 - **Week 1: 24h** — scaling + ops + iOS persistence (the silent-failure killers, including the new lesson-notes-loss class of bug)
-- **Week 2: 21h** — coaching + show planner + AI hardening
+- **Week 2: 17.5h** — coaching + show planner + AI hardening (B14 + B17 shipped 2026-05-21)
 - **Week 3: 21h** (or 17h with M6 deferred) — QA + deploy hardening + comms
 
-**Grand total: 62–66 hours over 17 days = ~3.7 hours/day.** Tight. Still achievable for a focused founder-engineer who clears the calendar, but you've used 3 days of the original 20-day budget — every weekday now matters.
+**Grand total: 58.5–62.5 hours over 14 days = ~4.2 hours/day.** Tight. Still achievable for a focused founder-engineer who clears the calendar, but every weekday now matters.
 
 If you slip, drop in this order: M6 → M7 (CI) → H9 (voice input QA) → H4 (tier-aware call limit) → H1 (frontend timeout flip). **Do NOT drop B25–B28 — the iOS save-loss bug is happening to real pilot users now and will hit new users on day 1.**
 

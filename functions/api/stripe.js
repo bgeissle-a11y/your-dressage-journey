@@ -18,6 +18,7 @@
 
 const Stripe = require("stripe");
 const admin = require("firebase-admin");
+const { FieldValue } = require("firebase-admin/firestore");
 const { HttpsError } = require("firebase-functions/v2/https");
 
 // ---------------------------------------------------------------------------
@@ -1004,6 +1005,7 @@ async function onPaymentSucceeded(invoice) {
   await db.collection("users").doc(uid).set(
     {
       subscriptionStatus: "active",
+      pastDueSince: FieldValue.delete(),
       tokensUsedThisPeriod: 0,
       midCycleRefreshUsed: { gpt: false, physical: false },
       currentPeriodStart: start,
@@ -1018,8 +1020,8 @@ async function onPaymentSucceeded(invoice) {
 /**
  * invoice.payment_failed
  *   - status → past_due
- *   - 14-day failure → IC/pilot lapse handled by a separate scheduled job
- *     (see TODO in implementation brief; not in initial commit)
+ *   - first transition stamps `pastDueSince` so the daily `stripeLapseJob`
+ *     can measure the PAST_DUE_GRACE_DAYS window before downgrading.
  */
 async function onPaymentFailed(invoice) {
   if (!invoice.subscription) return;
@@ -1029,10 +1031,11 @@ async function onPaymentFailed(invoice) {
   const uid = await resolveFirebaseUID(subscription);
   if (!uid) return;
 
-  await db.collection("users").doc(uid).set(
-    { subscriptionStatus: "past_due" },
-    { merge: true }
-  );
+  const userDoc = await db.collection("users").doc(uid).get();
+  const u = userDoc.data() || {};
+  const update = { subscriptionStatus: "past_due" };
+  if (!u.pastDueSince) update.pastDueSince = new Date().toISOString();
+  await db.collection("users").doc(uid).set(update, { merge: true });
 
   console.log(`Payment failed for user ${uid}, status set to past_due`);
 }

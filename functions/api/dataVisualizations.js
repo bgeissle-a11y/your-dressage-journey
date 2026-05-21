@@ -25,6 +25,7 @@ const { getStatus: getGenStatus } = require("../lib/generationStatus");
 const { tryAcquireLock, releaseLock } = require("../lib/inflightLock");
 const { isBudgetExceeded, buildGracefulResponse } = require("../lib/budgetExhaustion");
 const { writeLastRegenError, clearLastRegenError } = require("../lib/lastRegenError");
+const { getMaxTokens, tierFromLabel } = require("../lib/tokenBudgets");
 
 const OUTPUT_TYPE = "dataVisualizations";
 
@@ -37,7 +38,8 @@ const OUTPUT_TYPE = "dataVisualizations";
 async function handler(request) {
   try {
     const uid = validateAuth(request);
-    await enforceCapability(uid, CAPABILITIES.generateDataVisualizations);
+    const sub = await enforceCapability(uid, CAPABILITIES.generateDataVisualizations);
+    const budgetTier = sub.isPilot ? "pilot" : tierFromLabel(sub.tier);
     const { forceRefresh = false, staleOk = false } = request.data || {};
 
     // Fast path: return cached data immediately without preparing rider data.
@@ -152,7 +154,7 @@ async function handler(request) {
         system: sys1,
         userMessage: msg1,
         jsonMode: true,
-        maxTokens: 8192,
+        maxTokens: getMaxTokens("dataviz-pattern-extraction", budgetTier),
         context: "dv-pattern-extraction",
         uid,
       }),
@@ -160,7 +162,7 @@ async function handler(request) {
         system: sys2,
         userMessage: msg2,
         jsonMode: true,
-        maxTokens: 4096,
+        maxTokens: getMaxTokens("dataviz-goal-mapping", budgetTier),
         context: "dv-goal-mapping",
         uid,
       }),
@@ -176,7 +178,7 @@ async function handler(request) {
       system: sys3,
       userMessage: msg3,
       jsonMode: true,
-      maxTokens: 4096,
+      maxTokens: getMaxTokens("dataviz-insight-narratives", budgetTier),
       context: "dv-insight-narratives",
       uid,
     });

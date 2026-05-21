@@ -18,6 +18,7 @@ const { HttpsError } = require("firebase-functions/v2/https");
 const { validateAuth } = require("../lib/auth");
 const { wrapError } = require("../lib/errors");
 const { callClaude } = require("../lib/claudeCall");
+const { getMaxTokens } = require("../lib/tokenBudgets");
 
 function buildTranscriptPrompt(transcript, horseName, instructorName) {
   return `You are processing a dressage lesson transcript. The horse's name is ${horseName}. The instructor's name is ${instructorName}.
@@ -164,7 +165,9 @@ async function handler(request) {
       userMessage,
       model: "claude-sonnet-4-6",
       jsonMode: true,
-      maxTokens: 5000,
+      // Tier-flat per spec — handler is not capability-gated, so no per-user
+      // tier resolution. Any tier label resolves to 5000.
+      maxTokens: getMaxTokens("lesson-transcript", "working"),
       context: "processLessonTranscript",
       uid,
     });

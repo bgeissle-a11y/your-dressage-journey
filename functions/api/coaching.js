@@ -185,7 +185,8 @@ async function generatePrecis(voiceResults, riderData, uid) {
       system,
       userMessage,
       jsonMode: false,
-      maxTokens: 400,
+      // Tier-agnostic per spec — 400 across the board. Any tier label works.
+      maxTokens: getMaxTokens("coaching-precis", "working"),
       context: "coaching-precis",
       uid,
     });

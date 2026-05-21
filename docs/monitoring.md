@@ -288,6 +288,98 @@ are crashing — investigate before deleting.
 
 ---
 
+## Stripe past-due lapse job
+
+Closes the loop on `invoice.payment_failed`. When the webhook handler
+flips a user to `subscriptionStatus = "past_due"`, it stamps
+`pastDueSince`. The scheduled job downgrades anyone who's been past_due
+longer than `PAST_DUE_GRACE_DAYS` (default 14) — without this, a user
+with a failed card sits in `past_due` forever with full paid access.
+
+| Detail | Value |
+|---|---|
+| Function export | `stripeLapseJob` |
+| Schedule | Daily at 04:00 America/New_York |
+| Source | [`functions/api/stripeLapseJob.js`](../functions/api/stripeLapseJob.js) |
+| Wired in | [`functions/index.js`](../functions/index.js) |
+| Env knob | `PAST_DUE_GRACE_DAYS` (default 14) |
+| Stripe side effects | None — Firestore writes only. Stripe's own retry exhaustion handles real cancellation. |
+
+### Fields written
+
+For a user that crosses the grace window:
+
+- `subscriptionStatus` → `"none"`
+- `subscriptionTier` → `"none"`
+- `pastDueSince` → deleted (`FieldValue.delete()`)
+- `lapsedAt` → ISO timestamp
+- `lapseReason` → `"past_due_expiry"`
+
+If the user is an active IC member (`isInitialCenterline === true && icStatus === "active"`):
+- `icStatus` → `"lapsed"`
+- `icLapseReason` → `"past_due_expiry"`
+- `icLapsedAt` → ISO timestamp
+
+If the user has `pilotDiscountActive === true`:
+- `pilotDiscountActive` → `false`
+- `pilotDiscountLapsedAt` → ISO timestamp
+- `pilotDiscountLapseReason` → `"past_due_expiry"`
+
+Users with `subscriptionStatus = "past_due"` but no `pastDueSince` get
+backfilled to "now" on the next fire (one-time recovery for any
+pre-existing past_due users from before this job shipped).
+
+### Tuning the grace window
+
+The 14-day default matches the Stripe smart-retry window. To change it
+without a redeploy, set a Secret Manager value:
+
+```
+printf "21" | firebase functions:secrets:set PAST_DUE_GRACE_DAYS --data-file=-
+```
+
+Use `printf` not `echo` to avoid the trailing newline (see
+[`feedback_secret_manager_no_newline`](#) in the founder's memory).
+
+### Manually trigger for a stuck user
+
+Two options:
+
+1. **One-shot the whole job** via Cloud Scheduler:
+
+   ```
+   gcloud scheduler jobs run firebase-schedule-stripeLapseJob-us-central1 --location=us-central1 --project=your-dressage-journey
+   ```
+
+   That processes every past_due user — fine when the lapse window has
+   already passed and you just want it to converge.
+
+2. **Force a single user through it locally** via the Functions Emulator:
+
+   ```
+   $env:PAST_DUE_GRACE_DAYS = "0"; cd functions; firebase emulators:start --only functions
+   ```
+
+   Then invoke `stripeLapseJob` from the Emulator UI. Grace 0 makes
+   every past_due user immediately eligible. Reset the env after.
+
+### What to check when it runs
+
+Logs include a one-line summary:
+
+```
+[stripeLapseJob] done — scanned=12 lapsed=2 backfilled=0
+  skipped_within_grace=10 ic_lapsed=1 pilot_lapsed=0 failed=0 elapsed_ms=412
+```
+
+A non-zero `failed` count means individual user updates threw. The
+job swallows per-user failures so one bad doc doesn't abort the run;
+look up the offending UID in the log lines above the summary. A
+sustained non-zero `failed` is the signal — add it to the Cloud
+Function error alert's watch list if it becomes a pattern.
+
+---
+
 ## UptimeRobot monitors
 - YDJ — Frontend                  (HTTP/200)
 - YDJ — Functions health          (Keyword "ok")

@@ -48,6 +48,7 @@ const firstLight = require("./api/firstLight");
 const microDebrief = require("./api/microDebrief");
 const freshStart = require("./api/freshStart");
 const showPlannerBiweeklyContent = require("./api/showPlannerBiweeklyContent");
+const stripeLapseJob = require("./api/stripeLapseJob");
 
 // Secrets — declared once, referenced by all functions that need them
 const anthropicKey = defineSecret("ANTHROPIC_API_KEY");
@@ -271,6 +272,20 @@ exports.showPlannerBiweeklyContent = onSchedule(
 exports.runShowPlannerBiweekly = onCall(
   { secrets: [anthropicKey, showPlannerBiweeklyEnabled], timeoutSeconds: 540, memory: "512MiB" },
   showPlannerBiweeklyContent.callableHandler
+);
+
+// --- Stripe past-due lapse job — daily 04:00 ET ---
+// Lapses users who have been past_due longer than PAST_DUE_GRACE_DAYS
+// (default 14). Forfeits IC and pilot discounts per spec. Read-only on
+// Stripe — Firestore writes only.
+exports.stripeLapseJob = onSchedule(
+  {
+    schedule: "every day 04:00",
+    timeZone: "America/New_York",
+    timeoutSeconds: 540,
+    memory: "512MiB",
+  },
+  stripeLapseJob.handler
 );
 
 // --- Admin ---

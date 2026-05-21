@@ -57,6 +57,16 @@ const SPEC = {
 
   // Readiness Snapshot
   "readiness-snapshot":        { working: null, medium: 2500, extended: 2500 },
+
+  // Data Visualizations
+  "dataviz-pattern-extraction":  { working: 6000, medium: 8192, extended: 8192 },
+  "dataviz-goal-mapping":        { working: 3000, medium: 4096, extended: 4096 },
+  "dataviz-insight-narratives":  { working: 3000, medium: 4096, extended: 4096 },
+
+  // Lesson transcript processing — single Sonnet call, not tier-gated today
+  // (validateAuth only, no enforceCapability). Tier-flat by intent: keeping
+  // transcript parsing available equally to all paid tiers.
+  "lesson-transcript":         { working: 5000, medium: 5000, extended: 5000 },
 };
 
 /**
@@ -77,6 +87,10 @@ const ENV_KEYS = {
   "event-planner":             "TOKENS_EVENT_PLANNER",
   "visualization-script":      "TOKENS_VISUALIZATION_SCRIPT",
   "readiness-snapshot":        "TOKENS_READINESS_SNAPSHOT",
+  "dataviz-pattern-extraction":  "TOKENS_DATAVIZ_PATTERN_EXTRACTION",
+  "dataviz-goal-mapping":        "TOKENS_DATAVIZ_GOAL_MAPPING",
+  "dataviz-insight-narratives":  "TOKENS_DATAVIZ_INSIGHT_NARRATIVES",
+  "lesson-transcript":           "TOKENS_LESSON_TRANSCRIPT",
 };
 
 function normalizeTier(tier) {
