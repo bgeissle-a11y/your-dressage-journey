@@ -21,8 +21,8 @@
  * with the flag off the handler logs "disabled by env" and returns 0-cost.
  * Flip to "true" in Firebase env when ready to start generating content.
  *
- *   firebase functions:config:set show_planner.biweekly_enabled=true     (legacy)
- *   firebase functions:secrets:set SHOW_PLANNER_BIWEEKLY_ENABLED         (preferred)
+ *   echo "true"  | firebase functions:secrets:set SHOW_PLANNER_BIWEEKLY_ENABLED --data-file=-
+ *   echo "false" | firebase functions:secrets:set SHOW_PLANNER_BIWEEKLY_ENABLED --data-file=-
  *
  * The handler is also exposed as a Cloud Function callable so it can be
  * triggered manually from the admin console / a script for testing without
@@ -55,7 +55,9 @@ const BIWEEKLY_ESTIMATED_USD_PER_PLAN = 0.05;
 function _isEnabled() {
   // Default OFF so a fresh deploy doesn't surprise-bill the user. Flip
   // `SHOW_PLANNER_BIWEEKLY_ENABLED=true` in Firebase env to enable.
-  const v = (process.env.SHOW_PLANNER_BIWEEKLY_ENABLED || "false").toLowerCase();
+  // .trim() guards against Secret Manager values stored with a trailing
+  // newline (common when seeded via `echo "true" | ... --data-file=-`).
+  const v = (process.env.SHOW_PLANNER_BIWEEKLY_ENABLED || "false").trim().toLowerCase();
   return v === "true" || v === "1" || v === "yes";
 }
 

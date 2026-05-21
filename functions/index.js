@@ -53,6 +53,7 @@ const showPlannerBiweeklyContent = require("./api/showPlannerBiweeklyContent");
 const anthropicKey = defineSecret("ANTHROPIC_API_KEY");
 const stripeSecretKey = defineSecret("STRIPE_SECRET_KEY");
 const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
+const showPlannerBiweeklyEnabled = defineSecret("SHOW_PLANNER_BIWEEKLY_ENABLED");
 
 // --- Health check / smoke test ---
 exports.ping = onCall((request) => {
@@ -258,7 +259,7 @@ exports.showPlannerBiweeklyContent = onSchedule(
   {
     schedule: "0 6 1,15 * *",
     timeZone: "America/New_York",
-    secrets: [anthropicKey],
+    secrets: [anthropicKey, showPlannerBiweeklyEnabled],
     timeoutSeconds: 540,
     memory: "512MiB",
   },
@@ -268,7 +269,7 @@ exports.showPlannerBiweeklyContent = onSchedule(
 // Admin-only manual trigger for the bi-weekly run. Useful for prompt
 // validation without waiting 14 days, or for one-off content backfills.
 exports.runShowPlannerBiweekly = onCall(
-  { secrets: [anthropicKey], timeoutSeconds: 540, memory: "512MiB" },
+  { secrets: [anthropicKey, showPlannerBiweeklyEnabled], timeoutSeconds: 540, memory: "512MiB" },
   showPlannerBiweeklyContent.callableHandler
 );
 
