@@ -42,6 +42,16 @@ const SHOW_PREP_COLLECTION = "showPreparations";
 
 const ACTIVE_PREP_WINDOW_DAYS = 90;
 
+const BIWEEKLY_MAX_PLANS_PER_FIRE = parseInt(
+  process.env.BIWEEKLY_MAX_PLANS_PER_FIRE || "500", 10
+);
+const BIWEEKLY_MAX_USD_PER_FIRE = parseFloat(
+  process.env.BIWEEKLY_MAX_USD_PER_FIRE || "50"
+);
+// Conservative estimate: each generated plan uses ~$0.05
+// (≈500 input + 3000 output Sonnet tokens). Used for cost cap math.
+const BIWEEKLY_ESTIMATED_USD_PER_PLAN = 0.05;
+
 function _isEnabled() {
   // Default OFF so a fresh deploy doesn't surprise-bill the user. Flip
   // `SHOW_PLANNER_BIWEEKLY_ENABLED=true` in Firebase env to enable.
@@ -58,6 +68,11 @@ function _isoDateOnly(s) {
 function _daysBetween(a, b) {
   const ms = b.getTime() - a.getTime();
   return Math.round(ms / (1000 * 60 * 60 * 24));
+}
+
+function _utcDateOnly(iso) {
+  if (!iso) return null;
+  return new Date(iso).toISOString().slice(0, 10);
 }
 
 /**
@@ -165,7 +180,8 @@ Write the bi-weekly check-in now. Plain prose. 150-220 words.`;
 /**
  * Per-plan: gate, fetch précis, call Claude, append to biweeklyContent.
  * Returns one of: "generated" | "skipped:no-precis" | "skipped:no-access"
- * | "error". Never throws so a bad plan doesn't abort the schedule run.
+ * | "skipped:duplicate" | "error". Never throws so a bad plan doesn't
+ * abort the schedule run.
  */
 async function processPlan(plan, now) {
   const planRef = db.collection(SHOW_PREP_COLLECTION).doc(plan.id);
@@ -186,6 +202,15 @@ async function processPlan(plan, now) {
     if (!precis) {
       console.log(`[biweekly] ${uid} has no coaching_precis — skipping plan ${plan.id}`);
       return "skipped:no-precis";
+    }
+
+    const todayUtcDate = _utcDateOnly(now.toISOString());
+    const alreadyGeneratedToday = (plan.biweeklyContent || []).some(
+      (entry) => _utcDateOnly(entry.generatedAt) === todayUtcDate
+    );
+    if (alreadyGeneratedToday) {
+      console.log(`[biweekly] ${uid} plan ${plan.id} already has a biweeklyContent entry for ${todayUtcDate} — skipping duplicate`);
+      return "skipped:duplicate";
     }
 
     const budgetTier = sub.isPilot ? "pilot" : tierFromLabel(sub.tier);
@@ -238,12 +263,35 @@ async function scheduledHandler() {
 
   const tally = { generated: 0, skipped: 0, error: 0 };
   for (const plan of plans) {
+    const estimatedCostSoFar = tally.generated * BIWEEKLY_ESTIMATED_USD_PER_PLAN;
+    if (tally.generated >= BIWEEKLY_MAX_PLANS_PER_FIRE) {
+      console.warn(
+        `[biweekly] Aborting fire: plan-count cap reached ` +
+        `(${tally.generated}/${BIWEEKLY_MAX_PLANS_PER_FIRE}). ` +
+        `${plans.length - tally.generated - tally.skipped - tally.error} plans unprocessed.`
+      );
+      tally.aborted = "plan_count_cap";
+      break;
+    }
+    if (estimatedCostSoFar >= BIWEEKLY_MAX_USD_PER_FIRE) {
+      console.warn(
+        `[biweekly] Aborting fire: estimated cost cap reached ` +
+        `($${estimatedCostSoFar.toFixed(2)}/$${BIWEEKLY_MAX_USD_PER_FIRE}). ` +
+        `${plans.length - tally.generated - tally.skipped - tally.error} plans unprocessed.`
+      );
+      tally.aborted = "usd_cost_cap";
+      break;
+    }
     const outcome = await processPlan(plan, now);
     if (outcome === "generated") tally.generated++;
     else if (outcome === "error") tally.error++;
     else tally.skipped++;
   }
-  console.log(`[biweekly] done — generated=${tally.generated} skipped=${tally.skipped} error=${tally.error}`);
+  console.log(
+    `[biweekly] done — generated=${tally.generated} ` +
+    `skipped=${tally.skipped} error=${tally.error}` +
+    (tally.aborted ? ` aborted=${tally.aborted}` : "")
+  );
 }
 
 /**
@@ -264,13 +312,37 @@ async function callableHandler(request) {
   const plans = await queryActivePlans(now);
   const tally = { generated: 0, skipped: 0, error: 0, planIds: [] };
   for (const plan of plans) {
+    const estimatedCostSoFar = tally.generated * BIWEEKLY_ESTIMATED_USD_PER_PLAN;
+    if (tally.generated >= BIWEEKLY_MAX_PLANS_PER_FIRE) {
+      console.warn(
+        `[biweekly] Aborting fire: plan-count cap reached ` +
+        `(${tally.generated}/${BIWEEKLY_MAX_PLANS_PER_FIRE}). ` +
+        `${plans.length - tally.generated - tally.skipped - tally.error} plans unprocessed.`
+      );
+      tally.aborted = "plan_count_cap";
+      break;
+    }
+    if (estimatedCostSoFar >= BIWEEKLY_MAX_USD_PER_FIRE) {
+      console.warn(
+        `[biweekly] Aborting fire: estimated cost cap reached ` +
+        `($${estimatedCostSoFar.toFixed(2)}/$${BIWEEKLY_MAX_USD_PER_FIRE}). ` +
+        `${plans.length - tally.generated - tally.skipped - tally.error} plans unprocessed.`
+      );
+      tally.aborted = "usd_cost_cap";
+      break;
+    }
     const outcome = await processPlan(plan, now);
     tally.planIds.push({ id: plan.id, outcome });
     if (outcome === "generated") tally.generated++;
     else if (outcome === "error") tally.error++;
     else tally.skipped++;
   }
-  return { success: true, ...tally };
+  console.log(
+    `[biweekly] done — generated=${tally.generated} ` +
+    `skipped=${tally.skipped} error=${tally.error}` +
+    (tally.aborted ? ` aborted=${tally.aborted}` : "")
+  );
+  return { success: true, ...tally, ...(tally.aborted && { aborted: tally.aborted }) };
 }
 
 module.exports = {
