@@ -12,7 +12,7 @@
 const { getAnthropicClient } = require("./anthropic");
 const { isTransientError } = require("./errors");
 const { db } = require("./firebase");
-const { getTierBudgets, MILLICENTS_PER_USD } = require("./tierBudgets");
+const { getTierBudgets, getDailyCallLimit, MILLICENTS_PER_USD } = require("./tierBudgets");
 
 const DEFAULT_MODEL = "claude-sonnet-4-5-20250929";
 const DEFAULT_MAX_TOKENS = 4096;
@@ -20,16 +20,16 @@ const DEFAULT_MAX_RETRIES = 1;
 const RETRY_BASE_DELAY_MS = 2000;
 
 /**
- * Per-user daily API call rate limit.
+ * Per-user daily API call rate limit (tier-aware).
  * Prevents runaway usage from page reloads, refresh-clicking, or
  * compounding background regeneration triggers.
  *
  * Budget is checked before each Claude call. When exceeded, the call
  * throws a rate-limit error so the caller can fall back to cached data.
  *
- * Stored in Firestore at `usageBudgets/{uid}` with a date-keyed counter.
+ * Limit comes from tierBudgets.getDailyCallLimit(tier). Stored in
+ * Firestore at `usageBudgets/{uid}` with a date-keyed counter.
  */
-const DAILY_CALL_LIMIT = 40; // max Claude API calls per user per day
 const BUDGET_COLLECTION = "usageBudgets";
 
 /**
@@ -114,9 +114,10 @@ async function callClaude({
         err.capExceeded = { kind: "weekly", limitUSD, tier: budgetResult.tier };
         throw err;
       }
-      console.warn(`[${context}] ⛔ Daily API limit (${DAILY_CALL_LIMIT}) exceeded for user ${uid}`);
-      const err = new Error(`Daily API call limit reached. Your insights will refresh tomorrow.`);
+      console.warn(`[${context}] ⛔ Daily API limit (${budgetResult.limit}) exceeded for user ${uid} (tier=${budgetResult.tier})`);
+      const err = new Error(`Daily API call limit reached for your plan. Your insights will refresh tomorrow.`);
       err.code = "rate-limit-exceeded";
+      err.capExceeded = { kind: "daily", limit: budgetResult.limit, tier: budgetResult.tier };
       throw err;
     }
   }
@@ -177,6 +178,7 @@ async function _checkAndIncrementBudget(uid) {
       const data = doc.exists ? doc.data() : null;
       const tier = userDoc.exists ? (userDoc.data() || {}).subscriptionTier : null;
       const budgets = getTierBudgets(tier);
+      const dailyLimit = getDailyCallLimit(tier);
 
       // Pre-call weekly + monthly $ checks. Cost is tallied after each call
       // in _logUsage, so these block once prior calls in the same bucket have
@@ -225,8 +227,8 @@ async function _checkAndIncrementBudget(uid) {
         return { allowed: true };
       }
 
-      if (data.count >= DAILY_CALL_LIMIT) {
-        return { allowed: false, reason: "daily" };
+      if (data.count >= dailyLimit) {
+        return { allowed: false, reason: "daily", limit: dailyLimit, tier: budgets.tier };
       }
 
       const updates = { count: data.count + 1 };

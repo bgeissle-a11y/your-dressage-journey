@@ -975,6 +975,9 @@ async function handler(request) {
       const step1At = step1?.generatedAt ? new Date(step1.generatedAt).getTime() : 0;
       const finalAt = finalTrajectory?.generatedAt ? new Date(finalTrajectory.generatedAt).getTime() : 0;
       const canResume = !!step1?.result && step1At > finalAt;
+      if (canResume) {
+        console.log(`[trajectory] checkResume=true for ${uid} — step1 generated ${step1.generatedAt}, no final since`);
+      }
       return {
         success: true,
         mode: "checkResume",

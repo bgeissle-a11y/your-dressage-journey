@@ -71,4 +71,50 @@ function getTierBudgets(tier) {
   };
 }
 
-module.exports = { getTierBudgets, MILLICENTS_PER_USD };
+/**
+ * Resolve the per-day Claude call limit for a given subscription tier.
+ *
+ * Spec: H4 in LAUNCH_FINAL_REMEDIATION_LIST. The cost caps in
+ * getTierBudgets handle the dollar ceiling; this caps raw call count
+ * to prevent runaway page-reload loops or compounding background
+ * triggers from burning through monthly quota in one day.
+ *
+ *   Working    30 calls/day   (≈1 full Insights refresh)
+ *   Medium     60 calls/day   (≈3 full Insights refreshes)
+ *   Extended  100 calls/day   (power users + show planner step-through)
+ *   pilot/none 30 calls/day   (backstop — same as Working)
+ *
+ * Env overrides:
+ *   TIER_WORKING_DAILY_CALL_LIMIT
+ *   TIER_MEDIUM_DAILY_CALL_LIMIT
+ *   TIER_EXTENDED_DAILY_CALL_LIMIT
+ *   DEFAULT_DAILY_CALL_LIMIT
+ *
+ * @param {string|null|undefined} tier  "working" | "medium" | "extended" | "pilot" | "none" | null
+ * @returns {number} max Claude calls per UTC day for this tier
+ */
+function getDailyCallLimit(tier) {
+  function parseInt_(raw, fallback) {
+    if (raw === undefined || raw === "" || raw === null) return fallback;
+    const n = parseInt(raw, 10);
+    return Number.isFinite(n) && n > 0 ? n : fallback;
+  }
+
+  const limitsByTier = {
+    working: parseInt_(process.env.TIER_WORKING_DAILY_CALL_LIMIT, 30),
+    medium: parseInt_(process.env.TIER_MEDIUM_DAILY_CALL_LIMIT, 60),
+    extended: parseInt_(process.env.TIER_EXTENDED_DAILY_CALL_LIMIT, 100),
+  };
+  const defaultLimit = parseInt_(process.env.DEFAULT_DAILY_CALL_LIMIT, 30);
+
+  // Pilot users get full access during pilot window — match Extended.
+  // After pilot-grace ends they're blocked at the capability layer, so we
+  // don't need pilot-expired handling here.
+  if (tier === "pilot" || tier === "pilot-grace") return limitsByTier.extended;
+  if (tier && Object.prototype.hasOwnProperty.call(limitsByTier, tier)) {
+    return limitsByTier[tier];
+  }
+  return defaultLimit;
+}
+
+module.exports = { getTierBudgets, getDailyCallLimit, MILLICENTS_PER_USD };

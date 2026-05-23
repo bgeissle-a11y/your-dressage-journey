@@ -1036,6 +1036,7 @@ export default function GrandPrixPanel({ generationStatus }) {
             on either way and will be reused if the rider triggers a fresh regen. */}
         {canResumeTrajectory && !resumeBannerDismissed && (
           <div
+            data-testid="trajectory-resume-banner"
             className="gpt-stale-banner"
             style={{
               cursor: 'default',
@@ -1048,6 +1049,7 @@ export default function GrandPrixPanel({ generationStatus }) {
             <div>You have a trajectory refresh in progress. Continue from where it left off?</div>
             <div style={{ display: 'flex', gap: 8 }}>
               <button
+                data-testid="trajectory-resume-continue"
                 className="regen-btn-sm"
                 onClick={handleResumeTrajectory}
                 disabled={resumingTrajectory || trajectoryRegenerating}
@@ -1055,6 +1057,7 @@ export default function GrandPrixPanel({ generationStatus }) {
                 {resumingTrajectory ? 'Continuing...' : 'Continue'}
               </button>
               <button
+                data-testid="trajectory-resume-cancel"
                 className="regen-btn-sm"
                 style={{ background: 'transparent' }}
                 onClick={() => setResumeBannerDismissed(true)}
