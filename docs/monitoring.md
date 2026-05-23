@@ -380,6 +380,155 @@ Function error alert's watch list if it becomes a pattern.
 
 ---
 
+## Show Planner bi-weekly cron
+
+Fires at 06:00 ET on the 1st and 15th of each month (~14-day cadence). For
+every active show plan with `showDateStart` in the next 90 days, runs one
+Sonnet call grounded in the rider's cached Multi-Voice précis and appends a
+check-in to the plan's `biweeklyContent` array.
+
+| Detail | Value |
+|---|---|
+| Scheduled export | `showPlannerBiweeklyContent` |
+| Manual callable | `runShowPlannerBiweekly` (admin-only) |
+| Schedule | `0 6 1,15 * *` America/New_York |
+| Source | [`functions/api/showPlannerBiweeklyContent.js`](../functions/api/showPlannerBiweeklyContent.js) |
+| Wired in | [`functions/index.js`](../functions/index.js) |
+| Feature flag | `SHOW_PLANNER_BIWEEKLY_ENABLED` (Secret Manager) — default `false` |
+| Spend caps | `BIWEEKLY_MAX_PLANS_PER_FIRE` (500), `BIWEEKLY_MAX_USD_PER_FIRE` (50) |
+| Per-plan cost estimate | `BIWEEKLY_ESTIMATED_USD_PER_PLAN` (0.05) |
+
+### Dedup (B10)
+
+`processPlan` strips `generatedAt` from each existing `biweeklyContent`
+entry to its UTC date and skips the plan if any entry matches today's UTC
+date — so a same-day admin re-trigger doesn't double-write. The
+`_utcDateOnly` helper accepts ISO strings, Firestore Timestamp objects
+(`{_seconds, _nanoseconds}`), and `.toDate()`-shaped wrappers; new writes
+always use ISO, but legacy data is tolerated. Log signal:
+
+```
+[biweekly] <uid> plan <planId> already has a biweeklyContent entry for <YYYY-MM-DD> — skipping duplicate
+```
+
+### Spend cap (B11)
+
+Both caps are checked at the top of each plan iteration inside `_runFire`.
+When either cap fires, remaining plans are skipped, `tally.aborted` is set
+to `"plan_count_cap"` or `"usd_cost_cap"`, and a Sentry warning event
+fires. Log signals:
+
+```
+[biweekly] Aborting fire: plan-count cap reached (500/500). N plans unprocessed.
+[biweekly] Aborting fire: estimated cost cap reached ($50.00/$50). N plans unprocessed.
+[biweekly] done — generated=X skipped=Y error=Z aborted=plan_count_cap
+```
+
+The plan-count cap binds first under defaults (500 × $0.05 = $25, well
+under the $50 USD ceiling). If real per-plan cost drifts above ~$0.10,
+update `BIWEEKLY_ESTIMATED_USD_PER_PLAN` so the USD math stays calibrated:
+
+```
+printf "0.07" | firebase functions:secrets:set BIWEEKLY_ESTIMATED_USD_PER_PLAN --data-file=-
+```
+
+### Reading run outcomes
+
+Scheduled fires only log the summary line. Admin-triggered fires return
+the full tally to the caller (including `planIds: [{id, outcome}, ...]`),
+which is the fastest way to spot which plans got `"skipped:no-precis"`
+vs `"skipped:duplicate"` vs `"generated"`. Outcome strings: `generated`,
+`skipped:no-precis`, `skipped:no-access`, `skipped:duplicate`, `error`.
+
+### What to check when Sentry pages on `aborted`
+
+1. **Confirm the abort kind** in the Sentry event — `plan_count_cap` is
+   usually growth (more active plans than expected); `usd_cost_cap`
+   suggests per-plan cost has crept up.
+2. **Pull the prior-fire summary** from Cloud Function logs to see the
+   trend (number of active plans, generated count, skipped count).
+3. **For a `usd_cost_cap` abort**, cross-check `usageLogs` for the
+   `context=show-planner-biweekly` rows over the last 30 days — if the
+   median cost has actually drifted, bump `BIWEEKLY_ESTIMATED_USD_PER_PLAN`
+   first, then consider raising `BIWEEKLY_MAX_USD_PER_FIRE`.
+4. **For a `plan_count_cap` abort**, the unprocessed plans roll into the
+   next fire — no data loss, just a 14-day delay for the tail. Raise the
+   cap if growth is real (e.g., 500 → 1000) and re-deploy.
+
+---
+
+## Multi-Voice Coaching diagnostics
+
+Two signals that the partial-failure handling in `getMultiVoiceCoaching` is
+behaving — both surface in Cloud Function logs, neither pages on its own.
+
+### Stale-voice fallback (B4)
+
+When a single voice in the 4-call fan-out rejects but the rider has a stale
+cache row (≤90 days old) for that voice, the handler now surfaces the stale
+content instead of an error card. The diagnostic signal is the pairing of:
+
+- `[coaching] Voice N failed: <reason>` — voice N's generation threw.
+- Followed by a successful return that carries `_meta.stale: true` and
+  `_meta.failedThisRun: true` on the affected voice. `failedThisRun` is
+  telemetry-only (the frontend doesn't render it) — its purpose is to let
+  log searches distinguish "stale because of B4 fallback" from "stale
+  because of normal SWR refresh in progress."
+
+A burst of `Voice N failed` lines without matching stale-serve evidence
+means we are pumping out error placeholders to riders; investigate the
+underlying generation error (usually Anthropic upstream).
+
+### Précis lock contention (B5)
+
+The bulk-path précis generation now acquires the `coaching_precis` lock
+before spending Claude tokens, matching the trailing single-voice path.
+When the lock is already held:
+
+- `[coaching] Précis lock held — skipping bulk-path précis generation (another path will handle it)`
+
+Frequent appearances are expected — the frontend fires single-voice
+fan-outs in parallel and the last to finish runs the précis, so a
+near-simultaneous bulk refresh would naturally see the lock held.
+
+Investigation threshold: **back-to-back appearances for the same uid in
+<5s.** That pattern points to either a stuck precis lock (lock TTL is
+10 min; check `generationLocks/{uid}_coaching_precis` in Firestore if
+suspicious) or a client-side double-fire. Single hits per uid per refresh
+are normal.
+
+---
+
+## Per-user daily Claude call cap (H4)
+
+Per-user daily Claude call cap is tier-aware
+([functions/lib/tierBudgets.js](../functions/lib/tierBudgets.js) →
+`getDailyCallLimit`):
+
+| Tier | Daily limit | Notes |
+|---|---|---|
+| Working | 30 | ≈1 full Insights refresh |
+| Medium | 60 | ≈3 full Insights refreshes |
+| Extended | 100 | Power users + show-planner step-through |
+| pilot / pilot-grace | 100 | Maps to Extended during pilot window |
+| none / null / unknown | 30 | Backstop |
+
+Overridable per-tier via env (`TIER_WORKING_DAILY_CALL_LIMIT`,
+`TIER_MEDIUM_DAILY_CALL_LIMIT`, `TIER_EXTENDED_DAILY_CALL_LIMIT`,
+`DEFAULT_DAILY_CALL_LIMIT`) without a code change. Counter is stored
+on `usageBudgets/{uid}` with a YYYY-MM-DD date key and resets at UTC
+midnight.
+
+When exceeded, `claudeCall.js` throws an error with
+`code: "rate-limit-exceeded"` and `capExceeded: { kind: "daily", limit, tier }`.
+Log signature: `[<context>] ⛔ Daily API limit (<N>) exceeded for user <uid> (tier=<tier>)`.
+Investigation threshold: **>5 distinct uids hitting the cap in a single day**
+suggests either a runaway client retry loop or an underestimated tier cap —
+inspect Cloud Functions logs for the pattern, then either raise the env
+override or chase the misbehaving client.
+
+---
+
 ## UptimeRobot monitors
 - YDJ — Frontend                  (HTTP/200)
 - YDJ — Functions health          (Keyword "ok")

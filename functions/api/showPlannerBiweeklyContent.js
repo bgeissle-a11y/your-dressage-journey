@@ -50,7 +50,11 @@ const BIWEEKLY_MAX_USD_PER_FIRE = parseFloat(
 );
 // Conservative estimate: each generated plan uses ~$0.05
 // (≈500 input + 3000 output Sonnet tokens). Used for cost cap math.
-const BIWEEKLY_ESTIMATED_USD_PER_PLAN = 0.05;
+// Overridable via env so the cap can be retuned without a redeploy if
+// real-world per-plan cost drifts in usageLogs.
+const BIWEEKLY_ESTIMATED_USD_PER_PLAN = parseFloat(
+  process.env.BIWEEKLY_ESTIMATED_USD_PER_PLAN || "0.05"
+);
 
 function _isEnabled() {
   // Default OFF so a fresh deploy doesn't surprise-bill the user. Flip
@@ -74,6 +78,15 @@ function _daysBetween(a, b) {
 
 function _utcDateOnly(iso) {
   if (!iso) return null;
+  // Handle Firestore Timestamp objects in case any legacy biweeklyContent
+  // entry was written with `new Date()` instead of an ISO string. New
+  // writes (processPlan line below) always store ISO; this is defensive.
+  if (typeof iso === "object" && typeof iso.toDate === "function") {
+    return iso.toDate().toISOString().slice(0, 10);
+  }
+  if (typeof iso === "object" && typeof iso._seconds === "number") {
+    return new Date(iso._seconds * 1000).toISOString().slice(0, 10);
+  }
   return new Date(iso).toISOString().slice(0, 10);
 }
 
@@ -249,51 +262,110 @@ async function processPlan(plan, now) {
 }
 
 /**
- * Scheduled handler. Iterates active plans sequentially to keep per-user
- * usage bursts small (the budget gates per-call anyway, but a 50-plan fan-out
- * would still hit the daily call limit on the unlucky plan that happens to
- * pick up the cap-crossing call).
+ * Shared fire-loop used by both scheduledHandler and callableHandler.
+ * Iterates active plans, applies cap-checks, calls processPlan, and
+ * returns a tally. The only difference between scheduled and admin fires
+ * is whether per-plan IDs are reported (admin wants them for inspection;
+ * the scheduled cron doesn't need them in logs).
+ *
+ * Per-plan iteration is sequential to keep per-user usage bursts small
+ * (the budget gates per-call anyway, but a 50-plan fan-out would still
+ * hit the daily call limit on the unlucky plan that picks up the
+ * cap-crossing call).
+ *
+ * @param {Date} now
+ * @param {{ collectPlanIds?: boolean, capOverrides?: object }} options
+ * @returns {Promise<{generated, skipped, error, planIds?, aborted?}>}
  */
-async function scheduledHandler() {
-  if (!_isEnabled()) {
-    console.log("[biweekly] disabled by env (SHOW_PLANNER_BIWEEKLY_ENABLED) — exiting");
-    return;
-  }
-  const now = new Date();
-  const plans = await queryActivePlans(now);
+async function _runFire(now, options = {}) {
+  // Per-call cap overrides exist so tests can flip caps without
+  // jest.resetModules() shenanigans. Production always reads the env-derived
+  // module-level constants.
+  const maxPlans = options.capOverrides?.maxPlans ?? BIWEEKLY_MAX_PLANS_PER_FIRE;
+  const maxUsd = options.capOverrides?.maxUsd ?? BIWEEKLY_MAX_USD_PER_FIRE;
+  const estPerPlan = options.capOverrides?.estPerPlan ?? BIWEEKLY_ESTIMATED_USD_PER_PLAN;
+  // Test-only injection seams: production code never passes these, so the
+  // module-scope functions are used. Tests inject fakes to drive specific
+  // tally outcomes (e.g., forcing processPlan to throw to exercise the
+  // catch-and-continue path below).
+  const _queryActivePlansFn = options._queryActivePlans ?? queryActivePlans;
+  const _processPlanFn = options._processPlan ?? processPlan;
+
+  const plans = await _queryActivePlansFn(now);
   console.log(`[biweekly] processing ${plans.length} active plans`);
 
   const tally = { generated: 0, skipped: 0, error: 0 };
+  if (options.collectPlanIds) tally.planIds = [];
+
   for (const plan of plans) {
-    const estimatedCostSoFar = tally.generated * BIWEEKLY_ESTIMATED_USD_PER_PLAN;
-    if (tally.generated >= BIWEEKLY_MAX_PLANS_PER_FIRE) {
+    const estimatedCostSoFar = tally.generated * estPerPlan;
+    if (tally.generated >= maxPlans) {
       console.warn(
         `[biweekly] Aborting fire: plan-count cap reached ` +
-        `(${tally.generated}/${BIWEEKLY_MAX_PLANS_PER_FIRE}). ` +
+        `(${tally.generated}/${maxPlans}). ` +
         `${plans.length - tally.generated - tally.skipped - tally.error} plans unprocessed.`
       );
       tally.aborted = "plan_count_cap";
       break;
     }
-    if (estimatedCostSoFar >= BIWEEKLY_MAX_USD_PER_FIRE) {
+    if (estimatedCostSoFar >= maxUsd) {
       console.warn(
         `[biweekly] Aborting fire: estimated cost cap reached ` +
-        `($${estimatedCostSoFar.toFixed(2)}/$${BIWEEKLY_MAX_USD_PER_FIRE}). ` +
+        `($${estimatedCostSoFar.toFixed(2)}/$${maxUsd}). ` +
         `${plans.length - tally.generated - tally.skipped - tally.error} plans unprocessed.`
       );
       tally.aborted = "usd_cost_cap";
       break;
     }
-    const outcome = await processPlan(plan, now);
+
+    let outcome;
+    try {
+      outcome = await _processPlanFn(plan, now);
+    } catch (err) {
+      // processPlan is supposed to swallow its own errors, but if anything
+      // ever escapes (e.g., a thrown HttpsError from a downstream change),
+      // count it as a per-plan error and keep going.
+      console.error(`[biweekly] plan ${plan.id} unexpectedly threw:`, err.message || err);
+      outcome = "error";
+    }
+
+    if (options.collectPlanIds) tally.planIds.push({ id: plan.id, outcome });
     if (outcome === "generated") tally.generated++;
     else if (outcome === "error") tally.error++;
     else tally.skipped++;
   }
+
   console.log(
     `[biweekly] done — generated=${tally.generated} ` +
     `skipped=${tally.skipped} error=${tally.error}` +
     (tally.aborted ? ` aborted=${tally.aborted}` : "")
   );
+
+  // Surface aborted runs to Sentry so the founder hears about it without
+  // having to grep logs. Sentry is initialized in functions/lib/sentry.js
+  // and already pulled in by index.js — best-effort require keeps the loop
+  // resilient if Sentry ever becomes optional.
+  if (tally.aborted) {
+    try {
+      const Sentry = require("@sentry/node");
+      Sentry.captureMessage(
+        `Show Planner bi-weekly cron aborted: ${tally.aborted}`,
+        { level: "warning", extra: { tally } }
+      );
+    } catch {
+      // Sentry not available — the console.warn above is sufficient.
+    }
+  }
+
+  return tally;
+}
+
+async function scheduledHandler() {
+  if (!_isEnabled()) {
+    console.log("[biweekly] disabled by env (SHOW_PLANNER_BIWEEKLY_ENABLED) — exiting");
+    return;
+  }
+  await _runFire(new Date(), { collectPlanIds: false });
 }
 
 /**
@@ -310,41 +382,8 @@ async function callableHandler(request) {
   if (!_isEnabled()) {
     return { success: false, reason: "disabled-by-env" };
   }
-  const now = new Date();
-  const plans = await queryActivePlans(now);
-  const tally = { generated: 0, skipped: 0, error: 0, planIds: [] };
-  for (const plan of plans) {
-    const estimatedCostSoFar = tally.generated * BIWEEKLY_ESTIMATED_USD_PER_PLAN;
-    if (tally.generated >= BIWEEKLY_MAX_PLANS_PER_FIRE) {
-      console.warn(
-        `[biweekly] Aborting fire: plan-count cap reached ` +
-        `(${tally.generated}/${BIWEEKLY_MAX_PLANS_PER_FIRE}). ` +
-        `${plans.length - tally.generated - tally.skipped - tally.error} plans unprocessed.`
-      );
-      tally.aborted = "plan_count_cap";
-      break;
-    }
-    if (estimatedCostSoFar >= BIWEEKLY_MAX_USD_PER_FIRE) {
-      console.warn(
-        `[biweekly] Aborting fire: estimated cost cap reached ` +
-        `($${estimatedCostSoFar.toFixed(2)}/$${BIWEEKLY_MAX_USD_PER_FIRE}). ` +
-        `${plans.length - tally.generated - tally.skipped - tally.error} plans unprocessed.`
-      );
-      tally.aborted = "usd_cost_cap";
-      break;
-    }
-    const outcome = await processPlan(plan, now);
-    tally.planIds.push({ id: plan.id, outcome });
-    if (outcome === "generated") tally.generated++;
-    else if (outcome === "error") tally.error++;
-    else tally.skipped++;
-  }
-  console.log(
-    `[biweekly] done — generated=${tally.generated} ` +
-    `skipped=${tally.skipped} error=${tally.error}` +
-    (tally.aborted ? ` aborted=${tally.aborted}` : "")
-  );
-  return { success: true, ...tally, ...(tally.aborted && { aborted: tally.aborted }) };
+  const tally = await _runFire(new Date(), { collectPlanIds: true });
+  return { success: true, ...tally };
 }
 
 module.exports = {
@@ -352,6 +391,8 @@ module.exports = {
   callableHandler,
   // Exports used by tests:
   _isEnabled,
+  _utcDateOnly,
+  _runFire,
   buildBiweeklyPrompt,
   queryActivePlans,
   processPlan,
