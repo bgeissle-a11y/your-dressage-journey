@@ -550,16 +550,37 @@ async function handler(request) {
 
     const voices = {};
     const failedVoices = [];
+    // Per-voice precedence: successful generation > stale cache > error placeholder.
+    // Loop is sequential (await inside) — only 4 stale reads max, only on the
+    // failure path; Promise.all wouldn't buy anything material here.
     for (let i = 0; i < 4; i++) {
       if (results[i].status === "fulfilled") {
         voices[i] = results[i].value;
       } else {
         failedVoices.push(i);
-        voices[i] = {
-          _error: true,
-          _errorMessage: "This coaching voice encountered a temporary issue. Try refreshing.",
-        };
         console.error(`[coaching] Voice ${i} failed:`, results[i].reason?.message || results[i].reason);
+        // Stale-voice fallback (B4): prefer last good cache over an error card.
+        const stale = await getStaleCache(riderData.uid, OUTPUT_TYPE, {
+          voiceIndex: i,
+          maxAgeDays: 90,
+        });
+        if (stale?.result) {
+          voices[i] = {
+            ...stale.result,
+            _meta: {
+              ...VOICE_META[i],
+              fromCache: true,
+              stale: true,
+              generatedAt: stale.generatedAt,
+              failedThisRun: true,
+            },
+          };
+        } else {
+          voices[i] = {
+            _error: true,
+            _errorMessage: "This coaching voice encountered a temporary issue. Try refreshing.",
+          };
+        }
       }
     }
 
@@ -601,16 +622,32 @@ async function handler(request) {
     // when absent. Skip if fewer than 3 voices succeeded — too thin to
     // produce a faithful gestalt.
     if (failedVoices.length <= 1) {
-      const voiceJsonsForPrecis = {};
-      for (let i = 0; i < 4; i++) {
-        if (results[i].status === "fulfilled") {
-          // Strip _meta — the précis prompt expects raw analysis content
-          const { _meta, ...rest } = results[i].value || {};
-          voiceJsonsForPrecis[i] = rest;
+      // B5: acquire the same coaching_precis lock the trailing single-voice
+      // path uses, so two concurrent bulk runs (or bulk + trailing) can't
+      // both spend précis tokens. Lock held holder logs and skips — the
+      // path already running will write the précis.
+      const gotPrecisLock = await tryAcquireLock(uid, "coaching_precis");
+      if (!gotPrecisLock) {
+        console.log("[coaching] Précis lock held — skipping bulk-path précis generation (another path will handle it)");
+      } else {
+        try {
+          const voiceJsonsForPrecis = {};
+          for (let i = 0; i < 4; i++) {
+            if (results[i].status === "fulfilled") {
+              // Strip _meta — the précis prompt expects raw analysis content
+              const { _meta, ...rest } = results[i].value || {};
+              voiceJsonsForPrecis[i] = rest;
+            }
+          }
+          const precisResult = await generatePrecis(voiceJsonsForPrecis, riderData, uid);
+          await persistPrecis(precisResult, riderData);
+        } catch (err) {
+          console.error("[coaching] Bulk-path précis failed:", err.message || err);
+          // Non-fatal — voices have already returned successfully.
+        } finally {
+          await releaseLock(uid, "coaching_precis");
         }
       }
-      const precisResult = await generatePrecis(voiceJsonsForPrecis, riderData, uid);
-      await persistPrecis(precisResult, riderData);
     } else {
       console.warn(`[coaching] Skipping précis — only ${4 - failedVoices.length}/4 voices succeeded`);
     }

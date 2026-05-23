@@ -1,7 +1,7 @@
 # YDJ Final Pre-Launch Remediation List
 
-**Audit complete:** 2026-05-12 · **Launch:** 2026-06-01 · **Last status update:** 2026-05-21
-**Items shipped:** 23 of 50 · **Effort remaining:** ~21.5 hours over ~11 days
+**Audit complete:** 2026-05-12 · **Launch:** 2026-06-01 · **Last status update:** 2026-05-22
+**Items shipped:** 31 of 50 · **Effort remaining:** ~10.5 hours over ~10 days
 
 > **🎯 Read this section. Skip the rest unless you need detail.**
 >
@@ -59,7 +59,24 @@
 - ✅ B14 — Data Visualizations migrated to `tokenBudgets`: added `dataviz-pattern-extraction` / `dataviz-goal-mapping` / `dataviz-insight-narratives` SPEC rows (Working trimmed to 6000/3000/3000; Medium+Extended preserve 8192/4096/4096) plus three `TOKENS_DATAVIZ_*` env knobs. Handler now reads `getMaxTokens(...)` per call using `budgetTier` derived from the `enforceCapability` return. Also cleaned up the two remaining authenticated hardcoded sites: `coaching.js` précis and `processLessonTranscript.js` (new tier-flat `lesson-transcript` SPEC row at 5000). Only `firstGlimpse` and `arenaCoaching` still hardcode — both unauthenticated, no tier identity. Deployed: `getDataVisualizations`, `getMultiVoiceCoaching`, `processLessonTranscript`.
 - ✅ B17 — Stripe past-due lapse job shipped. `onPaymentFailed` now stamps `pastDueSince` on first transition; `onPaymentSucceeded` clears it via `FieldValue.delete()`. New `stripeLapseJob` daily at 04:00 ET pages users in batches of 50, lapses anyone past_due longer than `PAST_DUE_GRACE_DAYS` (default 14): clears subscription, lapses IC discount if `icStatus==active`, lapses pilot monthly discount if `pilotDiscountActive`. Per-user try/catch + one-line tally summary. Pure `decideOutcome()` exported and covered by 4 `node:test` cases (`functions/test/stripeLapseJob.test.js`). Doc: new "Stripe past-due lapse job" section in `docs/monitoring.md`. Deployed: `stripeWebhook`, `stripeLapseJob`.
 
-**Cleared from BLOCKER count: 17 of 28 (B29 added then downgraded to M14 on 2026-05-18). Cleared from HIGH-RISK: 5 of 14 (H13 + H14 added 2026-05-18).**
+**Multi-Voice partial-failure & précis hardening** — 2026-05-22 (deployed live)
+- ✅ B4 — Multi-Voice partial-failure stale fallback: when a single voice rejects in the bulk fan-out, [coaching.js:553-585](functions/api/coaching.js#L553-L585) now reads `getStaleCache(..., { voiceIndex, maxAgeDays: 90 })` and surfaces stale content with `_meta.stale: true` + `_meta.failedThisRun: true` (telemetry-only). Error placeholder only emitted when no stale row exists. Rider sees three working voices + one "Updated <date>" voice instead of a red error card next to three healthy ones.
+- ✅ B5 — Bulk-path précis generation now acquires the same `coaching_precis` lock the trailing single-voice path uses ([coaching.js:603-630](functions/api/coaching.js#L603-L630)); two concurrent bulk runs (or bulk + trailing) no longer both spend précis tokens. Lock released in `finally`; précis failure caught and logged (non-fatal — voices already returned).
+- ✅ H3 — `buildMultiVoicePrecisPrompt` ([promptBuilder.js:2295-2370](functions/lib/promptBuilder.js#L2295-L2370)) substitutes the sentinel `"[ANALYSIS UNAVAILABLE THIS RUN]"` for any missing voice instead of literal `null`, and a new MISSING ANALYSES system-prompt section instructs the model to omit that voice's perspective silently. No-op when all 4 voices succeed.
+- Tests: 11 new `node:test` cases across `coaching.partialFailure.test.js` / `coaching.precisLock.test.js` / `promptBuilder.precisMissing.test.js` (require.cache-injection fixture for hermetic handler tests). `npm test` script added to `functions/package.json`. Existing `stripeLapseJob` suite still green.
+- Doc: new "Multi-Voice Coaching diagnostics" section in `docs/monitoring.md` covering the `Voice N failed` + stale-serve pairing (B4) and the `Précis lock held — skipping bulk-path précis generation` log line (B5). Deployed: `getMultiVoiceCoaching`.
+
+**GPT trajectory + tier-aware rate limit — Claude Code session 2026-05-22 (B12 + B13 + H4 bundle)**
+- ✅ B12 — Trajectory step-1 resume banner (verified wired, added testids + checkResume console.log + unit tests)
+- ✅ B13 — `_countL2OpusThisMonth` date-range filter (verified live, composite index confirmed deployed, unit tests added)
+- ✅ H4 — Tier-aware daily call limit (Working 30 / Medium 60 / Extended 100 / pilot→Extended) via `getDailyCallLimit` in tierBudgets.js
+
+**Show Planner bi-weekly cron hardening — Claude Code session 2026-05-22 (B10 + B11 bundle)**
+- ✅ B10 — Same-day UTC dedup verified in [showPlannerBiweeklyContent.js:222-229](functions/api/showPlannerBiweeklyContent.js#L222-L229); 8 dedup tests added; `_utcDateOnly` hardened to recognize Firestore Timestamp objects (`{_seconds}` and `.toDate()`-shaped) as a defensive guard against any legacy entry that wasn't ISO-encoded.
+- ✅ B11 — Plan-count + USD spend caps verified; `BIWEEKLY_ESTIMATED_USD_PER_PLAN` made env-overridable so the USD cap math can be retuned without a redeploy; 50 lines of duplicated cap-check + loop logic extracted to a shared `_runFire` helper (test-only injection seams for `capOverrides` / `_queryActivePlans` / `_processPlan`); aborted runs now also fire a Sentry warning event so the founder doesn't have to grep logs. Env knobs documented in `.env.example`. 7 cap tests added covering both caps, skipped-vs-generated tally math, mid-loop throw recovery, planId collection, empty-plan list, and abort-boundary planId capture.
+- All 52 `node:test` cases green (15 new + 37 pre-existing). Deploys via the existing `firebase deploy --only functions:showPlannerBiweeklyContent,functions:runShowPlannerBiweekly` command — flag still defaults OFF.
+
+**Cleared from BLOCKER count: 25 of 28 (B29 added then downgraded to M14 on 2026-05-18). Cleared from HIGH-RISK: 6 of 14 (H13 + H14 added 2026-05-18).**
 **The two scariest classes of bug — silent fan-out failure and iOS save loss — are now neutralized.**
 
 ---
@@ -79,19 +96,16 @@
 
 ### Next week (May 18–23): coaching/show-planner BLOCKERs + AI hardening
 
-- 🔥 **B4** — Multi-Voice partial-failure stale fallback (instead of red error tab) (3h)
-- 🔥 **B5** — Précis lock for bulk path (1h)
 - 🔥 **B7** — Show Planner "10 shows/yr" — drop the marketing claim OR enforce (0.5h for copy fix)
 - 🔥 **B8** — Event Planner Step 2–4 caching + locks + truncation handling (4h)
-- 🔥 **B10** — Bi-weekly cron same-day dedup (1h)
-- 🔥 **B11** — Bi-weekly cron global spend cap (1h)
-- 🔥 **B12** — GPT trajectory step 1 resume banner (2h)
-- 🔥 **B13** — `_countL2OpusThisMonth` add date-range filter (1h)
-- ⚠️ **H3** — Précis prompt verification for 3-of-4 voice path (1h)
-- ⚠️ **H4** — Tier-aware daily call limit (Working 30 / Medium 60 / Extended 100) (1h)
+- ~~B10~~ — shipped 2026-05-22 (bi-weekly cron same-day dedup)
+- ~~B11~~ — shipped 2026-05-22 (bi-weekly cron global spend cap)
+- ~~B12~~ — shipped 2026-05-22 (GPT trajectory step 1 resume banner)
+- ~~B13~~ — shipped 2026-05-22 (`_countL2OpusThisMonth` date-range filter)
+- ~~H4~~ — shipped 2026-05-22 (tier-aware daily call limit)
 - 📧 **Pilot conversion email Round 2** (1h)
 
-**Subtotal next week: 16.5h.** H2 (1h) shipped alongside H1 on 2026-05-18. B14 (1.5h) + B17 (2h) shipped 2026-05-21 — see WHAT'S SHIPPED.
+**Subtotal next week: 9.5h.** H2 (1h) shipped alongside H1 on 2026-05-18. B14 (1.5h) + B17 (2h) shipped 2026-05-21. B4 (3h) + B5 (1h) + H3 (1h) + B12 (2h) + B13 (1h) + H4 (1h) + B10 (1h) + B11 (1h) shipped 2026-05-22 — see WHAT'S SHIPPED.
 
 ### Launch week (May 24–31): QA, deploy hardening, comms
 
@@ -432,18 +446,18 @@ File: `firestore.rules:55-67`. The empathetic response field is written by Cloud
 | B5 | Précis lock for bulk path | 1 |
 | B7 | Show Planner copy fix (drop "10/yr" claim) | 0.5 |
 | B8 | Event Planner step caching + locks + truncation | 4 |
-| B10 | Bi-weekly cron same-day dedup | 1 |
-| B11 | Bi-weekly cron global spend cap | 1 |
-| B12 | GPT trajectory step 1 resume banner | 2 |
-| B13 | `_countL2OpusThisMonth` date-range filter | 1 |
+| ~~B10~~ | ~~Bi-weekly cron same-day dedup~~ — shipped 2026-05-22 | — |
+| ~~B11~~ | ~~Bi-weekly cron global spend cap~~ — shipped 2026-05-22 | — |
+| ~~B12~~ | ~~GPT trajectory step 1 resume banner~~ — shipped 2026-05-22 | — |
+| ~~B13~~ | ~~`_countL2OpusThisMonth` date-range filter~~ — shipped 2026-05-22 | — |
 | ~~B14~~ | ~~Data Viz `maxTokens` → tokenBudgets~~ — shipped 2026-05-21 | — |
 | ~~B17~~ | ~~14-day past-due lapse scheduled job~~ — shipped 2026-05-21 | — |
 | H2 | Multi-Voice backend timeout 120 → 240s | 1 |
 | H3 | Précis prompt verification 3-of-4 path | 1 |
-| H4 | Tier-aware daily call limit | 1 |
+| ~~H4~~ | ~~Tier-aware daily call limit~~ — shipped 2026-05-22 | — |
 | H10 | Pilot conversion email Round 2 (May 19) | 1 |
 
-**Subtotal: 17.5h** (B14 + B17 shipped 2026-05-21)
+**Subtotal: 15.5h** (B14 + B17 shipped 2026-05-21; B10 + B11 shipped 2026-05-22)
 
 ### Week 3 (May 24–31) — QA, deploy hardening, polish (~18h)
 

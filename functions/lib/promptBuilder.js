@@ -2292,6 +2292,11 @@ When referencing dressage authorities, use these exact names: Jane Savoie, Beth 
  *   call (without _meta).
  * @returns {{ system: string, userMessage: string }}
  */
+function _formatVoiceForPrecis(voiceResult) {
+  if (voiceResult == null) return '"[ANALYSIS UNAVAILABLE THIS RUN]"';
+  return JSON.stringify(voiceResult, null, 2);
+}
+
 function buildMultiVoicePrecisPrompt(voiceResults) {
   const system = `You are summarizing a rider's current coaching picture from four voice analyses. Your output is consumed by other AI prompts, never shown to a rider.
 
@@ -2336,6 +2341,14 @@ Never:
 - Give advice or prescription ("the rider should…").
 - Use horse or trainer names unless essential to the picture (when in doubt, omit).
 
+MISSING ANALYSES
+
+If one of the four analyses is marked "[ANALYSIS UNAVAILABLE THIS RUN]" below, omit
+that voice's perspective from the précis and proceed with the three available
+analyses. Do not speculate about what the missing voice would have said. Do not
+reference the absence in the output. The précis remains voice-agnostic regardless
+of how many source voices fed it — readers will not know one was missing.
+
 SELF-CHECK BEFORE FINISHING
 
 Before producing your final output, verify:
@@ -2347,16 +2360,16 @@ Before producing your final output, verify:
 If any check fails, rewrite. Output only the final prose — no preamble, no slice labels, no commentary.`;
 
   const userMessage = `Technical Coach analysis:
-${JSON.stringify(voiceResults[2] ?? null, null, 2)}
+${_formatVoiceForPrecis(voiceResults[2])}
 
 Empathetic Coach analysis:
-${JSON.stringify(voiceResults[1] ?? null, null, 2)}
+${_formatVoiceForPrecis(voiceResults[1])}
 
 Classical Master analysis:
-${JSON.stringify(voiceResults[0] ?? null, null, 2)}
+${_formatVoiceForPrecis(voiceResults[0])}
 
 Practical Strategist analysis:
-${JSON.stringify(voiceResults[3] ?? null, null, 2)}
+${_formatVoiceForPrecis(voiceResults[3])}
 
 Produce the précis now. Plain prose only, ≤200 words, voice-agnostic.`;
 
