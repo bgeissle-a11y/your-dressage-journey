@@ -68,6 +68,57 @@ Three remaining edge cases were deemed non-blocking for go-live but worth tackli
 
 ---
 
+## 4. FEI test movement-sequence integration (added 2026-05-23)
+
+**Why:** As of the 2026-05-23 frontend testDatabase unification, the new "Sequence" tab in Test Reference Panel + Test Explorer shows full numbered movements for all 18 USDF tests (Intro through Fourth) by loading the same comprehensive JSON files the backend EP-1 uses. The 5 FEI tests fall back to an empty-state message because their movement sequences aren't in `functions/data/fei_test_database_complete.json` — that file only has gait-grouped `required_movements` lists (e.g. "PIAFFE (8-10 steps)") plus orphaned `coefficient_movements` number arrays that reference movements not defined in the file.
+
+**Current state of FEI data:**
+- **PSG — already parsed.** `dressage tests/fei tests/psg_test.json` has all 26 movements with `{number, marker, description, directives, coefficient, remarks}` — created 2026-03-15, never integrated into `functions/data/` or the testDatabase loader. Spot-verify against the PSG 2026 PDF, then drop in.
+- **Inter I, Inter II, Grand Prix, Grand Prix Special — PDFs only.** Source PDFs in `dressage tests/fei tests/`:
+  - `Intermediate I 2026_0.pdf` (~17 movements expected)
+  - `Intermediate II 2026_0.pdf` (~17 movements, introduces piaffe + passage)
+  - `Grand Prix 2026_0.pdf` (~19 movements, extensive piaffe/passage/tempi)
+  - `Grand Prix Special 2026.pdf` (~18 movements)
+- Freestyle tests (`dressage tests/freestyle/`, plus PDFs for FEI freestyles in `dressage tests/fei tests/`) — separate effort; freestyle data structure is different from standard tests (no fixed movement sequence).
+
+**Scope:**
+1. Verify `dressage tests/fei tests/psg_test.json` against the 2026 PSG PDF — spot-check 5-6 movements (especially marker letters and coefficient flags). Note: the parsed file currently uses `description`/`directives` (plural) like USDF Intro/Training, which `_normalizeMovement()` in `src/services/testDatabase.js` already flattens.
+2. Parse the 4 remaining FEI PDFs to JSON in the same shape as `psg_test.json`. Options: manual transcription (~70 movements total, slow but unambiguous), or LLM-assisted PDF extraction with per-movement verification.
+3. Decide on canonical location — either move/copy the 5 parsed JSONs into `functions/data/` as individual files OR consolidate into a single `fei_tests_sequenced.json` (matching the shape of `usdf_first_level_tests.json`). The unified file is the cleaner integration story.
+4. Update **backend** `functions/lib/testDatabase.js` to load the new file(s) so EP-1 can pull sequenced FEI movements (today it falls back to gait groups for FEI).
+5. Update **frontend** `src/services/testDatabase.js` to import the same file(s) so the Sequence tab renders for FEI tests. The `TEST_ID_TO_BACKEND_ID` mapping already covers all 5 FEI tests (`psg`, `inter_1`, `inter_2`, `grand_prix`, `gp_special`).
+6. Remove the FEI-specific empty-state message in `SequenceTab` / `SequenceView`.
+7. Update the EP-1 prompt fabrication rule in `functions/lib/promptBuilder.js:4292` — once FEI tests have numbered movements, the "do not invent movement numbers" guardrail still applies but the model can now reference them legitimately.
+
+**Files touched:**
+- `dressage tests/fei tests/*.json` (new parsed files OR `functions/data/fei_tests_sequenced.json`)
+- `functions/lib/testDatabase.js` (load new data)
+- `src/services/testDatabase.js` (import new data, drop FEI carve-out)
+- `src/components/TestReferencePanel/TestReferencePanel.jsx` (remove FEI empty-state branch in `SequenceTab`)
+- `src/components/TestExplorer/TestExplorer.jsx` (same, in `SequenceView`)
+- `functions/lib/promptBuilder.js` (verify EP-1 FEI movement rule still reads correctly)
+
+**Effort:** PSG verify + integration ~1h. Parsing the 4 remaining FEI PDFs is the bulk of the work — depends heavily on parsing method chosen. LLM-assisted ~2-4h plus your verification time; manual transcription ~3-5h depending on focus.
+
+**Why this isn't a launch blocker:** The 18 USDF tests covering Intro through Fourth are the path most pilot riders are on. FEI riders see a clear empty-state explaining why and can still use the gait-grouped Movements tab for their required-element reference. EP-1 still generates AI-enriched coaching for FEI plans — it just doesn't have a numbered movement spine to anchor its references against, which is the gap that the 2026-05-23 EP-3 movement validator (B30) is specifically there to catch.
+
+---
+
+## 5. TestRequirementsDisplay panel title + placement review (added 2026-05-23)
+
+**Why:** As part of the 2026-05-23 Sequence-tab work, the movements list was removed from the `TestRequirementsDisplay` panel (the AI-enriched section sitting below Readiness Snapshot in Show Planner). The panel now shows only level context, collective marks, coefficient strategy, and overall tips — but the title still reads "Test Requirements — {level}", which is a holdover from when it owned the movement sequence. A title like "Level Strategy" or "Coaching Insights" would more accurately reflect the remaining content.
+
+Also worth revisiting once FEI integration ships (item #4 above): with the Sequence tab carrying all sequenced movement data, the AI-enriched panel may want to live closer to the Sequence tab (e.g. as a "Strategy" sub-tab inside Test Reference Panel) rather than as a separate default-open block elsewhere on the page. Defer this until FEI integration is done so the redesign covers all 23 tests at once instead of just the 18 USDF ones.
+
+**Scope:**
+- Rename `TestRequirementsDisplay`'s `CollapsibleSection` title (~5 min).
+- Optionally reposition the panel into Test Reference Panel as a new tab (~30 min) — bundle with the FEI integration in item #4.
+- The `TestRequirementsDisplay` component is also rendered by `EventPlannerOutput.jsx` (used in legacy Event Prep flow). Any rename/restructure must update both call sites.
+
+**Effort:** Rename alone ~5 min. Combined with the post-FEI redesign ~1h additional on top of item #4.
+
+---
+
 ## Items NOT in this backlog (intentional)
 
 These were considered and consciously deprioritized:

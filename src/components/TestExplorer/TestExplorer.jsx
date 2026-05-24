@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import {
-  getTestList, getTestData, isFullDataAvailable, getShortLabel
+  getTestList, getTestData, isFullDataAvailable, getShortLabel,
+  getSequencedMovements,
 } from '../../services/testDatabase';
 import '../Forms/Forms.css';
 import './TestExplorer.css';
@@ -221,7 +222,7 @@ function ExplorerPanel({ testId, devState, onToggle, stats }) {
   if (!data) return null;
 
   const flags = devState[testId] || {};
-  const tabs = ['directives', 'movements', 'coefficients', 'assessment'];
+  const tabs = ['directives', 'movements', 'sequence', 'coefficients', 'assessment'];
 
   return (
     <div className="te-panel">
@@ -293,6 +294,8 @@ function ExplorerPanel({ testId, devState, onToggle, stats }) {
           </>
         )}
 
+        {activeTab === 'sequence' && <SequenceView testId={testId} />}
+
         {activeTab === 'coefficients' && (
           <>
             <table className="trp-coeff-table">
@@ -349,6 +352,39 @@ function ExplorerPanel({ testId, devState, onToggle, stats }) {
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+// ── SEQUENCE VIEW (comprehensive backend data) ────────────────────────────────
+
+function SequenceView({ testId }) {
+  const movements = testId ? getSequencedMovements(testId) : null;
+  if (!movements) {
+    return (
+      <div className="te-no-data">
+        Numbered movement sequence isn&apos;t available for this test yet. FEI tests (PSG, Inter I, Inter II, Grand Prix, Grand Prix Special) carry required-movement lists but no per-movement sequence in our source data. Use the Movements tab for the gait-grouped view.
+      </div>
+    );
+  }
+  return (
+    <div className="trp-sequence">
+      {movements.map((m) => (
+        <div key={m.number} className="trp-sequence-row">
+          <div className="trp-sequence-num">{m.number}</div>
+          <div className="trp-sequence-body">
+            <div className="trp-sequence-head">
+              {m.marker && <span className="trp-sequence-marker">{m.marker}</span>}
+              <span className="trp-sequence-text">{m.movement}</span>
+              {m.coefficient && m.coefficient > 1 && (
+                <span className="trp-sequence-coeff">&times;{m.coefficient}</span>
+              )}
+            </div>
+            {m.directive && <div className="trp-sequence-directive">{m.directive}</div>}
+            {m.remarks && <div className="trp-sequence-remarks">{m.remarks}</div>}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

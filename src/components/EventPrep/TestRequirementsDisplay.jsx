@@ -1,9 +1,17 @@
-import { useState } from 'react';
 import CollapsibleSection from '../AICoaching/CollapsibleSection';
 
 /**
- * Renders test requirements: movements, coefficients, scoring strategy.
- * Wraps content in a CollapsibleSection for progressive disclosure.
+ * Renders AI-enriched test-level coaching context:
+ *   - Level expectations + key progression from prior level
+ *   - Collective marks (judges' criteria + coefficient flags)
+ *   - Coefficient scoring strategy
+ *   - Overall tips for the level
+ *
+ * The numbered movement sequence is NOT rendered here — that surface lives
+ * in the Test Reference Panel's "Sequence" tab, fed by the comprehensive
+ * static test database. This panel layers AI-generated strategy on top of
+ * what the rider can already see in the reference panel, avoiding
+ * duplicate movement lists in two places on the same page.
  */
 export default function TestRequirementsDisplay({ data }) {
   const test = data.tests?.[0];
@@ -11,7 +19,7 @@ export default function TestRequirementsDisplay({ data }) {
 
   return (
     <CollapsibleSection
-      title={`Test Requirements \u2014 ${data.target_level || ''}`}
+      title={`Test Requirements — ${data.target_level || ''}`}
       icon="&#x1F4CB;"
       defaultOpen
     >
@@ -19,7 +27,9 @@ export default function TestRequirementsDisplay({ data }) {
         {/* Level context */}
         {data.level_context && (
           <div className="ep-test-req__context">
-            <p>{data.level_context.what_judges_expect}</p>
+            {data.level_context.what_judges_expect && (
+              <p>{data.level_context.what_judges_expect}</p>
+            )}
             {data.level_context.key_progression_from_prior_level && (
               <div className="ep-test-req__progression">
                 <h4>Key Progression from Prior Level</h4>
@@ -28,14 +38,6 @@ export default function TestRequirementsDisplay({ data }) {
             )}
           </div>
         )}
-
-        {/* Movements */}
-        <h4 className="ep-section-label">Movements ({test.movements?.length || 0})</h4>
-        <div className="ep-movements">
-          {(test.movements || []).map((m, i) => (
-            <MovementCard key={i} movement={m} />
-          ))}
-        </div>
 
         {/* Collective Marks */}
         {test.collective_marks && test.collective_marks.length > 0 && (
@@ -76,54 +78,5 @@ export default function TestRequirementsDisplay({ data }) {
         )}
       </div>
     </CollapsibleSection>
-  );
-}
-
-
-function MovementCard({ movement }) {
-  const [expanded, setExpanded] = useState(false);
-
-  return (
-    <div className="ep-movement-card">
-      <div
-        className="ep-movement-card__header"
-        onClick={() => setExpanded(!expanded)}
-      >
-        <div className="ep-movement-card__title">
-          <strong>{movement.movement}</strong>
-          {movement.marker && (
-            <span className="ep-movement-card__marker">{movement.marker}</span>
-          )}
-        </div>
-        <span className={`collapsible-header__chevron ${expanded ? 'collapsible-header__chevron--open' : ''}`}>
-          &#9662;
-        </span>
-      </div>
-      {expanded && (
-        <div className="ep-movement-card__body">
-          {movement.directive && <p className="ep-movement-card__directive">{movement.directive}</p>}
-          {movement.common_errors && movement.common_errors.length > 0 && (
-            <div className="ep-movement-card__section">
-              <h5>Common Errors</h5>
-              <ul>
-                {movement.common_errors.map((e, i) => <li key={i}>{e}</li>)}
-              </ul>
-            </div>
-          )}
-          {movement.geometry_notes && (
-            <div className="ep-movement-card__section">
-              <h5>Geometry</h5>
-              <p>{movement.geometry_notes}</p>
-            </div>
-          )}
-          {movement.scoring_tips && (
-            <div className="ep-movement-card__section">
-              <h5>Scoring Tips</h5>
-              <p>{movement.scoring_tips}</p>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { getTestData, getShortLabel, isFullDataAvailable } from '../../services/testDatabase';
+import { getTestData, getShortLabel, isFullDataAvailable, getSequencedMovements } from '../../services/testDatabase';
 import './TestReferencePanel.css';
 
 /**
@@ -117,7 +117,7 @@ export default function TestReferencePanel({
 
       {/* Tab bar */}
       <div className="trp-tabs">
-        {['overview', 'movements', 'coefficients', 'flag'].map(tab => (
+        {['overview', 'movements', 'sequence', 'coefficients', 'flag'].map(tab => (
           <button
             key={tab}
             type="button"
@@ -138,6 +138,10 @@ export default function TestReferencePanel({
         {hasData ? <MovementsTab data={data} /> : <NoDataPlaceholder />}
       </div>
 
+      <div className={`trp-tab-content${activeTab === 'sequence' ? ' active' : ''}`}>
+        <SequenceTab testId={testId} />
+      </div>
+
       <div className={`trp-tab-content${activeTab === 'coefficients' ? ' active' : ''}`}>
         {hasData ? <CoefficientsTab data={data} /> : <NoDataPlaceholder />}
       </div>
@@ -154,6 +158,39 @@ export default function TestReferencePanel({
           <NoDataPlaceholder message="Movement flagging for this test will be available once its data is added to the database. You can still describe concerns in the free-text fields below." />
         )}
       </div>
+    </div>
+  );
+}
+
+function SequenceTab({ testId }) {
+  const movements = testId ? getSequencedMovements(testId) : null;
+  if (!movements) {
+    return (
+      <div className="trp-no-data">
+        <div className="trp-no-data-msg">
+          Numbered movement sequence isn&apos;t available for this test yet. FEI tests (PSG, Inter I, Inter II, Grand Prix, Grand Prix Special) carry required-movement lists but no per-movement sequence in our source data. Use the Movements tab for the gait-grouped view.
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="trp-sequence">
+      {movements.map((m) => (
+        <div key={m.number} className="trp-sequence-row">
+          <div className="trp-sequence-num">{m.number}</div>
+          <div className="trp-sequence-body">
+            <div className="trp-sequence-head">
+              {m.marker && <span className="trp-sequence-marker">{m.marker}</span>}
+              <span className="trp-sequence-text">{m.movement}</span>
+              {m.coefficient && m.coefficient > 1 && (
+                <span className="trp-sequence-coeff">&times;{m.coefficient}</span>
+              )}
+            </div>
+            {m.directive && <div className="trp-sequence-directive">{m.directive}</div>}
+            {m.remarks && <div className="trp-sequence-remarks">{m.remarks}</div>}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

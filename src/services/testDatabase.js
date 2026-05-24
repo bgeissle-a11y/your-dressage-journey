@@ -42,6 +42,80 @@ const FREESTYLE_TESTS = [
   { value: 'fs_fourth', label: 'Fourth Level Freestyle', shortLabel: '4L FS', org: 'USDF' },
 ];
 
+// ── SEQUENCED MOVEMENT DATA (comprehensive backend database) ─────────────────
+// Imports the same canonical JSON files the backend uses for EP-1 / Show
+// Planner AI generation. Lives in functions/data/ so backend and frontend
+// share one source of truth. Vite inlines these at build time.
+//
+// Coverage:
+//   - 18 USDF tests (Intro × 3, Training × 3, First × 3, Second × 3,
+//     Third × 3, Fourth × 3) — full sequenced movements available.
+//   - 5 FEI tests (PSG, I-1, I-2, GP, GPS) — gait-grouped only; no per-
+//     movement sequence in the source data. getSequencedMovements() returns
+//     null for these so the UI can show an explanatory empty state.
+//
+// Field-name normalization:
+//   Intro/Training files use `description` + `directives` (plural).
+//   First through Fourth use `movement` + `directive` (singular).
+//   _normalizeMovement() flattens both shapes onto a single schema.
+import _introTrainingTests from '../../functions/data/usdf_intro_training_tests.json';
+import _firstLevelTests from '../../functions/data/usdf_first_level_tests.json';
+import _secondThirdFourthTests from '../../functions/data/usdf_tests_second_third_fourth.json';
+import _feiTests from '../../functions/data/fei_test_database_complete.json';
+
+// Frontend testId (e.g. 'first_1') → backend test_id (e.g. '2023_first_1').
+// Reverse-engineered from the four JSON files. Update if either side renames.
+const TEST_ID_TO_BACKEND_ID = {
+  intro_a: '2023_intro_a',
+  intro_b: '2023_intro_b',
+  intro_c: '2023_intro_c',
+  training_1: '2023_training_1',
+  training_2: '2023_training_2',
+  training_3: '2023_training_3',
+  first_1: '2023_first_1',
+  first_2: '2023_first_2',
+  first_3: '2023_first_3',
+  second_1: '2023_second_1',
+  second_2: '2023_second_2',
+  second_3: '2023_second_3',
+  third_1: '2023_third_1',
+  third_2: '2023_third_2',
+  third_3: '2023_third_3',
+  fourth_1: '2023_fourth_1',
+  fourth_2: '2023_fourth_2',
+  fourth_3: '2023_fourth_3',
+  psg: 'prix_st_georges',
+  inter_1: 'intermediate_1',
+  inter_2: 'intermediate_2',
+  grand_prix: 'grand_prix',
+  gp_special: 'grand_prix_special',
+};
+
+// Build a flat lookup: backend_id → raw test object.
+const _BACKEND_TESTS_BY_ID = {};
+for (const file of [_introTrainingTests, _firstLevelTests, _secondThirdFourthTests, _feiTests]) {
+  for (const t of (file.tests || [])) {
+    if (t.test_id) _BACKEND_TESTS_BY_ID[t.test_id] = t;
+  }
+}
+
+/**
+ * Normalizes a movement record from either field-name shape to one schema:
+ * { number, marker, movement, directive, coefficient, location?, remarks? }
+ */
+function _normalizeMovement(m) {
+  if (!m) return null;
+  return {
+    number: m.number ?? null,
+    marker: m.marker ?? '',
+    movement: m.movement ?? m.description ?? '',
+    directive: m.directive ?? m.directives ?? '',
+    coefficient: m.coefficient ?? null,
+    location: m.location ?? null,
+    remarks: m.remarks ?? null,
+  };
+}
+
 // ── FEI TEST DATA ────────────────────────────────────────────────────────────
 // Complete data for all 5 FEI tests. Sourced from:
 //   - fei_test_database_complete.json → required_movements
@@ -1826,4 +1900,40 @@ export function getTestLabel(testValue) {
   const fs = FREESTYLE_TESTS.find(t => t.value === testValue);
   if (fs) return fs.label;
   return testValue;
+}
+
+// ── Sequenced movements (comprehensive backend database) ─────────────────────
+
+/**
+ * Returns the full sequenced movement list for a test, normalized to one
+ * shape regardless of source file. Returns null when the underlying data
+ * doesn't carry a sequence (FEI tests today).
+ *
+ * @param {string} testId - frontend test id (e.g. 'first_1', 'psg')
+ * @returns {Array<{number,marker,movement,directive,coefficient,location?,remarks?}>|null}
+ */
+export function getSequencedMovements(testId) {
+  const backendId = TEST_ID_TO_BACKEND_ID[testId];
+  if (!backendId) return null;
+  const raw = _BACKEND_TESTS_BY_ID[backendId];
+  if (!raw) return null;
+  if (!Array.isArray(raw.movements) || raw.movements.length === 0) return null;
+  return raw.movements.map(_normalizeMovement);
+}
+
+/**
+ * Returns true if a sequenced movement list exists for this test. UIs can
+ * use this to gate the Sequence tab visibility / disable hint.
+ */
+export function hasSequencedMovements(testId) {
+  return getSequencedMovements(testId) !== null;
+}
+
+/**
+ * Returns the raw backend test record (when present) — for callers that
+ * want collective_marks, test_info, purpose, introduces, etc.
+ */
+export function getBackendTestRecord(testId) {
+  const backendId = TEST_ID_TO_BACKEND_ID[testId];
+  return backendId ? (_BACKEND_TESTS_BY_ID[backendId] || null) : null;
 }
