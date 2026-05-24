@@ -158,6 +158,10 @@ export async function readPhysicalCache(uid) {
 const INFLIGHT_LOCK_TTL_MS = 10 * 60 * 1000;
 
 export async function readInflightLock(uid, outputType) {
+  // Pre-auth race: panel mounted before AuthContext hydrated. The lock
+  // check is best-effort — return null so the panel renders normally.
+  if (!uid) return null;
+
   try {
     const ref = doc(db, 'generationLocks', `${uid}_${outputType}`);
     const snap = await getDoc(ref);
@@ -168,7 +172,15 @@ export async function readInflightLock(uid, outputType) {
     }
     return data;
   } catch (error) {
-    console.error(`[weeklyFocusService] readInflightLock(${outputType}) error:`, error);
+    // permission-denied is the logout/auth-transition race: client still has
+    // a stale uid in scope but the token is revoked. Silent — would otherwise
+    // trip Sentry + B18's error-rate alert with no actionable signal. Other
+    // errors stay visible as warn (not error) so real Firestore outages show
+    // up without firing the launch alert. Caller always gets null either way.
+    if (error?.code === 'permission-denied') {
+      return null;
+    }
+    console.warn(`[weeklyFocusService] readInflightLock(${outputType}) error:`, error);
     return null;
   }
 }

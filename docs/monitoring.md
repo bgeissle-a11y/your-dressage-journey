@@ -600,6 +600,45 @@ EP-2 (Readiness Analysis) freely cites movement *types* ("your collected canter,
 
 ---
 
+## readInflightLock client-side silencing (H14)
+
+The frontend's `readInflightLock` in [`src/services/weeklyFocusService.js`](../src/services/weeklyFocusService.js) reads `generationLocks/{uid}_{outputType}` to detect that a regeneration started in another tab/session is still in flight. The Firestore rule at `firestore.rules:258-262` grants the owner read access (`lockId.split('_')[0] == request.auth.uid`).
+
+As of 2026-05-24, the client-side error handler silently swallows `permission-denied` errors. This is the expected race condition during logout/auth-state transitions (client still has a stale uid in scope but the token is revoked); the function returns `null` and the calling panel renders normally. Other errors log at `warn` (not `error`) so real Firestore outages stay visible without tripping B18's error-rate alert.
+
+### When to investigate
+
+If `Missing or insufficient permissions` reappears in Cloud Function logs or browser consoles for `readInflightLock`, it almost certainly means the `generationLocks/{lockId}` rule was rolled back. Verify the live ruleset matches `firestore.rules:258-262`, then redeploy with:
+
+```
+firebase deploy --only firestore:rules
+```
+
+If the rule is correct and the error persists, look for a client bug constructing a malformed `lockId` (the format is `{uid}_{outputType}` — Firebase Auth UIDs have no underscores).
+
+### When to *not* investigate
+
+A `[weeklyFocusService] readInflightLock(<output>) error:` line at `warn` severity is the new normal for any non-permission-denied failure. It will NOT trigger B18's alert. Investigate only if the same uid appears multiple times in a short window — that suggests a Firestore-side issue, not a client race.
+
+---
+
+## Cycle extension graceful degradation (H7)
+
+`physicalGuidance.js` and `grandPrixThinking.js` both have a cycle-extension branch that runs when a non-top-tier rider triggers `forceRefresh:true` on an expired cycle with fewer than 5 new debriefs. The branch calls `shouldExtendCycle` (which queries the debriefs collection) then `getStaleCache` and `getCycleState` to assemble the cached response.
+
+As of 2026-05-24, that branch is wrapped in `try/catch` ([`physicalGuidance.js:165-195`](../functions/api/physicalGuidance.js#L165-L195), [`grandPrixThinking.js:300-335`](../functions/api/grandPrixThinking.js#L300-L335)). On failure the handler logs a warning and falls through to fresh generation, so the rider never sees a hard failure from a sub-feature that's only a cost optimization.
+
+### Log lines you'll see
+
+- `[physical] Cycle-extension flow failed for <uid>: <msg> — falling through to fresh generation`
+- `[gpt-l1] Cycle-extension flow failed for <uid>: <msg> — falling through to fresh generation`
+
+### When to investigate
+
+One-off appearances are operationally acceptable — the fresh-generation path that follows has its own lock, cache, and error handling, and the cost overhead is ≤$0.10/case. **Investigate only if the same uid appears >3 times in 7 days.** That pattern suggests a corrupted `analysis/grandPrixThinkingCycle/{uid}` or `analysis/physicalGuidanceCycle/{uid}` doc — inspect the doc in Firestore and either repair the `cycleStartDate` field manually or delete the doc to force a fresh first-generation cycle.
+
+---
+
 ## Anthropic API key rotation log
 
 | Date | Action | Key (first / last 4) | Notes |

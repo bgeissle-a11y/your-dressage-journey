@@ -300,25 +300,37 @@ async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerConte
   // Check if cycle expired but insufficient new data → extend
   if (cycleState && forceRefresh) {
     if (tier !== "top") {
-      const lastGenAt = cycleState.cycleStartDate;
-      // shouldExtendCycle writes status="extended" internally when the third
-      // arg is passed (Phase 7a) — no separate setCycleState needed here.
-      const extend = await shouldExtendCycle(uid, lastGenAt, "gpt");
-      if (extend) {
-        // Serve cached content for another 30 days.
-        const cached = await getStaleCache(uid, OUTPUT_TYPE_MENTAL, { maxAgeDays: 90 });
-        const updatedCycleState = await getCycleState(uid, "gpt");
-        return {
-          success: true,
-          ...(cached?.result || {}),
-          fromCache: true,
-          extended: true,
-          tier: riderData.tier,
-          dataTier: riderData.dataTier,
-          dataSnapshot: riderData.dataSnapshot,
-          generatedAt: cached?.generatedAt,
-          cycleState: updatedCycleState,
-        };
+      try {
+        const lastGenAt = cycleState.cycleStartDate;
+        // shouldExtendCycle writes status="extended" internally when the third
+        // arg is passed (Phase 7a) — no separate setCycleState needed here.
+        const extend = await shouldExtendCycle(uid, lastGenAt, "gpt");
+        if (extend) {
+          // Serve cached content for another 30 days.
+          const cached = await getStaleCache(uid, OUTPUT_TYPE_MENTAL, { maxAgeDays: 90 });
+          const updatedCycleState = await getCycleState(uid, "gpt");
+          return {
+            success: true,
+            ...(cached?.result || {}),
+            fromCache: true,
+            extended: true,
+            tier: riderData.tier,
+            dataTier: riderData.dataTier,
+            dataSnapshot: riderData.dataSnapshot,
+            generatedAt: cached?.generatedAt,
+            cycleState: updatedCycleState,
+          };
+        }
+      } catch (err) {
+        // Extension is a cost optimization, not a correctness requirement.
+        // If shouldExtendCycle / getStaleCache / getCycleState throw, fall
+        // through to fresh generation so the rider never sees a hard failure.
+        // Cost overhead is ≤$0.10/case; the warn line is the operational
+        // signal — repeated hits for the same uid mean cycle state may be
+        // corrupted.
+        console.warn(
+          `[gpt-l1] Cycle-extension flow failed for ${uid}: ${err.message} — falling through to fresh generation`
+        );
       }
     }
   }

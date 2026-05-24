@@ -164,23 +164,35 @@ async function handler(request) {
 
     // Check if cycle expired but insufficient new data → extend
     if (cycleState && forceRefresh && tier !== "top") {
-      // shouldExtendCycle writes status="extended" internally when the third
-      // arg is passed (Phase 7a) — no separate setCycleState needed here.
-      const extend = await shouldExtendCycle(uid, cycleState.cycleStartDate, "physical");
-      if (extend) {
-        const cached = await getStaleCache(uid, OUTPUT_TYPE, { maxAgeDays: 90 });
-        const updatedCycleState = await getCycleState(uid, "physical");
-        return {
-          success: true,
-          ...(cached?.result || {}),
-          fromCache: true,
-          extended: true,
-          tier: riderData.tier,
-          dataTier: riderData.dataTier,
-          dataSnapshot: riderData.dataSnapshot,
-          generatedAt: cached?.generatedAt,
-          cycleState: updatedCycleState,
-        };
+      try {
+        // shouldExtendCycle writes status="extended" internally when the third
+        // arg is passed (Phase 7a) — no separate setCycleState needed here.
+        const extend = await shouldExtendCycle(uid, cycleState.cycleStartDate, "physical");
+        if (extend) {
+          const cached = await getStaleCache(uid, OUTPUT_TYPE, { maxAgeDays: 90 });
+          const updatedCycleState = await getCycleState(uid, "physical");
+          return {
+            success: true,
+            ...(cached?.result || {}),
+            fromCache: true,
+            extended: true,
+            tier: riderData.tier,
+            dataTier: riderData.dataTier,
+            dataSnapshot: riderData.dataSnapshot,
+            generatedAt: cached?.generatedAt,
+            cycleState: updatedCycleState,
+          };
+        }
+      } catch (err) {
+        // Extension is a cost optimization, not a correctness requirement.
+        // If shouldExtendCycle / getStaleCache / getCycleState throw, fall
+        // through to fresh generation so the rider never sees a hard failure.
+        // Cost overhead is ≤$0.10/case; the warn line is the operational
+        // signal — repeated hits for the same uid mean cycle state may be
+        // corrupted.
+        console.warn(
+          `[physical] Cycle-extension flow failed for ${uid}: ${err.message} — falling through to fresh generation`
+        );
       }
     }
 

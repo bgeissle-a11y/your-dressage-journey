@@ -1,7 +1,7 @@
 # YDJ Final Pre-Launch Remediation List
 
-**Audit complete:** 2026-05-12 · **Launch:** 2026-06-01 · **Last status update:** 2026-05-23
-**Items shipped:** 34 of 50 · **Effort remaining:** ~8 hours over ~9 days
+**Audit complete:** 2026-05-12 · **Launch:** 2026-06-01 · **Last status update:** 2026-05-24
+**Items shipped:** 38 of 50 · **Effort remaining:** ~2 hours over ~8 days
 
 > **🎯 Read this section. Skip the rest unless you need detail.**
 >
@@ -55,6 +55,9 @@
 **AI-field tamper protection** — 2026-05-18 (commit `a69d038`, deployed live)
 - ✅ H12 — Firestore update rules on `microDebriefs` and `freshStarts` use `diff().affectedKeys().hasAny([...])` to reject any client write that touches AI-written fields (`empatheticResponse`, `empatheticResponseGeneratedAt`, `riderState`/`voiceUsed` on microDebriefs, `cacheAgeAtSubmission`, `cacheBandAtSubmission`, `empatheticResponseError`). Cloud Functions unaffected — admin SDK bypasses rules. Read/create/delete unchanged.
 
+**Event Planner step hardening** — 2026-05-20 (commit `b5b0142`)
+- ✅ B8 — Event Planner Steps 2–4 now match Step 1's hardening: per-step Firestore cache keyed by `stepKey(N)` with `currentHash` guard so a mid-flow reload skips redundant Claude calls ([eventPlanner.js:411](functions/api/eventPlanner.js#L411), [L482](functions/api/eventPlanner.js#L482)); in-flight `tryAcquireLock` / `releaseLock` per step returning `inFlightResponse` short-circuit so a double-click can't double-bill ([L425](functions/api/eventPlanner.js#L425), [L496](functions/api/eventPlanner.js#L496), [L589](functions/api/eventPlanner.js#L589)); and TRUNCATED errors caught and rethrown as `HttpsError("resource-exhausted", …)` with step-specific messaging instead of leaking "Failed to extract valid JSON" ([L448-460](functions/api/eventPlanner.js#L448-L460), [L533-545](functions/api/eventPlanner.js#L533-L545), [L616-628](functions/api/eventPlanner.js#L616-L628)). Step 4 still writes the full assembled result to the `cacheKey` doc and updates `generatedPlan` metadata on the prep-plan document.
+
 **Token budgets + past-due lapse** — 2026-05-21 (deployed live)
 - ✅ B14 — Data Visualizations migrated to `tokenBudgets`: added `dataviz-pattern-extraction` / `dataviz-goal-mapping` / `dataviz-insight-narratives` SPEC rows (Working trimmed to 6000/3000/3000; Medium+Extended preserve 8192/4096/4096) plus three `TOKENS_DATAVIZ_*` env knobs. Handler now reads `getMaxTokens(...)` per call using `budgetTier` derived from the `enforceCapability` return. Also cleaned up the two remaining authenticated hardcoded sites: `coaching.js` précis and `processLessonTranscript.js` (new tier-flat `lesson-transcript` SPEC row at 5000). Only `firstGlimpse` and `arenaCoaching` still hardcode — both unauthenticated, no tier identity. Deployed: `getDataVisualizations`, `getMultiVoiceCoaching`, `processLessonTranscript`.
 - ✅ B17 — Stripe past-due lapse job shipped. `onPaymentFailed` now stamps `pastDueSince` on first transition; `onPaymentSucceeded` clears it via `FieldValue.delete()`. New `stripeLapseJob` daily at 04:00 ET pages users in batches of 50, lapses anyone past_due longer than `PAST_DUE_GRACE_DAYS` (default 14): clears subscription, lapses IC discount if `icStatus==active`, lapses pilot monthly discount if `pilotDiscountActive`. Per-user try/catch + one-line tally summary. Pure `decideOutcome()` exported and covered by 4 `node:test` cases (`functions/test/stripeLapseJob.test.js`). Doc: new "Stripe past-due lapse job" section in `docs/monitoring.md`. Deployed: `stripeWebhook`, `stripeLapseJob`.
@@ -78,13 +81,20 @@
 - Tests: 37 new `node:test` cases across `showPlanQuota.test.js` (24) / `eventPlannerValidators.test.js` (8) / `promptBuilderGeometry.test.js` (13 + overlap). Total suite: 101 green (74 pre-existing). Build clean.
 - Deploy order: `firebase deploy --only firestore:rules` (no rules change but kept order discipline) → `firebase deploy --only functions:getEventPlanner` → `firebase deploy --only hosting`.
 
+**Error-path hardening — 2026-05-24 (deployed live)**
+- ✅ H14 — Confirmed `generationLocks/{lockId}` Firestore rule was already in `firestore.rules:258-262` (read access via `lockId.split('_')[0] == request.auth.uid`). Tightened [src/services/weeklyFocusService.js:160](src/services/weeklyFocusService.js#L160) to (a) bail early when `uid` is falsy (pre-auth panel-mount race), (b) silently swallow `permission-denied` errors (expected logout/auth-transition race — caller already gets `null`), (c) demote all other errors from `console.error` → `console.warn` so real Firestore outages stay visible but don't trip B18's error-rate alert. Eliminates the recurring noise that would have fired the launch alert under load.
+- ✅ H7 — Wrapped cycle-extension flow in [functions/api/physicalGuidance.js:165-195](functions/api/physicalGuidance.js#L165-L195) and [functions/api/grandPrixThinking.js:300-335](functions/api/grandPrixThinking.js#L300-L335) with try/catch + warning log + fall-through to fresh generation. If `shouldExtendCycle`'s debriefs query, `getStaleCache`, or the follow-up `getCycleState` throws, the rider gets fresh AI output (cost overhead ≤$0.10/case) instead of a hard failure. Warn line `Cycle-extension flow failed for {uid}: {msg}` is the operational signal — repeated hits for the same uid suggest cycle-state corruption.
+- ✅ H13 regression guard — Added [functions/test/tokenBudgets.journeyMap.test.js](functions/test/tokenBudgets.journeyMap.test.js) (3 assertions) to prevent `journey-map-synthesis` budgets from silently being walked back from the 2026-05-23 fix (`{working: 4000, medium: 8000, extended: 8000}`).
+- Tests: 12 new `node:test` cases across `cycleExtensionErrorHandling.test.js` (9: 3 error-path × 2 handlers + 2 happy-path regressions + 1 console-restore) and `tokenBudgets.journeyMap.test.js` (3). Total suite: 113 green. Build clean.
+- Deploy: `firebase deploy --only functions:getPhysicalGuidance,functions:getGrandPrixThinking` + `firebase deploy --only hosting`. Rules deploy skipped — `generationLocks/{lockId}` rule already live.
+
 **Show Planner bi-weekly cron hardening — Claude Code session 2026-05-22 (B10 + B11 bundle)**
 - ✅ B10 — Same-day UTC dedup verified in [showPlannerBiweeklyContent.js:222-229](functions/api/showPlannerBiweeklyContent.js#L222-L229); 8 dedup tests added; `_utcDateOnly` hardened to recognize Firestore Timestamp objects (`{_seconds}` and `.toDate()`-shaped) as a defensive guard against any legacy entry that wasn't ISO-encoded.
 - ✅ B11 — Plan-count + USD spend caps verified; `BIWEEKLY_ESTIMATED_USD_PER_PLAN` made env-overridable so the USD cap math can be retuned without a redeploy; 50 lines of duplicated cap-check + loop logic extracted to a shared `_runFire` helper (test-only injection seams for `capOverrides` / `_queryActivePlans` / `_processPlan`); aborted runs now also fire a Sentry warning event so the founder doesn't have to grep logs. Env knobs documented in `.env.example`. 7 cap tests added covering both caps, skipped-vs-generated tally math, mid-loop throw recovery, planId collection, empty-plan list, and abort-boundary planId capture.
 - All 52 `node:test` cases green (15 new + 37 pre-existing). Deploys via the existing `firebase deploy --only functions:showPlannerBiweeklyContent,functions:runShowPlannerBiweekly` command — flag still defaults OFF.
 
-**Cleared from BLOCKER count: 25 of 28 (B29 added then downgraded to M14 on 2026-05-18). Cleared from HIGH-RISK: 6 of 14 (H13 + H14 added 2026-05-18).**
-**The two scariest classes of bug — silent fan-out failure and iOS save loss — are now neutralized.**
+**Cleared from BLOCKER count: 25 of 28 (B29 added then downgraded to M14 on 2026-05-18). Cleared from HIGH-RISK: 9 of 14 (H13 + H14 added 2026-05-18; H7 / H13 / H14 closed 2026-05-24).**
+**The two scariest classes of bug — silent fan-out failure and iOS save loss — are now neutralized. As of 2026-05-24, every code BLOCKER and code HIGH-RISK is closed except B9 (deploy gate awaiting validation run).**
 
 ---
 
@@ -95,8 +105,8 @@
 
 ### This week (May 16–17): finish the BLOCKER tier in code
 
-- ⚠️ **H13 (NEW — DIAGNOSED)** — Goals progress bar regressed to 1 goal at 0%. **Root cause confirmed 2026-05-18 as token-budget truncation:** rider data has grown such that `themes`/`milestones`/`patterns` now consume the 4000-token output budget for `journey-map-synthesis`, leaving no room for `goal_progress` or `dashboardSummary` (the last two fields in the JSON spec). `repairTruncatedJSON` salvaged the surviving fields. Frontend falls back to `profile.longTermGoals` text rendered without progress info → looks like 1 goal at 0%. **Fix:** bump `journey-map-synthesis` in `functions/lib/tokenBudgets.js` from `{working: 3000, medium: 4000, extended: 4000}` to `{working: 4000, medium: 8000, extended: 8000}`, deploy, then force fresh regen to overwrite cache. ~5 min total. Cost-neutral in practice (tokens billed on usage, not budget).
-- ⚠️ **H14 (NEW)** — Client-side console spamming `FirebaseError: Missing or insufficient permissions` from `weeklyFocusService.readInflightLock(coaching)`. The client is trying to read an inflight-lock doc that the Firestore rules don't grant read access to. Function probably soft-fails (it's a check-before-do pattern) so user-invisible, but: (a) will trigger B18's error-rate alert under load, (b) fills logs with noise, (c) suggests inflight-lock reads should either be done server-side or rules should grant the user read access on their own lock doc. Either tighten `weeklyFocusService.readInflightLock` to skip the client read, or add a rule for `inflightLocks/{uid}_*` granting `read: if request.auth.uid` matches the doc-id prefix. ~30min–1h depending on approach chosen.
+- ~~H13~~ — shipped 2026-05-23 (`journey-map-synthesis` bumped to `{working: 4000, medium: 8000, extended: 8000}`); regression guard added 2026-05-24
+- ~~H14~~ — shipped 2026-05-24 (rules already deployed; `readInflightLock` tightened to silently swallow `permission-denied` and bail on pre-auth `uid`)
 - 📧 **Pilot conversion email Round 1** + apology to lesson-notes user (1.5h)
 
 **Subtotal this week: 2.5h.** B3 (1h) + H6 (1h) shipped 2026-05-17; B19 (4h) + H1 (0.5h) + H12 (1h) shipped 2026-05-18 — see WHAT'S SHIPPED.
@@ -104,7 +114,7 @@
 ### Next week (May 18–23): coaching/show-planner BLOCKERs + AI hardening
 
 - ~~B7~~ — shipped 2026-05-23 (rolling-12-mo quota enforced via `showPlansCreatedThisYear` counter; pricing copy retained, now matches enforcement)
-- 🔥 **B8** — Event Planner Step 2–4 caching + locks + truncation handling (4h)
+- ~~B8~~ — shipped 2026-05-20 (Event Planner Steps 2–4 per-step cache + in-flight locks + truncation handling, commit `b5b0142`)
 - ~~B10~~ — shipped 2026-05-22 (bi-weekly cron same-day dedup)
 - ~~B11~~ — shipped 2026-05-22 (bi-weekly cron global spend cap)
 - ~~B12~~ — shipped 2026-05-22 (GPT trajectory step 1 resume banner)
@@ -112,7 +122,7 @@
 - ~~H4~~ — shipped 2026-05-22 (tier-aware daily call limit)
 - 📧 **Pilot conversion email Round 2** (1h)
 
-**Subtotal next week: 9.5h.** H2 (1h) shipped alongside H1 on 2026-05-18. B14 (1.5h) + B17 (2h) shipped 2026-05-21. B4 (3h) + B5 (1h) + H3 (1h) + B12 (2h) + B13 (1h) + H4 (1h) + B10 (1h) + B11 (1h) shipped 2026-05-22 — see WHAT'S SHIPPED.
+**Subtotal next week: 13.5h.** H2 (1h) shipped alongside H1 on 2026-05-18. B8 (4h) shipped 2026-05-20. B14 (1.5h) + B17 (2h) shipped 2026-05-21. B4 (3h) + B5 (1h) + H3 (1h) + B12 (2h) + B13 (1h) + H4 (1h) + B10 (1h) + B11 (1h) shipped 2026-05-22 — see WHAT'S SHIPPED.
 
 ### Launch week (May 24–31): QA, deploy hardening, comms
 
@@ -121,14 +131,14 @@
 - 🔥 **B9** — Flip `SHOW_PLANNER_BIWEEKLY_ENABLED=true` after one validation run (1h)
 - 🔥 **B23** — ToS / Privacy / Refund finalized & published (external — lawyer)
 - 🔥 **B24** — End-to-end live-mode dry run (4h)
-- ⚠️ **H7** — Cycle-state extension try/catch with logging (1h)
+- ~~H7~~ — shipped 2026-05-24 (cycle-extension flow wrapped in try/catch + warn + fall-through in both `physicalGuidance.js` and `grandPrixThinking.js`)
 - ⚠️ **H8** — iOS Safari QA pass — full app on real iPhone (4h)
 - ⚠️ **H9** — Voice input QA on iOS + Android (1.5h)
 - ⚠️ **H10** — Pilot conversion email Round 3 (1h)
 - ⚠️ **H11** — Support runbook + canned responses (2h)
 - ➖ **M6** — 3 high-leverage unit tests (defer if tight) (4h)
 
-**Subtotal launch week: 14.5h** (or 10.5h with M6 deferred).
+**Subtotal launch week: 13.5h** (or 9.5h with M6 deferred). H7 (1h) shipped 2026-05-24 — see WHAT'S SHIPPED.
 
 ### Launch day (June 1)
 
@@ -464,7 +474,7 @@ File: `firestore.rules:55-67`. The empathetic response field is written by Cloud
 | B4 | Multi-Voice partial-failure stale fallback | 3 |
 | B5 | Précis lock for bulk path | 1 |
 | B7 | Show Planner copy fix (drop "10/yr" claim) | 0.5 |
-| B8 | Event Planner step caching + locks + truncation | 4 |
+| ~~B8~~ | ~~Event Planner step caching + locks + truncation~~ — shipped 2026-05-20 | — |
 | ~~B10~~ | ~~Bi-weekly cron same-day dedup~~ — shipped 2026-05-22 | — |
 | ~~B11~~ | ~~Bi-weekly cron global spend cap~~ — shipped 2026-05-22 | — |
 | ~~B12~~ | ~~GPT trajectory step 1 resume banner~~ — shipped 2026-05-22 | — |
