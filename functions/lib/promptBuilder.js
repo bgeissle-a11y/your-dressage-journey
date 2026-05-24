@@ -4127,6 +4127,61 @@ function extractConcernsArray(concerns) {
   return [];
 }
 
+/**
+ * Returns level-appropriate arena-geometry reference text for the EP-2
+ * (Readiness Analysis) system prompt. Replaces a previously hardcoded
+ * block that always cited 20m-circle geometry — incorrect at PSG and
+ * above (no 20m circles required) and incomplete at higher FEI levels.
+ *
+ * Returns "" for unrecognized levels so we emit nothing rather than the
+ * wrong reference. Match against normalized USDF / FEI level names.
+ *
+ * @param {string} levelName
+ * @returns {string} geometry guidance line(s), or empty string
+ */
+function getGeometryReferenceForLevel(levelName) {
+  if (!levelName) return "";
+  const lower = String(levelName).toLowerCase();
+
+  if (lower.includes("intro") || lower.includes("training") || lower.includes("first")) {
+    return "- Reference correct geometry: 20m circle at A touches A and the long sides 10m from A (4m past K and 4m past F — NOT at K or F). 20m circle at C: same pattern past H and M. 20m circle at B/E centered at X touches B, E, and centerline at 20m and 40m from A.";
+  }
+
+  if (lower.includes("second") || lower.includes("third")) {
+    return "- Reference correct geometry: 15m and 10m circles at the working letters; 10m circle at B or E touches the letter and the centerline at X. Half-passes follow geometric diagonals — accuracy on the rail-side starting letter and the finishing letter on the centerline is what judges score.";
+  }
+
+  if (lower.includes("fourth")) {
+    return "- Reference correct geometry: 10m circles; 8m volte at B or E touches the letter and reaches 2m short of centerline. Half-passes at trot and canter follow the geometric line — accuracy on entry, finish, and the angle of the diagonal is collectively marked.";
+  }
+
+  // FEI Intermediate II / Grand Prix family — match BEFORE the PSG/I-1
+  // branch so "intermediate ii" doesn't get swallowed by "intermediate i".
+  if (
+    lower.includes("intermediate ii") ||
+    lower.includes("inter ii") ||
+    lower.includes("i-2") ||
+    lower.includes("grand prix") ||
+    lower.startsWith("gp")
+  ) {
+    return "- Reference correct geometry: full canter pirouettes on the centerline; piaffe and passage on the centerline with precise transitions at specified markers; tempi changes (3s, 2s, 1s) require absolute straightness on the diagonal. 8m voltes remain the smallest figure. Geometry at this level is judged on the line, the engagement, and the precision of the transitions between figures.";
+  }
+
+  if (
+    lower.includes("psg") ||
+    lower.includes("prix st") ||
+    lower.includes("i-1") ||
+    lower.includes("i-a") ||
+    lower.includes("i-b") ||
+    lower.includes("intermediate i") ||
+    lower.includes("inter i")
+  ) {
+    return "- Reference correct geometry: 8m voltes are the smallest standard figure; canter pirouettes (working/half pirouettes at PSG and I-1, full at I-A/I-B) require accurate placement on the centerline or quarter line. Tempi changes are not yet required at PSG but enter at I-1 (4-tempis only). Half-pass angles steepen — judges score the angle, the bend, and the geometric line.";
+  }
+
+  return "";
+}
+
 function buildEventPlannerPrompt(callIndex, riderData, eventPrepPlan, detailedTestContext, priorResults) {
   let system, userMessage;
 
@@ -4289,7 +4344,7 @@ Respond in JSON format:
   }` : "null"}
 }
 
-For FEI tests without a full movement sequence, structure the movements field from the required_movements data grouped by gait. Note any movements where the database lacks specific sequence information.`;
+For FEI tests, reference only movements that appear in the supplied test data. Do not invent movement numbers or descriptions. If the database lacks specific sequence information for a movement number you would otherwise reference, omit that movement entirely or refer to movement types (e.g., "the half-pass sequence") rather than numbered movements (e.g., "Movement 10"). Coefficient movements should be referenced by their movement number ONLY if that number appears in the supplied test data with a name and directive.`;
 
     userMessage = isShowPrep
       ? `Analyze the test requirements for this rider's upcoming show:
@@ -4352,7 +4407,7 @@ When the rider is newer to showing, returning after a long absence, or has ident
 - Assess whether circle geometry, diagonal accuracy, and movement placement appear as challenges
 - Note that accuracy affects both individual movement scores AND collective marks — making it a high-return preparation area
 - Include geometry readiness as a factor in the overall readiness score
-- Reference correct geometry: 20m circle at A touches A and the long sides 10m from A (4m past K and 4m past F — NOT at K or F). 20m circle at C: same pattern past H and M. 20m circle at B/E centered at X touches B, E, and centerline at 20m and 40m from A. 10m circle at B or E touches the letter and the centerline at X. 8m volte at B or E touches the letter, reaches 2m short of centerline.
+${getGeometryReferenceForLevel(detailedTestContext.levelName)}
 
 PRINCIPLES-BASED READINESS:
 Assess the health of each foundational principle based on recent debrief language patterns:
@@ -5867,6 +5922,7 @@ module.exports = {
   buildTrajectoryCall4Prompt,
   buildDataVisualizationPrompt,
   buildEventPlannerPrompt,
+  getGeometryReferenceForLevel,
   buildPhysicalGuidancePrompt,
   buildVisualizationScriptPrompt,
   buildFirstLightPrompt,

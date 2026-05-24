@@ -117,6 +117,46 @@ const EXTENDED_ADDS = new Set([
 
 const ALL_CAPABILITIES = new Set(Object.values(CAPABILITIES));
 
+// ─── Show Plan rolling-12-month quotas ────────────────────────────────────
+// Per YDJ_Pricing_Tiers_Stripe_Reference.md (Show Planner — Medium Tier):
+//   "Maximum 10 show plans per rolling 12-month period."
+// The counter (showPlansCreatedThisYear) and window start
+// (showPlanYearWindowStart) live on the users/{uid} document — seeded by
+// functions/api/stripe.js on every subscription create/update. The
+// enforcement helper is in functions/lib/showPlanQuota.js.
+//
+// Working tier can't generate show plans at all (capability gate blocks
+// earlier). Extended and Pilot are unlimited per their tier definitions.
+const SHOW_PLAN_ANNUAL_CAP = {
+  working: 0,
+  medium: 10,
+  extended: Infinity,
+};
+
+/**
+ * Returns the rolling-12-month show-plan cap for the given tier.
+ * Honors the SHOW_PLAN_ANNUAL_CAP_MEDIUM env override (integer or
+ * "unlimited"). Pilot maps to Extended (unlimited).
+ *
+ * @param {string} tier - "working" | "medium" | "extended" | "pilot"
+ * @returns {number} cap (Number.POSITIVE_INFINITY for unlimited)
+ */
+function getShowPlanAnnualCap(tier) {
+  if (tier === "pilot") return Number.POSITIVE_INFINITY;
+  if (tier === "extended") return Number.POSITIVE_INFINITY;
+  if (tier === "medium") {
+    const override = process.env.SHOW_PLAN_ANNUAL_CAP_MEDIUM;
+    if (override !== undefined && override !== null && override !== "") {
+      if (override === "unlimited") return Number.POSITIVE_INFINITY;
+      const n = parseInt(override, 10);
+      if (Number.isFinite(n) && n >= 0) return n;
+    }
+    return SHOW_PLAN_ANNUAL_CAP.medium;
+  }
+  if (tier === "working") return SHOW_PLAN_ANNUAL_CAP.working;
+  return 0;
+}
+
 function effectiveCapsForTier(tier) {
   const caps = new Set();
   if (
@@ -290,10 +330,12 @@ module.exports = {
   TIER_RANK,
   CAPABILITIES,
   STATUS,
+  SHOW_PLAN_ANNUAL_CAP,
   // Functions
   getTierStatus,
   canAccess,
   canAccessAll,
   requiredTierFor,
   assertCanAccess,
+  getShowPlanAnnualCap,
 };

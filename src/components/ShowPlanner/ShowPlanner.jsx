@@ -7,6 +7,7 @@ import { getEventPlannerStep } from '../../services/aiService';
 import { useEntitlements } from '../../hooks/useEntitlements';
 import { CAPABILITIES } from '../../constants/entitlements';
 import TestReferencePanel from '../TestReferencePanel/TestReferencePanel';
+import TestRequirementsDisplay from '../EventPrep/TestRequirementsDisplay';
 import ReadinessSnapshotCard from '../ReadinessSnapshotCard';
 import YDJLoading from '../YDJLoading';
 import './ShowPlanner.css';
@@ -88,6 +89,7 @@ export default function ShowPlanner() {
   const [plan, setPlan] = useState(null);
   const [weeks, setWeeks] = useState([]);
   const [testData, setTestData] = useState(null);
+  const [testRequirements, setTestRequirements] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -106,6 +108,7 @@ export default function ShowPlanner() {
   const [generating, setGenerating] = useState(false);
   const [genStep, setGenStep] = useState(0);
   const [genError, setGenError] = useState(null);
+  const [quotaExceeded, setQuotaExceeded] = useState(false);
   const [snapshotOpen, setSnapshotOpen] = useState(false);
   const dragSrc = useRef(null);
 
@@ -148,6 +151,7 @@ export default function ShowPlanner() {
         const normalized = renumberWeeks(rawWeeks.map(normalizeWeek));
         setWeeks(normalized);
         if (normalized.length > 0) setActiveWeek(normalized[0].week_number);
+        if (cached.testRequirements) setTestRequirements(cached.testRequirements);
       } else {
         // No cache — show empty state with generate button, not an error
         setWeeks([]);
@@ -164,6 +168,7 @@ export default function ShowPlanner() {
   async function generatePlan() {
     setGenerating(true);
     setGenError(null);
+    setQuotaExceeded(false);
     setGenStep(0);
     let accumulated = {};
 
@@ -189,6 +194,7 @@ export default function ShowPlanner() {
             setWeeks(normalized);
             if (normalized.length > 0) setActiveWeek(normalized[0].week_number);
           }
+          if (result.testRequirements) setTestRequirements(result.testRequirements);
           setNeedsGeneration(false);
           setGenerating(false);
           setGenStep(0);
@@ -205,7 +211,10 @@ export default function ShowPlanner() {
           throw new Error(result.message || `Step ${step} failed.`);
         }
 
-        if (step === 1) accumulated.testRequirements = result.testRequirements;
+        if (step === 1) {
+          accumulated.testRequirements = result.testRequirements;
+          if (result.testRequirements) setTestRequirements(result.testRequirements);
+        }
         if (step === 2) accumulated.readinessAnalysis = result.readinessAnalysis;
         if (step === 3) accumulated.preparationPlan = result.preparationPlan;
       }
@@ -217,20 +226,30 @@ export default function ShowPlanner() {
         const normalized = renumberWeeks(rawWeeks.map(normalizeWeek));
         setWeeks(normalized);
         if (normalized.length > 0) setActiveWeek(normalized[0].week_number);
+        if (cached.testRequirements) setTestRequirements(cached.testRequirements);
       } else if (accumulated.preparationPlan) {
         // Fallback: use the data we already have from step 3
         const rawWeeks = accumulated.preparationPlan.weeks || [];
         const normalized = renumberWeeks(rawWeeks.map(normalizeWeek));
         setWeeks(normalized);
         if (normalized.length > 0) setActiveWeek(normalized[0].week_number);
+        if (accumulated.testRequirements) setTestRequirements(accumulated.testRequirements);
       }
       setNeedsGeneration(false);
     } catch (err) {
       console.error('ShowPlanner generation error:', err);
+      const isQuota =
+        err?.details?.code === 'show_plan_quota_exceeded' ||
+        (err.message && err.message.includes('show plans included in your tier'));
       const isTimeout = err.message && (err.message.includes('deadline') || err.message.includes('DEADLINE') || err.message.includes('timed out'));
-      setGenError(isTimeout
-        ? 'The AI is taking longer than expected. Please try again — it often works on the second attempt.'
-        : (err.message || 'An error occurred during plan generation.'));
+      if (isQuota) {
+        setQuotaExceeded(true);
+        setGenError(err.message);
+      } else if (isTimeout) {
+        setGenError('The AI is taking longer than expected. Please try again — it often works on the second attempt.');
+      } else {
+        setGenError(err.message || 'An error occurred during plan generation.');
+      }
     } finally {
       setGenerating(false);
       setGenStep(0);
@@ -417,10 +436,15 @@ export default function ShowPlanner() {
             </p>
           )}
           {genError && <p className="slp-gen-error">{genError}</p>}
+          {quotaExceeded && (
+            <p className="slp-gen-error">
+              <Link to="/pricing">Upgrade to Extended</Link> for unlimited show plans.
+            </p>
+          )}
           <button
             className="btn btn-primary"
             onClick={generatePlan}
-            disabled={!canGeneratePlan}
+            disabled={!canGeneratePlan || quotaExceeded}
             title={!canGeneratePlan ? `Requires the ${ent.requiredTierLabel(CAPABILITIES.generateShowPrepPlan) || 'Medium'} plan` : undefined}
           >
             {genError ? 'Try Again' : 'Generate Plan →'}
@@ -438,6 +462,13 @@ export default function ShowPlanner() {
             }
           />
           <p style={{ fontSize: '0.82rem', color: 'var(--ink-light)' }}>Step {genStep} of 4 — this takes a few minutes</p>
+        </div>
+      )}
+
+      {/* ── AI-enriched test requirements ── */}
+      {testRequirements && (
+        <div className="slp-test-requirements">
+          <TestRequirementsDisplay data={testRequirements} />
         </div>
       )}
 

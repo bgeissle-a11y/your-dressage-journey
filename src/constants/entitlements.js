@@ -134,6 +134,25 @@ const EXTENDED_ADDS = new Set([
 
 const ALL_CAPABILITIES = new Set(Object.values(CAPABILITIES));
 
+// ─── Show Plan rolling-12-month quotas (frontend mirror) ──────────────────
+// Backend authority lives in functions/lib/entitlements.js. The frontend
+// uses these constants for UX hints (e.g. "X of 10 plans used this year").
+// Real enforcement is server-side via functions/lib/showPlanQuota.js —
+// the frontend cannot honor the SHOW_PLAN_ANNUAL_CAP_MEDIUM env override.
+export const SHOW_PLAN_ANNUAL_CAP = {
+  working: 0,
+  medium: 10,
+  extended: Infinity,
+};
+
+export function getShowPlanAnnualCap(tier) {
+  if (tier === 'pilot') return Number.POSITIVE_INFINITY;
+  if (tier === 'extended') return Number.POSITIVE_INFINITY;
+  if (tier === 'medium') return SHOW_PLAN_ANNUAL_CAP.medium;
+  if (tier === 'working') return SHOW_PLAN_ANNUAL_CAP.working;
+  return 0;
+}
+
 function effectiveCapsForTier(tier) {
   const caps = new Set();
   if (tier === TIERS.WORKING || tier === TIERS.MEDIUM || tier === TIERS.EXTENDED) {

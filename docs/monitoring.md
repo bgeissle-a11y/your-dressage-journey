@@ -539,6 +539,67 @@ Last verified: 2026-05-18
 
 ---
 
+## Show Planner quota enforcement (B7)
+
+Medium tier is capped at 10 show plans per rolling 12-month window per [YDJ_Pricing_Tiers_Stripe_Reference.md](../YDJ_Pricing_Tiers_Stripe_Reference.md). Extended and Pilot are unlimited. Working can't generate plans at all (capability gate rejects earlier).
+
+### Where the counter lives
+
+Two fields on each `users/{uid}` document:
+
+- `showPlansCreatedThisYear` — integer, incremented on first AI generation of each plan
+- `showPlanYearWindowStart` — ISO timestamp, when the current 12-month window opened
+
+Both are seeded by `functions/api/stripe.js:816-817` on every subscription create/update. The actual enforcement and increment live in [`functions/lib/showPlanQuota.js`](../functions/lib/showPlanQuota.js).
+
+### Idempotency marker on plan docs
+
+Each `showPreparations/{planId}` doc gets `aiGenerationStartedAt: <ISO>` written by `markPlanGenerationStarted` the first time EP-1 successfully completes. The marker doubles as the regeneration bypass — if a plan already has the field set, `enforceShowPlanQuota` returns silently regardless of cap status, so a user at 10/10 can still regenerate work they've already paid for.
+
+### Quirk: tier change resets the counter
+
+`functions/api/stripe.js` unconditionally seeds `showPlansCreatedThisYear: 0` and `showPlanYearWindowStart: now` on every subscription webhook update — so a Medium → Medium plan-switch (e.g. monthly→annual) resets the quota. This is **pre-existing behavior** not introduced by B7, but it is exploitable. If you see a user generating >10 plans in a year, check `stripeWebhookEvents` for a recent subscription update event. Fixing this requires making the seed conditional (only on initial sub creation) — out of scope for launch.
+
+### Spot-check a user's usage
+
+```
+gcloud firestore documents read "projects/your-dressage-journey/databases/(default)/documents/users/<uid>" \
+  --format=json | jq '{used: .fields.showPlansCreatedThisYear, windowStart: .fields.showPlanYearWindowStart}'
+```
+
+Or via the Firebase Console: `users/<uid>` → look at `showPlansCreatedThisYear` and `showPlanYearWindowStart`.
+
+### Adjust the cap without a redeploy
+
+Set the `SHOW_PLAN_ANNUAL_CAP_MEDIUM` env var (integer or `"unlimited"`) on the `getEventPlanner` function. Default is 10. Extended and Pilot ignore the override.
+
+```
+firebase functions:secrets:set SHOW_PLAN_ANNUAL_CAP_MEDIUM
+# then redeploy the single function
+firebase deploy --only functions:getEventPlanner
+```
+
+### Rejection telemetry
+
+When a user is over cap, `enforceShowPlanQuota` throws `HttpsError("resource-exhausted", ...)` with `details.code === "show_plan_quota_exceeded"`. The frontend (`ShowPlanner.jsx`) catches the code, surfaces the message, and shows an Upgrade-to-Extended link. The error is logged via the normal Cloud Function error path — if you see B18's error-rate alert fire and the breakdown is heavy on `getEventPlanner`, check for legitimate quota rejections first before assuming a bug.
+
+---
+
+## Event Planner movement validation (B30)
+
+EP-3 (Preparation Plan) post-generation validation catches the LLM-fabrication failure mode where a card text references `"Movement 10"` at PSG when the actual test data lists only movements 1–9. Implementation in [`functions/api/eventPlanner.js`](../functions/api/eventPlanner.js): `extractReferencedMovementNumbers` + `validateEP3Movements`, with a one-retry loop inside the EP-3 step.
+
+### Log lines you'll see
+
+- `[eventPlanner] EP-3 movement validation failed (attempt 1): referenced invalid movement numbers [10]; valid set is [1, 2, 3, 4, 5, 6, 7]` — first attempt hallucinated; retry kicked off with the valid set injected into the system prompt. **Expected occasionally**; no action needed.
+- `[eventPlanner] EP-3 validation exhausted retries for <uid> <planId>. Serving plan with invalid movement numbers [...].` — both attempts failed; rider receives the plan anyway (movement numbers are cosmetic, not safety-critical). **Investigate only if rate climbs above ~5% of EP-3 calls** — that would suggest the level-specific test data in `comprehensive_dressage_test_database.json` is missing movement numbers EP-1 expected to find.
+
+### Why we don't validate EP-2
+
+EP-2 (Readiness Analysis) freely cites movement *types* ("your collected canter," "the half-pass") without numbers, so a number-extraction validator produces too many false positives. The hallucination pattern that triggered the audit was concentrated in EP-3 prep-card text, which is what riders see on the page.
+
+---
+
 ## Anthropic API key rotation log
 
 | Date | Action | Key (first / last 4) | Notes |

@@ -31,6 +31,10 @@ const { getCache, setCache, getStaleCache } = require("../lib/cacheManager");
 const { tryAcquireLock, releaseLock } = require("../lib/inflightLock");
 const { getMaxTokens, tierFromLabel } = require("../lib/tokenBudgets");
 const { db } = require("../lib/firebase");
+const {
+  enforceShowPlanQuota,
+  markPlanGenerationStarted,
+} = require("../lib/showPlanQuota");
 
 /**
  * Compute a short hash of the event/show prep plan's key content fields.
@@ -80,6 +84,62 @@ function computeEventPrepHash(prepPlan) {
     .update(JSON.stringify(keyFields))
     .digest("hex")
     .slice(0, 12);
+}
+
+/**
+ * Walks every string field in preparationPlan and extracts referenced
+ * movement numbers (e.g. "Movement 10", "movement #3", "movement number 7").
+ *
+ * @param {object} preparationPlan - EP-3 output
+ * @returns {Set<number>}
+ */
+function extractReferencedMovementNumbers(preparationPlan) {
+  const numbers = new Set();
+  const pattern = /movement\s+(?:#|number\s+)?(\d+)/gi;
+
+  function scan(value) {
+    if (typeof value === "string") {
+      pattern.lastIndex = 0;
+      let m;
+      while ((m = pattern.exec(value)) !== null) {
+        const n = parseInt(m[1], 10);
+        if (Number.isFinite(n)) numbers.add(n);
+      }
+    } else if (Array.isArray(value)) {
+      value.forEach(scan);
+    } else if (value && typeof value === "object") {
+      Object.values(value).forEach(scan);
+    }
+  }
+
+  scan(preparationPlan);
+  return numbers;
+}
+
+/**
+ * Validates EP-3 output against the movement numbers supplied by EP-1.
+ * Catches the FEI-fabrication failure mode where the LLM cites
+ * "Movement 10" at PSG when the supplied test data lists only movements
+ * 1-9. Returns ok=true when EP-1 didn't supply numbered movements at all
+ * (some FEI tests) — validation skipped rather than failing every check.
+ *
+ * @param {object} preparationPlan
+ * @param {object} testRequirements
+ * @returns {{ok: boolean, invalid?: number[], validNumbers?: number[]}}
+ */
+function validateEP3Movements(preparationPlan, testRequirements) {
+  const test = testRequirements?.tests?.[0];
+  const validNumbers = new Set(
+    (test?.movements || [])
+      .map((m) => m?.number)
+      .filter((n) => Number.isFinite(n))
+  );
+  if (validNumbers.size === 0) return { ok: true };
+
+  const referenced = extractReferencedMovementNumbers(preparationPlan);
+  const invalid = [...referenced].filter((n) => !validNumbers.has(n));
+  if (invalid.length === 0) return { ok: true };
+  return { ok: false, invalid, validNumbers: [...validNumbers] };
 }
 
 /**
@@ -191,6 +251,14 @@ async function handler(request) {
 
     // --- STEP 1: Test Requirements Assembly ---
     if (step === 1) {
+      // Rolling-12-month show-plan quota enforcement (Medium: 10/window;
+      // Extended/Pilot: unlimited). Only enforced on showPreparations (new
+      // collection); legacy eventPrepPlans bypass. Skipped on cacheOnly
+      // reads — those don't trigger Claude work.
+      if (isShowPrep && !cacheOnly) {
+        await enforceShowPlanQuota(uid, budgetTier, planId);
+      }
+
       // Cache check (only on step 1)
       if (!forceRefresh) {
         // 1. Try exact match (both rider data hash and event prep hash match)
@@ -308,6 +376,12 @@ async function handler(request) {
 
         // Per-step cache write — backup for resuming after mid-flow reload.
         await setCache(uid, stepKey(1), { testRequirements }, cacheMeta);
+
+        // Mark plan as counted against rolling-12-month quota (idempotent).
+        // No-op for legacy eventPrepPlans.
+        if (isShowPrep) {
+          await markPlanGenerationStarted(uid, planId);
+        }
 
         return {
           success: true,
@@ -435,29 +509,59 @@ async function handler(request) {
           }
         );
 
+        // Pre-compute the valid-movements list once for the retry prompt.
+        const validNumbersList = (priorResults.testRequirements?.tests?.[0]?.movements || [])
+          .map((m) => m?.number)
+          .filter(Number.isFinite);
+        const retrySystem = system +
+          `\n\nIMPORTANT: Your previous response referenced movement numbers that do not exist in the supplied test data. ` +
+          `Valid movement numbers for this test are: [${validNumbersList.join(", ")}]. ` +
+          `Do not reference any other movement numbers. If you cannot describe preparation without a specific movement number, use movement types instead (e.g., "the half-pass," "the extended trot").`;
+
         let preparationPlan;
-        try {
-          preparationPlan = await callClaude({
-            system,
-            userMessage,
-            jsonMode: true,
-            maxTokens: eventPlannerMaxTokens,
-            context: "ep-3-preparation-plan",
-            uid,
-          });
-        } catch (err) {
-          if (err.message && err.message.includes("TRUNCATED")) {
-            console.error(
-              `[eventPlanner] EP-3 truncated for level ${targetLevel}. ` +
-              `This level may require more output tokens than allocated.`
-            );
-            throw new HttpsError(
-              "resource-exhausted",
-              "The preparation plan was too large to complete. " +
-              "Please try again — if the issue persists, contact support."
-            );
+        const MAX_VALIDATION_ATTEMPTS = 2; // initial + 1 retry
+        for (let attempt = 1; attempt <= MAX_VALIDATION_ATTEMPTS; attempt++) {
+          try {
+            preparationPlan = await callClaude({
+              system: attempt === 1 ? system : retrySystem,
+              userMessage,
+              jsonMode: true,
+              maxTokens: eventPlannerMaxTokens,
+              context: attempt === 1 ? "ep-3-preparation-plan" : "ep-3-preparation-plan-retry",
+              uid,
+            });
+          } catch (err) {
+            if (err.message && err.message.includes("TRUNCATED")) {
+              console.error(
+                `[eventPlanner] EP-3 truncated for level ${targetLevel}. ` +
+                `This level may require more output tokens than allocated.`
+              );
+              throw new HttpsError(
+                "resource-exhausted",
+                "The preparation plan was too large to complete. " +
+                "Please try again — if the issue persists, contact support."
+              );
+            }
+            throw err;
           }
-          throw err;
+
+          const validation = validateEP3Movements(preparationPlan, priorResults.testRequirements);
+          if (validation.ok) break;
+
+          console.warn(
+            `[eventPlanner] EP-3 movement validation failed (attempt ${attempt}): ` +
+            `referenced invalid movement numbers [${validation.invalid.join(", ")}]; ` +
+            `valid set is [${validation.validNumbers.join(", ")}]`
+          );
+
+          if (attempt >= MAX_VALIDATION_ATTEMPTS) {
+            console.error(
+              `[eventPlanner] EP-3 validation exhausted retries for ${uid} ${planId}. ` +
+              `Serving plan with invalid movement numbers [${validation.invalid.join(", ")}].`
+            );
+            // The plan is usable; we just couldn't get the model to stop
+            // hallucinating numbers. Log and continue.
+          }
         }
 
         await setCache(uid, stepKey(3), { preparationPlan }, cacheMeta);
@@ -557,4 +661,8 @@ async function handler(request) {
   }
 }
 
-module.exports = { handler };
+module.exports = {
+  handler,
+  extractReferencedMovementNumbers,
+  validateEP3Movements,
+};

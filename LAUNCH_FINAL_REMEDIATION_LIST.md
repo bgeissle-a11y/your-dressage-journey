@@ -1,7 +1,7 @@
 # YDJ Final Pre-Launch Remediation List
 
-**Audit complete:** 2026-05-12 · **Launch:** 2026-06-01 · **Last status update:** 2026-05-22
-**Items shipped:** 31 of 50 · **Effort remaining:** ~10.5 hours over ~10 days
+**Audit complete:** 2026-05-12 · **Launch:** 2026-06-01 · **Last status update:** 2026-05-23
+**Items shipped:** 34 of 50 · **Effort remaining:** ~8 hours over ~9 days
 
 > **🎯 Read this section. Skip the rest unless you need detail.**
 >
@@ -71,6 +71,13 @@
 - ✅ B13 — `_countL2OpusThisMonth` date-range filter (verified live, composite index confirmed deployed, unit tests added)
 - ✅ H4 — Tier-aware daily call limit (Working 30 / Medium 60 / Extended 100 / pilot→Extended) via `getDailyCallLimit` in tierBudgets.js
 
+**Show Planner pre-launch cleanup — 2026-05-23 (deployed live)**
+- ✅ B7 — Rolling-12-month show-plan quota enforced on the Medium tier (10/window) using the existing `showPlansCreatedThisYear` counter + `showPlanYearWindowStart` window-start that stripe.js was already seeding. New helper [functions/lib/showPlanQuota.js](functions/lib/showPlanQuota.js) gates EP-1 entry (`enforceShowPlanQuota`) and stamps the per-plan `aiGenerationStartedAt` marker + atomically increments the counter on first generation (`markPlanGenerationStarted`); rollover runs in the same transaction when `now - windowStart ≥ 365d`. Regenerations of an already-counted plan bypass the cap (`aiGenerationStartedAt` doubles as idempotency marker — no double-counting on retries or forced refreshes). Extended/Pilot are unlimited. `SHOW_PLAN_ANNUAL_CAP_MEDIUM` env override lets ops dial the cap without a redeploy. Frontend ([ShowPlanner.jsx](src/components/ShowPlanner/ShowPlanner.jsx#L228-L242)) detects `details.code === 'show_plan_quota_exceeded'`, shows "Upgrade to Extended" link, disables Try Again. Pricing copy `Show Planner (10 shows/year)` retained — now matches the enforcement. **Approach diverged from initial brief** (which proposed Firestore aggregate `count()` over `aiGenerationStartedAt` + calendar-year window) to wire up the pre-existing scaffolding documented in YDJ_Pricing_Tiers_Stripe_Reference.md, avoiding orphan fields.
+- ✅ B29 — `TestRequirementsDisplay` import + render restored in [ShowPlanner.jsx](src/components/ShowPlanner/ShowPlanner.jsx#L11) (above the week-chip row). EP-1 movement enrichment + level context now visible to riders; the AI was already generating it (it's just been hitting `accumulated.testRequirements` and being dropped on the floor since the Mar-22 rewrite). Zero new backend cost.
+- ✅ B30 — Three layers of defense against FEI movement fabrication: (1) EP-1 prompt no longer instructs the LLM to "structure movements from required_movements data" — now explicitly forbidden to invent numbers ([promptBuilder.js:4292](functions/lib/promptBuilder.js#L4292)); (2) EP-2 geometry guidance level-gated via new `getGeometryReferenceForLevel(levelName)` ([promptBuilder.js:4130](functions/lib/promptBuilder.js#L4130)) so PSG no longer cites 20m circles (it has none), and GP/Inter II add piaffe/passage/tempi geometry; (3) post-EP-3 validator (`validateEP3Movements` in [eventPlanner.js](functions/api/eventPlanner.js)) catches residual hallucinations and retries once with an explicit valid-numbers list injected into the system prompt — logs warn on first failure and error on retry exhaustion (plan still served; not fatal).
+- Tests: 37 new `node:test` cases across `showPlanQuota.test.js` (24) / `eventPlannerValidators.test.js` (8) / `promptBuilderGeometry.test.js` (13 + overlap). Total suite: 101 green (74 pre-existing). Build clean.
+- Deploy order: `firebase deploy --only firestore:rules` (no rules change but kept order discipline) → `firebase deploy --only functions:getEventPlanner` → `firebase deploy --only hosting`.
+
 **Show Planner bi-weekly cron hardening — Claude Code session 2026-05-22 (B10 + B11 bundle)**
 - ✅ B10 — Same-day UTC dedup verified in [showPlannerBiweeklyContent.js:222-229](functions/api/showPlannerBiweeklyContent.js#L222-L229); 8 dedup tests added; `_utcDateOnly` hardened to recognize Firestore Timestamp objects (`{_seconds}` and `.toDate()`-shaped) as a defensive guard against any legacy entry that wasn't ISO-encoded.
 - ✅ B11 — Plan-count + USD spend caps verified; `BIWEEKLY_ESTIMATED_USD_PER_PLAN` made env-overridable so the USD cap math can be retuned without a redeploy; 50 lines of duplicated cap-check + loop logic extracted to a shared `_runFire` helper (test-only injection seams for `capOverrides` / `_queryActivePlans` / `_processPlan`); aborted runs now also fire a Sentry warning event so the founder doesn't have to grep logs. Env knobs documented in `.env.example`. 7 cap tests added covering both caps, skipped-vs-generated tally math, mid-loop throw recovery, planId collection, empty-plan list, and abort-boundary planId capture.
@@ -96,7 +103,7 @@
 
 ### Next week (May 18–23): coaching/show-planner BLOCKERs + AI hardening
 
-- 🔥 **B7** — Show Planner "10 shows/yr" — drop the marketing claim OR enforce (0.5h for copy fix)
+- ~~B7~~ — shipped 2026-05-23 (rolling-12-mo quota enforced via `showPlansCreatedThisYear` counter; pricing copy retained, now matches enforcement)
 - 🔥 **B8** — Event Planner Step 2–4 caching + locks + truncation handling (4h)
 - ~~B10~~ — shipped 2026-05-22 (bi-weekly cron same-day dedup)
 - ~~B11~~ — shipped 2026-05-22 (bi-weekly cron global spend cap)
@@ -109,6 +116,8 @@
 
 ### Launch week (May 24–31): QA, deploy hardening, comms
 
+- ~~B29~~ — shipped 2026-05-23 (TestRequirementsDisplay restored above week-chip row)
+- ~~B30~~ — shipped 2026-05-23 (EP-1 prompt + EP-2 level-gated geometry + EP-3 movement validator with 1 retry)
 - 🔥 **B9** — Flip `SHOW_PLANNER_BIWEEKLY_ENABLED=true` after one validation run (1h)
 - 🔥 **B23** — ToS / Privacy / Refund finalized & published (external — lawyer)
 - 🔥 **B24** — End-to-end live-mode dry run (4h)
@@ -243,6 +252,16 @@ File: `functions/api/showPlannerBiweeklyContent.js:209`. `generatedAt` is fresh 
 **B11. Show Planner bi-weekly cron has no global spend cap.**
 File: `functions/api/showPlannerBiweeklyContent.js:230–247`. Per-user dollar cap doesn't help because each plan = different user; one fire could blow $50–100 with no abort.
 **Fix:** Track total cost in cron run; abort with log when crossing configurable env ceiling. **Effort: 1h.**
+
+**B29 (NEW — 2026-05-23). Show Planner stopped rendering EP-1 test movements after Mar-22 rewrite — paid LLM output discarded.**
+Files: `src/components/ShowPlanner/ShowPlanner.jsx`, `src/components/EventPrep/EventPlannerOutput.jsx`, `src/components/EventPrep/TestRequirementsDisplay.jsx`. **Root cause confirmed 2026-05-23:** commits `0375a7e` (Show Planner rewrite) + `56831db` (route consolidation that retired `ShowPrepPlan.jsx`) shipped a new `ShowPlanner.jsx` that dropped imports of `EventPlannerOutput` and `TestRequirementsDisplay`. The new page still calls EP-1 and stores `accumulated.testRequirements` (ShowPlanner.jsx:208) — so the full LLM-enriched movements list (with per-movement `common_errors`, `geometry_notes`, `scoring_tips`) is still being generated and paid for, then never rendered. Reproducible by inspecting any cached plan: `testRequirements.tests[0].movements` is present in Firestore but absent from the UI. The "Test Reference" sidebar shows the static gait-categorized list from `src/services/testDatabase.js`, which is not the same surface and is missing the rich per-movement notes.
+**Fix:** Re-add the import and render `{accumulated.testRequirements && <TestRequirementsDisplay data={accumulated.testRequirements} />}` to `src/components/ShowPlanner/ShowPlanner.jsx` above the preparation-plan render. Component still exists, still works, data is already in state. **Effort: 0.25h.**
+
+**B30 (NEW — 2026-05-23). Show Planner generates fabricated/wrong movement references for FEI tests (e.g., "Movement 10 down centerline in collected trot" for PSG; 20m-circle prep advice for a test that has no 20m circles).**
+File: `functions/lib/promptBuilder.js`. Two compounding prompt bugs hit hard once `0375a7e` started correctly resolving the level to PSG (rather than falling back to Training):
+- **Line 4292** explicitly instructs the LLM: *"For FEI tests without a full movement sequence, structure the movements field from the required_movements data grouped by gait."* The model knows movement 10 carries a coefficient (`coefficient_movements: [5, 10, 13, 14, 18, 20]`) but has no idea what movement 10 actually is, so it invents one. Real PSG movement 10 is a half-pass right at EG/G.
+- **Lines 4349–4355** hardcode 20m-circle geometry guidance for every level with no level gate. PSG has no 20m circles (smallest figures are 8m voltes). Line 4353's "accuracy affects both individual movement scores AND collective marks" lands verbatim in the rendered card.
+**Fix:** (a) Replace line 4292 with `"For FEI tests, reference only movements present in the supplied test data. Do not invent movement numbers or descriptions. If specific movement detail is unavailable, refer to movement types rather than numbered movements."` (b) Level-gate lines 4349–4355: Intro/Training/First get 20m-circle guidance; Second/Third get 10m circles; Fourth+ get voltes/pirouettes/tempi geometry. (c) Add a post-EP-3 validator that asserts every movement number in EP-3 prep cards exists in `testRequirements.tests[0].movements`; retry once on failure. **Effort: 2h** (0.25h for a+b, 1.75h for c).
 
 ### 🚨 GPT / Physical Guidance
 

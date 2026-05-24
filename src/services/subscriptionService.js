@@ -56,6 +56,9 @@ export const TIERS = {
       'Everything in Working, plus:',
       'Grand Prix Thinking (monthly cycle)',
       'Physical Guidance (monthly cycle)',
+      // Enforced server-side as a rolling 12-month cap in
+      // functions/lib/showPlanQuota.js (counter on users/{uid}). Adjust the
+      // cap via the SHOW_PLAN_ANNUAL_CAP_MEDIUM env var without a redeploy.
       'Show Planner (10 shows/year)',
       'Journey Map (full history)',
       'Visualization Scripts',
