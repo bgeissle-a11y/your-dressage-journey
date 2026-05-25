@@ -7,7 +7,12 @@
  * token before POSTing. UID can be any string — pass an existing admin's
  * UID to avoid creating a phantom user in Firebase Auth.
  *
- * Usage: node scripts/triggerShowPlannerBiweekly.js <uid>
+ * Usage:
+ *   node scripts/triggerShowPlannerBiweekly.js <uid>
+ *   node scripts/triggerShowPlannerBiweekly.js <uid> <planId1>[,<planId2>,...]
+ *
+ * The optional second arg narrows the fire to specific plan IDs (admin-only
+ * validation knob; the scheduled cron always processes all qualifying plans).
  *
  * The callable returns the per-fire tally:
  *   { success, generated, skipped, error, planIds: [...], aborted? }
@@ -34,9 +39,13 @@ initializeApp({ credential: cert(sa) });
 
 const uid = process.argv[2];
 if (!uid) {
-  console.log("Usage: node scripts/triggerShowPlannerBiweekly.js <uid>");
+  console.log("Usage: node scripts/triggerShowPlannerBiweekly.js <uid> [planId1,planId2,...]");
   process.exit(1);
 }
+const planIds = process.argv[3]
+  ? process.argv[3].split(",").map((s) => s.trim()).filter(Boolean)
+  : undefined;
+if (planIds) console.log("[trigger] planIds filter:", planIds);
 
 const PROJECT_ID = sa.project_id;
 const FUNCTION_URL = `https://us-central1-${PROJECT_ID}.cloudfunctions.net/runShowPlannerBiweekly`;
@@ -74,7 +83,7 @@ async function main() {
       "Content-Type": "application/json",
       Authorization: `Bearer ${exchangeJson.idToken}`,
     },
-    body: JSON.stringify({ data: {} }),
+    body: JSON.stringify({ data: planIds ? { planIds } : {} }),
   });
   const callText = await callRes.text();
   const elapsedSec = ((Date.now() - t0) / 1000).toFixed(1);

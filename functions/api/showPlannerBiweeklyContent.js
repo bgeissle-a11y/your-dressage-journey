@@ -291,7 +291,16 @@ async function _runFire(now, options = {}) {
   const _queryActivePlansFn = options._queryActivePlans ?? queryActivePlans;
   const _processPlanFn = options._processPlan ?? processPlan;
 
-  const plans = await _queryActivePlansFn(now);
+  let plans = await _queryActivePlansFn(now);
+  if (Array.isArray(options.planIdsFilter)) {
+    // Admin-only narrowing knob: callable can restrict the fire to a specific
+    // subset of plan IDs for scoped validation. Scheduled fires never pass
+    // this option, so the cron continues to process all qualifying plans.
+    const wanted = new Set(options.planIdsFilter);
+    const before = plans.length;
+    plans = plans.filter((p) => wanted.has(p.id));
+    console.log(`[biweekly] planIdsFilter applied — ${plans.length}/${before} plans match filter (${[...wanted].join(", ")})`);
+  }
   console.log(`[biweekly] processing ${plans.length} active plans`);
 
   const tally = { generated: 0, skipped: 0, error: 0 };
@@ -382,7 +391,10 @@ async function callableHandler(request) {
   if (!_isEnabled()) {
     return { success: false, reason: "disabled-by-env" };
   }
-  const tally = await _runFire(new Date(), { collectPlanIds: true });
+  const planIdsFilter = Array.isArray(request.data?.planIds) && request.data.planIds.length
+    ? request.data.planIds
+    : undefined;
+  const tally = await _runFire(new Date(), { collectPlanIds: true, planIdsFilter });
   return { success: true, ...tally };
 }
 

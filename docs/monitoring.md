@@ -455,6 +455,37 @@ vs `"skipped:duplicate"` vs `"generated"`. Outcome strings: `generated`,
    next fire — no data loss, just a 14-day delay for the tail. Raise the
    cap if growth is real (e.g., 500 → 1000) and re-deploy.
 
+### Fast rollback (disable the cron)
+
+If the 06:00 ET cron on the 1st or 15th misbehaves (mass errors, content
+quality regression, runaway cost), kill it by flipping the secret back to
+`false` and redeploying so the cold start picks up the new value:
+
+```
+printf "false" | firebase functions:secrets:set SHOW_PLANNER_BIWEEKLY_ENABLED --data-file=-
+firebase deploy --only functions:showPlannerBiweeklyContent,functions:runShowPlannerBiweekly
+```
+
+Already-fired content stays in Firestore — there's no rollback of writes.
+The function logs `[biweekly] disabled by env` on the next fire and the
+admin callable returns `{ success: false, reason: "disabled-by-env" }`.
+To re-enable after a fix, repeat the sequence with `"true"`.
+
+### Admin-only scoped validation
+
+The `runShowPlannerBiweekly` callable accepts an optional `planIds` array
+in `request.data` to narrow a fire to specific plan IDs — used for scoped
+validation after a flag flip or code change without firing on the full
+active cohort. The scheduled cron does not pass this option and remains
+unfiltered. See `scripts/triggerShowPlannerBiweekly.js` for the helper:
+
+```
+node scripts/triggerShowPlannerBiweekly.js <admin-uid> <planId1>[,<planId2>,...]
+```
+
+When the filter is applied, the function logs:
+`[biweekly] planIdsFilter applied — N/M plans match filter (...)`
+
 ---
 
 ## Multi-Voice Coaching diagnostics

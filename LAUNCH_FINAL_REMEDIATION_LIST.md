@@ -1,7 +1,7 @@
 # YDJ Final Pre-Launch Remediation List
 
 **Audit complete:** 2026-05-12 · **Launch:** 2026-06-01 · **Last status update:** 2026-05-24
-**Items shipped:** 38 of 50 · **Effort remaining:** ~2 hours over ~8 days
+**Items shipped:** 39 of 50 · **Effort remaining:** ~1 hour over ~8 days
 
 > **🎯 Read this section. Skip the rest unless you need detail.**
 >
@@ -93,8 +93,12 @@
 - ✅ B11 — Plan-count + USD spend caps verified; `BIWEEKLY_ESTIMATED_USD_PER_PLAN` made env-overridable so the USD cap math can be retuned without a redeploy; 50 lines of duplicated cap-check + loop logic extracted to a shared `_runFire` helper (test-only injection seams for `capOverrides` / `_queryActivePlans` / `_processPlan`); aborted runs now also fire a Sentry warning event so the founder doesn't have to grep logs. Env knobs documented in `.env.example`. 7 cap tests added covering both caps, skipped-vs-generated tally math, mid-loop throw recovery, planId collection, empty-plan list, and abort-boundary planId capture.
 - All 52 `node:test` cases green (15 new + 37 pre-existing). Deploys via the existing `firebase deploy --only functions:showPlannerBiweeklyContent,functions:runShowPlannerBiweekly` command — flag still defaults OFF.
 
-**Cleared from BLOCKER count: 25 of 28 (B29 added then downgraded to M14 on 2026-05-18). Cleared from HIGH-RISK: 9 of 14 (H13 + H14 added 2026-05-18; H7 / H13 / H14 closed 2026-05-24).**
-**The two scariest classes of bug — silent fan-out failure and iOS save loss — are now neutralized. As of 2026-05-24, every code BLOCKER and code HIGH-RISK is closed except B9 (deploy gate awaiting validation run).**
+**Show Planner bi-weekly cron enable — 2026-05-24 (validated, flag flipped live)**
+- ✅ B9 — Flipped `SHOW_PLANNER_BIWEEKLY_ENABLED` to `true` (Secret Manager v5) and redeployed `showPlannerBiweeklyContent` + `runShowPlannerBiweekly` so cold-start picks up the new value. Validation run scoped to the founder's own Rocket Star plan (`75hlb1ljh12T23ZuDwI4`, PSG, 2026-05-30 show) via a new admin-only `planIds` knob added to the callable — scheduled cron remains unfiltered. Generated content passed all quality criteria: 190 words (target 150–220), uses "Rocket Star" throughout (never "your horse"), grounded in précis (continuity with the right-hip-asymmetry thread from prior entries), correct dressage vocabulary ("pirouettes", "tempi changes", "seat bones", "judge at C", "coefficient pieces"), no AI disclaimers, no fabricated rides, accurate date math (5 days out from 05-30). Same-day dedup (B10) confirmed on re-run (0.7s response, `skipped:duplicate`, no Claude call). First scheduled prod fire: **2026-06-01 06:00 ET**. Tail with `firebase functions:log --only showPlannerBiweeklyContent`. Fast-rollback procedure documented in [docs/monitoring.md](docs/monitoring.md) under "Show Planner bi-weekly cron → Fast rollback".
+- Code: optional `planIdsFilter` added to `_runFire` ([showPlannerBiweeklyContent.js:280-305](functions/api/showPlannerBiweeklyContent.js#L280-L305)); `callableHandler` reads `request.data.planIds` and forwards. `scripts/triggerShowPlannerBiweekly.js` accepts the IDs as an optional 2nd arg. Pre-flight inspector at `scripts/preflightBiweekly.js` (read-only) confirmed 4 qualifying plans in 90-day window / 2 with précis before the run.
+
+**Cleared from BLOCKER count: 26 of 28 (B29 added then downgraded to M14 on 2026-05-18). Cleared from HIGH-RISK: 9 of 14 (H13 + H14 added 2026-05-18; H7 / H13 / H14 closed 2026-05-24).**
+**The two scariest classes of bug — silent fan-out failure and iOS save loss — are now neutralized. As of 2026-05-24, every code BLOCKER and code HIGH-RISK is closed.**
 
 ---
 
@@ -128,7 +132,7 @@
 
 - ~~B29~~ — shipped 2026-05-23 (TestRequirementsDisplay restored above week-chip row)
 - ~~B30~~ — shipped 2026-05-23 (EP-1 prompt + EP-2 level-gated geometry + EP-3 movement validator with 1 retry)
-- 🔥 **B9** — Flip `SHOW_PLANNER_BIWEEKLY_ENABLED=true` after one validation run (1h)
+- ~~B9~~ — shipped 2026-05-24 (flag flipped to true; scoped Rocket Star validation passed all quality criteria; B10 dedup confirmed; first prod fire 2026-06-01 06:00 ET)
 - 🔥 **B23** — ToS / Privacy / Refund finalized & published (external — lawyer)
 - 🔥 **B24** — End-to-end live-mode dry run (4h)
 - ~~H7~~ — shipped 2026-05-24 (cycle-extension flow wrapped in try/catch + warn + fall-through in both `physicalGuidance.js` and `grandPrixThinking.js`)
