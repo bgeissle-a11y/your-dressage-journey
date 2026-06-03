@@ -93,6 +93,13 @@ const NAV_GROUPS = [
           { icon: '\uD83D\uDD2C', label: 'Science & Research', href: '/ydj-science.html' },
         ],
       },
+      {
+        heading: 'Reflections',
+        links: [
+          { icon: '\uD83C\uDFC6', label: 'Is Showing For Me?', href: '/musings-about-showing' },
+          { icon: '\uD83E\uDEC1', label: 'Can Breathing Change How You Ride?', href: '/musings-about-breathing' },
+        ],
+      },
     ],
   },
   {

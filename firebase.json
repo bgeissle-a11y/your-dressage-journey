@@ -64,6 +64,22 @@
         "destination": "/ydj-first-glimpse-quick.html"
       },
       {
+        "source": "/musings-about-showing",
+        "destination": "/ydj-learn-showing.html"
+      },
+      {
+        "source": "/ydj-learn-showing.html",
+        "destination": "/ydj-learn-showing.html"
+      },
+      {
+        "source": "/musings-about-breathing",
+        "destination": "/ydj-learn-breathing.html"
+      },
+      {
+        "source": "/ydj-learn-breathing.html",
+        "destination": "/ydj-learn-breathing.html"
+      },
+      {
         "source": "/science",
         "destination": "/ydj-science.html"
       },
