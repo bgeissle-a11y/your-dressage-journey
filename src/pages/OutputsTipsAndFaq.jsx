@@ -74,13 +74,13 @@ export default function OutputsTipsAndFaq() {
             <div className="outputs-card-icon">&#x1F9E0;</div>
             <div className="outputs-card-title">Grand Prix Thinking</div>
             <div className="outputs-card-desc">A 30-day mental-skills program with daily practices and long-term trajectory paths.</div>
-            <span className="outputs-card-freq">30-day cycle</span>
+            <span className="outputs-card-freq">Monthly, rider-led</span>
           </div>
           <div className="outputs-card">
             <div className="outputs-card-icon">&#x1F3CB;&#xFE0F;</div>
             <div className="outputs-card-title">Physical Guidance</div>
             <div className="outputs-card-desc">A 30-day off-horse program and body awareness practices, tailored to your documented challenges.</div>
-            <span className="outputs-card-freq">30-day cycle</span>
+            <span className="outputs-card-freq">Monthly, rider-led</span>
           </div>
           <div className="outputs-card">
             <div className="outputs-card-icon">&#x1F3AF;</div>
@@ -174,13 +174,13 @@ export default function OutputsTipsAndFaq() {
             </tr>
             <tr>
               <td><strong>Grand Prix Thinking</strong></td>
-              <td>30-day cycle</td>
-              <td>30-day program with weekly progression. Medium tier: refreshes monthly with one mid-cycle refresh allowed. Extended tier: regenerate any time.</td>
+              <td>Monthly, rider-led</td>
+              <td>A 30-day program with weekly progression. When the cycle ends, you choose when to generate the next one. It does not refresh automatically. Medium tier includes one mid-cycle refresh; Extended tier can refresh any time.</td>
             </tr>
             <tr>
               <td><strong>Physical Guidance</strong></td>
-              <td>30-day cycle</td>
-              <td>30-day program with weekly progression. Medium tier: refreshes monthly with one mid-cycle refresh allowed. Extended tier: regenerate any time. Also refreshes when you submit a new Physical Self-Assessment.</td>
+              <td>Monthly, rider-led</td>
+              <td>A 30-day program with weekly progression. When the cycle ends, you choose when to generate the next one. It does not refresh automatically. Medium tier includes one mid-cycle refresh; Extended tier can refresh any time.</td>
             </tr>
             <tr>
               <td><strong>Event Planner</strong></td>
@@ -421,7 +421,7 @@ export default function OutputsTipsAndFaq() {
         </p>
 
         <h3>A 30-day program, aligned with Grand Prix Thinking</h3>
-        <p>Like Grand Prix Thinking, Physical Guidance runs on a 30-day cycle. A single generation produces a four-week program; the dashboard advances week-by-week as you work through it. Regeneration happens on cycle expiry, or whenever you submit a new Physical Self-Assessment that shifts the baseline. Physical Guidance also receives your active Grand Prix Thinking trajectory as context, so the off-horse work and the mental work reinforce each other.</p>
+        <p>Like Grand Prix Thinking, Physical Guidance runs on a 30-day cycle. A single generation produces a four-week program; the dashboard advances week-by-week as you work through it. When the cycle ends, you choose when to generate the next one; it does not refresh on its own. Physical Guidance also receives your active Grand Prix Thinking trajectory as context, so the off-horse work and the mental work reinforce each other.</p>
 
         <h3>What you&#39;ll see</h3>
         <ul className="tips-bullets">
@@ -568,7 +568,7 @@ export default function OutputsTipsAndFaq() {
             <li><strong>Multi-Voice Coaching</strong> refreshes after every 10 new debriefs. Working tier has a monthly fallback; Extended adds manual regen with a 4-hour cooldown.</li>
             <li><strong>Journey Map</strong> refreshes after 10 combined debriefs and reflections, or after a journey event plus 5 entries. Working tier: max once per month. Extended: no frequency cap.</li>
             <li><strong>Data Visualizations</strong> refresh alongside Multi-Voice Coaching.</li>
-            <li><strong>Grand Prix Thinking</strong> and <strong>Physical Guidance</strong> are 30-day cycles. Medium gets one mid-cycle refresh; Extended is unrestricted.</li>
+            <li><strong>Grand Prix Thinking</strong> and <strong>Physical Guidance</strong> are rider-led 30-day cycles. When a cycle ends, you start the next one yourself. Medium gets one mid-cycle refresh; Extended is unrestricted.</li>
             <li><strong>Event Planner</strong> generates per Show Preparation submission.</li>
             <li><strong>First Light</strong> regenerates exactly once on any tier.</li>
           </ul>
@@ -612,7 +612,7 @@ export default function OutputsTipsAndFaq() {
 
         <details className="tips-faq">
           <summary>How often are my outputs updated?</summary>
-          <p>Each output has its own trigger&mdash;they don&#39;t refresh on a calendar. First Light is one-time (regenerable once). Multi-Voice Coaching refreshes after every 10 new debriefs (Working tier: monthly fallback; Extended: manual regen with 4-hour cooldown). Journey Map refreshes after 10 combined debriefs and reflections, or after a journey event plus 5 entries (Working: max once/month; Extended: no cap). Data Visualizations refresh with Multi-Voice. Grand Prix Thinking and Physical Guidance run on 30-day cycles. Event Planner generates per Show Preparation submission. See the <a href="#when">When Outputs Appear</a> table for the full rules.</p>
+          <p>Each output has its own trigger&mdash;they don&#39;t refresh on a calendar. First Light is one-time (regenerable once). Multi-Voice Coaching refreshes after every 10 new debriefs (Working tier: monthly fallback; Extended: manual regen with 4-hour cooldown). Journey Map refreshes after 10 combined debriefs and reflections, or after a journey event plus 5 entries (Working: max once/month; Extended: no cap). Data Visualizations refresh with Multi-Voice. Grand Prix Thinking and Physical Guidance run on rider-led 30-day cycles; when a cycle ends, you choose when to start the next one (they do not refresh automatically). Event Planner generates per Show Preparation submission. See the <a href="#when">When Outputs Appear</a> table for the full rules.</p>
         </details>
 
         <details className="tips-faq">
@@ -667,7 +667,7 @@ export default function OutputsTipsAndFaq() {
 
         <details className="tips-faq">
           <summary>Can I manually refresh an output?</summary>
-          <p>Not freely. Each output has refresh rules tied to your activity and your tier. <strong>First Light:</strong> regenerate once. <strong>Multi-Voice Coaching:</strong> auto-refresh every 10 new debriefs; Working tier gets a monthly fallback, Extended adds manual regen with a 4-hour cooldown. <strong>Journey Map:</strong> auto-refresh on activity (10 combined entries or a journey event + 5 entries); Working max once/month, Extended no cap. <strong>Data Visualizations:</strong> refresh whenever Multi-Voice refreshes. <strong>Grand Prix Thinking</strong> and <strong>Physical Guidance:</strong> 30-day cycles; Medium gets one mid-cycle refresh; Extended unrestricted. <strong>Event Planner:</strong> one plan per Show Preparation submission.</p>
+          <p>Not freely. Each output has refresh rules tied to your activity and your tier. <strong>First Light:</strong> regenerate once. <strong>Multi-Voice Coaching:</strong> auto-refresh every 10 new debriefs; Working tier gets a monthly fallback, Extended adds manual regen with a 4-hour cooldown. <strong>Journey Map:</strong> auto-refresh on activity (10 combined entries or a journey event + 5 entries); Working max once/month, Extended no cap. <strong>Data Visualizations:</strong> refresh whenever Multi-Voice refreshes. <strong>Grand Prix Thinking</strong> and <strong>Physical Guidance:</strong> rider-led 30-day cycles. When a cycle ends, you start the next one yourself; Medium gets one mid-cycle refresh; Extended unrestricted. <strong>Event Planner:</strong> one plan per Show Preparation submission.</p>
         </details>
 
         <details className="tips-faq">

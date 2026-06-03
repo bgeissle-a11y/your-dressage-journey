@@ -677,7 +677,11 @@ export default function GrandPrixPanel({ generationStatus }) {
           <span className="cycle-label">Next refresh</span>
           <span className="cycle-value">
             {cycleInfo.expiresAt ? formatDate(cycleInfo.expiresAt) : '—'}
-            {daysUntilRefresh != null && ` · ${daysUntilRefresh} days`}
+            {/* Hide the day countdown on the final day and at/after expiry.
+                "Jun 3 · 1 days" on Jun 3 reads as a missed deadline; the cycle is
+                rider-led, so the date alone (and the expired "Ready to refresh"
+                state) carries the message without implying an automatic refresh. */}
+            {daysUntilRefresh != null && daysUntilRefresh > 1 && ` · ${daysUntilRefresh} days`}
           </span>
         </div>
         <button

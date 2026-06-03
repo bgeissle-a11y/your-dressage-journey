@@ -7,6 +7,13 @@
  * "Next refresh" line, or the howItWorks tooltip — they are rider-facing
  * copy locked to that source.
  *
+ * EXCEPTION: the cycle outputs (grand-prix, physical) had their
+ * nextRefreshLabel + howItWorks corrected by the Cycle Cadence Copy
+ * Correction brief (June 2026) to stop implying automatic regeneration.
+ * These outputs are rider-triggered (no auto-regen); that brief and
+ * CLAUDE.md ("Cycle expiry: rider-triggered refresh only") are the
+ * authority for their cycle copy.
+ *
  * Each entry:
  *   title:            Output display name.
  *   description:      One-sentence summary (used as the second line of the
@@ -45,18 +52,18 @@ export const CADENCE_CONTENT = {
   'grand-prix': {
     title: 'Grand Prix Thinking',
     description: 'Mental skills development with daily practices and long-term training trajectory paths.',
-    cadence: '30-day cycle',
-    nextRefreshLabel: 'end of current 30-day cycle',
+    cadence: 'monthly cycle',
+    nextRefreshLabel: 'end of your current 30-day cycle',
     howItWorks:
-      '30-day program with weekly progression. Medium tier: refreshes monthly with one mid-cycle refresh allowed. Extended tier: regenerate any time.',
+      'Your 30-day program runs as one continuous cycle with weekly progression. When the cycle ends, you decide when to generate the next one. Medium tier includes one mid-cycle refresh. Extended tier can refresh any time.',
   },
   physical: {
     title: 'Physical Guidance',
     description: "Off-horse exercises and body awareness practices tailored to your documented challenges.",
-    cadence: '30-day cycle',
-    nextRefreshLabel: 'end of current 30-day cycle',
+    cadence: 'monthly cycle',
+    nextRefreshLabel: 'end of your current 30-day cycle',
     howItWorks:
-      '30-day program with weekly progression. Medium tier: refreshes monthly with one mid-cycle refresh allowed. Extended tier: regenerate any time.',
+      'Your 30-day program runs as one continuous cycle with weekly progression. When the cycle ends, you decide when to generate the next one. Medium tier includes one mid-cycle refresh. Extended tier can refresh any time.',
   },
   'event-planner': {
     title: 'Event Planner',

@@ -25,7 +25,7 @@ function formatDate(value) {
  *   outputSlug:        key into CADENCE_CONTENT (e.g., "journey-map")
  *   lastRefreshedAt:   Date | string | Firestore Timestamp | { _seconds }
  *   nextRefreshAt:     Date | string | Timestamp — used for cycle-based outputs
- *                      to display "Apr 28 — end of current 30-day cycle"
+ *                      to display "Renew anytime after Apr 28 · end of your current 30-day cycle"
  *   liveData:          true for client-side computed outputs (e.g., Data Viz)
  *                      that don't have an AI-generated document timestamp.
  */
@@ -43,7 +43,7 @@ export default function CadenceStrip({ outputSlug, lastRefreshedAt, nextRefreshA
 
   let nextSegment;
   if (nextDateFormatted && c.nextRefreshLabel.includes('cycle')) {
-    nextSegment = `Next refresh ${nextDateFormatted} — ${c.nextRefreshLabel}`;
+    nextSegment = `Renew anytime after ${nextDateFormatted} · ${c.nextRefreshLabel}`;
   } else if (c.nextRefreshLabel === 'Generated per event') {
     nextSegment = c.nextRefreshLabel;
   } else {
