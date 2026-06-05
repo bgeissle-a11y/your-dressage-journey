@@ -19,7 +19,6 @@
  */
 
 const { db } = require("../lib/firebase");
-const { prepareRiderData } = require("../lib/prepareRiderData");
 const { silentCanAccess, loadSubscription } = require("../lib/loadSubscription");
 const { CAPABILITIES } = require("../lib/entitlements");
 const { tierFromLabel } = require("../lib/tokenBudgets");

@@ -399,7 +399,7 @@ async function handler(request) {
 
     // Helper: collect all 4 stale voice cards + stale insights for the
     // graceful-exhaustion / partial-failure paths.
-    async function loadStaleCoaching() {
+    const loadStaleCoaching = async () => {
       const staleVoices = await Promise.all([0, 1, 2, 3].map(async (i) => {
         const s = await getStaleCache(riderData.uid, OUTPUT_TYPE, {
           voiceIndex: i,
@@ -413,7 +413,7 @@ async function handler(request) {
       const voices = {};
       staleVoices.forEach((v, i) => { if (v) voices[i] = v; });
       return { voices, quickInsights: staleInsights?.result || null };
-    }
+    };
 
     // Generate quick insights only (for progressive voice rendering)
     if (quickInsightsOnly) {
@@ -584,7 +584,7 @@ async function handler(request) {
       }
     }
 
-    let quickInsights = results[4].status === "fulfilled"
+    const quickInsights = results[4].status === "fulfilled"
       ? results[4].value
       : null;
     if (results[4].status === "rejected") {

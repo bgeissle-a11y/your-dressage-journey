@@ -374,7 +374,7 @@ async function handler(request) {
     }
 
     // Load flag state from the show prep entry's test flags
-    let flagState = {};
+    const flagState = {};
     try {
       const flagsSnap = await planRef.collection("testFlags").get();
       flagsSnap.forEach(doc => {

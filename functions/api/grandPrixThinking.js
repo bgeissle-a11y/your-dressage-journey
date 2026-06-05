@@ -38,14 +38,11 @@ const { tryAcquireLock, releaseLock } = require("../lib/inflightLock");
 const {
   getCycleState,
   initCycle,
-  checkRegenPermission,
   recordRegen,
-  extractWeeklyFocusItems,
   advanceWeekAndExtract,
   shouldExtendCycle,
   shouldTruncateFirstCycle,
   getUserTier,
-  computeCurrentWeek,
 } = require("../lib/cycleState");
 const { refreshWeeklyFocusSnapshotSection } = require("../lib/weeklyFocusSnapshot");
 const { getMaxTokens, tierFromLabel } = require("../lib/tokenBudgets");
@@ -1028,6 +1025,10 @@ async function handler(request) {
 
     return await generateMentalLayer(uid, riderData, forceRefresh, crossLayerContext, budgetTier);
   } catch (error) {
+    // `uid` is declared inside the try, so re-derive it here for the catch
+    // (graceful fallback + error banner). Without this the budget-exhaustion
+    // path throws ReferenceError instead of serving stale cache.
+    const uid = request?.auth?.uid;
     // Phase 4: budget exhaustion on the mental layer serves stale cache.
     // Trajectory layer is excluded from this contract (it's a 30-day cycle
     // output, not a "main view" — see implementation brief).
@@ -1048,8 +1049,7 @@ async function handler(request) {
     // Record failure so the panel can render the regen-failure banner.
     // Budget caps that surfaced a graceful response above are excluded.
     if (!isBudgetExceeded(error)) {
-      const uidForError = request?.auth?.uid;
-      if (uidForError) await writeLastRegenError(uidForError, GPT_REGEN_ERROR_KEY, error);
+      if (uid) await writeLastRegenError(uid, GPT_REGEN_ERROR_KEY, error);
     }
     throw wrapError(error, "getGrandPrixThinking");
   }

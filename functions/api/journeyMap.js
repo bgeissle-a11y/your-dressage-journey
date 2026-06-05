@@ -303,6 +303,10 @@ async function handler(request) {
       await releaseLock(uid, OUTPUT_TYPE);
     }
   } catch (error) {
+    // `uid` is declared inside the try, so re-derive it here for the catch
+    // (graceful fallback + error banner). Without this the budget-exhaustion
+    // path throws ReferenceError instead of serving stale cache.
+    const uid = request?.auth?.uid;
     // Phase 4: budget exhaustion serves stale cache instead of throwing.
     if (isBudgetExceeded(error)) {
       try {
@@ -320,8 +324,7 @@ async function handler(request) {
     // Record failure for the rider-visible banner — skip budget cases that
     // already surfaced a graceful response.
     if (!isBudgetExceeded(error)) {
-      const uidForError = request?.auth?.uid;
-      if (uidForError) await writeLastRegenError(uidForError, OUTPUT_TYPE, error);
+      if (uid) await writeLastRegenError(uid, OUTPUT_TYPE, error);
     }
     throw wrapError(error, "getJourneyMap");
   }

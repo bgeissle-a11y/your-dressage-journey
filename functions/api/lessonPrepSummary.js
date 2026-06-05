@@ -14,7 +14,6 @@
  * See: YDJ_PreLessonSummary_Implementation_Brief.md
  */
 
-const { Timestamp } = require("firebase-admin/firestore");
 const { db } = require("../lib/firebase");
 const { validateAuth } = require("../lib/auth");
 const { wrapError } = require("../lib/errors");

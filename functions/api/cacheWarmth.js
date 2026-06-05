@@ -86,7 +86,7 @@ async function checkHandler(request) {
  * - Skips GP Thinking Trajectory (Opus — too expensive)
  * - Kill switch via config/cacheWarming Firestore doc
  */
-async function warmHandler(event) {
+async function warmHandler(_event) {
   console.log("[warmCache] Starting scheduled cache warming run");
 
   // Check kill switch

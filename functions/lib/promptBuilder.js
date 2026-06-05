@@ -4262,7 +4262,6 @@ Concerns: ${(h.concerns || []).filter(Boolean).join("; ") || "none specified"}`;
   }
 
   const allHorseBlocks = horses.map((h, i) => formatHorseBlock(h, i)).join("\n\n");
-  const allGoals = horses.flatMap(h => h.goals || []).filter(Boolean);
   const allConcerns = horses.flatMap(h => h.concerns || []).filter(Boolean);
 
   const isFreestyle = isShowPrep
@@ -5023,7 +5022,6 @@ function buildPhysicalGuidancePrompt(callIndex, riderData, priorResults = {}) {
   if (callIndex === 1) {
     // PG-1: Physical Pattern Analysis + Exercise Protocol
     const activeTrajectory = priorResults?.activeTrajectory || "ambitious_competitor";
-    const truncated = priorResults?.truncated || false;
 
     system = `${BASE_CONTEXT}
 

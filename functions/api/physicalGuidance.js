@@ -32,7 +32,6 @@ const { tryAcquireLock, releaseLock } = require("../lib/inflightLock");
 const {
   getCycleState,
   initCycle,
-  checkRegenPermission,
   recordRegen,
   advanceWeekAndExtract,
   shouldExtendCycle,

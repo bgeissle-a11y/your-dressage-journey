@@ -73,7 +73,7 @@ async function onSubmit(event) {
   try {
     // 1. Detect rider state and fetch context in parallel where possible.
     const riderState = await detectRiderState(uid);
-    let context = {};
+    const context = {};
     if (riderState === "established") {
       const coaching = await getCoachingContext(uid);
       if (coaching) context.coaching = coaching;

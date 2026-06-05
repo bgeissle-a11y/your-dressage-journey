@@ -9,7 +9,6 @@
  */
 
 const { HttpsError } = require("firebase-functions/v2/https");
-const { Timestamp } = require("firebase-admin/firestore");
 const { db } = require("../lib/firebase");
 const { validateAuth } = require("../lib/auth");
 const { wrapError } = require("../lib/errors");
@@ -67,12 +66,6 @@ const PATH_CSS_CLASS = {
 
 // ── Helpers ──
 
-function toISODate(val) {
-  if (!val) return null;
-  if (val instanceof Timestamp) return val.toDate().toISOString();
-  if (val.toDate) return val.toDate().toISOString();
-  return String(val);
-}
 
 function daysAgo(n) {
   const d = new Date();
@@ -292,7 +285,6 @@ async function handler(request) {
       recentLessonNotes,
       showPreps,
       journeyEvents,
-      riderAssessments,
       gptTrajectorySnap,
       coachingInsightsSnap,
       journeyMapSnap,

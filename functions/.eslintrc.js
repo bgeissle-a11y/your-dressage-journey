@@ -8,7 +8,7 @@ module.exports = {
   },
   extends: ["eslint:recommended"],
   rules: {
-    "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+    "no-unused-vars": ["warn", { argsIgnorePattern: "^_", ignoreRestSiblings: true }],
     "no-console": "off",
     "prefer-const": "error",
     "no-var": "error",

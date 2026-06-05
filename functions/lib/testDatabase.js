@@ -65,10 +65,6 @@ function parseLevelToNumber(levelString) {
 
 // ─── Level-to-File Mapping ──────────────────────────────────────────
 
-const LEVEL_NAMES = [
-  "introductory", "training", "first", "second", "third", "fourth",
-  "prix_st_georges", "intermediate_1", "intermediate_2", "grand_prix", "grand_prix_special",
-];
 
 /**
  * Get the human-readable level name for a level number.
@@ -134,7 +130,7 @@ function loadTestsForRange(minLevel, maxLevel) {
  */
 function summarizeTest(test) {
   // Gather key movements from different possible structures
-  let keyMovements = [];
+  const keyMovements = [];
   if (test.movements_by_gait) {
     for (const gait of Object.values(test.movements_by_gait)) {
       keyMovements.push(...gait);
@@ -486,7 +482,7 @@ function buildTestDatabaseContext(currentLevel) {
 
   // Level progression
   lines.push(`LEVEL PROGRESSION (Current: ${currentName}, Level ${levelNum}):`);
-  for (const [key, value] of Object.entries(progression)) {
+  for (const [, value] of Object.entries(progression)) {
     lines.push(`  ${getLevelName(value.level_number)} (Level ${value.level_number}): ${value.description}`);
     if (value.key_movements) {
       lines.push(`    Key movements: ${value.key_movements.join(", ")}`);

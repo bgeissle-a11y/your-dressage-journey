@@ -21,11 +21,6 @@ const CYCLE_PATHS = {
   physical: "physicalGuidanceCycle",
 };
 
-const OUTPUT_PATHS = {
-  gpt: "analysisCache",
-  physical: "analysisCache",
-};
-
 const OUTPUT_KEYS = {
   gpt: "grandPrixThinking",
   physical: "physicalGuidance",

@@ -319,7 +319,7 @@ async function _callClaudeOnce(client, { system, userMessage, model, jsonMode, m
     throw new Error(`[${context}] No text content in Claude response`);
   }
 
-  let text = textBlock.text;
+  const text = textBlock.text;
 
   if (!jsonMode) {
     return text;
