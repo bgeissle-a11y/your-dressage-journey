@@ -46,8 +46,13 @@ const SPEC = {
   "gpt-l2":                    { working: null, medium: 4000, extended: 4000 },
 
   // Physical Guidance
-  "physical-protocol":         { working: null, medium: 5000, extended: 5000 },
-  "physical-awareness":        { working: null, medium: 5000, extended: 5000 },
+  // Raised 5000 → 8000 on 2026-06-05 after BOTH calls truncated at 5000 in
+  // production (Call 1 dropped preRideRitual + bodyAwarenessProfile + a 5th
+  // exercise; Call 2 cut off week 4). Same failure mode and remedy as
+  // journey-map-synthesis (H13, 2026-05-23). Guarded by
+  // test/tokenBudgets.physical.test.js — do not walk these back.
+  "physical-protocol":         { working: null, medium: 8000, extended: 8000 },
+  "physical-awareness":        { working: null, medium: 8000, extended: 8000 },
 
   // Show Planner
   "event-planner":             { working: null, medium: 3000, extended: 3000 },

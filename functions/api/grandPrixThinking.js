@@ -393,6 +393,10 @@ async function generateMentalLayer(uid, riderData, forceRefresh, crossLayerConte
     maxTokens,
     context: "grand-prix-l1-mental",
     uid,
+    // Insurance: no truncation seen in prod, but if L1 ever hits its cap we want
+    // the retry banner, not a silently-cached partial brief (2026-06-05). L2's
+    // Opus/allSettled path is left as-is (its own partial-failure handling).
+    failOnTruncate: true,
   });
 
   logHorseNameUsage("L1", l1Output, riderData);

@@ -27,10 +27,27 @@ These are the `max_tokens` values passed to the Anthropic API per call type. The
 | Journey Map | 3,000 | 4,000 | 4,000 |
 | GPT L1 | n/a | 6,000 | 6,000 |
 | GPT L2 | n/a | 4,000 | 4,000 |
-| Physical Guidance | n/a | 5,000 | 5,000 |
+| Physical Guidance (protocol + awareness, per call) | n/a | 8,000 | 8,000 |
 | Show Planner (per call) | n/a | 3,000 | 3,000 |
 | Visualization Scripts | n/a | 2,000 | 2,000 |
 | Readiness Snapshot | n/a | 2,500 | 2,500 |
+
+> **Truncation history (we have been here before).** Output caps that are too
+> small cause Claude to stop mid-JSON (`stop_reason: max_tokens`); the
+> truncated-JSON repair then salvages a *partial* document that gets cached as
+> if complete. Known occurrences and remedies:
+> - **Journey Map synthesis** — raised 4,000 → 8,000 (H13, 2026-05-23).
+>   Guarded by `functions/test/tokenBudgets.journeyMap.test.js`. *(The Journey
+>   Map row above predates this and is stale at 4,000 — the live value is 8,000
+>   in `functions/lib/tokenBudgets.js`.)*
+> - **Physical Guidance** — both calls (protocol + awareness) raised 5,000 →
+>   8,000 (2026-06-05). Guarded by `functions/test/tokenBudgets.physical.test.js`.
+>
+> Cycle outputs that must not silently cache a partial result (Physical Call 1/2,
+> GPT L1) now pass `failOnTruncate: true` to `callClaude`, which throws on
+> `max_tokens` so the rider gets a retry banner instead of half a program.
+> The authoritative live values are in `functions/lib/tokenBudgets.js`, not this
+> table — update both when changing a cap.
 
 ### Weekly $20 cap — application
 

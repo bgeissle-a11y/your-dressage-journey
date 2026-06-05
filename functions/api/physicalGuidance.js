@@ -251,6 +251,8 @@ async function handler(request) {
       maxTokens: protocolMaxTokens,
       context: "physical-call1-exercise-protocol",
       uid,
+      // Fail loudly rather than cache a repaired-but-partial protocol (2026-06-05).
+      failOnTruncate: true,
     });
 
     // --- Call 2: Body Awareness (4-Week Program) ---
@@ -270,6 +272,8 @@ async function handler(request) {
       maxTokens: awarenessMaxTokens,
       context: "physical-call2-body-awareness",
       uid,
+      // Fail loudly rather than cache a repaired-but-partial 4-week program (2026-06-05).
+      failOnTruncate: true,
     });
 
     // Extract weeklyFocusItems from weeks[0].patterns (Hard Rule 3)

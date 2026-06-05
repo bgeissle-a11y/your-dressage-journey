@@ -180,6 +180,7 @@ Every output follows the same pattern: structured input → pre-processing → o
 - **Caching:** GP Thinking dashboards cached in Firestore, regenerated on data thresholds only
 - **Model selection:** Only GP Thinking Layer 2 (Calls 1-2) uses Opus; everything else uses Sonnet
 - **Batch processing:** Weekly reports generated in batch during scheduled window
+- **Output token caps (`functions/lib/tokenBudgets.js`):** per-call `max_tokens` live here, env-overridable. A cap set too low makes Claude stop mid-JSON; the truncated-JSON repair then caches a *partial* document as if complete. This has bitten us twice — Journey Map synthesis (H13, raised 4,000→8,000, 2026-05-23) and Physical Guidance (both calls raised 5,000→8,000, 2026-06-05). Each is locked by a `functions/test/tokenBudgets.*.test.js` guard. Structured cycle calls that must never serve a silent partial (Physical Call 1/2, GPT L1) pass `failOnTruncate: true` to `callClaude`, which throws on `max_tokens` so the rider gets a retry banner instead. When you change a cap, update `tokenBudgets.js` (authoritative), its guard test, and `YDJ_Token_Budget_Spec_v2.md`.
 
 ---
 

@@ -82,6 +82,11 @@ function getMonthKey(date = new Date()) {
  * @param {string} [options.context] - Label for logging (e.g. "coaching-voice-0")
  * @param {number} [options.maxRetries] - Max retries for transient failures (default: 1)
  * @param {string} [options.uid] - User ID for usage tracking (if provided, logs to Firestore)
+ * @param {boolean} [options.failOnTruncate] - If true (jsonMode only), throw instead of
+ *   repairing when the response hits max_tokens. Use for structured cycle outputs
+ *   (Physical Guidance, GPT L1) where a repaired-but-partial document is worse than
+ *   an honest failure: throwing lets the caller's lastRegenError banner fire and the
+ *   rider retry, rather than silently caching half a program. (2026-06-05.)
  * @returns {Promise<object|string>} Parsed JSON object or text string
  */
 async function callClaude({
@@ -93,6 +98,7 @@ async function callClaude({
   context = "claude-call",
   maxRetries = DEFAULT_MAX_RETRIES,
   uid = null,
+  failOnTruncate = false,
 }) {
   // Per-user daily + weekly + monthly rate limit check
   if (uid) {
@@ -128,7 +134,7 @@ async function callClaude({
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       return await _callClaudeOnce(client, {
-        system, userMessage, model, jsonMode, maxTokens, context, uid,
+        system, userMessage, model, jsonMode, maxTokens, context, uid, failOnTruncate,
       });
     } catch (err) {
       lastError = err;
@@ -257,7 +263,7 @@ async function _checkAndIncrementBudget(uid) {
  * Single attempt to call the Claude API (no retries).
  * @private
  */
-async function _callClaudeOnce(client, { system, userMessage, model, jsonMode, maxTokens, context, uid }) {
+async function _callClaudeOnce(client, { system, userMessage, model, jsonMode, maxTokens, context, uid, failOnTruncate = false }) {
   const messages = [{ role: "user", content: userMessage }];
 
   // When jsonMode is true, append a JSON instruction to the system prompt
@@ -292,6 +298,20 @@ async function _callClaudeOnce(client, { system, userMessage, model, jsonMode, m
     outputTokens: usage.output_tokens || 0,
     stopReason,
   });
+
+  // Structured cycle outputs opt into failing loudly on truncation rather than
+  // caching a repaired-but-partial document (2026-06-05). We still logged usage
+  // above; the rider-facing message is shown verbatim by RegenErrorBanner, and
+  // "truncated" routes this to the data_issue category (not transient → no retry,
+  // since retrying at the same max_tokens would truncate again).
+  if (jsonMode && failOnTruncate && stopReason === "max_tokens") {
+    const err = new Error(
+      "This program was too large to finish generating in one pass (output truncated). Please try again."
+    );
+    err.code = "output-truncated";
+    err.context = context;
+    throw err;
+  }
 
   // Extract text content from response
   const textBlock = response.content.find((block) => block.type === "text");
