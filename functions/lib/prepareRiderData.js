@@ -174,18 +174,82 @@ function buildOverallStats(rawCounts, rideHistory, reflections, profile) {
 }
 
 /**
- * Build dataSnapshot hash for staleness detection.
- * Per GP Thinking spec: "A dataSnapshot hash is stored with each
- * generation so the frontend can compare and prompt for regeneration."
+ * Deterministic, key-sorted JSON serialization so equal content always
+ * serializes identically regardless of property insertion order. Arrays keep
+ * their order (order is meaningful); object keys are sorted recursively.
  */
-function buildDataSnapshot(rawCounts) {
-  const snapshotData = JSON.stringify(rawCounts);
-  const hash = crypto.createHash("md5").update(snapshotData).digest("hex").slice(0, 12);
+function stableStringify(value) {
+  if (value === null || typeof value !== "object") return JSON.stringify(value);
+  if (Array.isArray(value)) return "[" + value.map(stableStringify).join(",") + "]";
+  const keys = Object.keys(value).sort();
+  return "{" + keys.map((k) => JSON.stringify(k) + ":" + stableStringify(value[k])).join(",") + "}";
+}
+
+/**
+ * Per-document content marker. Hashes the whole document MINUS its id (the id
+ * is the manifest key) so ANY substantive field edit changes the marker. The
+ * docs have already passed through convertTimestamps(), so every field is a
+ * stable primitive/ISO string — no read-time-volatile fields exist that would
+ * make the marker unstable across reads.
+ */
+function _docMarker(doc) {
+  const { id, ...rest } = doc || {};
+  return crypto.createHash("md5").update(stableStringify(rest)).digest("hex").slice(0, 8);
+}
+
+/**
+ * Build the dataSnapshot: a diff-ready content MANIFEST and a hash DERIVED
+ * from it (Fix 1, repetition bug-fix package).
+ *
+ * Previously the hash was computed from collection COUNTS only, so two
+ * completely different data states with the same counts shared a hash —
+ * letting edited/swapped content be served from a stale cache as if fresh
+ * (the wrong-horse repetition bug, reproduced 2026-06-04).
+ *
+ * Now:
+ *   - manifest lists, per coaching-consumed collection, every document as
+ *     { id, m } (m = content marker), sorted by id → order-independent.
+ *   - hash = md5(canonical manifest). Content change ⇒ marker change ⇒ hash
+ *     change ⇒ correct cache invalidation. This is the SINGLE source of the
+ *     hash (never computed independently elsewhere).
+ *
+ * The manifest is persisted alongside the cached output (see cacheManager
+ * setCache `dataSnapshotManifest`) so a future generation can diff current vs
+ * previous to derive "what changed" — that diff LOGIC is deferred (Fix 3); the
+ * structure is built now to avoid a stored-snapshot migration later.
+ *
+ * `counts` is retained for backward compatibility (overallStats / existing
+ * consumers) but is NOT part of the hash.
+ *
+ * @param {object} rawCounts - existing per-collection counts
+ * @param {object} collections - map of collectionName → array of docs (each
+ *   with an `id`); use the SAME non-draft arrays that feed the aggregators so
+ *   drafts never churn the hash.
+ */
+function buildDataSnapshot(rawCounts, collections = {}) {
+  const manifest = { v: 1, collections: {} };
+  for (const name of Object.keys(collections).sort()) {
+    const docs = Array.isArray(collections[name]) ? collections[name] : [];
+    manifest.collections[name] = docs
+      .map((d) => ({ id: d.id || "", m: _docMarker(d) }))
+      .sort((a, b) => a.id.localeCompare(b.id));
+  }
+  const hash = crypto.createHash("md5").update(stableStringify(manifest)).digest("hex").slice(0, 12);
   return {
     hash,
+    manifest,
     counts: rawCounts,
     generatedAt: new Date().toISOString(),
   };
+}
+
+/**
+ * Recompute a snapshot hash from a persisted manifest. Exported so tests (and
+ * future diff logic) can verify the hash is genuinely manifest-derived rather
+ * than computed on a separate path.
+ */
+function hashFromManifest(manifest) {
+  return crypto.createHash("md5").update(stableStringify(manifest)).digest("hex").slice(0, 12);
 }
 
 /**
@@ -309,7 +373,26 @@ async function prepareRiderData(uid, outputType = null) {
   const overallStatsBase = buildOverallStats(rawCounts, rideHistory, reflectionsSummary, profile);
   overallStatsBase.riderHealthCount = rawCounts.riderHealthEntries;
   const overallStats = overallStatsBase;
-  const dataSnapshot = buildDataSnapshot(rawCounts);
+  // Pass the SAME non-draft collections the aggregators (and therefore Claude)
+  // see, so the content manifest/hash tracks exactly what coaching consumes and
+  // drafts never churn it. weeklyContext is a single doc → 0/1-element array.
+  const dataSnapshot = buildDataSnapshot(rawCounts, {
+    debriefs: nonDraftDebriefs,
+    reflections,
+    journeyEvents,
+    observations,
+    eventPrepPlans,
+    showPreparations,
+    physicalAssessments: nonDraftPhysical,
+    riderAssessments: nonDraftRider,
+    technicalAssessments: nonDraftTechnical,
+    horseHealthEntries,
+    riderHealthEntries,
+    lessonNotes: nonDraftLessonNotes,
+    horseProfiles,
+    riderProfiles,
+    weeklyContext: weeklyContextDoc ? [weeklyContextDoc] : [],
+  });
 
   return {
     uid,
@@ -347,4 +430,4 @@ async function prepareRiderData(uid, outputType = null) {
   };
 }
 
-module.exports = { prepareRiderData };
+module.exports = { prepareRiderData, buildDataSnapshot, hashFromManifest, stableStringify };

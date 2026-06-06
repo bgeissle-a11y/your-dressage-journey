@@ -121,7 +121,7 @@ async function getCache(uid, outputType, options = {}) {
  * @param {number} [metadata.voiceIndex] - For coaching voice cache
  */
 async function setCache(uid, outputType, result, metadata) {
-  const { dataSnapshotHash, tierLabel, dataTier, voiceIndex, eventPrepHash } =
+  const { dataSnapshotHash, dataSnapshotManifest, tierLabel, dataTier, voiceIndex, eventPrepHash } =
     metadata;
   const docId = buildDocId(uid, outputType, voiceIndex);
 
@@ -143,6 +143,14 @@ async function setCache(uid, outputType, result, metadata) {
 
   if (eventPrepHash) {
     cacheDoc.eventPrepHash = eventPrepHash;
+  }
+
+  // Persist the diff-ready content manifest alongside the hash (Fix 1). Stored
+  // only when provided so other outputs' docs aren't bloated. A future
+  // generation diffs current vs previous manifest to derive "what changed"
+  // (Fix 3, deferred). The hash above is DERIVED from this manifest.
+  if (dataSnapshotManifest) {
+    cacheDoc.dataSnapshotManifest = dataSnapshotManifest;
   }
 
   await db.collection(COLLECTION).doc(docId).set(cacheDoc);
