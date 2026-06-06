@@ -107,3 +107,6 @@ public/assets/WorkMarkHorizontalWhite-01.svg
 
 # Local-only video clips (large files, not deployed)
 videos/
+
+# Diagnostic harness generated outputs (keep harness, drop artifacts)
+scripts/repetition-diagnostic/out/
