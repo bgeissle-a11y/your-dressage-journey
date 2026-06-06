@@ -13,6 +13,7 @@ const { getAnthropicClient } = require("./anthropic");
 const { isTransientError } = require("./errors");
 const { db } = require("./firebase");
 const { getTierBudgets, getDailyCallLimit, MILLICENTS_PER_USD } = require("./tierBudgets");
+const { reportJsonExtractionFailure } = require("./coachingTelemetry");
 
 const DEFAULT_MODEL = "claude-sonnet-4-5-20250929";
 const DEFAULT_MAX_TOKENS = 4096;
@@ -130,22 +131,49 @@ async function callClaude({
 
   const client = getAnthropicClient();
   let lastError;
+  let sawJsonExtractFailure = false;
+  const vm = /voice-(\d+)/.exec(context || "");
+  const voiceIndex = vm ? Number(vm[1]) : undefined;
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      return await _callClaudeOnce(client, {
+      const result = await _callClaudeOnce(client, {
         system, userMessage, model, jsonMode, maxTokens, context, uid, failOnTruncate,
       });
+      // A prior attempt failed JSON extraction but this re-issue parsed cleanly.
+      if (sawJsonExtractFailure) {
+        reportJsonExtractionFailure({
+          context, voiceIndex, recovered: true,
+          responsePrefix: lastError && lastError.responsePrefix,
+        });
+      }
+      return result;
     } catch (err) {
       lastError = err;
 
-      if (attempt < maxRetries && isTransientError(err)) {
+      // Fix 2a: a JSON-extraction failure (NOT a max_tokens truncation — see
+      // failOnTruncate / "json-truncated") is treated as retryable. Re-issuing
+      // the single call almost always yields parseable JSON; retrying a
+      // truncation at the same max_tokens would only truncate again.
+      const isJsonExtract = err.code === "json-extract-failed";
+      if (isJsonExtract) sawJsonExtractFailure = true;
+
+      if (attempt < maxRetries && (isTransientError(err) || isJsonExtract)) {
         const delay = Math.min(RETRY_BASE_DELAY_MS * Math.pow(2, attempt), 10000);
         console.warn(
-          `[${context}] Transient error on attempt ${attempt + 1}, retrying in ${delay}ms: ${err.message}`
+          isJsonExtract
+            ? `[${context}] JSON extraction failed on attempt ${attempt + 1}; re-issuing call in ${delay}ms`
+            : `[${context}] Transient error on attempt ${attempt + 1}, retrying in ${delay}ms: ${err.message}`
         );
         await new Promise((resolve) => setTimeout(resolve, delay));
         continue;
+      }
+
+      // Exhausted retries on a JSON-extraction failure — record it as unrecovered.
+      if (isJsonExtract) {
+        reportJsonExtractionFailure({
+          context, voiceIndex, recovered: false, responsePrefix: err.responsePrefix,
+        });
       }
 
       throw err;
@@ -271,16 +299,29 @@ async function _callClaudeOnce(client, { system, userMessage, model, jsonMode, m
     ? system + "\n\nIMPORTANT: Respond with valid JSON only. No markdown fences, no explanation, no extra text — just the JSON object."
     : system;
 
+  // Prompt caching: the system prompt is large (~22k tokens — BASE_CONTEXT +
+  // voice/output block) and IDENTICAL across riders for a given voice/output,
+  // so cache the whole system prefix. Only the per-rider user message varies
+  // (uncached). This offsets the extra regenerations Fix 1's content-aware
+  // hash introduces and protects per-tier token ceilings. 5-min ephemeral TTL
+  // (no beta header required on @anthropic-ai/sdk ≥0.39).
+  const systemParam = [
+    { type: "text", text: effectiveSystem, cache_control: { type: "ephemeral" } },
+  ];
+
   // Use streaming to avoid SDK timeout on large max_tokens requests
   const response = await client.messages
-    .stream({ model, max_tokens: maxTokens, system: effectiveSystem, messages })
+    .stream({ model, max_tokens: maxTokens, system: systemParam, messages })
     .finalMessage();
 
   // Log token usage and stop reason for debugging
   const usage = response.usage || {};
   const stopReason = response.stop_reason || "unknown";
+  const cacheRead = usage.cache_read_input_tokens || 0;
+  const cacheWrite = usage.cache_creation_input_tokens || 0;
   console.log(
-    `[${context}] Tokens — input: ${usage.input_tokens || "?"}, output: ${usage.output_tokens || "?"}, model: ${model}, stop: ${stopReason}`
+    `[${context}] Tokens — input: ${usage.input_tokens || "?"}, output: ${usage.output_tokens || "?"}, ` +
+    `cacheRead: ${cacheRead}, cacheWrite: ${cacheWrite}, model: ${model}, stop: ${stopReason}`
   );
 
   if (stopReason === "max_tokens") {
@@ -484,17 +525,83 @@ function extractJSON(text, context, wasTruncated = false) {
         return repaired;
       }
     }
-    throw new Error(
+    const truncErr = new Error(
       `[${context}] Response was TRUNCATED (hit max_tokens) and JSON could not be repaired. ` +
         `The output is too large for the current token limit. ` +
         `Response starts with: "${text.slice(0, 200)}..."`
     );
+    // Distinct from "json-extract-failed": re-issuing at the same max_tokens
+    // would truncate again, so callClaude must NOT retry this.
+    truncErr.code = "json-truncated";
+    truncErr.responsePrefix = text.slice(0, 40);
+    throw truncErr;
   }
 
-  throw new Error(
+  // Last-resort lenient parse: strip code fences and escape raw control
+  // characters (literal newlines/tabs) that Claude sometimes emits inside
+  // string values — the most common cause of an otherwise-complete response
+  // failing JSON.parse (the failure mode reproduced in the diagnostic).
+  const lenient = tryLenientJsonParse(text);
+  if (lenient) {
+    console.log(`[${context}] ✓ Recovered JSON via lenient control-char repair.`);
+    return lenient;
+  }
+
+  // Tagged so callClaude re-issues the single call once (Fix 2a) and
+  // coachingTelemetry records the failure/recovery.
+  const failure = new Error(
     `[${context}] Failed to extract valid JSON from Claude response. ` +
       `Response starts with: "${text.slice(0, 200)}..."`
   );
+  failure.code = "json-extract-failed";
+  failure.responsePrefix = text.slice(0, 40);
+  throw failure;
+}
+
+/**
+ * Strip markdown code fences and escape raw control characters that appear
+ * inside JSON string values, then parse. Returns the parsed object or null.
+ *
+ * Claude occasionally emits a structurally-complete JSON object whose string
+ * values contain literal newlines/tabs (invalid per JSON spec). A single
+ * forward pass that tracks in-string state and escapes those control chars
+ * recovers the object without a re-issue.
+ */
+function tryLenientJsonParse(rawText) {
+  let text = String(rawText || "").trim();
+
+  // Strip a leading ```json / ``` fence and any trailing fence.
+  text = text.replace(/^```(?:json)?\s*\n?/i, "").replace(/\n?```\s*$/i, "").trim();
+
+  // Narrow to the outermost object boundaries if there's surrounding prose.
+  const start = text.indexOf("{");
+  const end = text.lastIndexOf("}");
+  if (start === -1 || end <= start) return null;
+  text = text.slice(start, end + 1);
+
+  let out = "";
+  let inStr = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    const prev = text[i - 1];
+    if (ch === '"' && prev !== "\\") {
+      inStr = !inStr;
+      out += ch;
+      continue;
+    }
+    if (inStr) {
+      if (ch === "\n") { out += "\\n"; continue; }
+      if (ch === "\r") { out += "\\r"; continue; }
+      if (ch === "\t") { out += "\\t"; continue; }
+    }
+    out += ch;
+  }
+
+  try {
+    return JSON.parse(out);
+  } catch {
+    return null;
+  }
 }
 
 /**

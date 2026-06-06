@@ -39,10 +39,15 @@ const state = {
   // supplied (the partial-failure fallback path). Keyed by voiceIndex.
   staleVoiceRows: { 0: null, 1: null, 2: null, 3: null },
 
+  // Current data hash returned by the prepareRiderData mock. Stale rows whose
+  // dataSnapshotHash equals this are "matching" and may be served (Fix 2b).
+  currentHash: "hash-current",
+
   // Observations the tests can assert against.
   callLog: [],            // every callClaude({context}) appended here
   cacheWrites: [],        // every setCache(uid, type, result, meta)
   locksHeld: new Set(),   // current lock keys
+  telemetry: [],          // coachingTelemetry events recorded
 };
 
 function reset() {
@@ -50,9 +55,11 @@ function reset() {
   state.quickInsightsValue = { practiceCard: null, visualizationSuggestion: { shouldSuggest: false } };
   state.precisValue = "A short voice-agnostic prose précis used by downstream prompts.";
   state.staleVoiceRows = { 0: null, 1: null, 2: null, 3: null };
+  state.currentHash = "hash-current";
   state.callLog = [];
   state.cacheWrites = [];
   state.locksHeld = new Set();
+  state.telemetry = [];
 }
 
 // ── lib/ mocks ─────────────────────────────────────────────────────────────
@@ -78,7 +85,7 @@ installMock("../lib/prepareRiderData", {
     uid,
     dataTier: 1,
     tier: { label: "medium" },
-    dataSnapshot: { hash: "hash-current" },
+    dataSnapshot: { hash: state.currentHash },
     horseProfiles: [{ horseName: "Star" }],
   }),
 });
@@ -168,6 +175,12 @@ installMock("../lib/budgetExhaustion", {
 installMock("../lib/lastRegenError", {
   writeLastRegenError: async () => {},
   clearLastRegenError: async () => {},
+});
+
+installMock("../lib/coachingTelemetry", {
+  reportStaleFallbackServe: (args) => state.telemetry.push({ kind: "stale", ...args }),
+  reportJsonExtractionFailure: (args) => state.telemetry.push({ kind: "json", ...args }),
+  outputTypeFromContext: (c) => (c || "unknown").split("-")[0] || "unknown",
 });
 
 // firebase-functions/v2/https: we only use HttpsError as a thrown sentinel,

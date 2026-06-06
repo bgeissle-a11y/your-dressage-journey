@@ -34,9 +34,44 @@ const { refreshWeeklyFocusSnapshotSection } = require("../lib/weeklyFocusSnapsho
 const { getMaxTokens, tierFromLabel } = require("../lib/tokenBudgets");
 const { isBudgetExceeded, buildGracefulResponse } = require("../lib/budgetExhaustion");
 const { writeLastRegenError, clearLastRegenError } = require("../lib/lastRegenError");
+const { reportStaleFallbackServe } = require("../lib/coachingTelemetry");
 
 const OUTPUT_TYPE = "coaching";
 const INSIGHTS_OUTPUT_TYPE = "coaching_insights";
+
+/**
+ * Load a stale voice cache row ONLY if its content hash matches the current
+ * data (Fix 2b). A stale row whose hash does not match describes DIFFERENT
+ * rider data — possibly a different horse — and must NEVER be served as
+ * current coaching. Returns the voice payload (with stale _meta) on match,
+ * or null on mismatch/missing. Emits telemetry either way; a suppressed
+ * non-matching serve is the bug this gate eliminates.
+ *
+ * NOTE: correctness depends on the snapshot hash being content-aware (Fix 1).
+ * With a count-only hash, different data could share a hash and slip through;
+ * the two fixes are designed to ship together.
+ */
+async function loadMatchingStaleVoice(uid, voiceIndex, currentHash, extraMeta = {}) {
+  const s = await getStaleCache(uid, OUTPUT_TYPE, { voiceIndex, currentHash, maxAgeDays: 90 });
+  if (!s || !s.result) return null;
+  const hashMatched = !!currentHash && s.dataSnapshotHash === currentHash;
+  reportStaleFallbackServe({ outputType: OUTPUT_TYPE, voiceIndex, hashMatched, served: hashMatched });
+  if (!hashMatched) return null;
+  return {
+    ...s.result,
+    _meta: { ...VOICE_META[voiceIndex], fromCache: true, stale: true, generatedAt: s.generatedAt, ...extraMeta },
+  };
+}
+
+/** Same content-hash gate for the Quick Insights stale row. */
+async function loadMatchingStaleInsights(uid, currentHash) {
+  const s = await getStaleCache(uid, INSIGHTS_OUTPUT_TYPE, { currentHash, maxAgeDays: 90 });
+  if (!s || !s.result) return null;
+  const hashMatched = !!currentHash && s.dataSnapshotHash === currentHash;
+  reportStaleFallbackServe({ outputType: INSIGHTS_OUTPUT_TYPE, hashMatched, served: hashMatched });
+  if (!hashMatched) return null;
+  return s.result;
+}
 
 /**
  * Generate a single coaching voice result.
@@ -101,6 +136,7 @@ async function generateVoice(voiceIndex, riderData, forceRefresh, uid, budgetTie
   // Cache the result
   await setCache(riderData.uid, OUTPUT_TYPE, result, {
     dataSnapshotHash: hash,
+    dataSnapshotManifest: riderData.dataSnapshot?.manifest,
     tierLabel: riderData.tier?.label || "unknown",
     dataTier: riderData.dataTier,
     voiceIndex,
@@ -154,6 +190,7 @@ async function generateQuickInsights(riderData, forceRefresh, uid, budgetTier) {
   // Cache
   await setCache(riderData.uid, INSIGHTS_OUTPUT_TYPE, result, {
     dataSnapshotHash: hash,
+    dataSnapshotManifest: riderData.dataSnapshot?.manifest,
     tierLabel: riderData.tier?.label || "unknown",
     dataTier: riderData.dataTier,
   });
@@ -400,19 +437,14 @@ async function handler(request) {
     // Helper: collect all 4 stale voice cards + stale insights for the
     // graceful-exhaustion / partial-failure paths.
     const loadStaleCoaching = async () => {
-      const staleVoices = await Promise.all([0, 1, 2, 3].map(async (i) => {
-        const s = await getStaleCache(riderData.uid, OUTPUT_TYPE, {
-          voiceIndex: i,
-          maxAgeDays: 90,
-        });
-        return s?.result
-          ? { ...s.result, _meta: { ...VOICE_META[i], fromCache: true, stale: true } }
-          : null;
-      }));
-      const staleInsights = await getStaleCache(riderData.uid, INSIGHTS_OUTPUT_TYPE, { maxAgeDays: 90 });
+      const currentHash = riderData.dataSnapshot?.hash;
+      const staleVoices = await Promise.all([0, 1, 2, 3].map((i) =>
+        loadMatchingStaleVoice(riderData.uid, i, currentHash)
+      ));
+      const quickInsights = await loadMatchingStaleInsights(riderData.uid, currentHash);
       const voices = {};
       staleVoices.forEach((v, i) => { if (v) voices[i] = v; });
-      return { voices, quickInsights: staleInsights?.result || null };
+      return { voices, quickInsights };
     };
 
     // Generate quick insights only (for progressive voice rendering)
@@ -501,21 +533,18 @@ async function handler(request) {
     const gotLock = await tryAcquireLock(uid, OUTPUT_TYPE);
     if (!gotLock) {
       console.log(`[coaching] Another generation in flight for ${uid} — returning stale/regenerating response`);
-      const staleVoices = await Promise.all([0, 1, 2, 3].map(async (i) => {
-        const s = await getStaleCache(riderData.uid, OUTPUT_TYPE, {
-          voiceIndex: i,
-          maxAgeDays: 90,
-        });
-        return s?.result ? { ...s.result, _meta: { ...VOICE_META[i], fromCache: true, stale: true } } : null;
-      }));
-      const staleInsights = await getStaleCache(riderData.uid, INSIGHTS_OUTPUT_TYPE, { maxAgeDays: 90 });
+      const currentHash = riderData.dataSnapshot?.hash;
+      const staleVoices = await Promise.all([0, 1, 2, 3].map((i) =>
+        loadMatchingStaleVoice(riderData.uid, i, currentHash)
+      ));
+      const staleInsights = await loadMatchingStaleInsights(riderData.uid, currentHash);
       const voices = {};
       staleVoices.forEach((v, i) => { if (v) voices[i] = v; });
-      if (Object.keys(voices).length > 0 || staleInsights?.result) {
+      if (Object.keys(voices).length > 0 || staleInsights) {
         return {
           success: true,
           voices,
-          quickInsights: staleInsights?.result || null,
+          quickInsights: staleInsights || null,
           regenerating: true,
           stale: true,
           tier: riderData.tier,
@@ -559,22 +588,15 @@ async function handler(request) {
       } else {
         failedVoices.push(i);
         console.error(`[coaching] Voice ${i} failed:`, results[i].reason?.message || results[i].reason);
-        // Stale-voice fallback (B4): prefer last good cache over an error card.
-        const stale = await getStaleCache(riderData.uid, OUTPUT_TYPE, {
-          voiceIndex: i,
-          maxAgeDays: 90,
-        });
-        if (stale?.result) {
-          voices[i] = {
-            ...stale.result,
-            _meta: {
-              ...VOICE_META[i],
-              fromCache: true,
-              stale: true,
-              generatedAt: stale.generatedAt,
-              failedThisRun: true,
-            },
-          };
+        // Stale-voice fallback (B4), now content-gated (Fix 2b): serve the last
+        // good cache ONLY if it describes the same data. A non-matching stale
+        // row (e.g. a different horse) is suppressed in favor of an honest
+        // error placeholder the rider can regenerate — never served as current.
+        const staleVoice = await loadMatchingStaleVoice(
+          riderData.uid, i, riderData.dataSnapshot?.hash, { failedThisRun: true }
+        );
+        if (staleVoice) {
+          voices[i] = staleVoice;
         } else {
           voices[i] = {
             _error: true,
