@@ -27,6 +27,7 @@ const {
   buildMultiVoicePrecisPrompt,
   VOICE_META,
 } = require("../lib/promptBuilder");
+const { buildLedgerIfEnabled, wrapWithLedger, stripRecitationsDeep } = require("../lib/evidenceLedger");
 const { getCache, setCache, getStaleCache } = require("../lib/cacheManager");
 const { getStatus: getGenStatus } = require("../lib/generationStatus");
 const { tryAcquireLock, releaseLock } = require("../lib/inflightLock");
@@ -81,7 +82,7 @@ async function loadMatchingStaleInsights(uid, currentHash) {
  * @param {boolean} forceRefresh - Skip cache
  * @returns {Promise<object>} Voice result with meta + content
  */
-async function generateVoice(voiceIndex, riderData, forceRefresh, uid, budgetTier) {
+async function generateVoice(voiceIndex, riderData, forceRefresh, uid, budgetTier, ledger = null) {
   const meta = VOICE_META[voiceIndex];
   const hash = riderData.dataSnapshot?.hash;
 
@@ -121,10 +122,12 @@ async function generateVoice(voiceIndex, riderData, forceRefresh, uid, budgetTie
     }
   }
 
-  // Build prompt and call Claude
-  const { system, userMessage } = buildCoachingPrompt(voiceIndex, riderData);
+  // Build prompt and call Claude. Evidence Ledger (Phase 2) — flag-gated:
+  // ledger null → no wrap → byte-identical to control.
+  const basePrompt = buildCoachingPrompt(voiceIndex, riderData);
+  const { system, userMessage } = ledger ? wrapWithLedger(basePrompt, ledger) : basePrompt;
 
-  const result = await callClaude({
+  let result = await callClaude({
     system,
     userMessage,
     jsonMode: true,
@@ -132,6 +135,10 @@ async function generateVoice(voiceIndex, riderData, forceRefresh, uid, budgetTie
     context: `coaching-voice-${voiceIndex}`,
     uid,
   });
+
+  // Recitation guard (Rule f backstop) — strip ledger vocabulary from the
+  // rider-facing voice JSON before caching/returning. No-op when flag off.
+  if (ledger) result = stripRecitationsDeep(result);
 
   // Cache the result
   await setCache(riderData.uid, OUTPUT_TYPE, result, {
@@ -155,7 +162,7 @@ async function generateVoice(voiceIndex, riderData, forceRefresh, uid, budgetTie
  * @param {boolean} forceRefresh - Skip cache
  * @returns {Promise<object>} Quick insights result
  */
-async function generateQuickInsights(riderData, forceRefresh, uid, budgetTier) {
+async function generateQuickInsights(riderData, forceRefresh, uid, budgetTier, ledger = null) {
   const hash = riderData.dataSnapshot?.hash;
 
   // Check cache. Quick Insights is regenerated weekly (maxAgeDays=7), so the
@@ -176,9 +183,10 @@ async function generateQuickInsights(riderData, forceRefresh, uid, budgetTier) {
     // Stale cache was previously causing celebration to never refresh.
   }
 
-  const { system, userMessage } = buildQuickInsightsPrompt(riderData);
+  const basePrompt = buildQuickInsightsPrompt(riderData);
+  const { system, userMessage } = ledger ? wrapWithLedger(basePrompt, ledger) : basePrompt;
 
-  const result = await callClaude({
+  let result = await callClaude({
     system,
     userMessage,
     jsonMode: true,
@@ -186,6 +194,8 @@ async function generateQuickInsights(riderData, forceRefresh, uid, budgetTier) {
     context: "coaching-quick-insights",
     uid,
   });
+
+  if (ledger) result = stripRecitationsDeep(result);
 
   // Cache
   await setCache(riderData.uid, INSIGHTS_OUTPUT_TYPE, result, {
@@ -434,6 +444,11 @@ async function handler(request) {
 
     const generatedAt = new Date().toISOString();
 
+    // Evidence Ledger (Phase 2) — computed ONCE per generation, shared across the
+    // 4 parallel voice calls + Quick Insights (never recomputed per voice). null
+    // when the flag is OFF → wrapWithLedger no-ops → byte-identical to control.
+    const ledger = await buildLedgerIfEnabled(uid, OUTPUT_TYPE, budgetTier);
+
     // Helper: collect all 4 stale voice cards + stale insights for the
     // graceful-exhaustion / partial-failure paths.
     const loadStaleCoaching = async () => {
@@ -450,7 +465,7 @@ async function handler(request) {
     // Generate quick insights only (for progressive voice rendering)
     if (quickInsightsOnly) {
       try {
-        const quickInsights = await generateQuickInsights(riderData, forceRefresh, uid, budgetTier);
+        const quickInsights = await generateQuickInsights(riderData, forceRefresh, uid, budgetTier, ledger);
         await persistInsightsSideExtracts(quickInsights, riderData, generatedAt);
         await clearLastRegenError(uid, OUTPUT_TYPE);
         return {
@@ -483,7 +498,7 @@ async function handler(request) {
     // Generate specific voice (no quick insights for single-voice requests)
     if (voiceIndex !== undefined && voiceIndex !== null) {
       try {
-        const voiceResult = await generateVoice(voiceIndex, riderData, forceRefresh, uid, budgetTier);
+        const voiceResult = await generateVoice(voiceIndex, riderData, forceRefresh, uid, budgetTier, ledger);
         // Re-extract the home page snapshot — even a single-voice refresh can
         // change what the rotation picks if that voice is in the featured pair.
         try {
@@ -567,11 +582,11 @@ async function handler(request) {
     // Generate all 4 voices + Quick Insights in parallel (5 calls)
     // Use Promise.allSettled so partial results can be returned if some voices fail
     results = await Promise.allSettled([
-      generateVoice(0, riderData, forceRefresh, uid, budgetTier),
-      generateVoice(1, riderData, forceRefresh, uid, budgetTier),
-      generateVoice(2, riderData, forceRefresh, uid, budgetTier),
-      generateVoice(3, riderData, forceRefresh, uid, budgetTier),
-      generateQuickInsights(riderData, forceRefresh, uid, budgetTier),
+      generateVoice(0, riderData, forceRefresh, uid, budgetTier, ledger),
+      generateVoice(1, riderData, forceRefresh, uid, budgetTier, ledger),
+      generateVoice(2, riderData, forceRefresh, uid, budgetTier, ledger),
+      generateVoice(3, riderData, forceRefresh, uid, budgetTier, ledger),
+      generateQuickInsights(riderData, forceRefresh, uid, budgetTier, ledger),
     ]);
     } finally {
       await releaseLock(uid, OUTPUT_TYPE);

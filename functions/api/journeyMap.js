@@ -19,6 +19,7 @@ const { wrapError } = require("../lib/errors");
 const { prepareRiderData } = require("../lib/prepareRiderData");
 const { callClaude } = require("../lib/claudeCall");
 const { buildJourneyMapPrompt } = require("../lib/promptBuilder");
+const { buildLedgerIfEnabled, wrapWithLedger, stripRecitations, stripRecitationsDeep } = require("../lib/evidenceLedger");
 const { getCache, setCache, getStaleCache } = require("../lib/cacheManager");
 const { getStatus: getGenStatus } = require("../lib/generationStatus");
 const { tryAcquireLock, releaseLock } = require("../lib/inflightLock");
@@ -204,12 +205,17 @@ async function handler(request) {
     }
 
     try {
+    // Evidence Ledger (Phase 2) — additive, flag-gated (config/evidenceLedger).
+    // null when OFF → wrapLedger is a no-op → byte-identical to control.
+    const ledger = await buildLedgerIfEnabled(uid, OUTPUT_TYPE, budgetTier);
+    const wrapLedger = (p) => (ledger ? wrapWithLedger(p, ledger) : p);
+
     // --- Call 1: Data Synthesis ---
-    const { system: sys1, userMessage: msg1 } = buildJourneyMapPrompt(
+    const { system: sys1, userMessage: msg1 } = wrapLedger(buildJourneyMapPrompt(
       1,
       riderData
-    );
-    const synthesis = await callClaude({
+    ));
+    let synthesis = await callClaude({
       system: sys1,
       userMessage: msg1,
       jsonMode: true,
@@ -217,6 +223,9 @@ async function handler(request) {
       context: "journey-map-synthesis",
       uid,
     });
+    // Recitation guard (Rule f backstop) — strip ledger vocabulary from the
+    // rider-facing synthesis before it feeds Calls 2/3 and the dashboard.
+    if (ledger) synthesis = stripRecitationsDeep(synthesis);
 
     // Write dashboardSummary to analysis doc (fire-and-forget alongside Calls 2 & 3)
     if (synthesis?.dashboardSummary) {
@@ -224,16 +233,16 @@ async function handler(request) {
     }
 
     // --- Calls 2 & 3 in parallel (both depend on Call 1, not each other) ---
-    const { system: sys2, userMessage: msg2 } = buildJourneyMapPrompt(
+    const { system: sys2, userMessage: msg2 } = wrapLedger(buildJourneyMapPrompt(
       2,
       riderData,
       { synthesis }
-    );
-    const { system: sys3, userMessage: msg3 } = buildJourneyMapPrompt(
+    ));
+    const { system: sys3, userMessage: msg3 } = wrapLedger(buildJourneyMapPrompt(
       3,
       riderData,
       { synthesis }
-    );
+    ));
 
     const [narrativeResult, visualizationResult] = await Promise.allSettled([
       callClaude({
@@ -272,9 +281,14 @@ async function handler(request) {
         new Error("Both narrative and visualization generation failed.");
     }
 
-    // Assemble complete result
+    // Assemble complete result. Recitation guard on the rider-facing narrative
+    // (visualization is structural — left untouched). synthesis was stripped above.
     const partialResults = !narrative || !visualization;
-    const result = { synthesis, narrative, visualization };
+    const result = {
+      synthesis,
+      narrative: ledger && typeof narrative === "string" ? stripRecitations(narrative) : narrative,
+      visualization,
+    };
 
     // Only cache complete results (don't cache partial)
     if (!partialResults) {
