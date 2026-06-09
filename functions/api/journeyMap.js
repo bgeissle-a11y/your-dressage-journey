@@ -19,7 +19,7 @@ const { wrapError } = require("../lib/errors");
 const { prepareRiderData } = require("../lib/prepareRiderData");
 const { callClaude } = require("../lib/claudeCall");
 const { buildJourneyMapPrompt } = require("../lib/promptBuilder");
-const { buildLedgerIfEnabled, wrapWithLedger, stripRecitations, stripRecitationsDeep } = require("../lib/evidenceLedger");
+const { buildLedgerIfEnabled, wrapWithLedger, stripRecitations, stripRecitationsDeep, detectStripDamage } = require("../lib/evidenceLedger");
 const { getCache, setCache, getStaleCache } = require("../lib/cacheManager");
 const { getStatus: getGenStatus } = require("../lib/generationStatus");
 const { tryAcquireLock, releaseLock } = require("../lib/inflightLock");
@@ -284,11 +284,12 @@ async function handler(request) {
     // Assemble complete result. Recitation guard on the rider-facing narrative
     // (visualization is structural — left untouched). synthesis was stripped above.
     const partialResults = !narrative || !visualization;
-    const result = {
-      synthesis,
-      narrative: ledger && typeof narrative === "string" ? stripRecitations(narrative) : narrative,
-      visualization,
-    };
+    const cleanedNarrative = ledger && typeof narrative === "string" ? stripRecitations(narrative) : narrative;
+    if (ledger && typeof cleanedNarrative === "string") {
+      const dmg = detectStripDamage(cleanedNarrative);
+      if (dmg.length) console.warn(`[journeyMap] recitation-guard integrity check flagged ${uid}: ${dmg.join(", ")}`);
+    }
+    const result = { synthesis, narrative: cleanedNarrative, visualization };
 
     // Only cache complete results (don't cache partial)
     if (!partialResults) {

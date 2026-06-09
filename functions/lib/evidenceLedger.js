@@ -786,29 +786,28 @@ function wrapWithLedger(base, block) {
 
 // ── Recitation guard (deterministic backstop for Rule (f)) ────────────────────
 
-// Conservative denylist scoped to LEDGER ARTIFACTS only. Deliberately does NOT
-// touch legitimate rider-facing numbers (dressage scores, dates, percentages,
-// the rider's own quoted figures). Each pattern targets a vocabulary the ledger
-// introduces and a rider would never see in good output.
+// FIXED-VOCABULARY denylist — LEDGER ARTIFACTS ONLY. Deliberately NO numeric
+// patterns: numbers are where a regex cannot tell a leaked ledger value from a
+// legitimate dressage score / effort value / percentage, so number recitation is
+// left entirely to prompt rule (f). This set is the NARROW backstop for the exact
+// internal vocabulary (f) might miss. Removal is clause-aware (see stripRecitations)
+// so excising one of these never leaves a broken sentence.
 const RECITATION_PATTERNS = [
   // Ledger state-machine label names.
-  { re: /\b(refinement[-\s]phase|progress[-\s]rising[-\s]demand|plateau[-\s]consolidation|thin[-\s]data)\b/gi, label: "state-name" },
-  // Internal axis labels.
+  { re: /\b(refinement[-\s]phase|progress[-\s]rising[-\s]demand|plateau[-\s]consolidation|thin[-\s]data|health[-\s]interruption)\b/gi, label: "state-name" },
+  // Internal axis labels ("Axis 1", "Axis-2").
   { re: /\bAxis[-\s]?[12]\b/gi, label: "axis-label" },
-  // Tier labels in the ledger's "Tier 1/2/3" sense.
+  // Ledger "Tier 1/2/3" labels.
   { re: /\bTier[-\s]?[123]\b/g, label: "tier-label" },
   // The scaffolding noun itself.
   { re: /\b(evidence )?ledger\b/gi, label: "ledger-noun" },
-  // Ledger deltas. "Δ -0.2" and the arrow form "0.8 → 1.5" are ledger-specific
-  // (riders don't write arrows), so strip those at any number. The "X to Y"
-  // form is ambiguous with legitimate integer ranges ("ride 4 to 6 transitions"),
-  // so it is only stripped when a side carries a DECIMAL ("5.1 to 7.5",
-  // "0.8 to 1.5") — the ledger's 0–10-scale signature. Bounded to <100 so it
-  // never matches dressage scores (60–75%) or years.
-  { re: /Δ\s*-?\d{1,2}(\.\d)?/g, label: "delta" },
-  { re: /\b\d{1,2}(\.\d)?\s*(?:→|->|–>)\s*\d{1,2}(\.\d)?\b/g, label: "scale-delta-arrow" },
-  { re: /\b\d{1,2}\.\d\s*to\s*\d{1,2}(\.\d)?\b|\b\d{1,2}(\.\d)?\s*to\s*\d{1,2}\.\d\b/g, label: "scale-delta-to" },
+  // Firestore-style internal IDs: 20-char tokens carrying upper+lower+digit.
+  { re: /\b(?=[A-Za-z0-9]{20}\b)(?=[A-Za-z0-9]*[a-z])(?=[A-Za-z0-9]*[A-Z])(?=[A-Za-z0-9]*\d)[A-Za-z0-9]{20}\b/g, label: "internal-id" },
 ];
+
+function hasBanned(s) {
+  return RECITATION_PATTERNS.some((p) => { p.re.lastIndex = 0; return p.re.test(s); });
+}
 
 /**
  * Detect ledger-vocabulary recitations in model output. Returns the list of
@@ -825,28 +824,69 @@ function detectRecitations(text) {
   return hits;
 }
 
+/** Split prose into sentences without breaking decimals or "St."-style abbreviations. */
+function splitSentences(text) {
+  return text.split(/(?<=[.!?])\s+(?=["'“(]?[A-Z])/);
+}
+
 /**
- * Strip ledger-vocabulary recitations from a rider-facing STRING. Conservative:
- * removes the offending fragment and tidies whitespace; leaves everything else
- * intact. Belt-and-suspenders with prompt rule (f), not a replacement.
+ * Strip ledger-vocabulary recitations CLAUSE-AWARE and STRUCTURE-PRESERVING.
  *
- * NOTE: applied only to free-text rider-facing fields. Callers must NOT run this
- * over structured/numeric fields where a "→" or "Tier" might be legitimate.
+ *  - Operates line by line; NEWLINES and markdown structure are PRESERVED (the
+ *    previous version collapsed \n\n into spaces and flattened the whole document).
+ *  - A heading line (#…) with a banned token: drop only the offending dash/colon-
+ *    separated clause; if nothing meaningful remains, drop the line — never a stub.
+ *  - A prose line with a banned token: drop the whole SENTENCE(s) containing it,
+ *    keep the rest. (Excising a token mid-sentence is what left fragments like
+ *    "demand. demand" / "No  or technical".)
+ *  - NO numeric stripping (rule (f) governs numbers). Only spaces/tabs are tidied,
+ *    never newlines.
+ *
+ * Applied only to free-text rider-facing fields.
  */
 function stripRecitations(text) {
   if (typeof text !== "string" || !text) return text;
-  let out = text;
-  for (const p of RECITATION_PATTERNS) {
-    out = out.replace(p.re, "");
+  const out = [];
+  for (const raw of text.split("\n")) {
+    if (!hasBanned(raw)) { out.push(raw); continue; }
+    const heading = raw.match(/^(\s{0,3}#{1,6}\s+)(.*)$/);
+    if (heading) {
+      const [, marker, title] = heading;
+      const kept = title.split(/\s+[—–-]\s+|:\s+/).filter((c) => c.trim() && !hasBanned(c)).join(" — ").trim();
+      if (kept) out.push(marker + kept); // else drop the heading line entirely
+    } else {
+      const kept = splitSentences(raw).filter((sn) => !hasBanned(sn)).join(" ").trim();
+      if (kept) out.push(kept); // else drop the line
+    }
   }
-  // Tidy artifacts left by removal: doubled spaces, space-before-punct, empty parens.
-  out = out
-    .replace(/\(\s*[,;:]?\s*\)/g, "")
-    .replace(/\s{2,}/g, " ")
-    .replace(/\s+([,.;:!?])/g, "$1")
-    .replace(/([([])\s+/g, "$1")
+  // Tidy spaces/tabs ONLY (never newlines); collapse 3+ blank lines to 2.
+  return out.join("\n")
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/[ \t]+([,.;:!?])/g, "$1")
+    .replace(/\n{3,}/g, "\n\n")
     .trim();
-  return out;
+}
+
+/**
+ * Post-strip integrity check (Rule-f backstop, fix #3). Flags output the guard
+ * may have damaged so callers can log/regenerate rather than ship mangled text.
+ * Returns a list of issue labels ([] = clean). With clause-aware stripping this
+ * should be empty; it's the safety net that catches the guard's own damage.
+ */
+function detectStripDamage(text) {
+  const s = String(text || "");
+  const issues = [];
+  // Dangling preposition immediately before punctuation ("dropped from,", "from.").
+  if (/\b(from|to|than|of|with|at|by|into|onto|for|as)\s*[.,;:]/i.test(s)) issues.push("dangling-preposition");
+  // Single-word (or empty) markdown heading — a stripped stub.
+  for (const h of s.match(/^#{1,6}\s+.*$/gm) || []) {
+    if (h.replace(/^#{1,6}\s+/, "").trim().split(/\s+/).filter(Boolean).length < 2) issues.push("short-heading");
+  }
+  // Orphaned brackets / bare ledger arrows.
+  if ((s.match(/\[/g) || []).length !== (s.match(/\]/g) || []).length) issues.push("orphaned-square-bracket");
+  if ((s.match(/\(/g) || []).length !== (s.match(/\)/g) || []).length) issues.push("orphaned-paren");
+  if (/→|–>|->/.test(s)) issues.push("bare-arrow");
+  return issues;
 }
 
 /**
@@ -945,6 +985,7 @@ module.exports = {
   detectRecitations,
   stripRecitations,
   stripRecitationsDeep,
+  detectStripDamage,
   RECITATION_PATTERNS,
   // exposed for tests / reuse
   deriveEvidenceTags,

@@ -19,7 +19,7 @@ process.env.GOOGLE_APPLICATION_CREDENTIALS =
 
 const {
   buildLedger, computeHorseCadence, deriveEvidenceTags, buildWindows,
-  detectRecitations, stripRecitations, stripRecitationsDeep, isLedgerEnabled,
+  detectRecitations, stripRecitations, stripRecitationsDeep, detectStripDamage, isLedgerEnabled,
 } = require("../lib/evidenceLedger");
 
 // ── fixture builders ─────────────────────────────────────────────────────────
@@ -178,40 +178,62 @@ test("reflections are rider-global (not horse-scoped) and stamped historical in 
 
 // ── recitation guard (Rule f backstop) ───────────────────────────────────────
 
-test("stripRecitations removes ledger vocabulary", () => {
-  const dirty = "The evidence ledger marks rising demand (Axis 1: 0.8 → 1.5). Your confidence rose from 5.1 to 7.5. This is a refinement-phase. Tier 1 sources confirm it. Δ -0.2 held.";
+test("stripRecitations removes ledger vocabulary clause-aware, keeps clean sentences + numbers", () => {
+  const dirty = "The evidence ledger marks rising demand (Axis 1: 0.8 to 1.5). Your confidence rose from 5.1 to 7.5. This is a refinement-phase. Tier 1 sources confirm it.";
   const clean = stripRecitations(dirty);
   assert.doesNotMatch(clean, /ledger/i);
   assert.doesNotMatch(clean, /Axis[-\s]?1/i);
   assert.doesNotMatch(clean, /refinement-phase/i);
   assert.doesNotMatch(clean, /Tier[-\s]?1/);
-  assert.doesNotMatch(clean, /\d\s*(→|to)\s*\d/);
-  assert.doesNotMatch(clean, /Δ/);
+  // the clean sentence (numbers and all) survives whole — no fragment
+  assert.match(clean, /Your confidence rose from 5\.1 to 7\.5\./);
+  assert.equal(detectStripDamage(clean).length, 0);
 });
 
-test("stripRecitations PRESERVES legitimate rider-facing numbers", () => {
-  const legit = "You scored 68% at Training Level on June 26. Ride a 20-meter circle and aim for three clean transitions in 2026.";
+test("stripRecitations PRESERVES legitimate rider-facing numbers (no numeric stripping)", () => {
+  const legit = "You scored 68% at Training Level on June 26. Ride a 20-meter circle and aim for 3 to 5 clean transitions in 2026. Effort dropped from 7.6 to 6.2 lately.";
   const out = stripRecitations(legit);
   assert.match(out, /68%/);
   assert.match(out, /20-meter/);
   assert.match(out, /June 26/);
-  assert.match(out, /three clean transitions/);
-  assert.match(out, /2026/);
+  assert.match(out, /3 to 5 clean transitions/);
+  assert.match(out, /7\.6 to 6\.2/); // numbers are rule (f)'s job now, NOT the strip's
 });
 
-test("detectRecitations reports specific labels", () => {
-  const hits = detectRecitations("Axis 2 shows a refinement-phase with Tier 3 evidence, 0.8 → 1.5.");
-  const labels = new Set(hits.map((h) => h.label));
+test("stripRecitations PRESERVES newlines + markdown structure", () => {
+  const md = "# Heading One\n\nFirst paragraph about Pony.\n\n## Heading Two\n\nSecond paragraph.";
+  const out = stripRecitations(md);
+  assert.equal(out, md); // no banned tokens → byte-identical, structure intact
+  assert.match(out, /\n\n## Heading Two\n\n/);
+});
+
+test("stripRecitations drops the whole SENTENCE not the token (no 'demand. demand' fragments)", () => {
+  const clean = stripRecitations("Axis-1 demand is rising. Pony improved his balance.");
+  assert.doesNotMatch(clean, /Axis/i);
+  assert.match(clean, /Pony improved his balance\./);
+  assert.equal(detectStripDamage(clean).length, 0);
+});
+
+test("stripRecitations drops a banned HEADING clause but keeps the date range", () => {
+  assert.equal(
+    stripRecitations("## Late February through Early May — The Refinement-Phase Begins"),
+    "## Late February through Early May"
+  );
+});
+
+test("detectRecitations reports fixed-vocabulary labels (no numeric labels)", () => {
+  const labels = new Set(detectRecitations("Axis 2 shows a refinement-phase with Tier 3 evidence.").map((h) => h.label));
   assert.ok(labels.has("axis-label"));
   assert.ok(labels.has("state-name"));
   assert.ok(labels.has("tier-label"));
-  assert.ok(labels.has("scale-delta-arrow"));
 });
 
-test("stripRecitations 'to' form: strips decimal deltas but preserves integer ranges", () => {
-  assert.doesNotMatch(stripRecitations("confidence rose from 5.1 to 7.5 lately"), /5\.1|7\.5/);
-  // legitimate integer range must survive
-  assert.match(stripRecitations("ride 4 to 6 clean transitions"), /4 to 6/);
+test("detectStripDamage flags fragments, short headings, orphaned brackets, bare arrows", () => {
+  assert.ok(detectStripDamage("your effort dropped from, meaning less").includes("dangling-preposition"));
+  assert.ok(detectStripDamage("## Mi").includes("short-heading"));
+  assert.ok(detectStripDamage("see the [Milestone reference here").includes("orphaned-square-bracket"));
+  assert.ok(detectStripDamage("riding → → 3 in trot").includes("bare-arrow"));
+  assert.equal(detectStripDamage("A perfectly clean sentence about Pony's balance.").length, 0);
 });
 
 test("stripRecitationsDeep walks objects/arrays, strips strings, leaves non-strings", () => {
