@@ -24,18 +24,30 @@ const COLLECTION = "analysisCache";
 const SCHEMA_VERSION = 1;
 
 /**
+ * Sanitize a free-text cache-key suffix (e.g. a horse name) into a
+ * Firestore-doc-id-safe token. Strips path/reserved chars and clamps length.
+ */
+function sanitizeSuffix(suffix) {
+  return String(suffix).trim().replace(/[/.#$[\]]+/g, "_").slice(0, 120);
+}
+
+/**
  * Build a deterministic document ID for a cache entry.
  *
  * @param {string} uid - User ID
  * @param {string} outputType - "coaching", "journeyMap", "grandPrixThinking"
  * @param {number} [voiceIndex] - For coaching, 0-3
+ * @param {string} [cacheKeySuffix] - Optional extra key segment (e.g. focal horse
+ *   for the per-horse Journey Map). Omitted ⇒ doc id is byte-identical to before,
+ *   preserving the flag-off / non-per-horse path exactly.
  * @returns {string} Document ID
  */
-function buildDocId(uid, outputType, voiceIndex) {
-  if (voiceIndex !== undefined && voiceIndex !== null) {
-    return `${uid}_${outputType}_${voiceIndex}`;
-  }
-  return `${uid}_${outputType}`;
+function buildDocId(uid, outputType, voiceIndex, cacheKeySuffix) {
+  let id = voiceIndex !== undefined && voiceIndex !== null
+    ? `${uid}_${outputType}_${voiceIndex}`
+    : `${uid}_${outputType}`;
+  if (cacheKeySuffix) id += `_${sanitizeSuffix(cacheKeySuffix)}`;
+  return id;
 }
 
 /**
@@ -57,11 +69,12 @@ function buildDocId(uid, outputType, voiceIndex) {
  * @param {number} [options.voiceIndex] - For coaching voice cache
  * @param {number} [options.maxAgeDays] - Maximum age in days before considered stale
  * @param {boolean} [options.applyBuffer] - Use buffer-based staleness (Lever 1)
+ * @param {string} [options.cacheKeySuffix] - Extra doc-id segment (per-horse JM)
  * @returns {Promise<object|null>}
  */
 async function getCache(uid, outputType, options = {}) {
-  const { currentHash, voiceIndex, maxAgeDays = 30, applyBuffer = false } = options;
-  const docId = buildDocId(uid, outputType, voiceIndex);
+  const { currentHash, voiceIndex, maxAgeDays = 30, applyBuffer = false, cacheKeySuffix } = options;
+  const docId = buildDocId(uid, outputType, voiceIndex, cacheKeySuffix);
 
   const docRef = db.collection(COLLECTION).doc(docId);
   const docSnap = await docRef.get();
@@ -121,9 +134,9 @@ async function getCache(uid, outputType, options = {}) {
  * @param {number} [metadata.voiceIndex] - For coaching voice cache
  */
 async function setCache(uid, outputType, result, metadata) {
-  const { dataSnapshotHash, dataSnapshotManifest, tierLabel, dataTier, voiceIndex, eventPrepHash } =
+  const { dataSnapshotHash, dataSnapshotManifest, tierLabel, dataTier, voiceIndex, eventPrepHash, cacheKeySuffix } =
     metadata;
-  const docId = buildDocId(uid, outputType, voiceIndex);
+  const docId = buildDocId(uid, outputType, voiceIndex, cacheKeySuffix);
 
   const cacheDoc = {
     userId: uid,
@@ -240,11 +253,12 @@ async function getAllCacheMetaForUser(uid) {
  * @param {string} [options.currentHash] - Current dataSnapshot hash to compare
  * @param {number} [options.voiceIndex] - For coaching voice cache
  * @param {number} [options.maxAgeDays] - Maximum age in days (default 30)
+ * @param {string} [options.cacheKeySuffix] - Extra doc-id segment (per-horse JM)
  * @returns {Promise<object|null>} Cached result with _stale flag, or null if too old/missing
  */
 async function getStaleCache(uid, outputType, options = {}) {
-  const { currentHash, voiceIndex, maxAgeDays = 30 } = options;
-  const docId = buildDocId(uid, outputType, voiceIndex);
+  const { currentHash, voiceIndex, maxAgeDays = 30, cacheKeySuffix } = options;
+  const docId = buildDocId(uid, outputType, voiceIndex, cacheKeySuffix);
 
   const docRef = db.collection(COLLECTION).doc(docId);
   const docSnap = await docRef.get();
@@ -276,4 +290,4 @@ async function getStaleCache(uid, outputType, options = {}) {
   return { ...data, _stale: isStale };
 }
 
-module.exports = { getCache, setCache, getStaleCache, getCacheMeta, getAllCacheMetaForUser };
+module.exports = { getCache, setCache, getStaleCache, getCacheMeta, getAllCacheMetaForUser, buildDocId };

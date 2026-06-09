@@ -19,7 +19,7 @@ const { wrapError } = require("../lib/errors");
 const { prepareRiderData } = require("../lib/prepareRiderData");
 const { callClaude } = require("../lib/claudeCall");
 const { buildJourneyMapPrompt } = require("../lib/promptBuilder");
-const { buildLedgerIfEnabled, wrapWithLedger, stripRecitations, stripRecitationsDeep, detectStripDamage } = require("../lib/evidenceLedger");
+const { buildLedgerIfEnabled, wrapWithLedger, stripRecitations, stripRecitationsDeep, detectStripDamage, getLedgerConfig, isLedgerEnabled, fetchLedgerRecords, pickFocalHorse } = require("../lib/evidenceLedger");
 const { getCache, setCache, getStaleCache } = require("../lib/cacheManager");
 const { getStatus: getGenStatus } = require("../lib/generationStatus");
 const { tryAcquireLock, releaseLock } = require("../lib/inflightLock");
@@ -97,16 +97,34 @@ async function backfillDashboardSummary(uid, summary) {
  * @returns {Promise<object>} Journey Map result
  */
 async function handler(request) {
+  // Hoisted so the catch block (graceful budget-exhaustion fallback) keys the
+  // per-horse cache correctly. undefined ⇒ legacy single-doc key (flag-off path).
+  let cacheKeySuffix;
   try {
     const uid = validateAuth(request);
     const sub = await enforceCapability(uid, CAPABILITIES.generateJourneyMap);
     const budgetTier = sub.isPilot ? "pilot" : tierFromLabel(sub.tier);
     const { forceRefresh = false, staleOk = false } = request.data || {};
 
+    // Per-horse Journey Map (flag-gated): when the evidence ledger is ON for this
+    // rider, the JM is scoped to one rider-selected focal horse and cached per
+    // horse. When OFF, requestedHorse is ignored and the doc id / behavior are
+    // byte-identical to before (whole-rider JM, single cache doc).
+    const requestedHorse = (request.data?.focalHorse || "").trim();
+    const ledgerConfig = await getLedgerConfig();
+    const ledgerOn = isLedgerEnabled(ledgerConfig, OUTPUT_TYPE, budgetTier, uid);
+    cacheKeySuffix = ledgerOn ? (requestedHorse || undefined) : undefined;
+
     // Fast path: return cached data immediately without preparing rider data.
     // Used by frontend two-phase load to show results instantly on mount.
     if (staleOk && !forceRefresh) {
-      const cached = await getStaleCache(uid, OUTPUT_TYPE, { maxAgeDays: 30 });
+      // Per-horse cache cannot be resolved on the fast path without records, and
+      // the client always supplies the focal horse once it knows it — so when the
+      // ledger is on but no horse was passed, skip straight to the full path.
+      if (ledgerOn && !requestedHorse) {
+        return { success: false, noCache: true };
+      }
+      const cached = await getStaleCache(uid, OUTPUT_TYPE, { maxAgeDays: 30, cacheKeySuffix });
       if (cached) {
         return {
           success: true,
@@ -125,6 +143,15 @@ async function handler(request) {
     const riderData = await prepareRiderData(uid, "journeyMap");
     const hash = riderData.dataSnapshot?.hash;
 
+    // When the ledger is on but the client didn't name a horse, resolve the
+    // default (most-active) focal horse up front so every cache read/write below
+    // keys to the same per-horse doc. Records are reused by the ledger build.
+    let ledgerRecords = null;
+    if (ledgerOn && !requestedHorse) {
+      ledgerRecords = await fetchLedgerRecords(uid);
+      cacheKeySuffix = pickFocalHorse(ledgerRecords) || undefined;
+    }
+
     // Check data tier
     if (riderData.dataTier < 1) {
       return {
@@ -142,7 +169,7 @@ async function handler(request) {
     // Check cache. Lever 1 (cache buffer) applies — Journey Map shares the
     // Multi-Voice staleness model per the brief.
     if (!forceRefresh) {
-      const cached = await getCache(uid, OUTPUT_TYPE, { currentHash: hash, applyBuffer: true });
+      const cached = await getCache(uid, OUTPUT_TYPE, { currentHash: hash, applyBuffer: true, cacheKeySuffix });
       if (cached) {
         // Backfill dashboardSummary if cache has synthesis but analysis doc is missing
         if (cached.result?.synthesis?.dashboardSummary) {
@@ -160,7 +187,7 @@ async function handler(request) {
       }
 
       // Stale-while-revalidate: return stale cache if available
-      const staleCache = await getStaleCache(uid, OUTPUT_TYPE, { currentHash: hash });
+      const staleCache = await getStaleCache(uid, OUTPUT_TYPE, { currentHash: hash, cacheKeySuffix });
       if (staleCache?._stale) {
         const genStatus = await getGenStatus(uid);
         return {
@@ -181,7 +208,7 @@ async function handler(request) {
     const gotLock = await tryAcquireLock(uid, OUTPUT_TYPE);
     if (!gotLock) {
       console.log(`[journeyMap] Another generation in flight for ${uid} — returning stale/regenerating response`);
-      const staleForContention = await getStaleCache(uid, OUTPUT_TYPE, { maxAgeDays: 90 });
+      const staleForContention = await getStaleCache(uid, OUTPUT_TYPE, { maxAgeDays: 90, cacheKeySuffix });
       if (staleForContention?.result) {
         return {
           success: true,
@@ -207,7 +234,17 @@ async function handler(request) {
     try {
     // Evidence Ledger (Phase 2) — additive, flag-gated (config/evidenceLedger).
     // null when OFF → wrapLedger is a no-op → byte-identical to control.
-    const ledger = await buildLedgerIfEnabled(uid, OUTPUT_TYPE, budgetTier);
+    // focalHorse = rider's selection (per-horse JM); falls back to most-active
+    // inside buildLedgerIfEnabled when absent. Reuse the config + records already
+    // read above so this adds no extra Firestore reads.
+    const ledger = await buildLedgerIfEnabled(uid, OUTPUT_TYPE, budgetTier, {
+      config: ledgerConfig,
+      focalHorse: requestedHorse || undefined,
+      records: ledgerRecords || undefined,
+    });
+    // Authoritative focal horse from the build governs the per-horse cache key
+    // (covers the no-horse default path resolved server-side).
+    if (ledger?.meta?.focalHorse) cacheKeySuffix = ledger.meta.focalHorse;
     const wrapLedger = (p) => (ledger ? wrapWithLedger(p, ledger) : p);
 
     // --- Call 1: Data Synthesis ---
@@ -289,7 +326,14 @@ async function handler(request) {
       const dmg = detectStripDamage(cleanedNarrative);
       if (dmg.length) console.warn(`[journeyMap] recitation-guard integrity check flagged ${uid}: ${dmg.join(", ")}`);
     }
-    const result = { synthesis, narrative: cleanedNarrative, visualization };
+    // focalHorse stamps the result so the client can sync its horse selector to
+    // the horse actually used (null ⇒ whole-rider JM, ledger off).
+    const result = {
+      synthesis,
+      narrative: cleanedNarrative,
+      visualization,
+      focalHorse: ledger ? ledger.meta.focalHorse : null,
+    };
 
     // Only cache complete results (don't cache partial)
     if (!partialResults) {
@@ -297,6 +341,7 @@ async function handler(request) {
         dataSnapshotHash: hash,
         tierLabel: riderData.tier?.label || "unknown",
         dataTier: riderData.dataTier,
+        cacheKeySuffix,
       });
     }
 
@@ -325,7 +370,7 @@ async function handler(request) {
     // Phase 4: budget exhaustion serves stale cache instead of throwing.
     if (isBudgetExceeded(error)) {
       try {
-        const staleCache = await getStaleCache(uid, OUTPUT_TYPE, { maxAgeDays: 90 });
+        const staleCache = await getStaleCache(uid, OUTPUT_TYPE, { maxAgeDays: 90, cacheKeySuffix });
         return await buildGracefulResponse({
           uid,
           err: error,

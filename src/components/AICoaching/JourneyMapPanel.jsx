@@ -1,5 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { getJourneyMap } from '../../services/aiService';
+import { getAllDebriefs } from '../../services';
+import { listHorsesByActivity } from '../../utils/focalHorse';
 import { readInflightLock } from '../../services/weeklyFocusService';
 import { useAuth } from '../../contexts/AuthContext';
 import { useEntitlements } from '../../hooks/useEntitlements';
@@ -13,6 +15,7 @@ import RegenErrorBanner from './RegenErrorBanner';
 import FreshnessStrip from './FreshnessStrip';
 import YDJLoading from '../YDJLoading';
 import CadenceStrip from '../InfoTip/CadenceStrip';
+import InfoTip from '../InfoTip/InfoTip';
 
 /**
  * Journey Map display panel with at-a-glance summary
@@ -32,7 +35,21 @@ export default function JourneyMapPanel({ generationStatus }) {
   const [isStale, setIsStale] = useState(false);
   const [budgetExhausted, setBudgetExhausted] = useState(null);
 
-  const fetchJourneyMap = useCallback(async ({ forceRefresh = false, staleOk = false } = {}) => {
+  // Per-horse Journey Map: horse options + the rider's current selection. The
+  // selector only renders once the backend confirms per-horse mode (data.focalHorse).
+  const [horses, setHorses] = useState([]);
+  const [selectedHorse, setSelectedHorse] = useState(null);
+  // Ref mirror so fetchJourneyMap reads the live selection without being
+  // recreated (and without stale-closure bugs) on every selection change.
+  const selectedHorseRef = useRef(null);
+  const setHorse = useCallback((name) => {
+    selectedHorseRef.current = name || null;
+    setSelectedHorse(name || null);
+  }, []);
+
+  const fetchJourneyMap = useCallback(async ({ forceRefresh = false, staleOk = false, focalHorse } = {}) => {
+    // Resolve the focal horse to send: explicit arg wins, else the live selection.
+    const horse = focalHorse !== undefined ? focalHorse : selectedHorseRef.current;
     // Stale-while-revalidate: keep existing data visible during refresh
     if ((forceRefresh || (data && !staleOk)) && data) {
       setRefreshing(true);
@@ -46,7 +63,7 @@ export default function JourneyMapPanel({ generationStatus }) {
     }
 
     try {
-      const result = await getJourneyMap({ forceRefresh, staleOk });
+      const result = await getJourneyMap({ forceRefresh, staleOk, focalHorse: horse || undefined });
 
       if (!result.success) {
         if (result.error === 'insufficient_data') {
@@ -62,6 +79,11 @@ export default function JourneyMapPanel({ generationStatus }) {
 
       setData(result);
       setIsStale(!!result.stale);
+      // Sync the selector to the horse the backend actually used (authoritative
+      // for the server-resolved default when the client didn't name one).
+      if (result.focalHorse && result.focalHorse !== selectedHorseRef.current) {
+        setHorse(result.focalHorse);
+      }
       if (result.cacheServed && result.capExceeded) {
         setBudgetExhausted({
           capExceeded: result.capExceeded,
@@ -113,12 +135,30 @@ export default function JourneyMapPanel({ generationStatus }) {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [data]);
+  }, [data, setHorse]);
 
-  // Phase 1: Fast cache fetch on mount
+  // Phase 1: load the rider's horses (for the per-horse selector + default),
+  // then do the fast cache fetch on mount. Computing the most-active default
+  // client-side keeps the per-horse cache key consistent with the server.
   useEffect(() => {
-    fetchJourneyMap({ staleOk: true });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!currentUser) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await getAllDebriefs(currentUser.uid);
+        const debriefs = (res?.success ? res.data : []) || [];
+        const names = listHorsesByActivity(debriefs);
+        if (cancelled) return;
+        setHorses(names);
+        if (names.length) setHorse(names[0]); // default = most-active
+      } catch (err) {
+        console.warn('[JourneyMap] horse list load failed:', err.message);
+      } finally {
+        if (!cancelled) fetchJourneyMap({ staleOk: true });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [currentUser]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // If a regeneration started in a previous tab or visit is still running
   // when we mount, surface the regenerating UI immediately. The polling
@@ -145,7 +185,7 @@ export default function JourneyMapPanel({ generationStatus }) {
         return;
       }
       try {
-        const result = await getJourneyMap({ staleOk: true });
+        const result = await getJourneyMap({ staleOk: true, focalHorse: selectedHorseRef.current || undefined });
         if (result?.success && !result.regenerating && !result.stale) {
           setData(result);
           setIsStale(false);
@@ -230,6 +270,24 @@ export default function JourneyMapPanel({ generationStatus }) {
 
   const { synthesis, narrative, visualization, generatedAt } = data;
 
+  // Per-horse mode is active only when the backend confirms a focal horse
+  // (i.e. the evidence ledger is on for this rider). Whole-rider JM → no selector.
+  const perHorse = !!data.focalHorse;
+  // Options = horses seen in debriefs, always including the server's focal horse
+  // (defensive: keeps the <select> value valid even if the lists ever diverge).
+  const horseOptions = data.focalHorse && !horses.includes(data.focalHorse)
+    ? [data.focalHorse, ...horses]
+    : horses;
+  const busy = loading || refreshing || regenerating;
+
+  const onSelectHorse = (name) => {
+    if (!name || name === selectedHorseRef.current) return;
+    setHorse(name);
+    // Cache-first: a previously generated horse loads instantly from its
+    // per-horse cache; a cold one regenerates. Keeps existing content visible.
+    fetchJourneyMap({ focalHorse: name });
+  };
+
   // Derive at-a-glance stats
   const timelineCount = visualization?.timeline_events?.length || 0;
   const themesCount = synthesis?.themes?.length || 0;
@@ -245,6 +303,27 @@ export default function JourneyMapPanel({ generationStatus }) {
           <p>A chronological story of your growth</p>
         </div>
         <div className="journey-map-panel__actions">
+          {perHorse && horseOptions.length > 1 && (
+            <div className="journey-map-panel__horse-select">
+              <span className="journey-map-panel__horse-label">
+                Select Your Focus Horse
+                <InfoTip
+                  content={<p>Your journey looks different with each horse. Select for highlights or your progress with that horse.</p>}
+                  ariaLabel="About selecting your focus horse"
+                />
+              </span>
+              <select
+                value={selectedHorse || data.focalHorse || ''}
+                onChange={(e) => onSelectHorse(e.target.value)}
+                disabled={busy || !canGenerate}
+                aria-label="Choose which horse's Journey Map to view"
+              >
+                {horseOptions.map((name) => (
+                  <option key={name} value={name}>{name}</option>
+                ))}
+              </select>
+            </div>
+          )}
           {generatedAt && (
             <span className={`panel-timestamp${isStale ? ' panel-timestamp--stale' : ''}`}>
               {(isStale && refreshing) || regenerating ? 'Updating... \u00B7 ' : ''}

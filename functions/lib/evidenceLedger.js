@@ -950,12 +950,14 @@ function isLedgerEnabled(config, output, tier, uid) {
  * @param {string} uid
  * @param {string} output  e.g. "journeyMap" | "coaching"
  * @param {string} tier    budget tier label (working/medium/extended/pilot)
- * @param {object} [opts]  { records?, focalHorse? } — pass prepareRiderData-fetched
- *   records to avoid a second read; otherwise the ledger fetches its own.
+ * @param {object} [opts]  { records?, focalHorse?, config? } — pass
+ *   prepareRiderData-fetched records to avoid a second read; pass an
+ *   already-read flag config to avoid a duplicate config read; pass focalHorse
+ *   to override the most-active auto-pick (per-horse Journey Map).
  */
 async function buildLedgerIfEnabled(uid, output, tier, opts = {}) {
   try {
-    const config = await getLedgerConfig();
+    const config = opts.config !== undefined ? opts.config : await getLedgerConfig();
     if (!isLedgerEnabled(config, output, tier, uid)) return null;
     const records = opts.records || (await fetchLedgerRecords(uid));
     const focalHorse = opts.focalHorse || pickFocalHorse(records);

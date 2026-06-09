@@ -340,6 +340,51 @@
   gap: 1rem;
 }
 
+/* Per-horse Journey Map selector */
+.journey-map-panel__horse-select {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.journey-map-panel__horse-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--brown, #8B7355);
+}
+
+.journey-map-panel__horse-select select {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.85rem;
+  color: var(--brown, #8B7355);
+  background: var(--cream, #FAF8F5);
+  border: 1px solid var(--border, #E0D5C7);
+  border-radius: 8px;
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
+}
+
+.journey-map-panel__horse-select select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .panel-timestamp {
   font-size: 0.82rem;
   color: #999;

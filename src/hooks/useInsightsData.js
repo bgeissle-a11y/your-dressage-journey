@@ -10,6 +10,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { getAllDebriefs, getAllReflections, getRiderProfile } from '../services';
 import { getJourneyMap } from '../services/aiService';
+import { pickMostActiveHorse } from '../utils/focalHorse';
 
 /* ── Color palettes ── */
 
@@ -350,7 +351,11 @@ export default function useInsightsData() {
         let aiGoals = [];
         let hasJourneyMap = false;
         try {
-          const jmResult = await getJourneyMap({ staleOk: true });
+          // Per-horse Journey Map: pass the most-active horse as the focal horse
+          // so per-horse riders read the same cache doc the JM panel defaults to.
+          // (Ignored server-side when the ledger is off — whole-rider JM.)
+          const focalHorse = pickMostActiveHorse(debriefs) || undefined;
+          const jmResult = await getJourneyMap({ staleOk: true, focalHorse });
           if (jmResult?.success !== false && jmResult) {
             hasJourneyMap = true;
             const syn = jmResult.synthesis || jmResult;
