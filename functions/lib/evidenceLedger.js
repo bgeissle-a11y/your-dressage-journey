@@ -876,8 +876,10 @@ function stripRecitations(text) {
 function detectStripDamage(text) {
   const s = String(text || "");
   const issues = [];
-  // Dangling preposition immediately before punctuation ("dropped from,", "from.").
-  if (/\b(from|to|than|of|with|at|by|into|onto|for|as)\s*[.,;:]/i.test(s)) issues.push("dangling-preposition");
+  // Dangling preposition before a COMMA/semicolon ("dropped from, meaning") — the
+  // signature of an excised value. NOT period/colon: a stranded preposition at a
+  // sentence END ("what you're looking for.", "whether you want to.") is valid English.
+  if (/\b(from|than|of|with|into|onto|as)\s*[,;]/i.test(s)) issues.push("dangling-preposition");
   // Single-word (or empty) markdown heading — a stripped stub.
   for (const h of s.match(/^#{1,6}\s+.*$/gm) || []) {
     if (h.replace(/^#{1,6}\s+/, "").trim().split(/\s+/).filter(Boolean).length < 2) issues.push("short-heading");
