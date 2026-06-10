@@ -971,6 +971,16 @@ async function buildLedgerIfEnabled(uid, output, tier, opts = {}) {
     return { directive: out.directive, ledger: out.ledger, meta: out.meta };
   } catch (err) {
     console.error(`[evidenceLedger] ${output} ${uid}: build failed — degrading to control:`, err.message);
+    // Surface the silent degrade to Sentry (E1) so a rider-facing fallback is
+    // visible in monitoring. Lazy-required + guarded so reporting can never
+    // break the degrade — returning null (control) is the contract.
+    try {
+      require("./sentry").captureException(err, {
+        level: "warning",
+        tags: { component: "evidenceLedger", output, degraded: "true" },
+        extra: { uid },
+      });
+    } catch { /* monitoring must not break the fallback */ }
     return null;
   }
 }

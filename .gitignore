@@ -110,3 +110,15 @@ videos/
 
 # Diagnostic harness generated outputs (keep harness, drop artifacts)
 scripts/repetition-diagnostic/out/
+
+# Evidence-layering: harness + PII-bearing rider data + one-off founder utilities
+# (intentionally local-only — never committed; copy individual files in if needed)
+experiments/
+transcripts/
+scripts/triggerScopedLedgerRefresh.cjs
+scripts/checkPerHorseJourneyMap.cjs
+
+# Local-only working notes / generated weekly artifacts
+CLD_June19_Poster_Sticker_Copy.md
+weekly-health-check-*.md
+ydj-weekly-health-check-*.html
