@@ -289,7 +289,8 @@ test("flag-off byte-stability: wrapWithLedger only PREPENDS; base preserved verb
   const { wrapWithLedger } = require("../lib/evidenceLedger");
   const base = { system: "BASE_SYSTEM_PROMPT", userMessage: "BASE_USER_MESSAGE" };
   // off path: the handler does `ledger ? wrap : base` — null ledger leaves base identical.
-  assert.strictEqual((null ? wrapWithLedger(base, {}) : base), base);
+  const ledgerOff = null;
+  assert.strictEqual(ledgerOff ? wrapWithLedger(base, {}) : base, base);
   // on path: base content is preserved as a verbatim suffix; only prepends added.
   const w = wrapWithLedger(base, { directive: "DIR\n", ledger: "LED" });
   assert.ok(w.system.endsWith("BASE_SYSTEM_PROMPT"));
