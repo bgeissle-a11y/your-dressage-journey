@@ -332,19 +332,36 @@ function deriveDemand(units, debriefs, rS, rE, bS, bE) {
  */
 function detectLayoff(healthEntries, recentStart, recentEnd, baselineStart) {
   const overlaps = (s, e, ws, we) => s <= we && e >= ws;
+  const maxDate = (a, b) => (a >= b ? a : b);
   const entries = (healthEntries || [])
     .filter((h) => h.issueType === "concern" || h.issueType === "emergency")
     .map((h) => {
       const start = (h.date || h.createdAt || "").slice(0, 10);
-      const end = (h.status === "resolved" && h.resolvedDate) ? String(h.resolvedDate).slice(0, 10) : recentEnd;
+      const resolved = h.status === "resolved" && h.resolvedDate;
+      // An UNRESOLVED interruption runs to the present. Anchor its end at the
+      // LATER of the recent-window end and its own start, so a lay-up that begins
+      // AFTER the last ride still has a forward (valid) span and is not dropped.
+      const end = resolved ? String(h.resolvedDate).slice(0, 10) : maxDate(recentEnd, start);
+      const ongoing = h.status !== "resolved";
       return {
         title: h.title || h.issueType, issueType: h.issueType, status: h.status || "ongoing",
-        severity: h.issueType === "emergency" ? "significant" : "moderate", start, end,
+        severity: h.issueType === "emergency" ? "significant" : "moderate", start, end, ongoing,
         overlapsRecent: !!start && overlaps(start, end, recentStart, recentEnd),
+        // CURRENT = an unresolved interruption reaching the present (end at/after
+        // the recent-window end), even if it postdates the last ride. This is the
+        // "horse is laid up right now" signal the output must surface.
+        current: ongoing && !!start && end >= recentEnd,
       };
     })
-    .filter((i) => i.start && overlaps(i.start, i.end, baselineStart, recentEnd));
-  return { active: entries.length > 0, overlapsRecent: entries.some((i) => i.overlapsRecent), entries };
+    // Keep anything overlapping the analyzed span PLUS any current interruption —
+    // a fresh post-last-ride lay-up would otherwise be invisible to the output.
+    .filter((i) => i.start && (overlaps(i.start, i.end, baselineStart, recentEnd) || i.current));
+  return {
+    active: entries.length > 0,
+    overlapsRecent: entries.some((i) => i.overlapsRecent),
+    current: entries.some((i) => i.current),
+    entries,
+  };
 }
 
 function buildWindows(records, units) {
@@ -653,9 +670,17 @@ function renderEvidenceLedger(windows, tagResult, triangulation, focalHorse) {
   if (w.health && w.health.active) {
     lines.push("— HEALTH / SOUNDNESS (LAYOFF marker) —");
     for (const i of w.health.entries) {
-      lines.push(`  LAYOFF [${i.severity}] ${i.title}: ${i.start} → ${i.end}${i.overlapsRecent ? "  (overlaps recent window)" : "  (baseline only)"}`);
+      const span = (i.current && !i.overlapsRecent) ? "  (CURRENT — ongoing, began after the last ride)"
+        : i.overlapsRecent ? "  (overlaps recent window)"
+          : i.current ? "  (ongoing)"
+            : "  (baseline only)";
+      lines.push(`  LAYOFF [${i.severity}] ${i.title}: ${i.start} → ${i.end}${span}`);
     }
-    lines.push("  Across this span: suppress 'declining'/'concern' reads — reduced rides/demand have a MEDICAL cause, not a plateau or regression. Orient toward return-to-work.");
+    const laidUpNow = w.health.entries.some((i) => i.current && !i.overlapsRecent);
+    if (laidUpNow) {
+      lines.push(`  CURRENT INTERRUPTION: ${horse} is on a soundness interruption RIGHT NOW, begun AFTER the most recent ride. Those rides describe work BEFORE the layoff — do NOT present that work as ${horse}'s present state. Lead with the current status, frame it as an interruption with a medical cause (not a plateau, regression, or loss of progress), and orient toward return-to-work.`);
+    }
+    lines.push("  Across any layoff span: suppress 'declining'/'concern' reads — reduced rides/demand have a MEDICAL cause, not a plateau or regression. Orient toward return-to-work.");
     lines.push("");
   }
   if (w.criticalIncidents.length) {

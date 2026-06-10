@@ -144,6 +144,27 @@ test("a concern resolved BEFORE the recent window does not suppress a current re
   assert.equal(buildLedger(r, "X").meta.state, "regression");
 });
 
+test("CURRENT lay-up that postdates the last ride is surfaced, not dropped (B4)", () => {
+  const gp = ["pirouette", "collection"];
+  const r = records({
+    base: BASE_DATES.map((date) => debrief({ date, horse: "X", q: 8, conf: 8, movements: gp })),
+    recent: RECENT_DATES.map((date) => debrief({ date, horse: "X", q: 8, conf: 8, movements: gp })),
+    // Ongoing concern dated AFTER the last ride (ASOF = 2026-06-01) — the fresh
+    // lay-up case. Before the fix its span was clamped backwards and dropped.
+    horseHealthEntries: [health({ date: "2026-06-06", horse: "X", issueType: "concern", status: "ongoing", title: "right fore lameness" })],
+  });
+  const out = buildLedger(r, "X");
+  const h = out.structured.windows.health;
+  assert.equal(h.active, true);
+  assert.equal(h.current, true);
+  const entry = h.entries.find((e) => e.title === "right fore lameness");
+  assert.ok(entry, "the post-last-ride ongoing concern must be present (not dropped)");
+  assert.equal(entry.current, true);
+  assert.equal(entry.overlapsRecent, false, "it postdates the rides → does not overlap recent RIDES");
+  assert.match(out.ledger, /CURRENT — ongoing, began after the last ride/);
+  assert.match(out.ledger, /on a soundness interruption RIGHT NOW/);
+});
+
 // ── cadence (Rule 2) ─────────────────────────────────────────────────────────
 
 test("computeHorseCadence: per-horse + rider aggregate + never-attribute flag", () => {
