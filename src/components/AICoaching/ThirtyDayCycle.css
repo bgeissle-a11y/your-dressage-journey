@@ -1050,6 +1050,36 @@
   color: var(--primary);
 }
 
+.path-chip.open {
+  border-color: var(--primary-border);
+  color: var(--primary);
+  background: var(--parchment-dark);
+}
+
+/* Inline static description revealed when an Other paths pill is expanded.
+   Unselected L1 paths have no generated content, so this is the full payload. */
+.path-chip-detail {
+  margin-top: 8px;
+  padding: 10px 14px;
+  border-radius: 9px;
+  background: var(--parchment);
+  border: 1px solid var(--parchment-dark);
+}
+
+.path-chip-desc {
+  margin: 0 0 6px;
+  font-size: 11.5px;
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+.path-chip-note {
+  margin: 0;
+  font-size: 10.5px;
+  color: var(--ink-light);
+  line-height: 1.5;
+}
+
 
 /* ── TRAJECTORY LINK BAR (GPT) ── */
 

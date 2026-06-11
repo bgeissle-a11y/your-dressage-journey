@@ -41,7 +41,7 @@ export default function TipsAndFaq() {
           <a href="#fresh-start">Fresh Start</a>
           <a href="#dashboard">Your Dashboard</a>
           <a href="#settings">Settings</a>
-          <a href="#learn">The Learn Section</a>
+          <a href="#learn">The Learn Menu</a>
           <a href="#tips">Habits That Compound</a>
           <a href="#faq">Frequently Asked Questions</a>
           <a href="#contact">Contact</a>
@@ -825,18 +825,10 @@ export default function TipsAndFaq() {
 
       {/* Learn */}
       <div className="tips-section" id="learn">
-        <h2>The Learn Section</h2>
+        <h2>The Learn Menu</h2>
         <p className="tips-welcome-text">
-          Reference material, deeper context, and the people (and books) behind the four coaching voices. The Learn area lives under its own group on the Dashboard.
+          The Learn menu collects everything on the platform that is about understanding rather than recording. Dressage Study holds the Arena Geometry Trainer, the Test Explorer, Meet Your Coaches, and Recommended Reading. Background holds Science &amp; Research, the evidence base behind how YDJ works. Reflections is a growing series of essays on the overlooked mental game of riding, beginning with &ldquo;Is Showing For Me?&rdquo; and &ldquo;Can How You Breathe Change How You Ride?&rdquo; New Reflections essays will be added over time, and they are open to share. You can send the links to anyone; no account is needed to read them.
         </p>
-
-        <ul className="tips-bullets">
-          <li><strong>Arena Geometry Trainer</strong>&mdash;letters, lines, and the geometry of the dressage arena.</li>
-          <li><strong>Test Explorer</strong>&mdash;browse the verified dressage test database. Movements, coefficients, scores, common errors. Useful for show prep and for understanding what comes next.</li>
-          <li><strong>Meet Your Coaches</strong>&mdash;the four voices in their own words. Personalities, lineages, what each one notices.</li>
-          <li><strong>Recommended Reading</strong>&mdash;the books your four coaches most often press into a rider&#39;s hands.</li>
-          <li><strong>Science &amp; Research</strong>&mdash;the learning theory behind the platform.</li>
-        </ul>
       </div>
 
       {/* Tips */}

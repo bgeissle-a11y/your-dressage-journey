@@ -172,6 +172,31 @@ When `currentWeek` advances from 1 to 2, the extraction re-runs server-side and 
 
 ---
 
+### Rule 3a: Mental Performance path display names = Fixed in the app, Not AI-named
+
+The three L1 path categories are fixed in `promptBuilder.js` (`pre_ride`, `in_saddle`, `resilience`). The AI still emits a per-cycle `title` for the selected path and each `otherPaths` entry, but those AI-generated labels drift between cycles, which makes the "Other paths" chips read as unstable and prevents documentation from naming the options. By the same guarantee-in-code principle as Rule 3, the rider-facing display name is owned by the application, not the model.
+
+Canonical names (resolved at render time in `GrandPrixPanel.jsx` via `PATH_DISPLAY_NAMES`, keyed on the path `id`):
+
+| Path id | Canonical display name |
+|---|---|
+| `pre_ride` | Pre-Ride Centering |
+| `in_saddle` | In-Saddle Presence |
+| `resilience` | Post-Struggle Recovery |
+
+The AI `title` field stays in the schema but is ignored for naming; it is only a defensive fallback if an unrecognized `id` ever appears. The AI-generated subtitle, week titles, assignments, and reasoning remain fully dynamic — only the category name is stable.
+
+**Unselected "Other paths" pills are static, not generated.** The slim L1 architecture generates content only for the selected path, so the other two pills have no document behind them. They must not navigate (they previously linked to the Training Trajectory tab, which is a different, L2 concept). Clicking a pill expands an inline, app-owned description (`PATH_DESCRIPTIONS`, keyed by path id) plus a standard "not selected this cycle" note. No AI generation is added for unselected paths; a per-cycle "why not this one" would be a future schema change, out of scope here.
+
+**Reasoning-card row label.** The AI Reasoning card row that surfaces the L1→L2 relationship is labeled "Supports your trajectory:" (the AI-generated `trajectoryLink` content is unchanged). This is the one place the relationship surfaces in the UI.
+
+**Verification test:**
+- Generate (or re-render) L1 across two different cycles in dev — the selected-path header and the "Other paths" chips show identical canonical names both times
+- The Mental Performance copy in the Coaching Outputs Guide names the three paths with these exact strings
+- Clicking an "Other paths" pill expands its static description inline and does not navigate anywhere; clicking again collapses it
+
+---
+
 ## Part 3: Tier System and Regeneration Rules
 
 ### 3A. Tier Definitions

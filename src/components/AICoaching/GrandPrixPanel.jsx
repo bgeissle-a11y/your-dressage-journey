@@ -28,12 +28,57 @@ import './ThirtyDayCycle.css';
  *   - weeklyAssignments extracted server-side from current week (Hard Rule 2)
  *   - 30-day cycle with week pointer advancement
  */
+
+/**
+ * Canonical, application-controlled display names for the three fixed L1
+ * mental-performance path categories (ids defined in promptBuilder.js).
+ * The AI generates a `title` for each path every cycle, but those labels drift
+ * between generations, which makes the "Other paths" chips read as unstable and
+ * leaves documentation unable to name the options. We adopt the names as
+ * permanent and resolve them at render time, the same guarantee-in-code
+ * principle as server-side weeklyAssignments extraction. The AI `title` is no
+ * longer used for naming; it is only a defensive fallback for an unknown id.
+ */
+const PATH_DISPLAY_NAMES = {
+  pre_ride: 'Pre-Ride Centering',
+  in_saddle: 'In-Saddle Presence',
+  resilience: 'Post-Struggle Recovery',
+};
+
+/**
+ * Static, application-owned descriptions for the three L1 paths, shown inline
+ * when a rider expands an "Other paths" pill. The slim L1 architecture only
+ * generates content for the selected path, so unselected pills have no AI
+ * content behind them — these descriptions plus the not-selected note are the
+ * entire payload. Keyed by normalized path id, same as PATH_DISPLAY_NAMES.
+ */
+const PATH_DESCRIPTIONS = {
+  pre_ride: 'How you arrive. Your preparation, intention, and nervous-system state in the minutes before you mount.',
+  in_saddle: 'What you can access while riding. Keeping your cues, awareness, and focus available in the moment instead of only in hindsight.',
+  resilience: 'What happens after it goes sideways. Recovering from setbacks within a ride and between rides without losing the thread.',
+};
+
+const PATH_NOT_SELECTED_NOTE = "Not selected this cycle. Your AI team selects the path with the most leverage in your recent data; the Why this path card above shows what drove this cycle's pick. A future cycle may select this path if your data shifts.";
+
+// Normalize an L1 path id (handles hyphen/underscore/spacing drift) so it keys
+// the PATH_DISPLAY_NAMES / PATH_DESCRIPTIONS maps reliably.
+function pathKey(path) {
+  return String(path?.id || '').toLowerCase().replace(/[\s-]+/g, '_');
+}
+
+function pathDisplayName(path) {
+  if (!path) return '';
+  return PATH_DISPLAY_NAMES[pathKey(path)] || path.title || path.id || '';
+}
+
 export default function GrandPrixPanel({ generationStatus }) {
   const ent = useEntitlements();
   const canGenerate = ent.can(CAPABILITIES.generateGrandPrixThinking);
   const canRegenerate = ent.can(CAPABILITIES.regenerateGrandPrixThinking);
   const { currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState('mental');
+  // Which "Other paths" pill is expanded (normalized path id), or null.
+  const [expandedPath, setExpandedPath] = useState(null);
 
   // Mental layer state
   const [mentalData, setMentalData] = useState(null);
@@ -709,7 +754,7 @@ export default function GrandPrixPanel({ generationStatus }) {
         <div className="hero-title">The mental game behind the movement</div>
         <div className="hero-sub">
           {mentalData?.generatedAt && <>Generated {formatDate(mentalData.generatedAt)}</>}
-          {mentalData?.selectedPath?.title && <> · Path selected: <strong>{mentalData.selectedPath.title}</strong></>}
+          {mentalData?.selectedPath && pathDisplayName(mentalData.selectedPath) && <> · Path selected: <strong>{pathDisplayName(mentalData.selectedPath)}</strong></>}
           {' · '}{cycleInfo?.maxWeeks || 4}-week program active
         </div>
         {renderCycleBar()}
@@ -833,21 +878,37 @@ export default function GrandPrixPanel({ generationStatus }) {
             </div>
             {sp.aiReasoning?.trajectoryLink && (
               <div className="traj-link-bar">
-                <strong>Trajectory link:</strong> {sp.aiReasoning.trajectoryLink}
+                <strong>Supports your trajectory:</strong> {sp.aiReasoning.trajectoryLink}
               </div>
             )}
             {sp.otherPaths?.length > 0 && (
-              <div className="other-paths-row">
-                <span className="other-paths-label">Other paths available:</span>
-                {sp.otherPaths.map(op => (
-                  <button
-                    key={op.id}
-                    className="path-chip"
-                    onClick={() => setActiveTab('trajectory')}
-                  >
-                    {op.icon} {op.title}
-                  </button>
-                ))}
+              <div className="other-paths">
+                <div className="other-paths-row">
+                  <span className="other-paths-label">Other paths:</span>
+                  {sp.otherPaths.map(op => {
+                    const key = pathKey(op);
+                    const isOpen = expandedPath === key;
+                    return (
+                      <button
+                        key={op.id}
+                        type="button"
+                        className={`path-chip ${isOpen ? 'open' : ''}`}
+                        aria-expanded={isOpen}
+                        onClick={() => setExpandedPath(isOpen ? null : key)}
+                      >
+                        {op.icon} {pathDisplayName(op)}
+                      </button>
+                    );
+                  })}
+                </div>
+                {expandedPath && sp.otherPaths.some(op => pathKey(op) === expandedPath) && (
+                  <div className="path-chip-detail">
+                    {PATH_DESCRIPTIONS[expandedPath] && (
+                      <p className="path-chip-desc">{PATH_DESCRIPTIONS[expandedPath]}</p>
+                    )}
+                    <p className="path-chip-note">{PATH_NOT_SELECTED_NOTE}</p>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -1031,7 +1092,7 @@ export default function GrandPrixPanel({ generationStatus }) {
             <span className="pill-dot dot-gold" />
             Training Trajectory
           </span>
-          <span className="section-note">Monthly · 3 paths · Choose your direction</span>
+          <span className="section-note">Monthly · 3 paths · your Best Fit, explained</span>
         </div>
 
         {/* B12: Resume banner — surfaces a partial step-1 cache from a prior
@@ -1171,7 +1232,7 @@ export default function GrandPrixPanel({ generationStatus }) {
             <div className="section-label-row" style={{ marginTop: 8 }}>
               <span className="section-pill pill-body">
                 <span className="pill-dot dot-body" />
-                Other Paths Available
+                Other Paths
               </span>
               <span className="section-note">Tap to explore</span>
             </div>

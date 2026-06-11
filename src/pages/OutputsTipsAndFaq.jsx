@@ -17,7 +17,7 @@ export default function OutputsTipsAndFaq() {
       <div className="tips-section">
         <h2>On This Page</h2>
         <p className="tips-text-block">
-          Your data becomes coaching intelligence through a suite of AI-powered analyses. Every output is built from your specific rides, horses, goals, and language&mdash;not generic advice. This guide explains what the platform creates, when it appears, and how to read it. The companion <Link to="/tips-and-faq">Forms Guide</Link> covers the forms, tools, and settings that feed everything.
+          Your data becomes coaching intelligence through a suite of AI-powered analyses. Every output is built from your specific rides, horses, goals, and language&mdash;not generic advice. This guide explains what the platform creates, when it appears, and how to read it. The companion <Link to="/tips-and-faq">Forms Guide</Link> covers the forms, tools, and settings that feed everything. Educational content, including the Reflections essay series, lives under the Learn menu.
         </p>
         <nav className="tips-toc">
           <a href="#overview">Your Outputs at a Glance</a>
@@ -381,31 +381,25 @@ export default function OutputsTipsAndFaq() {
         <p>Grand Prix Thinking operates as a full 30-day program. A single generation produces your entire cycle&mdash;four weeks of content, sequenced so each week builds on the last. Your dashboard advances week-by-week as you work through the cycle.</p>
 
         <h3>Two views, one dashboard</h3>
-        <p>Grand Prix Thinking gives you two complementary views, accessible via tabs. You can move between &ldquo;what do I practice today&rdquo; and &ldquo;where is all this taking me&rdquo; without losing your place.</p>
+        <p>Grand Prix Thinking answers two different questions on two tabs. Mental Performance answers &ldquo;what do I practice this cycle?&rdquo; Training Trajectory answers &ldquo;where is all this taking me?&rdquo; They run on independent cycles and are generated separately.</p>
         <div className="outputs-layer-compare">
           <div className="outputs-layer-box outputs-layer-1">
             <h4>Mental Performance</h4>
-            <p>&ldquo;What do I practice today?&rdquo;</p>
-            <p className="outputs-layer-sub">A single path is selected for your cycle from three options based on what your data shows you need:</p>
-            <ul>
-              <li><strong>Pre-Ride</strong>&mdash;preparation, visualization, focus</li>
-              <li><strong>In-Saddle</strong>&mdash;real-time mental strategies</li>
-              <li><strong>Resilience</strong>&mdash;bouncing back from setbacks</li>
-            </ul>
-            <p className="outputs-layer-note">Each path includes the pattern the AI sees in your data, the mental shift it recommends, this week&#39;s specific practice, and a success metric so you know if it&#39;s working.</p>
+            <p>&ldquo;What do I practice this cycle?&rdquo;</p>
+            <p className="outputs-layer-sub">Each 30-day cycle, your AI coaching team reviews your recent debriefs, lesson notes, and self-assessment and selects one of three mental performance paths: Pre-Ride Centering (your preparation and arrival state before you mount), In-Saddle Presence (your focus and mental access during the ride), or Post-Struggle Recovery (how you recover from setbacks and difficult rides). The &ldquo;Why this path, this cycle&rdquo; card shows you the exact pattern in your data that drove the selection, and the other two paths appear beneath it so you can see what was considered.</p>
+            <p className="outputs-layer-note">The selected path is a 4-week program: each week has a focus, three specific assignments built from your own data and your instructor&#39;s cues, and a success metric you can observe in your debriefs. The same assignments appear word for word on your Weekly Focus page, so you are never reconciling two versions of your homework. When your cycle ends, you can renew anytime and the AI re-selects based on what your data shows then. The same path may be selected again if it is still where the leverage is.</p>
           </div>
           <div className="outputs-layer-box outputs-layer-2">
             <h4>Training Trajectory</h4>
             <p>&ldquo;Where is all this taking me?&rdquo;</p>
-            <p className="outputs-layer-sub">Three long-view paths are generated together so you can compare and choose what fits where you are:</p>
-            <ul>
-              <li><strong>Ambitious Competitor</strong>&mdash;push toward your next level with appropriate timelines</li>
-              <li><strong>Steady Builder</strong>&mdash;deepen current level, no rush</li>
-              <li><strong>Curious Explorer</strong>&mdash;broaden skills laterally rather than vertically</li>
-            </ul>
-            <p className="outputs-layer-note">Each trajectory includes your current position, 3&ndash;6 month milestones, the building blocks that connect today&#39;s work to that horizon, and a realistic timeline projection that respects the level-progression guardrails.</p>
+            <p className="outputs-layer-sub">Three long-view paths are generated together so you can see your full landscape: Ambitious Competitor (push toward your next level with appropriate timelines), Steady Builder (deepen current level, no rush), and Curious Explorer (broaden skills laterally rather than vertically). Your AI coaching team selects the path that best fits your current data, drawing on your stated goals, your competition calendar, your confidence trend, and your level readiness, and tells you why in the &ldquo;Why this trajectory&rdquo; section. The other two paths stay visible so you can see what the alternatives would look like.</p>
+            <p className="outputs-layer-note">Each trajectory includes your current position, 3 to 6 month milestones, the building blocks that connect today&#39;s work to that horizon, and a realistic timeline projection that respects the level-progression guardrails. The active path is reassessed monthly, or sooner when your goals or assessments change.</p>
           </div>
         </div>
+
+        <h3>How do the two tabs relate?</h3>
+        <p>Training Trajectory sets the direction; Mental Performance does the near-term work in service of it. Every cycle, the mental performance path is selected under a hard rule: it must support your active trajectory. You can see this connection on the &ldquo;Supports your trajectory&rdquo; line of the Why this path card, which names how this cycle&#39;s mental work feeds your long-view path. The two run on independent cycles, so a new trajectory does not immediately replace your current mental performance program; the alignment is applied at the next selection. The three mental performance paths (Pre-Ride Centering, In-Saddle Presence, Post-Struggle Recovery) and the three trajectories (Ambitious Competitor, Steady Builder, Curious Explorer) are different kinds of things: the first are skills you practice this month, the second are directions your training can head over seasons. Any mental performance path can serve any trajectory.</p>
+
         <p>Everything in Grand Prix Thinking is personalized. Your affirmations use your own language&mdash;pulled from your reflections and Rider Self-Assessment. Your self-talk scripts address your actual negative patterns. Horse-specific strategies exist for every horse in your profile. Each path includes a coaching voice annotation from the voice most natural to that focus.</p>
         <div className="tips-tip-box">
           <h4>Unlocking deeper personalization</h4>
@@ -647,7 +641,7 @@ export default function OutputsTipsAndFaq() {
 
         <details className="tips-faq">
           <summary>What&#39;s the difference between Mental Performance and Training Trajectory in Grand Prix Thinking?</summary>
-          <p><strong>Mental Performance</strong> is your daily toolkit&mdash;a single path selected for your current 30-day cycle (Pre-Ride, In-Saddle, or Resilience) with concrete exercises and success metrics. It answers &ldquo;what do I practice today?&rdquo; <strong>Training Trajectory</strong> maps three long-view paths (Ambitious Competitor, Steady Builder, Curious Explorer) with milestones, building blocks, and realistic timeline projections. It answers &ldquo;where is all this taking me?&rdquo; Both live on the same dashboard with tabs to switch between them.</p>
+          <p><strong>Mental Performance</strong> is your daily toolkit&mdash;a single path selected for your current 30-day cycle (Pre-Ride Centering, In-Saddle Presence, or Post-Struggle Recovery) with concrete exercises and success metrics. It answers &ldquo;what do I practice today?&rdquo; <strong>Training Trajectory</strong> maps three long-view paths (Ambitious Competitor, Steady Builder, Curious Explorer) with milestones, building blocks, and realistic timeline projections. It answers &ldquo;where is all this taking me?&rdquo; Both live on the same dashboard with tabs to switch between them.</p>
         </details>
 
         <details className="tips-faq">

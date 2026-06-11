@@ -268,9 +268,20 @@ export default function AppLayout() {
 
         <div className="nav-spacer" />
 
-        {/* Help — direct link */}
-        <div className="nav-item">
-          <Link to="/tips-and-faq" className={`nav-btn nav-help${isActive('/tips-and-faq') ? ' active' : ''}`}>? Help</Link>
+        {/* Help — dropdown housing both documentation guides */}
+        <div className="nav-item has-dd nav-help-item">
+          <button className={`nav-btn nav-help${(isActive('/tips-and-faq') || isActive('/outputs-tips-and-faq')) ? ' active' : ''}`}>
+            ? Help <span className="nav-caret">&#9662;</span>
+          </button>
+          <div className="nav-dd">
+            <div className="dd-section-label">Documentation</div>
+            <Link to="/tips-and-faq" className="dd-link">
+              <span className="dd-icon">&#x1F4D8;</span> Forms &amp; Tools Guide
+            </Link>
+            <Link to="/outputs-tips-and-faq" className="dd-link">
+              <span className="dd-icon">&#x1F4CA;</span> Coaching Outputs Guide
+            </Link>
+          </div>
         </div>
 
         {/* Theme toggle */}

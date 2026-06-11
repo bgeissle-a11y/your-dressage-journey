@@ -50,7 +50,7 @@ TRAJECTORY ALIGNMENT RULE (CRITICAL):
 
 You have been provided with the rider's active Training Trajectory path 
 (from the cached Grand Prix Thinking L2 document). This is the direction 
-the rider has self-selected or been recommended for their long-term development.
+the rider has been recommended for their long-term development.
 
 Your Mental Performance path selection and framing MUST support this trajectory:
 

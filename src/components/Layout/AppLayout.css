@@ -140,6 +140,10 @@
 .nav-item:hover .nav-dd,
 .nav-item.open .nav-dd { display: block; }
 
+/* Help sits on the right of the bar — anchor its dropdown to the right edge
+   so the panel opens inward instead of overflowing the viewport. */
+.nav-help-item .nav-dd { left: auto; right: 0; }
+
 .dd-section-label {
   font-size: 0.54rem; font-weight: 700; letter-spacing: 2px;
   text-transform: uppercase;
