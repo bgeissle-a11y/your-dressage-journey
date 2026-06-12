@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { AuthProvider } from './contexts/AuthContext';
 import { SettingsProvider } from './contexts/SettingsContext';
 import PrivateRoute from './components/Auth/PrivateRoute';
+import SubscriptionGate from './components/Auth/SubscriptionGate';
 import AppLayout from './components/Layout/AppLayout';
 import { initGA4, trackPageView } from './analytics';
 import { purgeLegacyRecoveryKeys } from './hooks/useFormRecovery';
@@ -119,8 +120,10 @@ function App() {
           <Route path="/signin" element={<SignIn />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
-          {/* Protected Routes - wrapped in AppLayout */}
-          <Route element={<PrivateRoute><AppLayout /></PrivateRoute>}>
+          {/* Protected Routes - wrapped in AppLayout.
+              PrivateRoute enforces auth + email verification; SubscriptionGate
+              redirects accounts with no subscription relationship to /pricing. */}
+          <Route element={<PrivateRoute><SubscriptionGate><AppLayout /></SubscriptionGate></PrivateRoute>}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/insights" element={<Insights />} />
             {/* Old standalone Insights URL — now folded into AI Coaching tabs */}

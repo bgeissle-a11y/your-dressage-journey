@@ -49,12 +49,16 @@ const microDebrief = require("./api/microDebrief");
 const freshStart = require("./api/freshStart");
 const showPlannerBiweeklyContent = require("./api/showPlannerBiweeklyContent");
 const stripeLapseJob = require("./api/stripeLapseJob");
+const signupNotification = require("./api/signupNotification");
 
 // Secrets — declared once, referenced by all functions that need them
 const anthropicKey = defineSecret("ANTHROPIC_API_KEY");
 const stripeSecretKey = defineSecret("STRIPE_SECRET_KEY");
 const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
 const showPlannerBiweeklyEnabled = defineSecret("SHOW_PLANNER_BIWEEKLY_ENABLED");
+// SMTP transport for transactional/notification mail (Google Workspace).
+const smtpUser = defineSecret("SMTP_USER");
+const smtpPassword = defineSecret("SMTP_PASSWORD");
 
 // --- Health check / smoke test ---
 exports.ping = onCall((request) => {
@@ -372,6 +376,17 @@ exports.onMicroDebriefSubmit = onDocumentCreated(
 exports.onFreshStartSubmit = onDocumentCreated(
   { document: "freshStarts/{docId}", secrets: [anthropicKey], timeoutSeconds: 60, memory: "256MiB" },
   freshStart.onSubmit
+);
+
+// --- Founder signup notification ---
+//
+// Fires when a users/{userId} doc is first created (i.e. a new account). Emails
+// Barb so no signup is invisible — including accounts that never reach
+// checkout. Fires on ACCOUNT creation, not subscription creation. Never throws
+// in a way that affects the signup; mail failures go to Sentry.
+exports.onUserSignup = onDocumentCreated(
+  { document: "users/{userId}", secrets: [smtpUser, smtpPassword], timeoutSeconds: 60, memory: "256MiB" },
+  signupNotification.onUserCreated
 );
 
 // --- Stripe Subscription & Billing ---
